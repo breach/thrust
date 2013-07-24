@@ -1,9 +1,8 @@
-// Copyright (c) 2013 Stanislas Polu
-// Copyright (c) 2012 The Chromium Authors
+// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "content/nw/src/shell_content_main.h"
-
+#include "breach/app/breach_main_mac.h"
 #include "content/public/app/content_main.h"
 #include "breach/app/shell_main_delegate.h"
 

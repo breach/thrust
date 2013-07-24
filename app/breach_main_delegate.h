@@ -1,23 +1,26 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2012 The Chromium Authors.
+// See the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_MAIN_DELEGATE_H_
-#define CONTENT_SHELL_SHELL_MAIN_DELEGATE_H_
+#ifndef BREACH_BREACH_MAIN_DELEGATE_H_
+#define BREACH_BREACH_MAIN_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/app/content_main_delegate.h"
+/* TODO(spolu): create BreachContentClient and all common files */
 #include "content/shell/common/shell_content_client.h"
 
-namespace content {
-class ShellContentBrowserClient;
+namespace breach {
+
+class BreachContentBrowserClient;
+/* TODO(spolu): renaming post file creation */
 class ShellContentRendererClient;
 
-class ShellMainDelegate : public ContentMainDelegate {
+class BreachMainDelegate : public content::ContentMainDelegate {
  public:
-  ShellMainDelegate();
-  virtual ~ShellMainDelegate();
+  BreachMainDelegate();
+  virtual ~BreachMainDelegate();
 
   // ContentMainDelegate implementation:
   virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
@@ -31,13 +34,14 @@ class ShellMainDelegate : public ContentMainDelegate {
   static void InitializeResourceBundle();
 
  private:
-  scoped_ptr<ShellContentBrowserClient> browser_client_;
+  scoped_ptr<BreachContentBrowserClient> browser_client_;
+  /* TODO(spolu): renaming post file creation */
   scoped_ptr<ShellContentRendererClient> renderer_client_;
   ShellContentClient content_client_;
 
-  DISALLOW_COPY_AND_ASSIGN(ShellMainDelegate);
+  DISALLOW_COPY_AND_ASSIGN(BreachMainDelegate);
 };
 
-}  // namespace content
+}  // namespace breach
 
-#endif  // CONTENT_SHELL_SHELL_MAIN_DELEGATE_H_
+#endif  // BREACH_BREACH_MAIN_DELEGATE_H_

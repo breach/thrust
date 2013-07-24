@@ -1,8 +1,8 @@
-// Copyright (c) 2013 Stanislas Polu. All rights reserved.
+// Copyright (c) 2013 Stanislas Polu.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "breach/app/shell_main_delegate.h"
+#include "breach/app/breach_main_delegate.h"
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -22,7 +22,7 @@
 
 #include "third_party/node/src/node_version.h"
 
-/* TODO(spolu): Create these files */
+/* TODO(spolu): Create these files + renaming */
 #include "breach/common/shell_switches.h"
 /* TODO(spolu): NW */
 //#include "content/nw/src/nw_version.h"
@@ -53,10 +53,13 @@
 #include "base/logging_win.h"
 #endif  // OS_WIN
 
+using namespace content;
+
 namespace {
 
 #if defined(OS_WIN)
-// If "Content Shell" doesn't show up in your list of trace providers in
+/* TODO(spolu): Create Key for Breach */
+// If "Breach" doesn't show up in your list of trace providers in
 // Sawbuck, add these registry entries to your machine (NOTE the optional
 // Wow6432Node key for x64 machines):
 // 1. Find:  HKLM\SOFTWARE\[Wow6432Node\]Google\Sawbuck\Providers
@@ -64,10 +67,10 @@ namespace {
 // 3. Add these values:
 //    "default_flags"=dword:00000001
 //    "default_level"=dword:00000004
-//    @="Content Shell"
+//    @="Breach"
 
 // {6A3E50A4-7E15-4099-8413-EC94D8C2A4B6}
-const GUID kContentShellProviderName = {
+const GUID kBreachProviderName = {
     0x6a3e50a4, 0x7e15, 0x4099,
         { 0x84, 0x13, 0xec, 0x94, 0xd8, 0xc2, 0xa4, 0xb6 } };
 #endif
@@ -86,18 +89,18 @@ void InitLogging() {
 
 }  // namespace
 
-namespace content {
+namespace breach {
 
-ShellMainDelegate::ShellMainDelegate() {
+BreachMainDelegate::BreachMainDelegate() {
 }
 
-ShellMainDelegate::~ShellMainDelegate() {
+BreachMainDelegate::~BreachMainDelegate() {
 }
 
-bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
+bool BreachMainDelegate::BasicStartupComplete(int* exit_code) {
 #if defined(OS_WIN)
   // Enable trace control and transport through event tracing for Windows.
-  logging::LogEventProvider::Initialize(kContentShellProviderName);
+  logging::LogEventProvider::Initialize(kBreachProviderName);
 #endif
 
 #if defined(OS_MACOSX)
@@ -111,27 +114,28 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
   /* TODO(spolu): TO REMOVE? */
   //net::CookieMonster::EnableFileScheme();
 
-  SetContentClient(&content_client_);
+  SetContentClient(&breach_content_client_);
   return false;
 }
 
-void ShellMainDelegate::PreSandboxStartup() {
+void BreachMainDelegate::PreSandboxStartup() {
   InitializeResourceBundle();
 }
 
-int ShellMainDelegate::RunProcess(
+int BreachMainDelegate::RunProcess(
     const std::string& process_type,
     const MainFunctionParams& main_function_params) {
   if (!process_type.empty())
     return -1;
 
   browser_runner_.reset(BrowserMainRunner::Create());
+  /* TODO(spolu): renaming post file creation */
   return ShellBrowserMain(main_function_params, browser_runner_);
   /* TODO(spolu): NW */
   //return ShellBrowserMain(main_function_params);
 }
 
-void ShellMainDelegate::InitializeResourceBundle() {
+void BreachMainDelegate::InitializeResourceBundle() {
   base::FilePath pak_file;
 #if defined(OS_MACOSX)
   pak_file = GetResourcesPakFilePath();
@@ -143,14 +147,16 @@ void ShellMainDelegate::InitializeResourceBundle() {
   ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
 }
 
-ContentBrowserClient* ShellMainDelegate::CreateContentBrowserClient() {
+ContentBrowserClient* BreachMainDelegate::CreateContentBrowserClient() {
+  /* TODO(spolu): renaming post file creation */
   browser_client_.reset(new ShellContentBrowserClient);
   return browser_client_.get();
 }
 
-ContentRendererClient* ShellMainDelegate::CreateContentRendererClient() {
+ContentRendererClient* BreachMainDelegate::CreateContentRendererClient() {
+  /* TODO(spolu): renaming post file creation */
   renderer_client_.reset(new ShellContentRendererClient);
   return renderer_client_.get();
 }
 
-}  // namespace content
+}  // namespace breach
