@@ -4,12 +4,12 @@
 
 #include "breach/app/breach_main_mac.h"
 #include "content/public/app/content_main.h"
-#include "breach/app/shell_main_delegate.h"
+#include "breach/app/breach_main_delegate.h"
 
 #if defined(OS_MACOSX)
 int ContentMain(int argc,
                 const char** argv) {
-  content::ShellMainDelegate delegate;
+  breach::BreachMainDelegate delegate;
   return content::ContentMain(argc, argv, &delegate);
 }
 #endif  // OS_MACOSX

@@ -9,50 +9,48 @@
       'target_name': 'breach_lib',
       'type': 'shared_library',
       'defines!': ['CONTENT_IMPLEMENTATION'],
-      'defines': ['BREACH_SHELL_VERSION="<(breach_version)"'],
+      'defines': ['BREACH_VERSION="<(breach_version)"'],
       'variables': {
         'chromium_code': 1,
       },
       'dependencies': [
-        '../content/content.gyp:content_app',
-        '../content/content.gyp:content_browser',
-        '../content/content.gyp:content_common',
-        '../content/content.gyp:content_gpu',
-        '../content/content.gyp:content_plugin',
-        '../content/content.gyp:content_ppapi_plugin',
-        '../content/content.gyp:content_renderer',
-        '../content/content.gyp:content_utility',
-        '../content/content.gyp:content_worker',
-        '../content/content.gyp:content_resources.gyp:content_resources',
-        '../base/base.gyp:base',
-        '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
-        '../ipc/ipc.gyp:ipc',
-        '../media/media.gyp:media',
-        '../net/net.gyp:net',
-        '../net/net.gyp:net_resources',
-        '../skia/skia.gyp:skia',
-        '../third_party/WebKit/public/all.gyp:blink_testing',
-        '../ui/gl/gl.gyp:gl',
-        '../ui/ui.gyp:ui',
-        '../url/url.gyp:url_lib',
-        '../v8/tools/gyp/v8.gyp:v8',
-        '../webkit/support/webkit_support.gyp:webkit_resources',
-        '../webkit/support/webkit_support.gyp:webkit_support',
-        # Added for Breach
-        '<(webkit_src_dir)/Source/WebKit/chromium/WebKit.gyp:webkit',
-        '<(DEPTH)/third_party/node/node.gyp:node',
         'breach_resources',
+        '<(DEPTH)/content/content.gyp:content_app',
+        '<(DEPTH)/content/content.gyp:content_browser',
+        '<(DEPTH)/content/content.gyp:content_common',
+        '<(DEPTH)/content/content.gyp:content_gpu',
+        '<(DEPTH)/content/content.gyp:content_plugin',
+        '<(DEPTH)/content/content.gyp:content_ppapi_plugin',
+        '<(DEPTH)/content/content.gyp:content_renderer',
+        '<(DEPTH)/content/content.gyp:content_utility',
+        '<(DEPTH)/content/content.gyp:content_worker',
+        '<(DEPTH)/content/content_resources.gyp:content_resources',
+        '<(DEPTH)/base/base.gyp:base',
+        '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
+        '<(DEPTH)/ipc/ipc.gyp:ipc',
+        '<(DEPTH)/media/media.gyp:media',
+        '<(DEPTH)/net/net.gyp:net',
+        '<(DEPTH)/net/net.gyp:net_resources',
+        '<(DEPTH)/skia/skia.gyp:skia',
+        '<(DEPTH)/ui/gl/gl.gyp:gl',
+        '<(DEPTH)/ui/ui.gyp:ui',
+        '<(DEPTH)/url/url.gyp:url_lib',
+        '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
+        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
+        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
       ],
       'include_dirs': [
-        '..',
+        '<(DEPTH)',
         '<(DEPTH)/third_party/WebKit/Source',
         '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/public',
         '<(SHARED_INTERMEDIATE_DIR)/webkit',
         '<(SHARED_INTERMEDIATE_DIR)/webkit/bindings',
       ],
       'sources': [
-        'app/shell_main_delegate.cc',
-        'app/shell_main_delegate.h',
+        'app/breach_main_delegate.cc',
+        'app/breach_main_delegate.h',
+        'browser/breach_content_browser_client.cc',
+        'browser/breach_content_browser_client.h',
       ],
       'msvs_settings': {
         'VCLinkerTool': {
@@ -62,15 +60,15 @@
       'conditions': [
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
-            '../base/allocator/allocator.gyp:allocator',
+            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
           ],
         }],
         ['toolkit_uses_gtk == 1', {
           'dependencies': [
             # For FT_Init_FreeType and friends.
-            '../build/linux/system.gyp:freetype2',
-            '../build/linux/system.gyp:gtk',
-            '../build/linux/system.gyp:gtkprint',
+            '<(DEPTH)/build/linux/system.gyp:freetype2',
+            '<(DEPTH)/build/linux/system.gyp:gtk',
+            '<(DEPTH)/build/linux/system.gyp:gtkprint',
           ],
         }],
         ['OS=="win"', {
@@ -107,7 +105,7 @@
         {
           'destination': '<(PRODUCT_DIR)',
           'files': [
-            '<(SHARED_INTERMEDIATE_DIR)/content/breach_resources.pak'
+            '<(SHARED_INTERMEDIATE_DIR)/breach/breach_resources.pak'
           ],
         },
       ],
@@ -122,7 +120,7 @@
         {
           'action_name': 'breach_resources',
           'variables': {
-            'grit_grd_file': 'shell/breach_resources.grd',
+            'grit_grd_file': 'resources/breach_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
         },
@@ -134,8 +132,8 @@
       'target_name': 'breach_pak',
       'type': 'none',
       'dependencies': [
-        'browser/devtools/devtools_resources.gyp:devtools_resources',
-        'content_resources.gyp:content_resources',
+        '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
+        '<(DEPTH)/content/content_resources.gyp:content_resources',
         'breach_resources',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
@@ -189,11 +187,11 @@
         'breach_pak',
       ],
       'include_dirs': [
-        '..',
+        '<(DEPTH)',
       ],
       'sources': [
-        '../content/app/startup_helper_win.cc',
-        'app/shell_main.cc',
+        '<(DEPTH)/content/app/startup_helper_win.cc',
+        'app/breach_main.cc',
       ],
       'mac_bundle_resources': [
         'app/app.icns',
@@ -219,7 +217,7 @@
       'conditions': [
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
-            '../base/allocator/allocator.gyp:allocator',
+            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
           ],
         }],
         ['OS=="win"', {
@@ -238,7 +236,7 @@
         }],  # OS=="win"
         ['OS == "win" or toolkit_uses_gtk == 1', {
           'dependencies': [
-            '../sandbox/sandbox.gyp:sandbox',
+            '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
           ],
         }],  # OS=="win" or toolkit_uses_gtk == 1
         ['toolkit_uses_gtk == 1', {
@@ -267,7 +265,7 @@
             {
               'postbuild_name': 'Copy <(breach_product_name) Framework.framework',
               'action': [
-                '../build/mac/copy_framework_unversioned.sh',
+                '<(DEPTH)/build/mac/copy_framework_unversioned.sh',
                 '${BUILT_PRODUCTS_DIR}/<(breach_product_name) Framework.framework',
                 '${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Frameworks',
               ],
@@ -285,7 +283,7 @@
             {
               # Modify the Info.plist as needed.
               'postbuild_name': 'Tweak Info.plist',
-              'action': ['../build/mac/tweak_info_plist.py',
+              'action': ['<(DEPTH)/build/mac/tweak_info_plist.py',
                          '--scm=1',
                          '--version=<(breach_version)'],
             },
@@ -300,7 +298,7 @@
               # is marked for no PIE (ASLR).
               'postbuild_name': 'Make More Helpers',
               'action': [
-                '../build/mac/make_more_helpers.sh',
+                '<(DEPTH)/build/mac/make_more_helpers.sh',
                 'Frameworks',
                 '<(breach_product_name)',
               ],
@@ -310,7 +308,7 @@
               # executable.
               'postbuild_name': 'Verify No Objective-C',
               'action': [
-                '../build/mac/verify_no_objc.sh',
+                '<(DEPTH)/build/mac/verify_no_objc.sh',
               ],
             },
           ],
@@ -335,11 +333,11 @@
             'breach_lib',
           ],
           'include_dirs': [
-            '..',
+            '<(DEPTH)',
           ],
           'sources': [
-            'app/shell_content_main.cc',
-            'app/shell_content_main.h',
+            'app/breach_main_mac.cc',
+            'app/breach_main_mac.h',
           ],
           'copies': [
             {
@@ -361,7 +359,7 @@
             'breach_framework',
           ],
           'sources': [
-            'app/shell_main.cc',
+            'app/breach_main.cc',
             'app/helper-Info.plist',
           ],
           # TODO(mark): Come up with a fancier way to do this.  It should only
@@ -401,7 +399,7 @@
               # are used because Breakpad, Keystone, and SCM keys are
               # never placed into the helper.
               'postbuild_name': 'Tweak Info.plist',
-              'action': ['../build/mac/tweak_info_plist.py',
+              'action': ['<(DEPTH)/build/mac/tweak_info_plist.py',
                          '--breakpad=0',
                          '--keystone=0',
                          '--scm=0',
@@ -412,7 +410,7 @@
               # executable.
               'postbuild_name': 'Verify No Objective-C',
               'action': [
-                '../build/mac/verify_no_objc.sh',
+                '<(DEPTH)/build/mac/verify_no_objc.sh',
               ],
             },
           ],

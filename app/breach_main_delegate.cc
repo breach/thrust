@@ -8,7 +8,7 @@
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
@@ -22,13 +22,12 @@
 
 #include "third_party/node/src/node_version.h"
 
-/* TODO(spolu): Create these files + renaming */
-#include "breach/common/shell_switches.h"
+#include "breach/common/breach_switches.h"
+#include "breach/browser/breach_content_browser_client.h"
 /* TODO(spolu): NW */
 //#include "content/nw/src/nw_version.h"
 #include "breach/renderer/shell_content_renderer_client.h"
 #include "breach/shell_browser_main.h"
-#include "breach/shell_content_browser_client.h"
 
 #include <stdio.h>
 
@@ -112,7 +111,7 @@ bool BreachMainDelegate::BasicStartupComplete(int* exit_code) {
 
   InitLogging();
   /* TODO(spolu): TO REMOVE? */
-  //net::CookieMonster::EnableFileScheme();
+  net::CookieMonster::EnableFileScheme();
 
   SetContentClient(&breach_content_client_);
   return false;

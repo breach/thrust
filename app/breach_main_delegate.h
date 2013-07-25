@@ -8,8 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/app/content_main_delegate.h"
-/* TODO(spolu): create BreachContentClient and all common files */
-#include "content/shell/common/shell_content_client.h"
+#include "breach/common/breach_content_client.h"
 
 namespace breach {
 
@@ -37,7 +36,7 @@ class BreachMainDelegate : public content::ContentMainDelegate {
   scoped_ptr<BreachContentBrowserClient> browser_client_;
   /* TODO(spolu): renaming post file creation */
   scoped_ptr<ShellContentRendererClient> renderer_client_;
-  ShellContentClient content_client_;
+  BreachContentClient content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(BreachMainDelegate);
 };

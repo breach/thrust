@@ -2,16 +2,14 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "breach/app/breach_content_browser_client.h"
+#include "breach/browser/breach_content_browser_client.h"
 
 #include "base/command_line.h"
-#include "base/files/file_path.h"
 #include "base/file_util.h"
-#include "base/string_util.h"
+#include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/values.h"
-#include "content/browser/child_process_security_policy_impl.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -21,45 +19,48 @@
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/common/url_constants.h"
 
+#include "breach/browser/breach_browser_main_parts.h"
+#include "breach/browser/breach_browser_context.h"
+#include "breach/browser/breach_resource_dispatcher_host_delegate.h"
 /* TODO(spolu): renaming post file creation */
 #include "content/nw/src/api/dispatcher_host.h"
 #include "content/nw/src/common/shell_switches.h"
-#include "content/nw/src/browser/printing/print_job_manager.h"
 #include "content/nw/src/browser/shell_devtools_delegate.h"
-#include "content/nw/src/browser/shell_resource_dispatcher_host_delegate.h"
 #include "content/nw/src/nw_shell.h"
-#include "content/nw/src/nw_version.h"
-#include "content/nw/src/shell_browser_context.h"
-#include "content/nw/src/shell_browser_main_parts.h"
 
-#include "geolocation/shell_access_token_store.h"
-#include "googleurl/src/gurl.h"
-#include "ui/base/l10n/l10n_util.h"
+#include "net/url_request/url_request_context_getter.h"
+#include "webkit/common/webpreferences.h"
+#include "url/gurl.h"
 #include "webkit/dom_storage/dom_storage_map.h"
-#include "webkit/glue/webpreferences.h"
 #include "webkit/user_agent/user_agent_util.h"
-#include "webkit/plugins/npapi/plugin_list.h"
 
 using namespace content;
 
 namespace breach {
 
+namespace {
+
+BreachContentBrowserClient* g_browser_client;
+
+} // namespace
+
 BreachContentBrowserClient::BreachContentBrowserClient()
-  : browser_main_parts_(NULL),
-    master_rph_(NULL) 
+  : browser_main_parts_(NULL)
 {
+  DCHECK(!g_browser_client);
+  g_browser_client = this;
 }
 
 BreachContentBrowserClient::~BreachContentBrowserClient() 
 {
+  g_browser_client = NULL;
 }
 
 BrowserMainParts* 
 BreachContentBrowserClient::CreateBrowserMainParts(
     const MainFunctionParams& parameters) 
 {
-  /* TODO(spolu): renaming post file creation */
-  browser_main_parts_ = new ShellBrowserMainParts(parameters);
+  browser_main_parts_ = new BreachBrowserMainParts(parameters);
   return browser_main_parts_;
 }
 
@@ -80,8 +81,7 @@ void
 BreachContentBrowserClient::ResourceDispatcherHostCreated() 
 {
   resource_dispatcher_host_delegate_.reset(
-  /* TODO(spolu): renaming post file creation */
-      new ShellResourceDispatcherHostDelegate());
+      new BreachResourceDispatcherHostDelegate());
   ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
 }
@@ -98,28 +98,27 @@ BreachContentBrowserClient::BrowserURLHandlerCreated(
 {
 }
 
-/* TODO(spolu): renaming post file creation */
-ShellBrowserContext* 
+BreachBrowserContext* 
 BreachContentBrowserClient::browser_context() 
 {
   return browser_main_parts_->browser_context();
 }
 
-/* TODO(spolu): renaming post file creation */
-ShellBrowserContext*
-ShellContentBrowserClient::off_the_record_browser_context() 
+BreachBrowserContext*
+BreachContentBrowserClient::off_the_record_browser_context() 
 {
   return browser_main_parts_->off_the_record_browser_context();
 }
 
 AccessTokenStore* 
-ShellContentBrowserClient::CreateAccessTokenStore() 
+BreachContentBrowserClient::CreateAccessTokenStore() 
 {
+  /* TODO(spolu): renaming post file creation */
   return new ShellAccessTokenStore(browser_context());
 }
 
 void 
-ShellContentBrowserClient::OverrideWebkitPrefs(
+BreachContentBrowserClient::OverrideWebkitPrefs(
     RenderViewHost* render_view_host,
     const GURL& url,
     WebPreferences* prefs) 
@@ -142,52 +141,44 @@ ShellContentBrowserClient::OverrideWebkitPrefs(
 }
 
 bool 
-ShellContentBrowserClient::ShouldTryToUseExistingProcessHost(
+BreachContentBrowserClient::ShouldTryToUseExistingProcessHost(
       BrowserContext* browser_context, 
       const GURL& url) 
 {
-  ShellBrowserContext* shell_browser_context =
-    static_cast<ShellBrowserContext*>(browser_context);
+  BreachBrowserContext* shell_browser_context =
+    static_cast<BreachBrowserContext*>(browser_context);
   if (shell_browser_context->pinning_renderer())
     return true;
   else
     return false;
 }
 
-bool 
-ShellContentBrowserClient::IsSuitableHost(
-    RenderProcessHost* process_host,
-    const GURL& site_url) 
-{
-  return process_host == master_rph_;
-}
-
 net::URLRequestContextGetter* 
-ShellContentBrowserClient::CreateRequestContext(
+BreachContentBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
     ProtocolHandlerMap* protocol_handlers) 
 {
-  ShellBrowserContext* shell_browser_context =
-      ShellBrowserContextForBrowserContext(content_browser_context);
+  BreachBrowserContext* shell_browser_context =
+      BreachBrowserContextForBrowserContext(content_browser_context);
   return shell_browser_context->CreateRequestContext(protocol_handlers);
 }
 
 net::URLRequestContextGetter*
-ShellContentBrowserClient::CreateRequestContextForStoragePartition(
+BreachContentBrowserClient::CreateRequestContextForStoragePartition(
     BrowserContext* content_browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers) 
 {
-  ShellBrowserContext* shell_browser_context =
-    ShellBrowserContextForBrowserContext(content_browser_context);
+  BreachBrowserContext* shell_browser_context =
+    BreachBrowserContextForBrowserContext(content_browser_context);
   return shell_browser_context->CreateRequestContextForStoragePartition(
       partition_path, in_memory, protocol_handlers);
 }
 
 
-ShellBrowserContext*
-ShellContentBrowserClient::ShellBrowserContextForBrowserContext(
+BreachBrowserContext*
+BreachContentBrowserClient::BreachBrowserContextForBrowserContext(
     BrowserContext* content_browser_context) 
 {
   if (content_browser_context == browser_context())
@@ -196,21 +187,35 @@ ShellContentBrowserClient::ShellBrowserContextForBrowserContext(
   return off_the_record_browser_context();
 }
 
-void 
-ShellContentBrowserClient::RenderProcessHostCreated(
-    RenderProcessHost* host) 
+bool 
+BreachContentBrowserClient::IsHandledURL(
+    const GURL& url) 
 {
-  int id = host->GetID();
-  if (!master_rph_)
-    master_rph_ = host;
-  // Grant file: scheme to the whole process, since we impose
-  // per-view access checks.
-  content::ChildProcessSecurityPolicy::GetInstance()->GrantScheme(
-      host->GetID(), chrome::kFileScheme);
-
-#if defined(ENABLE_PRINTING)
-  host->GetChannel()->AddFilter(new PrintingMessageFilter(id));
-#endif
+  if (!url.is_valid())
+    return false;
+  DCHECK_EQ(url.scheme(), StringToLowerASCII(url.scheme()));
+  // Keep in sync with ProtocolHandlers added by
+  // BreachURLRequestContextGetter::GetURLRequestContext().
+  /* TODO(spolu): Check in sync */
+  static const char* const kProtocolList[] = {
+      chrome::kBlobScheme,
+      chrome::kFileSystemScheme,
+      chrome::kChromeUIScheme,
+      chrome::kChromeDevToolsScheme,
+      chrome::kDataScheme,
+      chrome::kFileScheme,
+  };
+  for (size_t i = 0; i < arraysize(kProtocolList); ++i) {
+    if (url.scheme() == kProtocolList[i])
+      return true;
+  }
+  return false;
 }
 
-}  // namespace content
+void 
+BreachContentBrowserClient::RenderProcessHostCreated(
+    RenderProcessHost* host) 
+{
+}
+
+}  // namespace breach

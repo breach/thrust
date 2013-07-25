@@ -3,7 +3,7 @@
 // See the LICENSE file.
 
 #include "content/public/app/content_main.h"
-#include "content/shell/shell_main_delegate.h"
+#include "breach/app/breach_main_delegate.h"
 #include "sandbox/win/src/sandbox_types.h"
 
 #if defined(OS_WIN)
@@ -31,7 +31,7 @@ int main(int argc, const char** argv) {
   // delegate types. (from the Content Shell)
   return ::ContentMain(argc, argv);
 #else
-  content::BreachMainDelegate delegate;
+  breach::BreachMainDelegate delegate;
   return content::ContentMain(argc, argv, &delegate);
 #endif  // OS_MACOSX
 }
