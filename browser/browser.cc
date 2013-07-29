@@ -28,15 +28,13 @@
 #include "breach/breach_content_browser_client.h"
 /* TODO(spolu): renaming post file creation */
 #include "content/shell/common/shell_messages.h"
-#include "content/shell/notify_done_forwarder.h"
 #include "content/shell/shell_devtools_frontend.h"
 #include "content/shell/shell_javascript_dialog_manager.h"
-#include "content/shell/webkit_test_controller.h"
 
 namespace content {
 
-const int Browser::kDefaultTestWindowWidthDip = 800;
-const int Browser::kDefaultTestWindowHeightDip = 600;
+const int Browser::kDefaultWindowWidthDip = 800;
+const int Browser::kDefaultWindowHeightDip = 600;
 
 std::vector<Browser*> Browser::windows_;
 bool Browser::quit_message_loop_ = true;
@@ -142,7 +140,7 @@ void
 Browser::Initialize() 
 {
   PlatformInitialize(
-      gfx::Size(kDefaultTestWindowWidthDip, kDefaultTestWindowHeightDip));
+      gfx::Size(kDefaultWindowWidthDip, kDefaultWindowHeightDip));
 }
 
 Browser* Browser::CreateNewWindow(BrowserContext* browser_context,
@@ -157,7 +155,7 @@ Browser* Browser::CreateNewWindow(BrowserContext* browser_context,
     create_params.initial_size = initial_size;
   else
     create_params.initial_size =
-        gfx::Size(kDefaultTestWindowWidthDip, kDefaultTestWindowHeightDip);
+        gfx::Size(kDefaultWindowWidthDip, kDefaultWindowHeightDip);
   WebContents* web_contents = WebContents::Create(create_params);
   Browser* browser = CreateBrowser(web_contents, create_params.initial_size);
   if (!url.is_empty())

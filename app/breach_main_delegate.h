@@ -24,9 +24,6 @@ class BreachMainDelegate : public content::ContentMainDelegate {
   // ContentMainDelegate implementation:
   virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
   virtual void PreSandboxStartup() OVERRIDE;
-  virtual int RunProcess(
-      const std::string& process_type,
-      const MainFunctionParams& main_function_params) OVERRIDE;
   virtual ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
   virtual ContentRendererClient* CreateContentRendererClient() OVERRIDE;
 

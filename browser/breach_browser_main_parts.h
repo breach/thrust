@@ -24,8 +24,7 @@ struct MainFunctionParams;
 namespace breach {
 
 class BreachBrowserContext;
-/* TODO(spolu): renaming post file creation */
-class ShellDevToolsDelegate;
+class BreachDevToolsDelegate;
 
 class BreachBrowserMainParts : public content::BrowserMainParts {
  public:
@@ -43,8 +42,7 @@ class BreachBrowserMainParts : public content::BrowserMainParts {
       int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
-  /* TODO(spolu): renaming post file creation */
-  ShellDevToolsDelegate* devtools_delegate() {
+  BreachDevToolsDelegate* devtools_delegate() {
     return devtools_delegate_.get();
   }
 
@@ -66,8 +64,7 @@ class BreachBrowserMainParts : public content::BrowserMainParts {
   const content::MainFunctionParams& parameters_;
   bool run_message_loop_;
 
-  /* TODO(spolu): renaming post file creation */
-  scoped_ptr<ShellDevToolsDelegate> devtools_delegate_;
+  scoped_ptr<BreachDevToolsDelegate> devtools_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(BreachBrowserMainParts);
 };

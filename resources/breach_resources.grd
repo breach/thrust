@@ -9,6 +9,9 @@
   <translations />
   <release seq="1">
     <includes>
+      <include name="IDR_BREACH_DEVTOOLS_DISCOVERY_PAGE" 
+               file="resources/breach_devtools_discovery_page.html" 
+               type="BINDATA" />
     </includes>
   </release>
 </grit>

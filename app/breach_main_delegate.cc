@@ -121,19 +121,6 @@ void BreachMainDelegate::PreSandboxStartup() {
   InitializeResourceBundle();
 }
 
-int BreachMainDelegate::RunProcess(
-    const std::string& process_type,
-    const MainFunctionParams& main_function_params) {
-  if (!process_type.empty())
-    return -1;
-
-  browser_runner_.reset(BrowserMainRunner::Create());
-  /* TODO(spolu): renaming post file creation */
-  return ShellBrowserMain(main_function_params, browser_runner_);
-  /* TODO(spolu): NW */
-  //return ShellBrowserMain(main_function_params);
-}
-
 void BreachMainDelegate::InitializeResourceBundle() {
   base::FilePath pak_file;
 #if defined(OS_MACOSX)

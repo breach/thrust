@@ -18,8 +18,8 @@
 #include "breach/browser/breach_browser_context.h"
 #include "breach/common/breach_switches.h"
 #include "breach/browser/browser.h"
+#include "breach/browser/breach_devtools_delegate.h"
 /* TODO(spolu): renaming post file creation */
-#include "content/shell/shell_devtools_delegate.h"
 #include "content/shell/shell_net_log.h"
 
 #include "grit/net_resources.h"
@@ -105,8 +105,7 @@ BreachBrowserMainParts::PreMainMessageLoopRun()
   Browser::Initialize();
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
 
-  /* TODO(spolu): renaming post file creation */
-  devtools_delegate_.reset(new ShellDevToolsDelegate(browser_context_.get()));
+  devtools_delegate_.reset(new BreachDevToolsDelegate(browser_context_.get()));
 
   if (parameters_.ui_task) {
     parameters_.ui_task->Run();
