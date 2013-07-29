@@ -22,8 +22,7 @@ namespace breach {
 class DownloadManagerDelegate;
 class ResourceContext;
 class BreachURLRequestContextGetter;
-/* TODO(spolu): renaming post file creation */
-class ShellDownloadManagerDelegate;
+class BreachDownloadManagerDelegate;
 
 class BreachBrowserContext : public BrowserContext {
  public:
@@ -66,7 +65,6 @@ class BreachBrowserContext : public BrowserContext {
       ProtocolHandlerMap* protocol_handlers);
 
  private:
-  /* TODO(spolu): renaming post file creation */
   class BreachResourceContext;
 
   // Performs initialization of the BreachBrowserContext while IO is still
@@ -80,12 +78,11 @@ class BreachBrowserContext : public BrowserContext {
 
   scoped_ptr<BreachResourceContext> resource_context_;
   scoped_refptr<BreachURLRequestContextGetter> url_request_getter_;
-  /* TODO(spolu): renaming post file creation */
-  scoped_refptr<ShellDownloadManagerDelegate> download_manager_delegate_;
+  scoped_refptr<BreachDownloadManagerDelegate> download_manager_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(BreachBrowserContext);
 };
 
-}  // namespace breach
+} // namespace breach
 
-#endif  // BREACH_BROWSER_BREACH_BROWSER_CONTEXT_H_
+#endif // BREACH_BROWSER_BREACH_BROWSER_CONTEXT_H_

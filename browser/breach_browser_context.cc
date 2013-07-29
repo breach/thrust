@@ -18,8 +18,7 @@
 
 #include "breach/common/breach_switches.h"
 #include "breach/browser/shell_url_request_context_getter.h"
-/* TODO(spolu): renaming post file creation */
-#include "content/shell/shell_download_manager_delegate.h"
+#include "breach/browser/browser_download_manager_delegate.h"
 
 #if defined(OS_WIN)
 #include "base/base_paths_win.h"
@@ -129,8 +128,7 @@ BreachBrowserContext::GetDownloadManagerDelegate()
 {
   DownloadManager* manager = BrowserContext::GetDownloadManager(this);
   if (!download_manager_delegate_.get()) {
-    /* TODO(spolu): renaming post file creation */
-    download_manager_delegate_ = new ShellDownloadManagerDelegate();
+    download_manager_delegate_ = new BreachDownloadManagerDelegate();
     download_manager_delegate_->SetDownloadManager(manager);
   }
   return download_manager_delegate_.get();
@@ -183,7 +181,7 @@ BreachBrowserContext::GetMediaRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory)
 {
-  /* TODO(spolu): Check chrome */
+  /* TODO(spolu): Check chrome. Note: used by geolocation */
   return GetRequestContext();
 }
 

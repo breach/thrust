@@ -19,8 +19,7 @@
 #include "breach/common/breach_switches.h"
 #include "breach/browser/browser.h"
 #include "breach/browser/breach_devtools_delegate.h"
-/* TODO(spolu): renaming post file creation */
-#include "content/shell/shell_net_log.h"
+#include "breach/browser/breach_net_log.h"
 
 #include "grit/net_resources.h"
 #include "net/base/net_module.h"
@@ -96,8 +95,7 @@ BreachBrowserMainParts::PreEarlyInitialization()
 void 
 BreachBrowserMainParts::PreMainMessageLoopRun() 
 {
-  /* TODO(spolu): renaming post file creation */
-  net_log_.reset(new ShellNetLog());
+  net_log_.reset(new BreachNetLog());
   browser_context_.reset(new BreachBrowserContext(false, net_log_.get()));
   off_the_record_browser_context_.reset(
       new BreachBrowserContext(true, net_log_.get()));

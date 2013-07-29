@@ -26,12 +26,14 @@
 #include "breach/common/breach_switches.h"
 #include "breach/breach_browser_main_parts.h"
 #include "breach/breach_content_browser_client.h"
+#include "breach/browser/breach_devtools_frontend.h"
 /* TODO(spolu): renaming post file creation */
 #include "content/shell/common/shell_messages.h"
-#include "content/shell/shell_devtools_frontend.h"
 #include "content/shell/shell_javascript_dialog_manager.h"
 
-namespace content {
+using namespace content;
+
+namespace breach {
 
 const int Browser::kDefaultWindowWidthDip = 800;
 const int Browser::kDefaultWindowHeightDip = 600;
@@ -220,8 +222,7 @@ Browser::ShowDevTools()
     devtools_frontend_->Focus();
     return;
   }
-  /* TODO(spolu): renaming post file creation */
-  devtools_frontend_ = ShellDevToolsFrontend::Show(web_contents());
+  devtools_frontend_ = BreachDevToolsFrontend::Show(web_contents());
   devtools_observer_.reset(new DevToolsWebContentsObserver(
       this, devtools_frontend_->frontend_shell()->web_contents()));
 }
@@ -382,4 +383,4 @@ Browser::OnDevToolsWebContentsDestroyed()
   devtools_frontend_ = NULL;
 }
 
-}  // namespace breach
+} // namespace breach

@@ -35,14 +35,8 @@ BreachResourceDispatcherHostDelegate::CreateLoginDelegate(
     net::AuthChallengeInfo* auth_info, 
     net::URLRequest* request) 
 {
-/* TODO(spolu): renaming post file creation */
-#if !defined(OS_MACOSX) && !defined(TOOLKIT_GTK)
-// TODO: implement ShellLoginDialog for other platforms, drop this #if
+  /* TODO(spolu): introduce ShellLogin Dialog (see content) */
   return NULL;
-#else
-/* TODO(spolu): renaming post file creation */
-  return new ShellLoginDialog(auth_info, request);
-#endif
 }
 
 }  // namespace breach

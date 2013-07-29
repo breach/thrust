@@ -18,7 +18,6 @@ namespace breach {
 class BreachBrowserMainParts;
 class BreachBrowserContext;
 class BreachResourceDispatcherHostDelegate;
-/* TODO(spolu): renaming post file creation */
 class RenderProcessHost;
 
 class BreachContentBrowserClient : public content::ContentBrowserClient {

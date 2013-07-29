@@ -39,8 +39,8 @@ class WebContents;
 
 namespace breach {
 
+class BreachDevToolsFrontend;
 /* TODO(spolu): renaming post file creation */
-class ShellDevToolsFrontend;
 class ShellJavaScriptDialogManager;
 
 // This represents one window of the Breach browser, i.e. all the UI including
@@ -205,8 +205,7 @@ class Browser : public WebContentsDelegate,
   scoped_ptr<WebContents> web_contents_;
 
   scoped_ptr<DevToolsWebContentsObserver> devtools_observer_;
-  /* TODO(spolu): renaming post file creation */
-  ShellDevToolsFrontend* devtools_frontend_;
+  BreachDevToolsFrontend* devtools_frontend_;
 
   bool is_fullscreen_;
 
