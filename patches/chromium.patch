@@ -1,0 +1,25 @@
+diff --git a/.gitignore b/.gitignore
+index df9939b..020e5bf 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -317,3 +317,6 @@ v8.log
+ /xcodebuild
+ cscope.*
+ Session.vim
++
++/breach
++
+diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
+index fdab9ca..29b2800 100644
+--- a/tools/gritsettings/resource_ids
++++ b/tools/gritsettings/resource_ids
+@@ -224,4 +224,9 @@
+     "messages": [30000],
+   },
+   # Resource ids starting at 31000 are reserved for projects built on Chromium.
++  "breach/breach_resources.grd": {
++    "includes": [32000],
++    "structures": [32100],
++    "messages": [32200],
++  },
+ }
