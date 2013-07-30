@@ -14,7 +14,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 /* TODO(spolu): TO REMOVE? */
-//#include "net/cookies/cookie_monster.h"
+#include "net/cookies/cookie_monster.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
@@ -106,7 +106,7 @@ bool BreachMainDelegate::BasicStartupComplete(int* exit_code) {
   /* TODO(spolu): TO REMOVE? */
   net::CookieMonster::EnableFileScheme();
 
-  SetContentClient(&breach_content_client_);
+  SetContentClient(&content_client_);
   return false;
 }
 

@@ -23,8 +23,10 @@ class BreachMainDelegate : public content::ContentMainDelegate {
   // ContentMainDelegate implementation:
   virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
   virtual void PreSandboxStartup() OVERRIDE;
-  virtual ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
-  virtual ContentRendererClient* CreateContentRendererClient() OVERRIDE;
+  virtual content::ContentBrowserClient* 
+    CreateContentBrowserClient() OVERRIDE;
+  virtual content::ContentRendererClient* 
+    CreateContentRendererClient() OVERRIDE;
 
   static void InitializeResourceBundle();
 

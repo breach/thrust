@@ -44,11 +44,11 @@ class BreachJavaScriptDialogManager;
 
 // This represents one window of the Breach browser, i.e. all the UI including
 // controls and the web content area
-class Browser : public WebContentsDelegate,
-                public NotificationObserver {
+class Browser : public content::WebContentsDelegate,
+                public content::NotificationObserver {
  public:
-  static const int kDefaultTestWindowWidthDip;
-  static const int kDefaultTestWindowHeightDip;
+  static const int kDefaultWindowWidthDip;
+  static const int kDefaultWindowHeightDip;
 
   virtual ~Browser();
 
@@ -69,14 +69,14 @@ class Browser : public WebContentsDelegate,
   // Do one time initialization at application startup.
   static void Initialize();
 
-  static Browser* CreateNewWindow(BrowserContext* browser_context,
+  static Browser* CreateNewWindow(content::BrowserContext* browser_context,
                                   const GURL& url,
-                                  SiteInstance* site_instance,
+                                  content::SiteInstance* site_instance,
                                   int routing_id,
                                   const gfx::Size& initial_size);
 
   // Returns the Browser object corresponding to the given RenderViewHost.
-  static Browser* FromRenderViewHost(RenderViewHost* rvh);
+  static Browser* FromRenderViewHost(content::RenderViewHost* rvh);
 
   // Returns the currently open windows.
   static std::vector<Browser*>& windows() { return windows_; }
@@ -87,6 +87,8 @@ class Browser : public WebContentsDelegate,
   // Closes all windows and exits.
   static void PlatformExit();
 
+  content::WebContents* web_contents() const { return web_contents_.get(); }
+  gfx::NativeWindow window() { return window_; }
 
 #if defined(OS_MACOSX)
   // Public to be called by an ObjC bridge object.
@@ -95,40 +97,42 @@ class Browser : public WebContentsDelegate,
 #endif
 
   // WebContentsDelegate
-  virtual WebContents* OpenURLFromTab(WebContents* source,
-                                      const OpenURLParams& params) OVERRIDE;
-  virtual void LoadingStateChanged(WebContents* source) OVERRIDE;
-  virtual void ToggleFullscreenModeForTab(WebContents* web_contents,
+  virtual content::WebContents* OpenURLFromTab(
+      content::WebContents* source,
+      const content::OpenURLParams& params) OVERRIDE;
+  virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
+  virtual void ToggleFullscreenModeForTab(content::WebContents* web_contents,
                                           bool enter_fullscreen) OVERRIDE;
   virtual bool IsFullscreenForTabOrPending(
-      const WebContents* web_contents) const OVERRIDE;
-  virtual void RequestToLockMouse(WebContents* web_contents,
+      const content::WebContents* web_contents) const OVERRIDE;
+  virtual void RequestToLockMouse(content::WebContents* web_contents,
                                   bool user_gesture,
                                   bool last_unlocked_by_target) OVERRIDE;
-  virtual void CloseContents(WebContents* source) OVERRIDE;
+  virtual void CloseContents(content::WebContents* source) OVERRIDE;
   virtual bool CanOverscrollContent() const OVERRIDE;
-  virtual void WebContentsCreated(WebContents* source_contents,
+  virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
                                   const string16& frame_name,
                                   const GURL& target_url,
-                                  WebContents* new_contents) OVERRIDE;
+                                  content::WebContents* new_contents) OVERRIDE;
   virtual void DidNavigateMainFramePostCommit(
-      WebContents* web_contents) OVERRIDE;
-  virtual JavaScriptDialogManager* GetJavaScriptDialogManager() OVERRIDE;
+      content::WebContents* web_contents) OVERRIDE;
+  virtual content::JavaScriptDialogManager* 
+    GetJavaScriptDialogManager() OVERRIDE;
 #if defined(OS_MACOSX)
   virtual void HandleKeyboardEvent(
-      WebContents* source,
+      content::WebContents* source,
       const NativeWebKeyboardEvent& event) OVERRIDE;
 #endif
-  virtual bool AddMessageToConsole(WebContents* source,
+  virtual bool AddMessageToConsole(content::WebContents* source,
                                    int32 level,
                                    const string16& message,
                                    int32 line_no,
                                    const string16& source_id) OVERRIDE;
-  virtual void RendererUnresponsive(WebContents* source) OVERRIDE;
-  virtual void ActivateContents(WebContents* contents) OVERRIDE;
-  virtual void DeactivateContents(WebContents* contents) OVERRIDE;
-  virtual void WorkerCrashed(WebContents* source) OVERRIDE;
+  virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
+  virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
+  virtual void DeactivateContents(content::WebContents* contents) OVERRIDE;
+  virtual void WorkerCrashed(content::WebContents* source) OVERRIDE;
 
  private:
   enum UIControl {
@@ -139,10 +143,10 @@ class Browser : public WebContentsDelegate,
 
   class DevToolsWebContentsObserver;
 
-  explicit Browser(WebContents* web_contents);
+  explicit Browser(content::WebContents* web_contents);
 
   // Helper to create a new Browser given a newly created WebContents.
-  static Browser* CreateBrowser(WebContents* web_contents,
+  static Browser* CreateBrowser(content::WebContents* web_contents,
                                 const gfx::Size& initial_size);
 
   // Helper for one time initialization of application
@@ -171,8 +175,8 @@ class Browser : public WebContentsDelegate,
 
   // NotificationObserver
   virtual void Observe(int type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) OVERRIDE;
+                       const content::NotificationSource& source,
+                       const content::NotificationDetails& details) OVERRIDE;
 
   void OnDevToolsWebContentsDestroyed();
 
@@ -200,7 +204,7 @@ class Browser : public WebContentsDelegate,
 
   scoped_ptr<BreachJavaScriptDialogManager> dialog_manager_;
 
-  scoped_ptr<WebContents> web_contents_;
+  scoped_ptr<content::WebContents> web_contents_;
 
   scoped_ptr<DevToolsWebContentsObserver> devtools_observer_;
   BreachDevToolsFrontend* devtools_frontend_;
@@ -211,7 +215,7 @@ class Browser : public WebContentsDelegate,
   gfx::NativeEditView url_edit_view_;
 
   // Notification manager
-  NotificationRegistrar registrar_;
+  content::NotificationRegistrar registrar_;
 
 #if defined(OS_WIN) && !defined(USE_AURA)
   WNDPROC default_edit_wnd_proc_;

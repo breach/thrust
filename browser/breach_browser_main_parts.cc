@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors. 
 // See the LICENSE file.
 
-#include "content/shell/breach_browser_main_parts.h"
+#include "breach/browser/breach_browser_main_parts.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -32,22 +32,6 @@ using namespace content;
 namespace breach {
 
 namespace {
-
-static GURL 
-GetStartupURL() 
-{
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
-  const CommandLine::StringVector& args = command_line->GetArgs();
-
-  if (args.empty())
-    return GURL("http://www.google.com/");
-
-  GURL url(args[0]);
-  if (url.is_valid() && url.has_scheme())
-    return url;
-
-  return net::FilePathToFileURL(base::FilePath(args[0]));
-}
 
 base::StringPiece 
 PlatformResourceProvider(

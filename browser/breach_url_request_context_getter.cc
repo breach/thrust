@@ -114,17 +114,12 @@ BreachURLRequestContextGetter::GetURLRequestContext()
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(new net::TransportSecurityState);
 
-    net::ProxyService* proxy_service;
-    net::DhcpProxyScriptFetcherFactory dhcp_factory;
-
-    proxy_service = net::CreateProxyServiceUsingV8ProxyResolver(
-        proxy_config_service_.release(),
-        new net::ProxyScriptFetcherImpl(url_request_context_.get()),
-        dhcp_factory.Create(url_request_context_.get()),
-        host_resolver.get(),
-        NULL,
-        url_request_context_->network_delegate());
-    storage_->set_proxy_service(proxy_service);
+    // TODO(spolu): use v8 if possible, look at chrome code.
+    storage_->set_proxy_service(
+        net::ProxyService::CreateUsingSystemProxyResolver(
+          proxy_config_service_.release(),
+          0,
+          url_request_context_->net_log()));
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
     storage_->set_http_auth_handler_factory(

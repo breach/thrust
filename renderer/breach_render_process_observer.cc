@@ -33,9 +33,6 @@ BreachRenderProcessObserver::BreachRenderProcessObserver()
   CHECK(!g_instance);
   g_instance = this;
   RenderThread::Get()->AddObserver(this);
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kDumpRenderTree))
-    return;
-  EnableRendererLayoutTestMode();
 }
 
 BreachRenderProcessObserver::~BreachRenderProcessObserver() 

@@ -9,9 +9,11 @@
 #include "base/memory/ref_counted.h"
 #include "content/public/browser/download_manager_delegate.h"
 
-namespace breach {
+namespace content {
+class DownloadManager;
+}
 
-class content::DownloadManager;
+namespace breach {
 
 class BreachDownloadManagerDelegate
     : public content::DownloadManagerDelegate,
@@ -19,16 +21,16 @@ class BreachDownloadManagerDelegate
  public:
   BreachDownloadManagerDelegate();
 
-  void SetDownloadManager(DownloadManager* manager);
+  void SetDownloadManager(content::DownloadManager* manager);
 
   virtual void Shutdown() OVERRIDE;
   virtual bool DetermineDownloadTarget(
-      DownloadItem* download,
-      const DownloadTargetCallback& callback) OVERRIDE;
+      content::DownloadItem* download,
+      const content::DownloadTargetCallback& callback) OVERRIDE;
   virtual bool ShouldOpenDownload(
-      DownloadItem* item,
-      const DownloadOpenDelayedCallback& callback) OVERRIDE;
-  virtual void GetNextId(const DownloadIdCallback& callback) OVERRIDE;
+      content::DownloadItem* item,
+      const content::DownloadOpenDelayedCallback& callback) OVERRIDE;
+  virtual void GetNextId(const content::DownloadIdCallback& callback) OVERRIDE;
 
   // Inhibits prompting and sets the default download path.
   void SetDownloadBehaviorForTesting(
@@ -43,17 +45,17 @@ class BreachDownloadManagerDelegate
 
 
   void GenerateFilename(uint32 download_id,
-                        const DownloadTargetCallback& callback,
+                        const content::DownloadTargetCallback& callback,
                         const base::FilePath& generated_name,
                         const base::FilePath& suggested_directory);
   void OnDownloadPathGenerated(uint32 download_id,
-                               const DownloadTargetCallback& callback,
+                               const content::DownloadTargetCallback& callback,
                                const base::FilePath& suggested_path);
   void ChooseDownloadPath(uint32 download_id,
-                          const DownloadTargetCallback& callback,
+                          const content::DownloadTargetCallback& callback,
                           const base::FilePath& suggested_path);
 
-  DownloadManager* download_manager_;
+  content::DownloadManager* download_manager_;
   base::FilePath default_download_path_;
   bool suppress_prompting_;
 

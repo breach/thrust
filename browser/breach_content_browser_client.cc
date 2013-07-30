@@ -30,8 +30,6 @@
 #include "net/url_request/url_request_context_getter.h"
 #include "webkit/common/webpreferences.h"
 #include "url/gurl.h"
-#include "webkit/dom_storage/dom_storage_map.h"
-#include "webkit/user_agent/user_agent_util.h"
 
 using namespace content;
 
@@ -65,12 +63,6 @@ BreachContentBrowserClient::CreateBrowserMainParts(
 {
   browser_main_parts_ = new BreachBrowserMainParts(parameters);
   return browser_main_parts_;
-}
-
-std::string 
-BreachContentBrowserClient::GetApplicationLocale() 
-{
-  return l10n_util::GetApplicationLocale("en-US");
 }
 
 void 
@@ -142,19 +134,6 @@ BreachContentBrowserClient::OverrideWebkitPrefs(
   prefs->java_enabled = false;
 }
 
-bool 
-BreachContentBrowserClient::ShouldTryToUseExistingProcessHost(
-      BrowserContext* browser_context, 
-      const GURL& url) 
-{
-  BreachBrowserContext* browser_context =
-    static_cast<BreachBrowserContext*>(browser_context);
-  if (browser_context->pinning_renderer())
-    return true;
-  else
-    return false;
-}
-
 net::URLRequestContextGetter* 
 BreachContentBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
@@ -216,7 +195,7 @@ BreachContentBrowserClient::IsHandledURL(
 
 void 
 BreachContentBrowserClient::RenderProcessHostCreated(
-    RenderProcessHost* host) 
+    content::RenderProcessHost* host) 
 {
 }
 

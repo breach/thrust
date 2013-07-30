@@ -9,10 +9,13 @@
 #include "base/compiler_specific.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"
 
-namespace breach {
+namespace content{
+class BrowserContext;
+class DevToolsHttpHandler;
+}
 
-class content::BrowserContext;
-class content::DevToolsHttpHandler;
+
+namespace breach {
 
 class BreachDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
@@ -34,7 +37,7 @@ class BreachDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE;
 
-  DevToolsHttpHandler* devtools_http_handler() {
+  content::DevToolsHttpHandler* devtools_http_handler() {
     return devtools_http_handler_;
   }
 

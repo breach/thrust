@@ -19,7 +19,7 @@ class RenderView;
 namespace breach {
 
 
-class BreachRenderProcessObserver : public RenderProcessObserver {
+class BreachRenderProcessObserver : public content::RenderProcessObserver {
  public:
   static BreachRenderProcessObserver* GetInstance();
 

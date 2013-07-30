@@ -29,27 +29,25 @@ class BreachContentBrowserClient : public content::ContentBrowserClient {
   virtual ~BreachContentBrowserClient();
 
   // ContentBrowserClient overrides.
-  virtual BrowserMainParts* CreateBrowserMainParts(
+  virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
 
   virtual void AppendExtraCommandLineSwitches(
       CommandLine* command_line,
       int child_process_id) OVERRIDE;
 
-  virtual std::string GetApplicationLocale() OVERRIDE;
+  virtual void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
+                                   const GURL& url,
+                                   WebPreferences* prefs) OVERRIDE;
 
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 
-  virtual AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
 
   virtual std::string GetDefaultDownloadName() OVERRIDE;
 
   virtual void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) OVERRIDE;
-
-  virtual bool ShouldTryToUseExistingProcessHost(
-      BrowserContext* content::browser_context, 
-      const GURL& url) OVERRIDE;
 
   virtual void RenderProcessHostCreated(
       content::RenderProcessHost* host) OVERRIDE;
@@ -64,6 +62,7 @@ class BreachContentBrowserClient : public content::ContentBrowserClient {
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
 
+  virtual bool IsHandledURL(const GURL& url) OVERRIDE;
 
   BreachBrowserContext* browser_context();
   BreachBrowserContext* off_the_record_browser_context();
@@ -77,7 +76,7 @@ class BreachContentBrowserClient : public content::ContentBrowserClient {
 
  private:
   BreachBrowserContext* BreachBrowserContextForBrowserContext(
-      BrowserContext* content_browser_context);
+      content::BrowserContext* content_browser_context);
 
   scoped_ptr<BreachResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;

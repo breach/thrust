@@ -7,7 +7,7 @@
   'targets': [
     {
       'target_name': 'breach_lib',
-      'type': 'shared_library',
+      'type': 'static_library',
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'defines': ['BREACH_VERSION="<(breach_version)"'],
       'variables': {
@@ -32,6 +32,7 @@
         '<(DEPTH)/net/net.gyp:net',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/skia/skia.gyp:skia',
+        '<(DEPTH)/third_party/WebKit/public/blink_test_runner.gyp:blink_test_runner',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/url/url.gyp:url_lib',
@@ -41,16 +42,65 @@
       ],
       'include_dirs': [
         '<(DEPTH)',
-        '<(DEPTH)/third_party/WebKit/Source',
-        '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/public',
-        '<(SHARED_INTERMEDIATE_DIR)/webkit',
-        '<(SHARED_INTERMEDIATE_DIR)/webkit/bindings',
       ],
       'sources': [
+        'app/paths_mac.h',
+        'app/paths_mac.mm',
         'app/breach_main_delegate.cc',
         'app/breach_main_delegate.h',
+        'app/breach_main_mac.h',
+        'app/breach_main_mac.mm',
+        'common/breach_content_client.cc',
+        'common/breach_content_client.h',
+        'common/breach_messages.cc',
+        'common/breach_messages.h',
+        'common/breach_switches.cc',
+        'common/breach_switches.h',
+        'geolocation/breach_access_token_store.cc',
+        'geolocation/breach_access_token_store.h',
+        'renderer/breach_content_renderer_client.cc',
+        'renderer/breach_content_renderer_client.h',
+        'renderer/breach_render_process_observer.cc',
+        'renderer/breach_render_process_observer.h',
+        'renderer/breach_render_view_observer.cc',
+        'renderer/breach_render_view_observer.h',
         'browser/breach_content_browser_client.cc',
         'browser/breach_content_browser_client.h',
+        'browser/ui/browser.cc',
+        'browser/ui/browser.h',
+        'browser/ui/browser_aura.cc',
+        'browser/ui/browser_gtk.cc',
+        'browser/ui/browser_mac.mm',
+        'browser/ui/browser_win.cc',
+        'browser/breach_browser_application_mac.h',
+        'browser/breach_browser_application_mac.mm',
+        'browser/breach_browser_context.cc',
+        'browser/breach_browser_context.h',
+        'browser/breach_browser_main_parts.cc',
+        'browser/breach_browser_main_parts.h',
+        'browser/breach_browser_main_parts_mac.mm',
+        'browser/breach_content_browser_client.cc',
+        'browser/breach_content_browser_client.h',
+        'browser/devtools/breach_devtools_delegate.cc',
+        'browser/devtools/breach_devtools_delegate.h',
+        'browser/devtools/breach_devtools_frontend.cc',
+        'browser/devtools/breach_devtools_frontend.h',
+        'browser/breach_download_manager_delegate.cc',
+        'browser/breach_download_manager_delegate.h',
+        'browser/ui/dialog/breach_javascript_dialog_manager.cc',
+        'browser/ui/dialog/breach_javascript_dialog_manager.h',
+        'browser/ui/dialog/javascript_dialog_gtk.cc',
+        'browser/ui/dialog/javascript_dialog_mac.mm',
+        'browser/ui/dialog/javascript_dialog_win.cc',
+        'browser/ui/dialog/javascript_dialog.h',
+        'browser/breach_net_log.cc',
+        'browser/breach_net_log.h',
+        'browser/breach_network_delegate.cc',
+        'browser/breach_network_delegate.h',
+        'browser/breach_resource_dispatcher_host_delegate.cc',
+        'browser/breach_resource_dispatcher_host_delegate.h',
+        'browser/breach_url_request_context_getter.cc',
+        'browser/breach_url_request_context_getter.h',
       ],
       'msvs_settings': {
         'VCLinkerTool': {
@@ -89,6 +139,32 @@
           },
           'msvs_disabled_warnings': [ 4800 ],
         }],  # OS=="win"
+        ['OS=="linux"', {
+          'dependencies': [
+            '<(DEPTH)/build/linux/system.gyp:fontconfig',
+            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+          ],
+        }],  # OS=='linux'
+        ['(os_posix==1 and use_aura==1 and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
+          'dependencies': [
+            # This is needed by content/app/content_main_runner.cc
+            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+          ],
+        }],
+        ['use_aura==1', {
+          'dependencies': [
+            '<(DEPTH)/ui/aura/aura.gyp:aura',
+            '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
+            '<(DEPTH)/ui/views/controls/webview/webview.gyp:webview',
+            '<(DEPTH)/ui/views/views.gyp:views',
+            '<(DEPTH)/ui/views/views.gyp:views_test_support',
+            '<(DEPTH)/ui/ui.gyp:ui_resources',
+          ],
+          'sources/': [
+            ['exclude', 'browser/ui/browser_gtk.cc'],
+            ['exclude', 'browser/ui/browser_win.cc'],
+          ],
+        }],  # use_aura==1
       ],
     },
     {
@@ -140,6 +216,13 @@
         '<(DEPTH)/ui/ui.gyp:ui_resources',
         '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',
+      ],
+      'conditions': [
+        ['OS!="android" and OS!="ios"', {
+          'dependencies': [
+            '<(DEPTH)/content/browser/tracing/tracing_resources.gyp:tracing_resources',
+          ],
+        }],
       ],
       'variables': {
         'repack_path': '<(DEPTH)/tools/grit/grit/format/repack.py',

@@ -11,7 +11,7 @@
 namespace breach {
 
 class BreachResourceDispatcherHostDelegate
-    : public ResourceDispatcherHostDelegate {
+    : public content::ResourceDispatcherHostDelegate {
  public:
   BreachResourceDispatcherHostDelegate();
   virtual ~BreachResourceDispatcherHostDelegate();
@@ -19,7 +19,7 @@ class BreachResourceDispatcherHostDelegate
   // ResourceDispatcherHostDelegate implementation.
   virtual bool AcceptAuthRequest(net::URLRequest* request,
                                  net::AuthChallengeInfo* auth_info) OVERRIDE;
-  virtual ResourceDispatcherHostLoginDelegate* CreateLoginDelegate(
+  virtual content::ResourceDispatcherHostLoginDelegate* CreateLoginDelegate(
       net::AuthChallengeInfo* auth_info, 
       net::URLRequest* request) OVERRIDE;
 

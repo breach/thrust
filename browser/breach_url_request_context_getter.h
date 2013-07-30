@@ -35,7 +35,7 @@ class BreachURLRequestContextGetter : public net::URLRequestContextGetter {
       const base::FilePath& base_path,
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
-      ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerMap* protocol_handlers,
       net::NetLog* net_log);
 
   // net::URLRequestContextGetter implementation.
@@ -59,7 +59,7 @@ class BreachURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::NetworkDelegate> network_delegate_;
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
-  ProtocolHandlerMap protocol_handlers_;
+  content::ProtocolHandlerMap protocol_handlers_;
 
   DISALLOW_COPY_AND_ASSIGN(BreachURLRequestContextGetter);
 };

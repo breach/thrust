@@ -9,7 +9,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/common/content_switches.h"
 #include "breach/common/breach_switches.h"
-#include "grit/shell_resources.h"
+#include "grit/breach_resources.h"
 #include "grit/webkit_resources.h"
 #include "grit/webkit_strings.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -26,7 +26,6 @@ std::string
 BreachContentClient::GetUserAgent() const 
 {
   std::string product = "Breach/" BREACH_VERSION;
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
   return webkit_glue::BuildUserAgentFromProduct(product);
 }
 

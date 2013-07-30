@@ -53,7 +53,7 @@ class JavaScriptDialog {
 #elif defined(TOOLKIT_GTK)
   GtkWidget* gtk_dialog_;
   gfx::NativeWindow parent_window_;
-  CHROMEGTK_CALLBACK_1(ShellJavaScriptDialog, void, OnResponse, int);
+  CHROMEGTK_CALLBACK_1(JavaScriptDialog, void, OnResponse, int);
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(JavaScriptDialog);

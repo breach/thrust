@@ -10,7 +10,7 @@ namespace switches {
 const char kAllowExternalPages[] = "allow-external-pages";
 
 // Makes Breach use the given path for its data directory.
-const char kContentBreachDataPath[] = "data-path";
+const char kBreachDataPath[] = "data-path";
 
 // Enable accelerated 2D canvas.
 const char kEnableAccelerated2DCanvas[] = "enable-accelerated-2d-canvas";

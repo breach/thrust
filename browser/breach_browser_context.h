@@ -24,7 +24,7 @@ class ResourceContext;
 class BreachURLRequestContextGetter;
 class BreachDownloadManagerDelegate;
 
-class BreachBrowserContext : public BrowserContext {
+class BreachBrowserContext : public content::BrowserContext {
  public:
   BreachBrowserContext(bool off_the_record, 
                        net::NetLog* net_log);
@@ -33,7 +33,8 @@ class BreachBrowserContext : public BrowserContext {
   // BrowserContext implementation.
   virtual base::FilePath GetPath() const OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
-  virtual DownloadManagerDelegate* GetDownloadManagerDelegate() OVERRIDE;
+  virtual content::DownloadManagerDelegate* 
+    GetDownloadManagerDelegate() OVERRIDE;
 
   virtual net::URLRequestContextGetter* GetRequestContext() OVERRIDE;
   virtual net::URLRequestContextGetter* GetRequestContextForRenderProcess(
@@ -45,24 +46,23 @@ class BreachBrowserContext : public BrowserContext {
       GetMediaRequestContextForStoragePartition(
           const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
-
   virtual void RequestMIDISysExPermission(
       int render_process_id,
       int render_view_id,
       const GURL& requesting_frame,
       const MIDISysExPermissionCallback& callback) OVERRIDE;
-
-  virtual ResourceContext* GetResourceContext() OVERRIDE;
-  virtual GeolocationPermissionContext*
+  virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
 
+  virtual content::ResourceContext* GetResourceContext() OVERRIDE;
+
   net::URLRequestContextGetter* CreateRequestContext(
-      ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
-      ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers);
 
  private:
   class BreachResourceContext;

@@ -29,7 +29,7 @@
 
 using namespace content;
 
-namespace content {
+namespace breach {
 
 BreachDownloadManagerDelegate::BreachDownloadManagerDelegate()
   : download_manager_(NULL),
@@ -101,12 +101,6 @@ BreachDownloadManagerDelegate::ShouldOpenDownload(
     DownloadItem* item,
     const DownloadOpenDelayedCallback& callback) 
 {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kDumpRenderTree) &&
-      WebKitTestController::Get()->IsMainWindow(item->GetWebContents()) &&
-      item->GetMimeType() == "text/html") {
-    WebKitTestController::Get()->OpenURL(
-        net::FilePathToFileURL(item->GetFullPath()));
-  }
   return true;
 }
 

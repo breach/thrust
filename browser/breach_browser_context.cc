@@ -32,7 +32,8 @@ using namespace content;
 
 namespace breach {
 
-class BreachBrowserContext::BreachResourceContext : public ResourceContext {
+class BreachBrowserContext::BreachResourceContext : 
+  public content::ResourceContext {
  public:
   BreachResourceContext() 
     : getter_(NULL) {}
@@ -123,7 +124,7 @@ BreachBrowserContext::IsOffTheRecord() const
   return off_the_record_;
 }
 
-DownloadManagerDelegate* 
+content::DownloadManagerDelegate* 
 BreachBrowserContext::GetDownloadManagerDelegate()  
 {
   DownloadManager* manager = BrowserContext::GetDownloadManager(this);
@@ -194,22 +195,33 @@ BreachBrowserContext::CreateRequestContextForStoragePartition(
   return NULL;
 }
 
-ResourceContext* 
+content::ResourceContext* 
 BreachBrowserContext::GetResourceContext()
 {
   return resource_context_.get();
 }
 
-GeolocationPermissionContext*
-BreachBrowserContext::GetGeolocationPermissionContext()
+void 
+BreachBrowserContext::RequestMIDISysExPermission(
+    int render_process_id,
+    int render_view_id,
+    const GURL& requesting_frame,
+    const MIDISysExPermissionCallback& callback) 
+{
+  callback.Run(false);
+}
+
+quota::SpecialStoragePolicy* 
+BreachBrowserContext::GetSpecialStoragePolicy() 
 {
   return NULL;
 }
 
-quota::SpecialStoragePolicy* 
-BreachBrowserContext::GetSpecialStoragePolicy()
+GeolocationPermissionContext*
+BreachBrowserContext::GetGeolocationPermissionContext()  
 {
   return NULL;
 }
+
 
 }  // namespace breach

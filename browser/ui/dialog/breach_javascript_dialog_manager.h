@@ -27,14 +27,14 @@ class BreachJavaScriptDialogManager : public content::JavaScriptDialogManager {
       content::JavaScriptMessageType javascript_message_type,
       const string16& message_text,
       const string16& default_prompt_text,
-      const content::DialogClosedCallback& callback,
+      const DialogClosedCallback& callback,
       bool* did_suppress_message) OVERRIDE;
 
   virtual void RunBeforeUnloadDialog(
       content::WebContents* web_contents,
       const string16& message_text,
       bool is_reload,
-      const content::DialogClosedCallback& callback) OVERRIDE;
+      const DialogClosedCallback& callback) OVERRIDE;
 
   virtual void ResetJavaScriptState(
       content::WebContents* web_contents) OVERRIDE;
@@ -57,7 +57,7 @@ class BreachJavaScriptDialogManager : public content::JavaScriptDialogManager {
 
   base::Closure dialog_request_callback_;
 
-  DISALLOW_COPY_AND_ASSIGN(ShellJavaScriptDialogManager);
+  DISALLOW_COPY_AND_ASSIGN(BreachJavaScriptDialogManager);
 };
 
 } // namespace breach

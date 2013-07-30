@@ -19,7 +19,7 @@
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   content::InitializeSandboxInfo(&sandbox_info);
-  content::ShellMainDelegate delegate;
+  breach::BreachMainDelegate delegate;
   return content::ContentMain(instance, &sandbox_info, &delegate);
 }
 

@@ -23,8 +23,8 @@ class WebContents;
 namespace breach {
 class Browser;
 
-class BreachDevToolsFrontend : public WebContentsObserver,
-                              public DevToolsFrontendHostDelegate {
+class BreachDevToolsFrontend : public content::WebContentsObserver,
+                               public content::DevToolsFrontendHostDelegate {
  public:
   static BreachDevToolsFrontend* Show(
       content::WebContents* inspected_contents);
@@ -34,7 +34,9 @@ class BreachDevToolsFrontend : public WebContentsObserver,
   Browser* browser() const { return browser_; }
 
  private:
-  BreachDevToolsFrontend(Browser* browser, DevToolsAgentHost* agent_host);
+  BreachDevToolsFrontend(
+      Browser* browser, 
+      content::DevToolsAgentHost* agent_host);
   virtual ~BreachDevToolsFrontend();
 
   // WebContentsObserver overrides
@@ -61,8 +63,8 @@ class BreachDevToolsFrontend : public WebContentsObserver,
   virtual void InspectedContentsClosing() OVERRIDE;
 
   Browser* browser_;
-  scoped_refptr<DevToolsAgentHost> agent_host_;
-  scoped_ptr<DevToolsClientHost> frontend_host_;
+  scoped_refptr<content::DevToolsAgentHost> agent_host_;
+  scoped_ptr<content::DevToolsClientHost> frontend_host_;
 
   DISALLOW_COPY_AND_ASSIGN(BreachDevToolsFrontend);
 };

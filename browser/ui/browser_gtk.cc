@@ -18,6 +18,8 @@
 #include "breach/browser/breach_browser_context.h"
 #include "breach/browser/breach_content_browser_client.h"
 
+using namespace content;
+
 namespace breach {
 
 namespace {

@@ -11,7 +11,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "content/public/browser/devtools/devtools_manager.h"
+#include "content/public/browser/devtools_manager.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -24,9 +24,9 @@
 #include "content/public/common/renderer_preferences.h"
 
 #include "breach/common/breach_switches.h"
-#include "breach/breach_browser_main_parts.h"
-#include "breach/breach_content_browser_client.h"
-#include "breach/browser/breach_devtools_frontend.h"
+#include "breach/browser/breach_browser_main_parts.h"
+#include "breach/browser/breach_content_browser_client.h"
+#include "breach/browser/devtools/breach_devtools_frontend.h"
 #include "breach/browser/ui/dialog/breach_javascript_dialog_manager.h"
 #include "breach/common/breach_messages.h"
 
@@ -223,7 +223,7 @@ Browser::ShowDevTools()
   }
   devtools_frontend_ = BreachDevToolsFrontend::Show(web_contents());
   devtools_observer_.reset(new DevToolsWebContentsObserver(
-      this, devtools_frontend_->frontend_shell()->web_contents()));
+      this, devtools_frontend_->browser()->web_contents()));
 }
 
 void 

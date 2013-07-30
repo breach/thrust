@@ -13,7 +13,7 @@
 
 namespace breach {
 
-class BreachContentClient : public ContentClient {
+class BreachContentClient : public content::ContentClient {
  public:
   virtual ~BreachContentClient();
 

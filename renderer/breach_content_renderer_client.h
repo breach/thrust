@@ -14,7 +14,7 @@ namespace breach {
 
 class BreachRenderProcessObserver;
 
-class BreachContentRendererClient : public ContentRendererClient {
+class BreachContentRendererClient : public content::ContentRendererClient {
  public:
   static BreachContentRendererClient* Get();
 

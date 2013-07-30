@@ -17,7 +17,7 @@ class RenderView;
 
 namespace breach {
 
-class BreachRenderViewObserver : public RenderViewObserver {
+class BreachRenderViewObserver : public content::RenderViewObserver {
  public:
   explicit BreachRenderViewObserver(content::RenderView* render_view);
   virtual ~BreachRenderViewObserver() {}
