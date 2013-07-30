@@ -44,7 +44,7 @@ BreachContentRendererClient::~BreachContentRendererClient()
 void 
 BreachContentRendererClient::RenderThreadStarted() 
 {
-  shell_observer_.reset(new BreachRenderProcessObserver());
+  observer_.reset(new BreachRenderProcessObserver());
 #if defined(OS_MACOSX)
   // We need to call this once before the sandbox was initialized to cache the
   // value.

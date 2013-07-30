@@ -22,8 +22,7 @@
 
 #include "breach/common/breach_switches.h"
 #include "breach/browser/breach_content_browser_client.h"
-#include "breach/renderer/shell_content_renderer_client.h"
-#include "breach/shell_browser_main.h"
+#include "breach/renderer/breach_content_renderer_client.h"
 
 #include <stdio.h>
 

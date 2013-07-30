@@ -147,9 +147,9 @@ BreachContentBrowserClient::ShouldTryToUseExistingProcessHost(
       BrowserContext* browser_context, 
       const GURL& url) 
 {
-  BreachBrowserContext* shell_browser_context =
+  BreachBrowserContext* browser_context =
     static_cast<BreachBrowserContext*>(browser_context);
-  if (shell_browser_context->pinning_renderer())
+  if (browser_context->pinning_renderer())
     return true;
   else
     return false;
@@ -160,9 +160,9 @@ BreachContentBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
     ProtocolHandlerMap* protocol_handlers) 
 {
-  BreachBrowserContext* shell_browser_context =
+  BreachBrowserContext* browser_context =
       BreachBrowserContextForBrowserContext(content_browser_context);
-  return shell_browser_context->CreateRequestContext(protocol_handlers);
+  return browser_context->CreateRequestContext(protocol_handlers);
 }
 
 net::URLRequestContextGetter*
@@ -172,9 +172,9 @@ BreachContentBrowserClient::CreateRequestContextForStoragePartition(
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers) 
 {
-  BreachBrowserContext* shell_browser_context =
+  BreachBrowserContext* browser_context =
     BreachBrowserContextForBrowserContext(content_browser_context);
-  return shell_browser_context->CreateRequestContextForStoragePartition(
+  return browser_context->CreateRequestContextForStoragePartition(
       partition_path, in_memory, protocol_handlers);
 }
 

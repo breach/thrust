@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "breach/browser/devtools/shell_devtools_frontend.h"
+#include "breach/browser/devtools/breach_devtools_frontend.h"
 
 #include "base/command_line.h"
 #include "base/path_service.h"

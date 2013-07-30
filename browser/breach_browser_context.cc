@@ -17,8 +17,8 @@
 #include "content/public/common/content_switches.h"
 
 #include "breach/common/breach_switches.h"
-#include "breach/browser/shell_url_request_context_getter.h"
-#include "breach/browser/browser_download_manager_delegate.h"
+#include "breach/browser/breach_url_request_context_getter.h"
+#include "breach/browser/breach_download_manager_delegate.h"
 
 #if defined(OS_WIN)
 #include "base/base_paths_win.h"

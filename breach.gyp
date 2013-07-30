@@ -120,7 +120,7 @@
         {
           'action_name': 'breach_resources',
           'variables': {
-            'grit_grd_file': 'resources/breach_resources.grd',
+            'grit_grd_file': 'breach_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
         },

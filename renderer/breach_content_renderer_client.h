@@ -26,7 +26,7 @@ class BreachContentRendererClient : public ContentRendererClient {
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
 
  private:
-  scoped_ptr<BreachRenderProcessObserver> shell_observer_;
+  scoped_ptr<BreachRenderProcessObserver> observer_;
 };
 
 }  // namespace content

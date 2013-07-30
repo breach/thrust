@@ -27,7 +27,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
 
 int main(int argc, const char** argv) {
 #if defined(OS_MACOSX)
-  // Do the delegate work in shell_content_main to avoid having to export the
+  // Do the delegate work in breach_main_mac to avoid having to export the
   // delegate types. (from the Content Shell)
   return ::ContentMain(argc, argv);
 #else

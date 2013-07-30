@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "content/shell/shell_url_request_context_getter.h"
+#include "breach/browser/breach_url_request_context_getter.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -14,7 +14,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "breach/common/breach_switches.h"
-#include "breach/browser/shell_network_delegate.h"
+#include "breach/browser/breach_network_delegate.h"
 #include "net/base/cache_type.h"
 #include "net/cert/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
