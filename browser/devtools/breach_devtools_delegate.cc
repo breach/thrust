@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "breach/browser/breach_devtools_delegate.h"
+#include "breach/browser/devtools/breach_devtools_delegate.h"
 
 #include <vector>
 
@@ -13,7 +13,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
-#include "breach/browser/browser.h"
+#include "breach/browser/ui/browser.h"
 #include "grit/shell_resources.h"
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"

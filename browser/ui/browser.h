@@ -1,8 +1,8 @@
 // Copyright (c) 2013 Stanislas Polu.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
-#ifndef BREACH_BROWSER_BROWSER_H_
-#define BREACH_BROWSER_BROWSER_H_
+#ifndef BREACH_BROWSER_UI_BROWSER_H_
+#define BREACH_BROWSER_UI_BROWSER_H_
 
 
 #include <vector>
@@ -40,8 +40,7 @@ class WebContents;
 namespace breach {
 
 class BreachDevToolsFrontend;
-/* TODO(spolu): renaming post file creation */
-class ShellJavaScriptDialogManager;
+class BreachJavaScriptDialogManager;
 
 // This represents one window of the Breach browser, i.e. all the UI including
 // controls and the web content area
@@ -199,8 +198,7 @@ class Browser : public WebContentsDelegate,
                      GObject*, guint, GdkModifierType);
 #endif
 
-  /* TODO(spolu): renaming post file creation */
-  scoped_ptr<ShellJavaScriptDialogManager> dialog_manager_;
+  scoped_ptr<BreachJavaScriptDialogManager> dialog_manager_;
 
   scoped_ptr<WebContents> web_contents_;
 
@@ -245,6 +243,6 @@ class Browser : public WebContentsDelegate,
   static bool quit_message_loop_;
 };
 
-}  // namespace content
+} // namespace breach
 
-endif  // CONTENT_SHELL_SHELL_H_
+#endif // BREACH_BROWSER_UI_BROWSER_H_

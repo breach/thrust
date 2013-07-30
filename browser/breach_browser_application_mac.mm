@@ -5,7 +5,7 @@
 #include "breach/browser/breach_browser_application_mac.h"
 
 #include "base/auto_reset.h"
-#include "breach/browser/browser.h"
+#include "breach/browser/ui/browser.h"
 #include "breach/browser/breach_browser_context.h"
 #include "breach/browser/breach_content_browser_client.h"
 #include "url/gurl.h"

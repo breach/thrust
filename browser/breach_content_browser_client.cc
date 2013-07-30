@@ -22,10 +22,10 @@
 #include "breach/browser/breach_browser_main_parts.h"
 #include "breach/browser/breach_browser_context.h"
 #include "breach/browser/breach_resource_dispatcher_host_delegate.h"
-#include "breach/browser/breach_devtools_delegate.h"
+#include "breach/browser/devtools/breach_devtools_delegate.h"
 #include "breach/geolocation/breach_access_token_store.h"
 #include "breach/common/breach_switches.h"
-#include "breach/browser/browser.h"
+#include "breach/browser/ui/browser.h"
 
 #include "net/url_request/url_request_context_getter.h"
 #include "webkit/common/webpreferences.h"

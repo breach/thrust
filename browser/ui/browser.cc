@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "breach/browser/browser.h"
+#include "breach/browser/ui/browser.h"
 
 #include "base/auto_reset.h"
 #include "base/message_loop/message_loop.h"
@@ -11,7 +11,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "content/public/browser/devtools_manager.h"
+#include "content/public/browser/devtools/devtools_manager.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -27,9 +27,9 @@
 #include "breach/breach_browser_main_parts.h"
 #include "breach/breach_content_browser_client.h"
 #include "breach/browser/breach_devtools_frontend.h"
+#include "breach/browser/ui/dialog/breach_javascript_dialog_manager.h"
 /* TODO(spolu): renaming post file creation */
 #include "content/shell/common/shell_messages.h"
-#include "content/shell/shell_javascript_dialog_manager.h"
 
 using namespace content;
 
@@ -318,9 +318,8 @@ Browser::DidNavigateMainFramePostCommit(WebContents* web_contents)
 JavaScriptDialogManager* 
 Browser::GetJavaScriptDialogManager() 
 {
-  /* TODO(spolu): renaming post file creation */
   if (!dialog_manager_)
-    dialog_manager_.reset(new ShellJavaScriptDialogManager());
+    dialog_manager_.reset(new BreachJavaScriptDialogManager());
   return dialog_manager_.get();
 }
 
