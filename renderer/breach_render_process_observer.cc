@@ -9,8 +9,7 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/test/layouttest_support.h"
-/* TODO(spolu): renaming post file creation */
-#include "content/shell/common/shell_messages.h"
+#include "breach/common/breach_messages.h"
 #include "breach/common/breach_switches.h"
 #include "breach/renderer/breach_content_renderer_client.h"
 

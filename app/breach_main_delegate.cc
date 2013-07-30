@@ -34,13 +34,11 @@
 #include "content/public/common/content_ipc_logging.h"
 #define IPC_LOG_TABLE_ADD_ENTRY(msg_id, logger) \
     content::RegisterIPCLogger(msg_id, logger)
-/* TODO(spolu): renaming post file creation */
-#include "content/shell/common/shell_messages.h" 
+#include "breach/common/breach_messages.h" 
 #endif
 
 #if defined(OS_MACOSX)
-/* TODO(spolu): renaming post file creation */
-#include "content/shell/paths_mac.h"
+#include "breach/app/paths_mac.h"
 #endif  // OS_MACOSX
 
 #if defined(OS_WIN)

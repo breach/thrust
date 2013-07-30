@@ -6,8 +6,8 @@
 
 #include "base/command_line.h"
 #include "breach/common/breach_switches.h"
-/* TODO(spolu): renaming post file creation */
-#include "content/shell/shell_login_dialog.h"
+/* TODO(spolu): introduce ShellLogin Dialog (see content) */
+//#include "content/shell/shell_login_dialog.h"
 
 using namespace content;
 

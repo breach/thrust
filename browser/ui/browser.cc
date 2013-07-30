@@ -28,8 +28,7 @@
 #include "breach/breach_content_browser_client.h"
 #include "breach/browser/breach_devtools_frontend.h"
 #include "breach/browser/ui/dialog/breach_javascript_dialog_manager.h"
-/* TODO(spolu): renaming post file creation */
-#include "content/shell/common/shell_messages.h"
+#include "breach/common/breach_messages.h"
 
 using namespace content;
 
