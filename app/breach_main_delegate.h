@@ -13,8 +13,7 @@
 namespace breach {
 
 class BreachContentBrowserClient;
-/* TODO(spolu): renaming post file creation */
-class ShellContentRendererClient;
+class BreachContentRendererClient;
 
 class BreachMainDelegate : public content::ContentMainDelegate {
  public:
@@ -31,8 +30,7 @@ class BreachMainDelegate : public content::ContentMainDelegate {
 
  private:
   scoped_ptr<BreachContentBrowserClient> browser_client_;
-  /* TODO(spolu): renaming post file creation */
-  scoped_ptr<ShellContentRendererClient> renderer_client_;
+  scoped_ptr<BreachContentRendererClient> renderer_client_;
   BreachContentClient content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(BreachMainDelegate);

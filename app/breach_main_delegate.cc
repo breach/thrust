@@ -20,12 +20,8 @@
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
 
-#include "third_party/node/src/node_version.h"
-
 #include "breach/common/breach_switches.h"
 #include "breach/browser/breach_content_browser_client.h"
-/* TODO(spolu): NW */
-//#include "content/nw/src/nw_version.h"
 #include "breach/renderer/shell_content_renderer_client.h"
 #include "breach/shell_browser_main.h"
 
@@ -38,12 +34,12 @@
 #include "content/public/common/content_ipc_logging.h"
 #define IPC_LOG_TABLE_ADD_ENTRY(msg_id, logger) \
     content::RegisterIPCLogger(msg_id, logger)
-/* TODO(spolu): NW */
-//#include "content/nw/src/common/common_message_generator.h"
-//#include "components/autofill/common/autofill_messages.h"
+/* TODO(spolu): renaming post file creation */
+#include "content/shell/common/shell_messages.h" 
 #endif
 
 #if defined(OS_MACOSX)
+/* TODO(spolu): renaming post file creation */
 #include "content/shell/paths_mac.h"
 #endif  // OS_MACOSX
 
@@ -134,14 +130,12 @@ void BreachMainDelegate::InitializeResourceBundle() {
 }
 
 ContentBrowserClient* BreachMainDelegate::CreateContentBrowserClient() {
-  /* TODO(spolu): renaming post file creation */
-  browser_client_.reset(new ShellContentBrowserClient);
+  browser_client_.reset(new BreachContentBrowserClient);
   return browser_client_.get();
 }
 
 ContentRendererClient* BreachMainDelegate::CreateContentRendererClient() {
-  /* TODO(spolu): renaming post file creation */
-  renderer_client_.reset(new ShellContentRendererClient);
+  renderer_client_.reset(new BreachContentRendererClient);
   return renderer_client_.get();
 }
 
