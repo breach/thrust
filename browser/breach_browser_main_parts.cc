@@ -77,9 +77,9 @@ BreachBrowserMainParts::~BreachBrowserMainParts() {
 int
 BreachBrowserMainParts::PreCreateThreads()
 {
+  /* We create the NodeWrapperThread which will host NodeJS */
   node_thread_.reset(new NodeWrapperThread());
   node_thread_->Start();
-  LOG(INFO) << "PreCreateThreads";
   return 0;
 }
 
@@ -93,7 +93,6 @@ BreachBrowserMainParts::PreMainMessageLoopStart()
 void 
 BreachBrowserMainParts::PostMainMessageLoopStart() 
 {
-  LOG(INFO) << "PreMessageLoopStart";
 }
 
 void 

@@ -32,7 +32,9 @@ class NodeWrapperThread : public base::Thread {
     // called on itself
     void RunUvLoop();
 
-    v8::Local<v8::Object> process_;
+    // Be careful: these objects only live while the message_loop is running
+    v8::Handle<v8::Object> process_;
+    v8::Handle<v8::Context> context_;
 };
 
 }

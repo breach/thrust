@@ -54,19 +54,19 @@ NodeWrapperThread::Run(
     HandleScope handle_scope(node_isolate);
 
     // Create the one and only Context.
-    Local<Context> context = Context::New(node_isolate);
-    Context::Scope context_scope(context);
+    context_ = Context::New(node_isolate);
+    Context::Scope context_scope(context_);
 
     node::SetupBindingCache();
-    Local<Object> process_l = node::SetupProcessObject(argc, argv);
+    process_ = node::SetupProcessObject(argc, argv);
 
     // Create all the objects, load modules, do everything.
     // so your next reading stop should be node::Load()!
-    node::Load(process_l);
+    node::Load(process_);
 
     Thread::Run(message_loop);
 
-    node::EmitExit(process_l);
+    node::EmitExit(process_);
     node::RunAtExit();
   }
 }
