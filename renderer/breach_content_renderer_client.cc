@@ -14,9 +14,29 @@
 #include "breach/common/breach_switches.h"
 #include "breach/renderer/breach_render_process_observer.h"
 #include "breach/renderer/breach_render_view_observer.h"
+#include "third_party/WebKit/public/platform/WebMediaStreamCenter.h"
+#include "third_party/WebKit/public/testing/WebTestInterfaces.h"
+#include "third_party/WebKit/public/testing/WebTestProxy.h"
+#include "third_party/WebKit/public/testing/WebTestRunner.h"
+#include "third_party/WebKit/public/web/WebPluginParams.h"
+#include "third_party/WebKit/public/web/WebView.h"
 #include "v8/include/v8.h"
 
 using namespace content;
+
+using WebKit::WebAudioDevice;
+using WebKit::WebClipboard;
+using WebKit::WebFrame;
+using WebKit::WebHyphenator;
+using WebKit::WebMIDIAccessor;
+using WebKit::WebMIDIAccessorClient;
+using WebKit::WebMediaStreamCenter;
+using WebKit::WebMediaStreamCenterClient;
+using WebKit::WebPlugin;
+using WebKit::WebPluginParams;
+using WebKit::WebRTCPeerConnectionHandler;
+using WebKit::WebRTCPeerConnectionHandlerClient;
+using WebKit::WebThemeEngine;
 
 namespace breach {
 
@@ -57,6 +77,22 @@ BreachContentRendererClient::RenderViewCreated(
     RenderView* render_view) 
 {
   new BreachRenderViewObserver(render_view);
+}
+
+bool 
+BreachContentRendererClient::OverrideCreatePlugin(
+    RenderView* render_view,
+    WebFrame* frame,
+    const WebPluginParams& params,
+    WebPlugin** plugin) {
+  std::string mime_type = params.mimeType.utf8();
+  if (mime_type == content::kBrowserPluginMimeType) {
+    // Allow browser plugin in content_shell only if it is forced by flag.
+    // Returning true here disables the plugin.
+    return !CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kEnableBrowserPluginForAllViewTypes);
+  }
+  return false;
 }
 
 }  // namespace breach

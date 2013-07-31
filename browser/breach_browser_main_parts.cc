@@ -20,6 +20,7 @@
 #include "breach/browser/ui/browser.h"
 #include "breach/browser/devtools/breach_devtools_delegate.h"
 #include "breach/browser/breach_net_log.h"
+#include "breach/browser/node/node_wrapper_thread.h"
 
 #include "grit/net_resources.h"
 #include "net/base/net_module.h"
@@ -32,6 +33,20 @@ using namespace content;
 namespace breach {
 
 namespace {
+
+static GURL GetStartupURL() {
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  const CommandLine::StringVector& args = command_line->GetArgs();
+
+  if (args.empty())
+    return GURL("http://www.google.com/");
+
+  GURL url(args[0]);
+  if (url.is_valid() && url.has_scheme())
+    return url;
+
+  return net::FilePathToFileURL(base::FilePath(args[0]));
+}
 
 base::StringPiece 
 PlatformResourceProvider(
@@ -59,6 +74,15 @@ BreachBrowserMainParts::BreachBrowserMainParts(
 BreachBrowserMainParts::~BreachBrowserMainParts() {
 }
 
+int
+BreachBrowserMainParts::PreCreateThreads()
+{
+  node_thread_.reset(new NodeWrapperThread());
+  node_thread_->Start();
+  LOG(INFO) << "PreCreateThreads";
+  return 0;
+}
+
 #if !defined(OS_MACOSX)
 void 
 BreachBrowserMainParts::PreMainMessageLoopStart()
@@ -69,6 +93,7 @@ BreachBrowserMainParts::PreMainMessageLoopStart()
 void 
 BreachBrowserMainParts::PostMainMessageLoopStart() 
 {
+  LOG(INFO) << "PreMessageLoopStart";
 }
 
 void 
@@ -84,10 +109,18 @@ BreachBrowserMainParts::PreMainMessageLoopRun()
   off_the_record_browser_context_.reset(
       new BreachBrowserContext(true, net_log_.get()));
 
+  LOG(INFO) << "PreMessageLoopRun";
+
   Browser::Initialize();
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
 
   devtools_delegate_.reset(new BreachDevToolsDelegate(browser_context_.get()));
+
+  Browser::CreateNewWindow(browser_context_.get(),
+                           GetStartupURL(),
+                           NULL,
+                           MSG_ROUTING_NONE,
+                           gfx::Size());
 
   if (parameters_.ui_task) {
     parameters_.ui_task->Run();

@@ -1,0 +1,221 @@
+diff --git a/Makefile b/Makefile
+index fddedde..1f4baaf 100644
+--- a/Makefile
++++ b/Makefile
+@@ -28,20 +28,32 @@ endif
+ 
+ ifeq ($(USE_NINJA),1)
+ node: config.gypi
+-	$(NINJA) -C out/Release/
++	$(NINJA) -C out/Release/ node
+ 	ln -fs out/Release/node node
+ 
+ node_g: config.gypi
+ 	$(NINJA) -C out/Debug/
+ 	ln -fs out/Debug/node $@
++
++staticlib: config.gypi
++	$(NINJA) -C out/Release/ node_base
++
++staticlib_g: config.gypi
++	$(NINJA) -C out/Debug/ node_base
+ else
+ node: config.gypi out/Makefile
+-	$(MAKE) -C out BUILDTYPE=Release V=$(V)
++	$(MAKE) -C out BUILDTYPE=Release V=$(V) node
+ 	ln -fs out/Release/node node
+ 
+ node_g: config.gypi out/Makefile
+ 	$(MAKE) -C out BUILDTYPE=Debug V=$(V)
+ 	ln -fs out/Debug/node $@
++
++staticlib: config.gypi
++	$(MAKE) -C out BUILDTYPE=Release V=$(V) node_base
++
++staticlib_g: config.gypi
++	$(MAKE) -C out BUILDTYPE=Debug V=$(V) node_base
+ endif
+ 
+ out/Makefile: common.gypi deps/uv/uv.gyp deps/http_parser/http_parser.gyp deps/zlib/zlib.gyp deps/v8/build/toolchain.gypi deps/v8/build/features.gypi deps/v8/tools/gyp/v8.gyp node.gyp config.gypi
+diff --git a/node.gyp b/node.gyp
+index 1215c87..9c23df9 100644
+--- a/node.gyp
++++ b/node.gyp
+@@ -72,17 +72,14 @@
+ 
+   'targets': [
+     {
+-      'target_name': 'node',
+-      'type': 'executable',
+-
++      'target_name': 'node_base',
++      'type': 'static_library',
+       'dependencies': [
+         'node_js2c#host',
+       ],
+ 
+       'include_dirs': [
+         'src',
+-        'tools/msvs/genfiles',
+-        'deps/uv/src/ares',
+         '<(SHARED_INTERMEDIATE_DIR)' # for node_natives.h
+       ],
+ 
+@@ -97,7 +94,6 @@
+         'src/node_file.cc',
+         'src/node_http_parser.cc',
+         'src/node_javascript.cc',
+-        'src/node_main.cc',
+         'src/node_os.cc',
+         'src/node_script.cc',
+         'src/node_stat_watcher.cc',
+@@ -234,6 +230,7 @@
+             'tools/msvs/genfiles/node_perfctr_provider.rc',
+           ]
+         } ],
++
+         [ 'v8_postmortem_support=="true"', {
+           'dependencies': [ 'deps/v8/tools/gyp/v8.gyp:postmortem-metadata' ],
+         }],
+@@ -243,22 +240,37 @@
+             'deps/v8/include/v8-debug.h',
+           ],
+           'dependencies': [ 'deps/v8/tools/gyp/v8.gyp:v8' ],
++          'include_dirs': [ 'deps/v8/include' ],
++        }, {
++          'include_dirs': [ '<(shared_v8_include_dir)' ],
+         }],
+ 
+         [ 'node_shared_zlib=="false"', {
+           'dependencies': [ 'deps/zlib/zlib.gyp:zlib' ],
++          'include_dirs': [ 'deps/zlib' ],
++        }, {
++          'include_dirs': [ '<(shared_zlib_include_dir)' ],
+         }],
+ 
+         [ 'node_shared_http_parser=="false"', {
+           'dependencies': [ 'deps/http_parser/http_parser.gyp:http_parser' ],
++          'include_dirs': [ 'deps/http_parser' ],
++        }, {
++          'include_dirs': [ '<(shared_http_parser_include_dir)' ],
+         }],
+ 
+         [ 'node_shared_cares=="false"', {
+           'dependencies': [ 'deps/cares/cares.gyp:cares' ],
++          'include_dirs': [ 'deps/cares/include' ],
++        }, {
++          'include_dirs': [ '<(shared_cares_include_dir)' ],
+         }],
+ 
+         [ 'node_shared_libuv=="false"', {
+           'dependencies': [ 'deps/uv/uv.gyp:libuv' ],
++          'include_dirs': [ 'deps/uv/include' ],
++        }, {
++          'include_dirs': [ '<(shared_libuv_include_dir)' ],
+         }],
+ 
+         [ 'OS=="win"', {
+@@ -285,6 +297,52 @@
+             'PLATFORM="darwin"',
+           ],
+         }],
++      ],
++      'msvs_settings': {
++        'VCLinkerTool': {
++          'SubSystem': 1, # /subsystem:console
++        },
++      },
++    },
++
++    {
++      'target_name': 'node',
++      'type': 'executable',
++      'dependencies': [
++        'node_base',
++      ],
++      'include_dirs': [
++        'src',
++        'tools/msvs/genfiles',
++        'deps/uv/src/ares',
++      ],
++      'sources': [
++        'src/node_main.cc',
++      ],
++      'conditions': [
++        [ 'v8_postmortem_support=="true"', {
++          'dependencies': [ 'deps/v8/tools/gyp/v8.gyp:postmortem-metadata' ],
++        }],
++        [ 'node_shared_v8=="false"', {
++          'dependencies': [ 'deps/v8/tools/gyp/v8.gyp:v8' ],
++        }],
++
++        [ 'node_shared_zlib=="false"', {
++          'dependencies': [ 'deps/zlib/zlib.gyp:zlib' ],
++        }],
++
++        [ 'node_shared_http_parser=="false"', {
++          'dependencies': [ 'deps/http_parser/http_parser.gyp:http_parser' ],
++        }],
++
++        [ 'node_shared_cares=="false"', {
++          'dependencies': [ 'deps/cares/cares.gyp:cares' ],
++        }],
++
++        [ 'node_shared_libuv=="false"', {
++          'dependencies': [ 'deps/uv/uv.gyp:libuv' ],
++        }],
++
+         [ 'OS=="freebsd"', {
+           'libraries': [
+             '-lutil',
+@@ -312,6 +370,7 @@
+         },
+       },
+     },
++
+     # generate ETW header and resource files
+     {
+       'target_name': 'node_etw',
+diff --git a/src/node.cc b/src/node.cc
+index 73cd19a..c9368d9 100644
+--- a/src/node.cc
++++ b/src/node.cc
+@@ -3026,6 +3026,20 @@ static char **copy_argv(int argc, char **argv) {
+   return argv_copy;
+ }
+ 
++void SetupBindingCache() {
++  binding_cache.Reset(Isolate::GetCurrent(), Object::New());
++}
++
++void InitSetup(int argc, char *argv[]) {
++  // This needs to run *before* V8::Initialize()
++  // Use copy here as to not modify the original argv:
++  Init(argc, argv);
++
++  // Apparently we need to reassign this one
++  // TODO(spolu): figure out why?
++  node_isolate = Isolate::GetCurrent();
++}
++
+ int Start(int argc, char *argv[]) {
+   // Hack aroung with the argv pointer. Used for process.title = "blah".
+   argv = uv_setup_args(argc, argv);
+diff --git a/src/node.h b/src/node.h
+index 7b7c565..01dc96b 100644
+--- a/src/node.h
++++ b/src/node.h
+@@ -122,10 +122,13 @@ NODE_EXTERN extern bool no_deprecation;
+ 
+ NODE_EXTERN int Start(int argc, char *argv[]);
+ 
++void InitSetup(int argc, char *argv[]);
+ char** Init(int argc, char *argv[]);
+ v8::Handle<v8::Object> SetupProcessObject(int argc, char *argv[]);
++void SetupBindingCache();
+ void Load(v8::Handle<v8::Object> process);
+ void EmitExit(v8::Handle<v8::Object> process);
++void RunAtExit();
+ 
+ /* Converts a unixtime to V8 Date */
+ #define NODE_UNIXTIME_V8(t) v8::Date::New(1000*static_cast<double>(t))

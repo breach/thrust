@@ -98,8 +98,9 @@ Browser::~Browser()
 }
 
 Browser* 
-Browser::CreateBrowser(WebContents* web_contents,
-                       const gfx::Size& initial_size) 
+Browser::CreateBrowser(
+    WebContents* web_contents,
+    const gfx::Size& initial_size) 
 {
   Browser* browser = new Browser(web_contents);
   browser->PlatformCreateWindow(initial_size.width(), initial_size.height());
@@ -144,11 +145,12 @@ Browser::Initialize()
       gfx::Size(kDefaultWindowWidthDip, kDefaultWindowHeightDip));
 }
 
-Browser* Browser::CreateNewWindow(BrowserContext* browser_context,
-                                  const GURL& url,
-                                  SiteInstance* site_instance,
-                                  int routing_id,
-                                  const gfx::Size& initial_size) 
+Browser* Browser::CreateNewWindow(
+    BrowserContext* browser_context,
+    const GURL& url,
+    SiteInstance* site_instance,
+    int routing_id,
+    const gfx::Size& initial_size) 
 {
   WebContents::CreateParams create_params(browser_context, site_instance);
   create_params.routing_id = routing_id;
@@ -266,6 +268,7 @@ void
 Browser::ToggleFullscreenModeForTab(WebContents* web_contents,
                                     bool enter_fullscreen) 
 {
+  /* TODO(spolu): Should return without test, maybe remove fullscreen logic ? */
   if (is_fullscreen_ != enter_fullscreen) {
     is_fullscreen_ = enter_fullscreen;
     web_contents->GetRenderViewHost()->WasResized();
@@ -279,9 +282,10 @@ Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) const
 }
 
 void 
-Browser::RequestToLockMouse(WebContents* web_contents,
-                            bool user_gesture,
-                            bool last_unlocked_by_target) 
+Browser::RequestToLockMouse(
+    WebContents* web_contents,
+    bool user_gesture,
+    bool last_unlocked_by_target) 
 {
   web_contents->GotResponseToLockMouseRequest(true);
 }
@@ -299,11 +303,12 @@ Browser::CanOverscrollContent() const
 }
 
 void 
-Browser::WebContentsCreated(WebContents* source_contents,
-                          int64 source_frame_id,
-                          const string16& frame_name,
-                          const GURL& target_url,
-                          WebContents* new_contents) 
+Browser::WebContentsCreated(
+    WebContents* source_contents,
+    int64 source_frame_id,
+    const string16& frame_name,
+    const GURL& target_url,
+    WebContents* new_contents) 
 {
   CreateBrowser(new_contents, source_contents->GetView()->GetContainerSize());
 }

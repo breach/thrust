@@ -1,14 +1,52 @@
 diff --git a/.gitignore b/.gitignore
-index df9939b..020e5bf 100644
+index df9939b..28fdf92 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -317,3 +317,6 @@ v8.log
+@@ -55,6 +55,7 @@ v8.log
+ /c
+ /ceee/internal/
+ /base/base_unittests_run.xml
++/breach
+ /chrome/app/policy/chrome_settings_proto_compile.xml
+ /chrome/app/policy/chrome_settings_proto_generated_compile.xml
+ /chrome/app/policy/cloud_policy_backend_header_compile.xml
+@@ -231,6 +232,7 @@ v8.log
+ /third_party/mt19937ar
+ /third_party/mtpd/source/
+ /third_party/nacl_sdk_binaries/
++/third_party/node/
+ /third_party/nss
+ /third_party/openmax_dl/
+ /third_party/openssl
+@@ -317,3 +319,5 @@ v8.log
  /xcodebuild
  cscope.*
  Session.vim
 +
-+/breach
 +
+diff --git a/build/common.gypi b/build/common.gypi
+index 62aa480..b4a92aa 100644
+--- a/build/common.gypi
++++ b/build/common.gypi
+@@ -9,6 +9,18 @@
+   # Variables expected to be overriden on the GYP command line (-D) or by
+   # ~/.gyp/include.gypi.
+   'variables': {
++
++    # begin node variables
++    'node_shared_v8': 'true',
++    'shared_v8_include_dir': '<(DEPTH)/v8/include',
++    'node_shared_zling': 'true',
++    'shared_zlib_include_dir': '<(DEPTH)/third_party/zlib',
++    'node_tag': '',
++    'v8_postmortem_support': 'false',
++    'python': '/usr/bin/python',
++    'library%': 'static_library',    # allow override to 'shared_library' for DLL/.so builds
++    # end node variables
++
+     # Putting a variables dict inside another variables dict looks kind of
+     # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
+     # variables within the outer variables dict here.  This is necessary
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
 index fdab9ca..29b2800 100644
 --- a/tools/gritsettings/resource_ids

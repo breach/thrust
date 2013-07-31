@@ -39,9 +39,12 @@
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
         '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
+        '<(DEPTH)/third_party/node/node.gyp:node_base'
       ],
       'include_dirs': [
-        '<(DEPTH)',
+        '<(DEPTH)'
+        '<(DEPTH)/third_party/node/src',
+        '<(DEPTH)/third_party/node/deps/uv/include',
       ],
       'sources': [
         'app/paths_mac.h',
@@ -101,6 +104,8 @@
         'browser/breach_resource_dispatcher_host_delegate.h',
         'browser/breach_url_request_context_getter.cc',
         'browser/breach_url_request_context_getter.h',
+        'browser/node/node_wrapper_thread.h',
+        'browser/node/node_wrapper_thread.cc',
       ],
       'msvs_settings': {
         'VCLinkerTool': {

@@ -10,6 +10,12 @@
 #include "base/platform_file.h"
 #include "content/public/renderer/content_renderer_client.h"
 
+namespace WebKit {
+class WebFrame;
+class WebPlugin;
+struct WebPluginParams;
+}
+
 namespace breach {
 
 class BreachRenderProcessObserver;
@@ -24,6 +30,12 @@ class BreachContentRendererClient : public content::ContentRendererClient {
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
+
+  virtual bool OverrideCreatePlugin(
+      content::RenderView* render_view,
+      WebKit::WebFrame* frame,
+      const WebKit::WebPluginParams& params,
+      WebKit::WebPlugin** plugin) OVERRIDE;
 
  private:
   scoped_ptr<BreachRenderProcessObserver> observer_;

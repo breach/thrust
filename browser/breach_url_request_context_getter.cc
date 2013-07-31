@@ -26,10 +26,6 @@
 #include "net/http/http_server_properties_impl.h"
 #include "net/http/transport_security_state.h"
 #include "net/proxy/dhcp_proxy_script_fetcher_factory.h"
-#include "net/proxy/proxy_config_service.h"
-#include "net/proxy/proxy_script_fetcher_impl.h"
-#include "net/proxy/proxy_service.h"
-#include "net/proxy/proxy_service_v8.h"
 #include "net/proxy/proxy_service.h"
 #include "net/ssl/default_server_bound_cert_store.h"
 #include "net/ssl/server_bound_cert_service.h"
@@ -79,6 +75,13 @@ BreachURLRequestContextGetter::BreachURLRequestContextGetter(
   // Must first be created on the UI thread.
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   std::swap(protocol_handlers_, *protocol_handlers);
+  
+  // We must create the proxy config service on the UI loop on Linux because it
+  // must synchronously run on the glib message loop. This will be passed to
+  // the URLRequestContextStorage on the IO thread in GetURLRequestContext().
+  proxy_config_service_.reset(
+      net::ProxyService::CreateSystemProxyConfigService(
+        io_loop_->message_loop_proxy().get(), file_loop_));
 }
 
 BreachURLRequestContextGetter::~BreachURLRequestContextGetter() 
