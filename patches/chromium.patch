@@ -25,7 +25,7 @@ index df9939b..28fdf92 100644
 +
 +
 diff --git a/build/common.gypi b/build/common.gypi
-index 62aa480..b4a92aa 100644
+index 62aa480..9cb26c2 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -9,6 +9,18 @@
@@ -36,7 +36,7 @@ index 62aa480..b4a92aa 100644
 +    # begin node variables
 +    'node_shared_v8': 'true',
 +    'shared_v8_include_dir': '<(DEPTH)/v8/include',
-+    'node_shared_zling': 'true',
++    'node_shared_zlib': 'true',
 +    'shared_zlib_include_dir': '<(DEPTH)/third_party/zlib',
 +    'node_tag': '',
 +    'v8_postmortem_support': 'false',
