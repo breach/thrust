@@ -23,9 +23,8 @@ class NodeWrapperThread : public base::Thread {
 
   private:
 
-    // Main Node initialization code. It sets up the v8 context and initialize
-    // all node related stuff
-    void Initialize();
+    // Installs all the Node symbols provided by Breach
+    void InstallNodeSymbols();
 
     // This is the code which runs the node run loop. It blocks until one
     // uv event has been processed. As soon as uv returns, a PostTask is

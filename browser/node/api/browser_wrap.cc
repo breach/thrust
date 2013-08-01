@@ -3,9 +3,7 @@
 
 #define BUILDING_NODE_EXTENSION
 
-#include "breach/browser/node/browser_wrap.h"
-
-#include "v8/include/v8.h"
+#include "breach/browser/node/api/browser_wrap.h"
 
 using namespace v8;
 
@@ -19,26 +17,29 @@ BrowserWrap::~BrowserWrap()
 {
 }
 
-Handle<Value> BrowserWrap::New(const Arguments& args) {
-  HandleScope scope;
-
+void 
+BrowserWrap::New(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
   BrowserWrap* browser_wrap = new BrowserWrap();
-  obj->Wrap(args.This());
+  browser_wrap->Wrap(args.This());
 
-  return args.This();
+  args.GetReturnValue().Set(args.This());
 }
 
-void BrowserWrap::Init(Handle<Object> exports) {
+void 
+BrowserWrap::Init(
+    Handle<Object> exports) 
+{
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
   tpl->SetClassName(String::NewSymbol("Browser"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
   // Prototype
   //tpl->PrototypeTemplate()->Set(String::NewSymbol("plusOne"),
   //    FunctionTemplate::New(PlusOne)->GetFunction());
 
-  Persistent<Function> constructor = 
-    Persistent<Function>::New(tpl->GetFunction());
-  exports->Set(String::NewSymbol("Browser"), constructor);
+  exports->Set(String::NewSymbol("Browser"), tpl->GetFunction());
 }
     
 } // namespace breach

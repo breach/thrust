@@ -12,6 +12,9 @@
       <include name="IDR_BREACH_DEVTOOLS_DISCOVERY_PAGE" 
                file="resources/breach_devtools_discovery_page.html" 
                type="BINDATA" />
+      <include name="IDR_BREACH_API_BINDINGS_JS" 
+               file="browser/node/api/api_bindings.js" 
+               type="BINDATA" />
     </includes>
   </release>
 </grit>

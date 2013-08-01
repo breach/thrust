@@ -2,6 +2,8 @@
 // See the LICENSE file.
 
 #include "breach/browser/node/node_wrapper_thread.h"
+
+#include "breach/browser/node/api/api_bindings.h"
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
 #include "third_party/node/src/node_internals.h"
@@ -14,14 +16,17 @@ using v8::Context;
 using v8::Object;
 using v8::V8;
 using v8::Value;
+using v8::Script;
+using v8::String;
+using v8::RegisterExtension;
 
+using namespace content;
 
 namespace breach {
 
 NodeWrapperThread::NodeWrapperThread()
 : Thread("node_wrapper_thread")
 {
-  Initialize();
 }
 
 NodeWrapperThread::~NodeWrapperThread()
@@ -63,6 +68,7 @@ NodeWrapperThread::Run(
     // Create all the objects, load modules, do everything.
     // so your next reading stop should be node::Load()!
     node::Load(process_);
+    InstallNodeSymbols();
 
     Thread::Run(message_loop);
 
@@ -75,14 +81,29 @@ void
 NodeWrapperThread::CleanUp()
 {
   /* Clean up. Not strictly necessary. */
-  //V8::Dispose();
+  V8::Dispose();
 }
-
 
 void
-NodeWrapperThread::Initialize() 
+NodeWrapperThread::InstallNodeSymbols()
 {
+  RegisterExtension(new ApiBindings());
+
+  Local<Script> script = Script::New(String::New(
+        // Overload require
+        "global._require = global._require || global.require;"
+        "global.require = function(name) {"
+        "  if (name == 'breach')"
+        "    return apiDispatcher.requireBreach();"
+        "  return global._require(name);"
+        "};"
+
+        // Save node-webkit version
+        "process.versions['breach'] = '" BREACH_VERSION "';"
+        ));
+    script->Run();
 }
+
 
 void
 NodeWrapperThread::RunUvLoop()

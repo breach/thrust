@@ -106,6 +106,10 @@
         'browser/breach_url_request_context_getter.h',
         'browser/node/node_wrapper_thread.h',
         'browser/node/node_wrapper_thread.cc',
+        'browser/node/api/api_bindings.h',
+        'browser/node/api/api_bindings.cc',
+        'browser/node/api/browser_wrap.h',
+        'browser/node/api/browser_wrap.cc',
       ],
       'msvs_settings': {
         'VCLinkerTool': {
