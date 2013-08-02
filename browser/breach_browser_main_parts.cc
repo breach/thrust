@@ -101,12 +101,6 @@ BreachBrowserMainParts::PreMainMessageLoopRun()
 
   devtools_delegate_.reset(new BreachDevToolsDelegate(browser_context_.get()));
 
-  Browser::CreateNewWindow(browser_context_.get(),
-                           GURL("http://www.google.com/"),
-                           NULL,
-                           MSG_ROUTING_NONE,
-                           gfx::Size());
-
   if (parameters_.ui_task) {
     parameters_.ui_task->Run();
     delete parameters_.ui_task;

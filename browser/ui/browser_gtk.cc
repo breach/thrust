@@ -24,6 +24,17 @@ namespace breach {
 
 namespace {
 
+gboolean 
+OnMouseScroll(
+    GtkWidget* widget, 
+    GdkEventScroll* event,
+    Browser *browser)
+{
+  LOG(INFO) << "OnMouseScroll";
+  return TRUE;
+}
+
+
 // Callback for Debug > Show web inspector... menu item.
 gboolean 
 ShowWebInspectorActivated(
@@ -89,9 +100,6 @@ Browser::PlatformEnableUIControl(
     UIControl control,
     bool is_enabled) 
 {
-  if (headless_)
-    return;
-
   GtkToolItem* item = NULL;
   switch (control) {
     case BACK_BUTTON:
@@ -114,9 +122,6 @@ void
 Browser::PlatformSetAddressBarURL(
     const GURL& url) 
 {
-  if (headless_)
-    return;
-
   gtk_entry_set_text(GTK_ENTRY(url_edit_view_), url.spec().c_str());
 }
 
@@ -124,9 +129,6 @@ void
 Browser::PlatformSetIsLoading(
     bool loading) 
 {
-  if (headless_)
-    return;
-
   if (loading)
     gtk_spinner_start(GTK_SPINNER(spinner_));
   else
@@ -139,15 +141,13 @@ Browser::PlatformCreateWindow(
     int height) 
 {
   ui_elements_height_ = 0;
-  if (headless_) {
-    SizeTo(width, height);
-    return;
-  }
 
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_title(window_, "Breach");
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(OnWindowDestroyedThunk), this);
+  g_signal_connect(G_OBJECT(window_), "scroll-event",
+                   G_CALLBACK(OnMouseScroll), this);   
 
   vbox_ = gtk_vbox_new(FALSE, 0);
 
@@ -264,9 +264,6 @@ Browser::PlatformCreateWindow(
 void 
 Browser::PlatformSetContents() 
 {
-  if (headless_)
-    return;
-
   WebContentsView* content_view = web_contents_->GetView();
   gtk_container_add(GTK_CONTAINER(vbox_), content_view->GetNativeView());
 }
@@ -299,11 +296,6 @@ Browser::PlatformResizeSubViews()
 void 
 Browser::Close() 
 {
-  if (headless_) {
-    delete this;
-    return;
-  }
-
   gtk_widget_destroy(GTK_WIDGET(window_));
 }
 
@@ -351,7 +343,7 @@ gboolean
 Browser::OnWindowDestroyed(
     GtkWidget* window) 
 {
-  delete this;
+  is_closed_ = true;
   return FALSE;  // Don't stop this message.
 }
 
@@ -409,9 +401,6 @@ void
 Browser::PlatformSetTitle(
     const string16& title) 
 {
-  if (headless_)
-    return;
-
   std::string title_utf8 = UTF16ToUTF8(title);
   gtk_window_set_title(GTK_WINDOW(window_), title_utf8.c_str());
 }

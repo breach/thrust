@@ -38,8 +38,6 @@ const int Browser::kDefaultWindowWidthDip = 800;
 const int Browser::kDefaultWindowHeightDip = 600;
 
 std::vector<Browser*> Browser::windows_;
-bool Browser::quit_message_loop_ = true;
-
 
 
 class Browser::DevToolsWebContentsObserver : public WebContentsObserver {
@@ -74,7 +72,7 @@ Browser::Browser(WebContents* web_contents)
 #if defined(OS_WIN) && !defined(USE_AURA)
     default_edit_wnd_proc_(0),
 #endif
-    headless_(false) 
+    is_closed_(false)
 {
   registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
       Source<WebContents>(web_contents));
@@ -92,9 +90,9 @@ Browser::~Browser()
     }
   }
 
-  if (windows_.empty() && quit_message_loop_)
-    base::MessageLoop::current()->PostTask(FROM_HERE,
-                                           base::MessageLoop::QuitClosure());
+  /* TODO(spolu): move this in API */
+  //base::MessageLoop::current()->PostTask(FROM_HERE,
+  //                                         base::MessageLoop::QuitClosure());
 }
 
 Browser* 
@@ -117,12 +115,11 @@ Browser::CreateBrowser(
 void 
 Browser::CloseAllWindows() 
 {
-  base::AutoReset<bool> auto_reset(&quit_message_loop_, false);
   DevToolsManager::GetInstance()->CloseAllClientHosts();
   std::vector<Browser*> open_windows(windows_);
   for (size_t i = 0; i < open_windows.size(); ++i)
     open_windows[i]->Close();
-  base::MessageLoop::current()->RunUntilIdle();
+  //base::MessageLoop::current()->RunUntilIdle();
 }
 
 Browser* 
@@ -310,6 +307,7 @@ Browser::WebContentsCreated(
     const GURL& target_url,
     WebContents* new_contents) 
 {
+  LOG(INFO) << "WebContentsCreated";
   CreateBrowser(new_contents, source_contents->GetView()->GetContainerSize());
 }
 

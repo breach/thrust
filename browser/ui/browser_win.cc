@@ -266,7 +266,7 @@ Browser::WndProc(
       break;
     }
     case WM_DESTROY: {
-      delete browser;
+      browser.is_closed_ = true;
       return 0;
     }
 

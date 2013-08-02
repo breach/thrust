@@ -33,27 +33,36 @@ static GURL GetStartupURL() {
 
 BrowserWrap::BrowserWrap()
 {
-  this->AddRef();
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&BrowserWrap::CreateBrowser, this));
+      base::Bind(&BrowserWrap::CreateTask, this));
 
 }
 
 BrowserWrap::~BrowserWrap()
 {
-  this->Release();
+  LOG(INFO) << "BrowserWrap Destructor";
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&BrowserWrap::DeleteTask, browser_));
 }
 
-void
-BrowserWrap::CreateBrowser()
+void 
+BrowserWrap::Init(
+    Handle<Object> exports) 
 {
-  browser_.reset(Browser::CreateNewWindow(
-                   BreachContentBrowserClient::Get()->browser_context(),
-                   GetStartupURL(),
-                   NULL,
-                   MSG_ROUTING_NONE,
-                   gfx::Size()));
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  tpl->SetClassName(String::NewSymbol("Browser"));
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+  // Prototype
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("close"),
+      FunctionTemplate::New(Close)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("showDevTools"),
+      FunctionTemplate::New(ShowDevTools)->GetFunction());
+
+  exports->Set(String::NewSymbol("Browser"), tpl->GetFunction());
 }
 
 void 
@@ -67,20 +76,64 @@ BrowserWrap::New(
   args.GetReturnValue().Set(args.This());
 }
 
-void 
-BrowserWrap::Init(
-    Handle<Object> exports) 
+void
+BrowserWrap::Close(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("Browser"));
-  tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
-  // Prototype
-  //tpl->PrototypeTemplate()->Set(String::NewSymbol("plusOne"),
-  //    FunctionTemplate::New(PlusOne)->GetFunction());
-
-  exports->Set(String::NewSymbol("Browser"), tpl->GetFunction());
+  BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&BrowserWrap::CloseTask, obj));
 }
+
+void
+BrowserWrap::ShowDevTools(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&BrowserWrap::ShowDevToolsTask, obj));
+}
+
+/******************************************************************************/
+/*                                  TASKS                                     */
+/******************************************************************************/
+void
+BrowserWrap::CreateTask()
+{
+  browser_ = Browser::CreateNewWindow(
+                   BreachContentBrowserClient::Get()->browser_context(),
+                   GetStartupURL(),
+                   NULL,
+                   MSG_ROUTING_NONE,
+                   gfx::Size());
+}
+
+void
+BrowserWrap::DeleteTask(
+    Browser* browser)
+{
+  LOG(INFO) << "DeleteBrowserTask";
+  if(!browser->IsClosed())
+    /* will cause browser deletion */
+    browser->Close();
+}
+
+void
+BrowserWrap::CloseTask()
+{
+  if(!browser_->IsClosed())
+    browser_->Close();
+}
+
+void
+BrowserWrap::ShowDevToolsTask()
+{
+  if(!browser_->IsClosed())
+    browser_->ShowDevTools();
+}
+
     
 } // namespace breach
 

@@ -250,7 +250,7 @@ class BreachWindowDelegateView : public views::WidgetDelegateView,
   }
   virtual void WindowClosing() OVERRIDE {
     if (browser_) {
-      delete browser_;
+      browser_.is_closed_ true;
       browser_ = NULL;
     }
   }

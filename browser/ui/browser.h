@@ -87,6 +87,9 @@ class Browser : public content::WebContentsDelegate,
   // Closes all windows and exits.
   static void PlatformExit();
 
+  // Specify if that Browser was closed (and should not be used anymore)
+  bool IsClosed() { return is_closed_; }
+
   content::WebContents* web_contents() const { return web_contents_.get(); }
   gfx::NativeWindow window() { return window_; }
 
@@ -236,7 +239,7 @@ class Browser : public content::WebContentsDelegate,
   int ui_elements_height_; // height of menubar, toolbar, etc.
 #endif
 
-  bool headless_;
+  bool is_closed_;
 
   // A container of all the open windows. We use a vector so we can keep track
   // of ordering.

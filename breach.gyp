@@ -108,6 +108,7 @@
         'browser/node/node_wrapper_thread.cc',
         'browser/node/api/api_bindings.h',
         'browser/node/api/api_bindings.cc',
+        'browser/node/api/object_wrap.h',
         'browser/node/api/browser_wrap.h',
         'browser/node/api/browser_wrap.cc',
       ],
