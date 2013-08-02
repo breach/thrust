@@ -102,6 +102,7 @@ NodeWrapperThread::InstallNodeSymbols()
         "    return apiDispatcher.requireBreach();"
         "  return global._require(name);"
         "};"
+        "global._breach = require('breach');"
 
         // Save node-webkit version
         "process.versions['breach'] = '" BREACH_VERSION "';"

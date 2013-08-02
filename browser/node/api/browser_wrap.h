@@ -4,6 +4,8 @@
 #ifndef BREACH_BROWSER_NODE_API_BROWSER_WRAP_H_
 #define BREACH_BROWSER_NODE_API_BROWSER_WRAP_H_
 
+#include "base/memory/scoped_ptr.h"
+#include "base/memory/ref_counted.h"
 #include "v8/include/v8.h"
 #include "third_party/node/src/node.h"
 
@@ -13,15 +15,25 @@ class ObjectWrap;
 
 namespace breach {
 
-class BrowserWrap : public node::ObjectWrap {
-  public:
-    static void Init(v8::Handle<v8::Object> exports);
+class Browser;
 
-  private:
-    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+class BrowserWrap : public node::ObjectWrap,
+                    public base::RefCountedThreadSafe<BrowserWrap> {
+ public:
+  static void Init(v8::Handle<v8::Object> exports);
 
-    BrowserWrap();
-    ~BrowserWrap();
+ private:
+  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CreateBrowser();
+
+  BrowserWrap();
+  ~BrowserWrap();
+
+  scoped_ptr<Browser>     browser_;
+
+  friend class base::RefCountedThreadSafe<BrowserWrap>;
+
+  DISALLOW_COPY_AND_ASSIGN(BrowserWrap);
 };
 
 } // namespace breach

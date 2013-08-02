@@ -5,7 +5,6 @@
 #include "breach/browser/breach_browser_main_parts.h"
 
 #include "base/bind.h"
-#include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/message_loop/message_loop.h"
 #include "base/threading/thread.h"
@@ -34,19 +33,6 @@ namespace breach {
 
 namespace {
 
-static GURL GetStartupURL() {
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
-  const CommandLine::StringVector& args = command_line->GetArgs();
-
-  if (args.empty())
-    return GURL("http://www.google.com/");
-
-  GURL url(args[0]);
-  if (url.is_valid() && url.has_scheme())
-    return url;
-
-  return net::FilePathToFileURL(base::FilePath(args[0]));
-}
 
 base::StringPiece 
 PlatformResourceProvider(
@@ -116,7 +102,7 @@ BreachBrowserMainParts::PreMainMessageLoopRun()
   devtools_delegate_.reset(new BreachDevToolsDelegate(browser_context_.get()));
 
   Browser::CreateNewWindow(browser_context_.get(),
-                           GetStartupURL(),
+                           GURL("http://www.google.com/"),
                            NULL,
                            MSG_ROUTING_NONE,
                            gfx::Size());

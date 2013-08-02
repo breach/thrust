@@ -12,33 +12,35 @@ namespace breach {
 class ApiBindings;
 
 class NodeWrapperThread : public base::Thread {
-  public:
+ public:
 
-    NodeWrapperThread();
-    virtual ~NodeWrapperThread();
+  NodeWrapperThread();
+  virtual ~NodeWrapperThread();
 
-  protected:
-    virtual void Init() OVERRIDE;
-    virtual void Run(base::MessageLoop* message_loop) OVERRIDE;
-    virtual void CleanUp() OVERRIDE;
+ protected:
+  virtual void Init() OVERRIDE;
+  virtual void Run(base::MessageLoop* message_loop) OVERRIDE;
+  virtual void CleanUp() OVERRIDE;
 
 
-  private:
+ private:
 
-    // Installs all the Node symbols provided by Breach
-    void InstallNodeSymbols();
+  // Installs all the Node symbols provided by Breach
+  void InstallNodeSymbols();
 
-    // This is the code which runs the node run loop. It blocks until one
-    // uv event has been processed. As soon as uv returns, a PostTask is
-    // called on itself
-    void RunUvLoop();
+  // This is the code which runs the node run loop. It blocks until one
+  // uv event has been processed. As soon as uv returns, a PostTask is
+  // called on itself
+  void RunUvLoop();
 
-    // Be careful: these objects only live while the message_loop is running
-    v8::Handle<v8::Object> process_;
-    v8::Handle<v8::Context> context_;
+  // Be careful: these objects only live while the message_loop is running
+  v8::Handle<v8::Object> process_;
+  v8::Handle<v8::Context> context_;
 
-    // Api Bindings kept in memory
-    scoped_ptr<ApiBindings> api_bindings_;;
+  // Api Bindings kept in memory
+  scoped_ptr<ApiBindings> api_bindings_;;
+
+  DISALLOW_COPY_AND_ASSIGN(NodeWrapperThread);
 };
 
 }
