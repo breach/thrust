@@ -9,6 +9,8 @@
 
 namespace breach {
 
+class ApiBindings;
+
 class NodeWrapperThread : public base::Thread {
   public:
 
@@ -34,6 +36,9 @@ class NodeWrapperThread : public base::Thread {
     // Be careful: these objects only live while the message_loop is running
     v8::Handle<v8::Object> process_;
     v8::Handle<v8::Context> context_;
+
+    // Api Bindings kept in memory
+    scoped_ptr<ApiBindings> api_bindings_;;
 };
 
 }

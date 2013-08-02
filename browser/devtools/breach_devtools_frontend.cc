@@ -59,8 +59,8 @@ BreachDevToolsFrontend::Show(
       gfx::Size());
   BreachDevToolsFrontend* devtools_frontend = new BreachDevToolsFrontend(
       browser,
-      DevToolsAgentHost::GetOrCreateFor(inspected_contents->GetRenderViewHost())
-          .get());
+      DevToolsAgentHost::GetOrCreateFor(
+        inspected_contents->GetRenderViewHost()).get());
 
   BreachDevToolsDelegate* delegate = BreachContentBrowserClient::Get()->
     browser_main_parts()->devtools_delegate();
@@ -80,9 +80,10 @@ void BreachDevToolsFrontend::Close() {
 BreachDevToolsFrontend::BreachDevToolsFrontend(
     Browser* browser,
     DevToolsAgentHost* agent_host)
-  : WebContentsObserver(browser_->web_contents()),
+  : WebContentsObserver(browser->web_contents()),
     browser_(browser),
-    agent_host_(agent_host) {
+    agent_host_(agent_host) 
+{
   frontend_host_.reset(
       DevToolsClientHost::CreateDevToolsFrontendHost(web_contents(), this));
 }

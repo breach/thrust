@@ -21,6 +21,7 @@ void
 BrowserWrap::New(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+  HandleScope handle_scope(Isolate::GetCurrent());
   BrowserWrap* browser_wrap = new BrowserWrap();
   browser_wrap->Wrap(args.This());
 

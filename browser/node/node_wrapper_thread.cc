@@ -58,8 +58,13 @@ NodeWrapperThread::Run(
     Locker locker(node_isolate);
     HandleScope handle_scope(node_isolate);
 
+    api_bindings_.reset(new ApiBindings());
+    RegisterExtension(api_bindings_.get());
+    const char* names[] = { "api_bindings.js" };
+    v8::ExtensionConfiguration extensions(1, names);  
+
     // Create the one and only Context.
-    context_ = Context::New(node_isolate);
+    context_ = Context::New(node_isolate, &extensions);
     Context::Scope context_scope(context_);
 
     node::SetupBindingCache();
@@ -87,7 +92,7 @@ NodeWrapperThread::CleanUp()
 void
 NodeWrapperThread::InstallNodeSymbols()
 {
-  RegisterExtension(new ApiBindings());
+  HandleScope handle_scope(Isolate::GetCurrent());
 
   Local<Script> script = Script::New(String::New(
         // Overload require

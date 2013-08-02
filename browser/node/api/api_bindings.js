@@ -7,5 +7,4 @@ var apiDispatcher = apiDispatcher || {};
   native function RequireBreach();
 
   apiDispatcher.requireBreach = RequireBreach;
-  console.log('INSTALLED');
 })();
