@@ -6,6 +6,8 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
+#include "ui/gfx/size.h"
+#include "ui/gfx/point.h"
 #include "breach/browser/node/api/object_wrap.h"
 
 namespace node {
@@ -24,11 +26,19 @@ private:
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void ShowDevTools(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void CloseDevTools(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void Size(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void Position(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+  static void DeleteTask(Browser* browser);
 
   void CreateTask();
-  static void DeleteTask(Browser* browser);
   void CloseTask();
   void ShowDevToolsTask();
+  void CloseDevToolsTask();
+
+  gfx::Size SizeGetter();
+  gfx::Point PositionGetter();
 
   BrowserWrap();
   ~BrowserWrap();

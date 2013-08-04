@@ -61,6 +61,13 @@ BrowserWrap::Init(
       FunctionTemplate::New(Close)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("showDevTools"),
       FunctionTemplate::New(ShowDevTools)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("closeDevTools"),
+      FunctionTemplate::New(CloseDevTools)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("size"),
+      FunctionTemplate::New(Size)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("position"),
+      FunctionTemplate::New(Position)->GetFunction());
 
   exports->Set(String::NewSymbol("Browser"), tpl->GetFunction());
 }
@@ -70,6 +77,7 @@ BrowserWrap::New(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
+
   BrowserWrap* browser_wrap = new BrowserWrap();
   browser_wrap->Wrap(args.This());
 
@@ -80,6 +88,8 @@ void
 BrowserWrap::Close(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+  HandleScope handle_scope(Isolate::GetCurrent());
+
   BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
@@ -90,15 +100,72 @@ void
 BrowserWrap::ShowDevTools(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+  HandleScope handle_scope(Isolate::GetCurrent());
+
   BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(&BrowserWrap::ShowDevToolsTask, obj));
 }
 
+void
+BrowserWrap::CloseDevTools(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&BrowserWrap::CloseDevToolsTask, obj));
+}
+
+void
+BrowserWrap::Size(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(args.This());
+  gfx::Size s = obj->SizeGetter();
+
+  Local<Array> size_array = Array::New();
+  size_array->Set(0, Integer::New(s.width()));
+  size_array->Set(1, Integer::New(s.height()));
+
+  args.GetReturnValue().Set(size_array);
+}
+
+
+void
+BrowserWrap::Position(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(args.This());
+  gfx::Point p = obj->PositionGetter();
+
+  Local<Array> position_array = Array::New();
+  position_array->Set(0, Integer::New(p.x()));
+  position_array->Set(1, Integer::New(p.y()));
+
+  args.GetReturnValue().Set(position_array);
+}
+
+
 /******************************************************************************/
 /*                                  TASKS                                     */
 /******************************************************************************/
+void
+BrowserWrap::DeleteTask(
+    Browser* browser)
+{
+  if(!browser->IsClosed())
+    /* will cause browser deletion */
+    browser->Close();
+}
+
 void
 BrowserWrap::CreateTask()
 {
@@ -111,20 +178,11 @@ BrowserWrap::CreateTask()
 }
 
 void
-BrowserWrap::DeleteTask(
-    Browser* browser)
-{
-  LOG(INFO) << "DeleteBrowserTask";
-  if(!browser->IsClosed())
-    /* will cause browser deletion */
-    browser->Close();
-}
-
-void
 BrowserWrap::CloseTask()
 {
-  if(!browser_->IsClosed())
+  if(!browser_->IsClosed()) {
     browser_->Close();
+  }
 }
 
 void
@@ -132,6 +190,35 @@ BrowserWrap::ShowDevToolsTask()
 {
   if(!browser_->IsClosed())
     browser_->ShowDevTools();
+}
+
+void
+BrowserWrap::CloseDevToolsTask()
+{
+  if(!browser_->IsClosed())
+    browser_->CloseDevTools();
+}
+
+
+/******************************************************************************/
+/*                                 GETTERS                                    */
+/******************************************************************************/
+gfx::Size
+BrowserWrap::SizeGetter()
+{
+  if(!browser_->IsClosed()) {
+    return browser_->Size();
+  }
+  else return gfx::Size();
+}
+
+gfx::Point
+BrowserWrap::PositionGetter()
+{
+  if(!browser_->IsClosed()) {
+    return browser_->Position();
+  }
+  else return gfx::Point();
 }
 
     

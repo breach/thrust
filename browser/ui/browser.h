@@ -17,6 +17,7 @@
 #include "ipc/ipc_channel.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/size.h"
+#include "ui/gfx/point.h"
 
 #if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>
@@ -61,6 +62,8 @@ class Browser : public content::WebContentsDelegate,
   void Close();
   void ShowDevTools();
   void CloseDevTools();
+  gfx::Size Size();
+  gfx::Point Position();
 #if (defined(OS_WIN) && !defined(USE_AURA)) || defined(TOOLKIT_GTK)
   // Resizes the main window to the given dimensions.
   void SizeTo(int width, int height);
