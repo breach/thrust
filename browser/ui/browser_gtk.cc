@@ -87,7 +87,6 @@ void
 Browser::PlatformInitialize(
     const gfx::Size& default_window_size) 
 {
-   gdk_threads_init();
 }
 
 void 
@@ -101,7 +100,6 @@ Browser::PlatformEnableUIControl(
     UIControl control,
     bool is_enabled) 
 {
-  gdk_threads_enter();
   GtkToolItem* item = NULL;
   switch (control) {
     case BACK_BUTTON:
@@ -118,28 +116,23 @@ Browser::PlatformEnableUIControl(
       return;
   }
   gtk_widget_set_sensitive(GTK_WIDGET(item), is_enabled);
-  gdk_threads_leave();
 }
 
 void 
 Browser::PlatformSetAddressBarURL(
     const GURL& url) 
 {
-  gdk_threads_enter();
   gtk_entry_set_text(GTK_ENTRY(url_edit_view_), url.spec().c_str());
-  gdk_threads_leave();
 }
 
 void 
 Browser::PlatformSetIsLoading(
     bool loading) 
 {
-  gdk_threads_enter();
   if (loading)
     gtk_spinner_start(GTK_SPINNER(spinner_));
   else
     gtk_spinner_stop(GTK_SPINNER(spinner_));
-  gdk_threads_leave();
 }
 
 void 
@@ -147,7 +140,6 @@ Browser::PlatformCreateWindow(
     int width, 
     int height) 
 {
-  gdk_threads_enter();
   ui_elements_height_ = 0;
 
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
@@ -269,7 +261,6 @@ Browser::PlatformCreateWindow(
 
   // Finally, show the window.
   gtk_widget_show_all(GTK_WIDGET(window_));
-  gdk_threads_leave();
 }
 
 void 
@@ -284,11 +275,9 @@ Browser::SizeTo(
     int width, 
     int height) 
 {
-  gdk_threads_enter();
   content_width_ = width;
   content_height_ = height;
   gtk_window_resize(window_, width, height + ui_elements_height_);
-  gdk_threads_leave();
 }
 
 void 
@@ -300,18 +289,14 @@ Browser::PlatformResizeSubViews()
 void 
 Browser::Close() 
 {
-  gdk_threads_enter();
   gtk_widget_destroy(GTK_WIDGET(window_));
-  gdk_threads_leave();
 }
 
 gfx::Size
 Browser::Size()
 {
   int w,h;
-  gdk_threads_enter();
   gtk_window_get_size(window_, &w, &h);
-  gdk_threads_leave();
   return gfx::Size(w, h);
 }
 
@@ -319,9 +304,7 @@ gfx::Point
 Browser::Position()
 {
   int x,y;
-  gdk_threads_enter();
   gtk_window_get_position(window_, &x, &y);
-  gdk_threads_leave();
   return gfx::Point(x, y);
 }
 
@@ -427,10 +410,8 @@ void
 Browser::PlatformSetTitle(
     const string16& title) 
 {
-  gdk_threads_enter();
   std::string title_utf8 = UTF16ToUTF8(title);
   gtk_window_set_title(GTK_WINDOW(window_), title_utf8.c_str());
-  gdk_threads_leave();
 }
 
 }  // namespace breach
