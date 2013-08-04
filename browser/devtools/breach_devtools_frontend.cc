@@ -52,7 +52,8 @@ BreachDevToolsFrontend*
 BreachDevToolsFrontend::Show(
     WebContents* inspected_contents) {
   Browser* browser = Browser::CreateNewWindow(
-      inspected_contents->GetBrowserContext(),
+      BreachContentBrowserClient::Get()->browser_context(),
+      //inspected_contents->GetBrowserContext(),
       GURL(),
       NULL,
       MSG_ROUTING_NONE,
@@ -64,7 +65,9 @@ BreachDevToolsFrontend::Show(
 
   BreachDevToolsDelegate* delegate = BreachContentBrowserClient::Get()->
     browser_main_parts()->devtools_delegate();
-  browser->LoadURL(delegate->devtools_http_handler()->GetFrontendURL(NULL));
+  LOG(INFO) << "DevTools: " 
+            << delegate->devtools_http_handler()->GetFrontendURL(NULL);
+  //browser->LoadURL(delegate->devtools_http_handler()->GetFrontendURL(NULL));
 
   return devtools_frontend;
 }
