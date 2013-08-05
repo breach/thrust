@@ -29,9 +29,9 @@ b.size(cb_);
 b.position(cb_);
 b.kill(cb_);
 
-b.on('resize', function() {});
-b.on('add_web_contents', function(disposition) {});
-b.on('open_url', function(disposition) {});
+b.setOpenURLCallback(cb_);
+b.setResizeCallback(cb_);
+b.setAddWebContentsCallback(cb_);
 
 /* EXOBROWSER FRAME */
 b.addFrame({

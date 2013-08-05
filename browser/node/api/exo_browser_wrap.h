@@ -52,12 +52,23 @@ private:
   void PositionTask();
   void PositionCallback();
 
+  static void SetOpenURLCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void OpenURLCallback(const GURL& url, const std::string& source_frame);
+
+  static void SetResizeCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ResizeCallback();
+
   //static void AddFrame(const v8::FunctionCallbackInfo<v8::Value>& args);
 
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/
-  ExoBrowser*           browser_;
+  ExoBrowser*                  browser_;
+
+  v8::Persistent<v8::Function> load_url_cb_;
+  v8::Persistent<v8::Function> resize_cb_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 

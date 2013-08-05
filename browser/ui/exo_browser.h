@@ -126,18 +126,18 @@ public:
   // but it will be marked as killed
   void Kill();
 
+
   // ### is_killed
   // Returns whether the ExoBrowser is killed or not
   bool is_killed() { return is_killed_; }
 
-
   // ### WindowSize
   // Retrieves the native Window size
-  gfx::Size size();
+  gfx::Size size() { return PlatformSize(); }
 
   // ### WindowPosition
   // Retrieves the native Window position
-  gfx::Point position();
+  gfx::Point position() { return PlatformPosition(); }
 
   // ### window
   // Retrieves the NativeWindow object
@@ -152,19 +152,11 @@ public:
 
   virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
 
-  virtual void ToggleFullscreenModeForTab(content::WebContents* web_contents,
-                                          bool enter_fullscreen) OVERRIDE;
-
-  virtual bool IsFullscreenForTabOrPending(
-      const content::WebContents* web_contents) const OVERRIDE;
-
   virtual void RequestToLockMouse(content::WebContents* web_contents,
                                   bool user_gesture,
                                   bool last_unlocked_by_target) OVERRIDE;
 
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
-
-  virtual bool CanOverscrollContent() const OVERRIDE;
 
   virtual void AddNewContents(content::WebContents* source,
                               content::WebContents* new_contents,
@@ -185,18 +177,11 @@ public:
   virtual content::JavaScriptDialogManager* 
     GetJavaScriptDialogManager() OVERRIDE;
 
-  virtual bool AddMessageToConsole(content::WebContents* source,
-                                   int32 level,
-                                   const string16& message,
-                                   int32 line_no,
-                                   const string16& source_id) OVERRIDE;
-
-  virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
 
   virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
-  
   virtual void DeactivateContents(content::WebContents* contents) OVERRIDE;
 
+  virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
   virtual void WorkerCrashed(content::WebContents* source) OVERRIDE;
 
 private:
@@ -204,6 +189,21 @@ private:
   /*                           PRIVATE INTERFACE                              */
   /****************************************************************************/
   explicit ExoBrowser(ExoBrowserWrap* wrapper);
+
+  // ### FrameForWebContents
+  // ```
+  // @content {WebContents} a WebContents
+  // ```
+  // Retrieves within this browser, the frame associated with the provided 
+  // WebContents. Returns NULL otherwise
+  ExoFrame* FrameForWebContents(content::WebContents* contents);
+
+  // ### AddFrame
+  // ```
+  // ```
+  // Helper function to add a frame to this browser. Also used when creating
+  // a new browser for an already created frame (WebContents)
+  void AddFrame(ExoFrame* frame);
 
   /****************************************************************************/
   /*                        STATIC PLATFORM INTERFACE                         */
@@ -233,6 +233,15 @@ private:
   // ### PlatformSetTitle 
   // Set the title of ExoBrowser window.
   void PlatformSetTitle(const string16& title);
+
+  // ### PlatformSize
+  // Retrieves the size of the ExoBrowser window.
+  gfx::Size PlatformSize();
+
+  // ### PlatformPosition
+  // Retrieves the position of the ExoBrowser window.
+  gfx::Position PlatformPosition();
+
 
 #if defined(OS_WIN) && !defined(USE_AURA)
   static ATOM RegisterWindowClass();
