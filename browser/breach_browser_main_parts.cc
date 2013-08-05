@@ -18,7 +18,7 @@
 #include "breach/common/breach_switches.h"
 #include "breach/browser/ui/browser.h"
 #include "breach/browser/devtools/breach_devtools_delegate.h"
-#include "breach/browser/breach_net_log.h"
+#include "breach/browser/net/breach_net_log.h"
 #include "breach/browser/node/node_wrapper_thread.h"
 
 #include "grit/net_resources.h"

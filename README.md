@@ -22,38 +22,45 @@ API v0:
 /* EXOBROWSER API */
 
 /* EXOBROWSER */
-var b = new _breach._ExoBrowser({
-  size: [123, 23],
-  position: [323, 232]
-});
-b.close(cb_);
-b.getSize(cb_);
-b.getPosition(cb_);
-b.on('resize', function() {});
+_breach.createNewExoBrowser({
+  size: [123, 23]
+}, cb_);
+b.size(cb_);
+b.position(cb_);
+b.kill(cb_);
 
-b.showDevTools(cb_);
-b.closeDevTools(cb_);
+b.on('resize', function() {});
+b.on('add_web_contents', function(disposition) {});
+b.on('open_url', function(disposition) {});
 
 /* EXOBROWSER FRAME */
-var f = new _breach._Frame({
+b.addFrame({
   name: '',
   url: '',
   visible: true,
   position: [0, 24],
   size: [640, 418]
   zIndex: 0
-});
+}, cb_);
+
 f.setVisible(true, cb_);
 f.setPosition([0, 23], cb_);
 f.setSize([120, 230], cb_);
 f.setZIndex(100, cb_);
-f.goToUrl(url, cb_);
-f.next(cb_);
-f.previous(cb_);
 
-b.addFrame(v, cb_);
-b.removeFrame(v, cb_);
-b.getFrames(cb_);
+f.size(cb_);
+f.position(cb_);
+
+f.loadURL(url, cb_);
+f.goBack(cb_);
+f.goFoward(cb_);
+f.reload(cb_);
+f.stop(cb_);
+
+f.name(cb_);
+f.parent(cb_); 
+
+b.killFrame(name, cb_);
 
 
 /* EXOBROWSER NETWORKING */ 

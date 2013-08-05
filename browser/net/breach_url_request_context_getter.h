@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef BREACH_BROWSER_BREACH_URL_REQUEST_CONTEXT_GETTER_H_
-#define BREACH_BROWSER_BREACH_URL_REQUEST_CONTEXT_GETTER_H_
+#ifndef BREACH_BROWSER_NET_BREACH_URL_REQUEST_CONTEXT_GETTER_H_
+#define BREACH_BROWSER_NET_BREACH_URL_REQUEST_CONTEXT_GETTER_H_
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -66,4 +66,4 @@ class BreachURLRequestContextGetter : public net::URLRequestContextGetter {
 
 }  // namespace breach
 
-#endif  // BREACH_BROWSER_BREACH_URL_REQUEST_CONTEXT_GETTER_H_
+#endif  // BREACH_BROWSER_NET_BREACH_URL_REQUEST_CONTEXT_GETTER_H_
