@@ -9,6 +9,7 @@
 #include "ui/gfx/size.h"
 #include "ui/gfx/point.h"
 #include "breach/browser/node/api/object_wrap.h"
+#include "breach/browser/node/api/exo_browser_wrap.h"
 
 namespace node {
 class ObjectWrap;
@@ -23,66 +24,85 @@ public:
   static void Init(v8::Handle<v8::Object> exports);
 
 private:
-  //static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void SetVisible(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void SetSize(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void SetPosition(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  static void Size(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void Position(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  static void LoadURL(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void GoBack(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void GoForward(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void Reload(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void Stop(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  static void Name(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void Parent(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  static void DeleteTask(Browser* browser);
-
-
-  void SetVisibleTask();
-  void SetVisibleCallback();
-
-  void SetSizeTask();
-  void SetSizeCallback();
-
-  void SizeTask();
-  void SizeCallback();
-
-  void PositionTask();
-  void PositionCallback();
-  
-  void LoadURLTask();
-  void LoadURLCallback();
-
-  void GoBackTask();
-  void GoBackCallback();
-
-  void GoForwardTask();
-  void GoForwardCallback();
-
-  void ReloadTask();
-  void ReloadCallback();
-
-  void StopTask();
-  void StopCallback();
-
-  void NameTask();
-  void NameCallback();
-
-  void ParentTask();
-  void ParentCallback();
-
-
   ExoFrameWrap();
   ~ExoFrameWrap();
 
+  static void CreateNewExoFrame(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+
+  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+  void CreateTask(std::string& name,
+                  std::string& url,
+                  gfx::Point& position,
+                  gfx::Size& size,
+                  int zIndex);
+  void CreateCallback(v8::Persistent<v8::Function>* pcb);
+
+  static void DeleteTask(ExoFrame* frame);
+
+  /****************************************************************************/
+  /*                      WRAPPERS, TASKS & CALLBACKS                         */
+  /****************************************************************************/
+  static void SetVisible(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void SetVisibleTask();
+  void SetVisibleCallback();
+
+  static void SetSize(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void SetSizeTask();
+  void SetSizeCallback();
+
+  static void SetPosition(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void PositionTask();
+  void PositionCallback();
+
+  static void Size(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void SizeTask();
+  void SizeCallback();
+
+  static void Position(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void PositionTask();
+  void PositionCallback();
+
+  static void LoadURL(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void LoadURLTask();
+  void LoadURLCallback();
+
+  static void GoBack(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void GoBackTask();
+  void GoBackCallback();
+
+  static void GoForward(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void GoForwardTask();
+  void GoForwardCallback();
+
+  static void Reload(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ReloadTask();
+  void ReloadCallback();
+
+  static void Stop(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void StopTask();
+  void StopCallback();
+
+
+  static void Name(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void NameTask();
+  void NameCallback();
+
+  static void Parent(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ParentTask();
+  void ParentCallback();
+
+  
+  /****************************************************************************/
+  /*                               MEMBERS                                    */
+  /****************************************************************************/
   ExoFrame*   frame_;
 
+  static v8::Persistent<v8::Function>  s_constructor;
+
   friend class base::RefCountedThreadSafe<ExoFrameWrap>;
+  friend class ExoBrowserWrap;
 
   DISALLOW_COPY_AND_ASSIGN(ExoFrameWrap);
 };

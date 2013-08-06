@@ -10,7 +10,6 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "content/public/browser/devtools_manager.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -25,7 +24,6 @@
 #include "breach/common/breach_switches.h"
 #include "breach/browser/breach_browser_main_parts.h"
 #include "breach/browser/breach_content_browser_client.h"
-#include "breach/browser/devtools/breach_devtools_frontend.h"
 #include "breach/browser/ui/dialog/breach_javascript_dialog_manager.h"
 #include "breach/common/breach_messages.h"
 

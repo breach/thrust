@@ -19,22 +19,22 @@ JS counterparts Wrappers.
 API v0:
 
 ```
-/* EXOBROWSER API */
+/* EXOBROWSER LOWLEVEL API */
 
 /* EXOBROWSER */
-_breach.createNewExoBrowser({
+_breach._createNewExoBrowser({
   size: [123, 23]
 }, cb_);
 b.size(cb_);
 b.position(cb_);
 b.kill(cb_);
 
-b.setOpenURLCallback(cb_);
-b.setResizeCallback(cb_);
-b.setAddWebContentsCallback(cb_);
+b._setOpenURLCallback(cb_);
+b._setResizeCallback(cb_);
+b._setAddFrameCallback(cb_);
 
 /* EXOBROWSER FRAME */
-b.addFrame({
+_breach._createNewExoFrame({
   name: '',
   url: '',
   visible: true,
@@ -43,25 +43,25 @@ b.addFrame({
   zIndex: 0
 }, cb_);
 
-f.setVisible(true, cb_);
-f.setPosition([0, 23], cb_);
-f.setSize([120, 230], cb_);
-f.setZIndex(100, cb_);
+b._addFrame(f);
+b._removeFrame(f);
 
-f.size(cb_);
-f.position(cb_);
+f._setVisible(true, cb_);
+f._setPosition([0, 23], cb_);
+f._setSize([120, 230], cb_);
+f._setZIndex(100, cb_);
 
-f.loadURL(url, cb_);
-f.goBack(cb_);
-f.goFoward(cb_);
-f.reload(cb_);
-f.stop(cb_);
+f._size(cb_);
+f._position(cb_);
 
-f.name(cb_);
-f.parent(cb_); 
+f._loadURL(url, cb_);
+f._goBack(cb_);
+f._goFoward(cb_);
+f._reload(cb_);
+f._stop(cb_);
 
-b.killFrame(name, cb_);
-
+f._name(cb_);
+f._parent(cb_); 
 
 /* EXOBROWSER NETWORKING */ 
 

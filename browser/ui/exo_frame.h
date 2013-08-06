@@ -43,20 +43,13 @@ class ExoFrameWrap;
 // ### ExoFrame
 //
 // This represents a web frame within the ExoBrowser. It is layed out using the
-// ExoBrowser fixed layout. These frames are added from Javascript and it is
-// therefore aware of its associated Javascript wrapper.
+// ExoBrowser fixed layout. These frames are created from Javascript and are
+// therefore aware of their associated Javascript wrapper.
 //
 // The ExoFrame lives on the BrowserThread::UI thread, and should PostTask on
 // the NodeJS thread whenever it wants to communicate with its JS Wrapper
 class ExoFrame {
 public:
-  /****************************************************************************/
-  /*                         STATIC INTERFACE                                 */
-  /****************************************************************************/
-  // ### Initialize
-  // Runs one-time initialization at application startup.
-  static void Initialize();
-
   /****************************************************************************/
   /*                         PUBLIC INTERFACE                                 */
   /****************************************************************************/
@@ -70,13 +63,12 @@ public:
   // Loads the provided url in this ExoFrame.
   void LoadURL(const GURL& url);
 
-  // ### GoBack
-  // Go Back in the ExoFrame browsing history.
-  void GoBack();
-
-  // ### GoForward
-  // Go Forward in the ExoFrame browsing history.
-  void GoForward();
+  // ### GoBackOrForward
+  // ```
+  // @offet {int} go back or forward of offset
+  // ```
+  // Go Back or Forward in the ExoFrame browsing history.
+  void GoBackOrForward(int offset);
 
   // ### Reload
   // Reloads the ExoFrame content.
@@ -86,18 +78,27 @@ public:
   // Stop loading the ExoFrame content.
   void Stop();
 
+  // ### SetSize
+  // Sets the frame size
+  void SetSize(gfx::Size& size);
+
+  // ### SetPosition
+  // Sets the frame position
+  void SetPosition(gfx::Point& position);
+
 
   // ### size
   // Retrieves the frame size
-  gfx::Size size();
+  gfx::Size size() { return PlatformSize(); }
 
   // ### position
   // Retrieves the frame position
-  gfx::Point position();
+  gfx::Point position() { return PlatformPosition(); }
 
   // ### name
   // Returns the ExoFrame name
   const std::string& name() { return name_ };
+
 
   // ### parent
   // Returns the ExoFrame's parent ExoBrowser
@@ -107,10 +108,22 @@ private:
   /****************************************************************************/
   /*                           PRIVATE INTERFACE                              */
   /****************************************************************************/
+  // ### ExoFrame
+  // Constructor used when a new WebContents has already been created for us.
+  // (generally a popup).
   explicit ExoFrame(std::string& name,
-                    ExoBrowser* parent,
-                    ExoFrameWrap* wrapper,
-                    content::WebContents* web_contents);
+                    content::WebContents* web_contents,
+                    ExoFrameWrap* wrapper);
+
+  // ### ExoFrame
+  // Constructor used to create a new ExoFrame with a fresh WebContents object.
+  // A call to LoadURL should be performed right after.
+  explicit ExoFrame(std::string& name,
+                    ExoFrameWrap* wrapper);
+
+  // ### SetParent
+  // Sets the parent ExoBrowser
+  void SetParent(ExoBrowser* parent);
 
   /****************************************************************************/
   /*                            PLATFORM INTERFACE                            */
@@ -121,24 +134,31 @@ private:
   // ### PlatformSetSize
   // Let the platform set the size of the WebContents view within its parent
   // ExoBrowser main view.
-  void PlatformSetSize();
+  void PlatformSetSize(gfx::Size& size);
 
-  // ### PlatformSetSize
+  // ### PlatformSetPosition
   // Let the platform set the position of the WebContents view within its parent
   // ExoBrowser main view.
-  void PlatformSetSize();
+  void PlatformSetPosition(gfx::Point& position);
 
-  // ### GetWebContentsView
-  gfx::NativeView GetContentView();
+  // ### PlatformSize
+  // Retrieves the size of the WebContents view
+  gfx::Size PlatformSize();
+
+  // ### PlatformPosition
+  // Retrieves the position of the WebContents view within its parent view
+  gfx::Point PlatformPosition();
+
 
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/
-  std::string                 name_;
-  ExoBrowser*                 parent_;
-  ExoBrowserWrap*             wrapper_;
+  std::string                      name_;
 
-  // TODO(spolu): Add wrapper_ member
+  ExoBrowser*                      parent_;
+  ExoFrameWrap*                    wrapper_;
+
+  scoped_ptr<content::WebContents> web_contents_;
 
   friend class ExoBrowser;
 };

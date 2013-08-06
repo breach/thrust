@@ -6,37 +6,37 @@
 #include "breach/browser/node/api/exo_browser_wrap.h"
 
 #include "content/public/browser/browser_thread.h"
-#include "breach/browser/ui/browser.h"
-#include "breach/browser/breach_content_browser_client.h"
-#include "breach/browser/breach_browser_context.h"
+#include "breach/browser/ui/exo_browser.h"
+#include "breach/browser/ui/exo_frame.h"
+#include "breach/browser/node/api/exo_frame_wrap.h"
 
-Persistent<Function> BrowserWrap::s_constructor;
+namespace breach {
+
+Persistent<Function> ExoBrowserWrap::s_constructor;
 
 void 
 ExoBrowserWrap::Init(
     Handle<Object> exports) 
 {
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("ExoBrowser"));
+  tpl->SetClassName(String::NewSymbol("_ExoBrowser"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-  // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("kill"),
+  /* Prototype */
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_kill"),
       FunctionTemplate::New(Kill)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("size"),
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_size"),
       FunctionTemplate::New(Size)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("position"),
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_position"),
       FunctionTemplate::New(Position)->GetFunction());
 
-  /*
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("addFrame"),
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_addFrame"),
       FunctionTemplate::New(AddFrame)->GetFunction());
-  */
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
-  exports->Set(String::NewSymbol("createNewExoBrowser"),
+  exports->Set(String::NewSymbol("_createNewExoBrowser"),
       FunctionTemplate::New(CreateNewExoBrowser)->GetFunction());
 }
 
@@ -51,9 +51,20 @@ ExoBrowserWrap::~ExoBrowserWrap()
 
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&BrowserWrap::DeleteTask, browser_));
+      base::Bind(&ExoBrowserWrap::DeleteTask, browser_));
 }
 
+void 
+ExoBrowserWrap::New(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  ExoBrowserWrap* browser_w = new ExoBrowserWrap();
+  browser_w->Wrap(args.This());
+
+  args.GetReturnValue().Set(args.This());
+}
 
 void 
 ExoBrowserWrap::CreateNewExoBrowser(
@@ -64,30 +75,42 @@ ExoBrowserWrap::CreateNewExoBrowser(
 
   Local<Function> c = 
     Local<Function>::New(Isolate::GetCurrent(), s_constructor);
-  Local<Object> wrap = c->NewInstance();
-  BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(wrap);
+  Local<Object> browser_o = c->NewInstance();
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(browser_o);
 
+  /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
-  Persistent<Function> *pcb = new Persistent<Function>();
-  pcb->Reset(Isolate::GetCurrent(), cb);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
 
   content::BrowserThread::PostTaskAndReply(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&BrowserWrap::CreateTask, obj),
-      base::Bind(&BrowserWrap::CreateCallback, obj, pcb));
+      base::Bind(&ExoBrowserWrap::CreateTask, browser_w),
+      base::Bind(&ExoBrowserWrap::CreateCallback, browser_w, cb_p));
 }
 
 
+void
+ExoBrowserWrap::CreateTask()
+{
+  browser_ = ExoBrowser::CreateNew(this, gfx::Size());
+}
+
 void 
-ExoBrowserWrap::New(
-    const v8::FunctionCallbackInfo<v8::Value>& args)
+ExoBrowserWrap::CreateCallback(
+    Persistent<Function>* cb_p)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
-  ExoBrowserWrap* wrap = new ExoBrowserWrap();
-  wrap->Wrap(args.This());
+  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
+  Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(), 
+                                               this->persistent());
 
-  args.GetReturnValue().Set(args.This());
+  Local<v8::Value> argv[1] = { browser_o };
+  cb->Call(browser_o, 1, argv);
+
+  cb_p->Dispose();
+  delete cb_p;
 }
 
 void
@@ -98,28 +121,6 @@ ExoBrowserWrap::DeleteTask(
   if(!browser->IsKilled())
     browser->Kill();
   delete browser;
-}
-
-ExoBrowserWrap::CreateTask()
-{
-  browser_ = ExoBrowser::CreateNew(this, gfx::Size());
-}
-
-void 
-ExoBrowserWrap::CreateCallback(
-    Persistent<Function>* pcb)
-{
-  HandleScope handle_scope(Isolate::GetCurrent());
-
-  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *pcb);
-  Local<Object> wrap = Local<Object>::New(Isolate::GetCurrent(), 
-                                          this->persistent());
-
-  Local<v8::Value> argv[1] = { wrap };
-  cb->Call(wrap, 1, argv);
-
-  pcb->Dispose();
-  delete pcb;
 }
 
 
@@ -133,39 +134,40 @@ ExoBrowserWrap::Kill(
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
+  /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
-  Persistent<Function> *pcb = new Persistent<Function>();
-  pcb->Reset(Isolate::GetCurrent(), cb);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
 
-  ExoBrowserWrap* obj = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::KillTask, obj),
-      base::Bind(&ExoBrowserWrap::KillCallback, obj, pcb));
+      base::Bind(&ExoBrowserWrap::KillTask, browser_w),
+      base::Bind(&ExoBrowserWrap::KillCallback, browser_w, cb_p));
 }
 
 
 void
-BrowserWrap::KillTask()
+ExoBrowserWrap::KillTask()
 {
   if(!browser_->is_killed())
     browser_->Kill();
 }
 
 void
-BrowserWrap::KillCallback(
-    Persistent<Function>* pcb)
+ExoBrowserWrap::KillCallback(
+    Persistent<Function>* cb_p)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
-  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *pcb);
-  Local<Object> wrap = Local<Object>::New(Isolate::GetCurrent(), 
-                                          this->persistent());
+  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
+  Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(), 
+                                               this->persistent());
 
-  cb->Call(wrap, 0, NULL);
+  cb->Call(browser_o, 0, NULL);
 
-  pcb->Dispose();
-  delete pcb;
+  cb_p->Dispose();
+  delete cb_p;
 }
 
 
@@ -175,21 +177,22 @@ ExoBrowserWrap::Size(
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
+  /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
-  Persistent<Function> *pcb = new Persistent<Function>();
-  pcb->Reset(Isolate::GetCurrent(), cb);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
 
   gfx::Size* size = new gfx::Size();
 
-  ExoBrowserWrap* obj = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::SizeTask, obj, size),
-      base::Bind(&ExoBrowserWrap::SizeCallback, obj, pcb, size));
+      base::Bind(&ExoBrowserWrap::SizeTask, browser_w, size),
+      base::Bind(&ExoBrowserWrap::SizeCallback, browser_w, cb_p, size));
 }
 
 void
-BrowserWrap::SizeTask(
+ExoBrowserWrap::SizeTask(
     gfx::Size *size)
 {
   if(!browser_->is_killed())
@@ -197,25 +200,25 @@ BrowserWrap::SizeTask(
 }
 
 void
-BrowserWrap::SizeCallback(
-    Persistent<Function>* pcb,
+ExoBrowserWrap::SizeCallback(
+    Persistent<Function>* cb_p,
     gfx::Size *size)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
-  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *pcb);
-  Local<Object> wrap = Local<Object>::New(Isolate::GetCurrent(), 
-                                          this->persistent());
+  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
+  Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(), 
+                                               this->persistent());
 
   Local<Array> size_array = Array::New();
   size_array->Set(0, Integer::New(size->width()));
   size_array->Set(1, Integer::New(size->height()));
 
   Local<v8::Value> argv[1] = { size_array };
-  cb->Call(wrap, 1, argv);
+  cb->Call(browser_o, 1, argv);
 
-  pcb->Dispose();
-  delete pcb;
+  cb_p->Dispose();
+  delete cb_p;
   delete size;
 }
 
@@ -226,20 +229,21 @@ ExoBrowserWrap::Position(
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
+  /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
-  Persistent<Function> *pcb = new Persistent<Function>();
-  pcb->Reset(Isolate::GetCurrent(), cb);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
 
   gfx::Point* position = new gfx::Point();
 
-  ExoBrowserWrap* obj = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::PositionTask, obj, position),
-      base::Bind(&ExoBrowserWrap::PositionCallback, obj, pcb, position));
+      base::Bind(&ExoBrowserWrap::PositionTask, browser_w, position),
+      base::Bind(&ExoBrowserWrap::PositionCallback, browser_w, cb_p, position));
 }
 
-BrowserWrap::PositionTask(
+ExoBrowserWrap::PositionTask(
     gfx::Point *position)
 {
   if(!browser_->is_killed())
@@ -247,15 +251,15 @@ BrowserWrap::PositionTask(
 }
 
 void
-BrowserWrap::PositionCallback(
-    Persistent<Function>* pcb,
+ExoBrowserWrap::PositionCallback(
+    Persistent<Function>* cb_p,
     gfx::Point *position)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
-  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *pcb);
-  Local<Object> wrap = Local<Object>::New(Isolate::GetCurrent(), 
-                                          this->persistent());
+  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
+  Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(), 
+                                               this->persistent());
 
   Local<Array> position_array = Array::New();
   position_array->Set(0, Integer::New(position->x()));
@@ -264,12 +268,61 @@ BrowserWrap::PositionCallback(
   Local<v8::Value> argv[1] = { position_array };
   cb->Call(wrap, 1, argv);
 
-  pcb->Dispose();
-  delete pcb;
+  cb_p->Dispose();
+  delete cb_p;
   delete position;
 }
 
 
+void 
+ExoBrowserWrap::AddFrame(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: frame */
+  Local<Object> frame_o = Local<Object>::Cast(args[0]);
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoBrowserWrap::AddFrameTask, browser_w, frame_w),
+      base::Bind(&ExoBrowserWrap::AddFrameCallback, browser_w, cb_p));
+}
+
+
+void
+ExoBrowserWrap::AddFrameTask(
+    ExoFrameWrap* frame_w)
+{
+  if(!browser_->is_killed()) {
+    browser_->addFrame(frame_w->frame_)
+  }
+}
+
+
+void
+ExoBrowserWrap::AddFrameCallback(
+    Persistent<Function>* cb_p)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
+  Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(), 
+                                               this->persistent());
+
+  cb->Call(browser_o, 0, NULL);
+
+  cb_p->Dispose();
+  delete cb_p;
+}
 
 
 

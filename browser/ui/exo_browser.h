@@ -40,7 +40,9 @@ namespace breach {
 
 class BreachDevToolsFrontend;
 class BreachJavaScriptDialogManager;
+
 class ExoBrowserWrap;
+class ExoFrameWrap;
 
 
 // ### ExoBrowser
@@ -91,39 +93,31 @@ public:
   // ### ~ExoBrowser
   virtual ~ExoBrowser();
 
-
-  // ### NewFrame
+  // ### AddFrame
   // ```
-  // @name     {string} the new frame name
-  // @position {Point} the new frame initial position
-  // @size     {Size} the new frame size
-  // @url      {GURL} the url to navigate to
+  // @frame {ExoFrame} the frame to add to this browser
   // ```
-  // This methods creates and adds a new ExoFrame to the current ExoBrowser. the
-  // ExoBrowser is in charge of maintaining the ExoFrame, which can be destroyed
-  // by calling `killFrame`.
-  // ExoFrame objects can only be created from the ExoBrowser as they are binded
-  // to their parent ExoBrowser (moving one from one to the other would cause
-  // a substantial leak of information)
-  ExoFrame* NewFrame(const std::string& name,
-                     const gfx::Point& position
-                     const gfx::Size& size,
-                     const GURL& url);
+  // This methods adds a frame to this browser. It checks that this frame has
+  // itself as a parent. The browser is not responsible for deleting the frame
+  // as it is binded to its JS wrapper.
+  // ExoFrame object should only be created from the JS wrappers and this
+  // method can only be called from there.
+  void AddFrame(ExoFrame* frame);
 
-  // ### KillFrame
+  // ### RemoveFrame
   // ```
   // @name     {string} the new frame name
   // ```
-  // Kill the ExoFrame designated by `name` by removing it from the current
-  // ExoBrowser window and destroying the underlying ExoFrame object. After this
-  // method is called, the associated ExoFrame does not exist anymore.
-  //
-  void KillFrame(const std::string& name);
+  // Removes the ExoFrame designated by `name` by removing it from the current
+  // ExoBrowser window. The frame can be reassociated with a different browser.
+  // The underlying ExoFrame is not deleted as its deletion is handled by the
+  // JS wrapper.
+  void RemoveFrame(const std::string& name);
 
   // ### Kill
-  // Kills the ExoBrowser and all its frames. The ExoBrowser object will not
-  // be deleted on kill (as it will be reclaimed when the JS object is deleted)
-  // but it will be marked as killed
+  // Kills the ExoBrowser and remove all of its frame. The ExoBrowser object 
+  // will not be deleted on kill (as it will be reclaimed when the JS object 
+  // is deleted) but it will be marked as killed as it is not usable anymore
   void Kill();
 
 
@@ -198,13 +192,6 @@ private:
   // WebContents. Returns NULL otherwise
   ExoFrame* FrameForWebContents(content::WebContents* contents);
 
-  // ### AddFrame
-  // ```
-  // ```
-  // Helper function to add a frame to this browser. Also used when creating
-  // a new browser for an already created frame (WebContents)
-  void AddFrame(ExoFrame* frame);
-
   /****************************************************************************/
   /*                        STATIC PLATFORM INTERFACE                         */
   /****************************************************************************/
@@ -240,7 +227,7 @@ private:
 
   // ### PlatformPosition
   // Retrieves the position of the ExoBrowser window.
-  gfx::Position PlatformPosition();
+  gfx::Point PlatformPosition();
 
 
 #if defined(OS_WIN) && !defined(USE_AURA)
@@ -277,7 +264,6 @@ private:
   content::NotificationRegistrar               registrar_;
 
   std::map<std::string, ExoFrame*>             frames_;
-  std::map<std::string, content::WebContents*> pending_contents_;
 
   ExoBrowserWrap*                              wrapper_;
 
@@ -291,6 +277,9 @@ private:
 
   // A static container of all the open instances. 
   static std::vector<ExoBrowser*>              s_instances;
+
+  friend class ExoBrowserWrap;
+  friend class ExoFrameWrap;
 };
 
 } // namespace breach
