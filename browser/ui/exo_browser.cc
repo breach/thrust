@@ -10,11 +10,6 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "content/public/browser/navigation_controller.h"
-#include "content/public/browser/navigation_entry.h"
-#include "content/public/browser/notification_details.h"
-#include "content/public/browser/notification_source.h"
-#include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -26,6 +21,7 @@
 #include "breach/browser/breach_content_browser_client.h"
 #include "breach/browser/ui/dialog/breach_javascript_dialog_manager.h"
 #include "breach/common/breach_messages.h"
+#include "breach/browser/ui/exo_frame.h"
 
 using namespace content;
 
@@ -46,8 +42,6 @@ ExoBrowser::ExoBrowser(
     wrapper_(wrapper),
     is_killed_(false)
 {
-  registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-      Source<WebContents>(web_contents));
   s_instances.push_back(this);
 }
 
@@ -94,69 +88,96 @@ ExoBrowser::KillAll()
 
 
 ExoFrame* 
-ExoBrowser::NewFrame(
-    const std::string& name,
-    const gfx::Point& position
-    const gfx::Size& size,
-    const GURL& url)
+ExoBrowser::FrameForWebContents(
+    WebContents* web_contents)
 {
-  //ExoFrame* frame = new ExoFrame(name, this, 
+  std::map<std::string, ExoFrame*>::iterator it;
+  for(it = frames_.begin; it != frames_.end(); ++it) {
+    if((*it)->web_contents == web_contents) {
+      return (it);
+    }
+  }
+  return NULL;
 }
+
 
 ExoFrame*
 ExoBrowser::AddFrame(
     ExoFrame* frame)
 {
+  frame->SetParent(this);
+  frames_[frame->name()] = frame;
+  PlatformAddFrame(frame);
 }
 
 
 void 
-ExoBrowser::KillFrame(
+ExoBrowser::RemoveFrame(
     const std::string& name)
 {
+  std::map<std::string, ExoFrame*>::iterator it = frames_.find(name);
+  if(it != frames_.end()) {
+    (*it)->SetParent(NULL);
+    PlatformRemoveFrame(*it);
+    frames_.erase(it);
+  }
 }
 
 void
 ExoBrowser::Kill()
 {
+  while(frames_.begin() != frames_.end()) {
+    RemoveFrame((*frames_.begin())->name());
+  }
+  PlatformKill();
+  is_killed_ = true;
 }
 
 void 
-Browser::LoadURLForFrame(
+ExoBrowser::LoadURLForFrame(
     const GURL& url, 
     const std::string& frame_name) 
 {
   NodeThread::Get()->message_loop_proxy()->PostTask(
       FROM_HERE,
-      base::Bind(&BrowserWrap::LoadURLCallBack, wrapper_, url, frame_name));
+      base::Bind(&ExoBrowserWrap::LoadURLCallBack, wrapper_, url, frame_name));
 }
+
 WebContents* 
-Browser::OpenURLFromTab(
+ExoBrowser::OpenURLFromTab(
     WebContents* source,
     const OpenURLParams& params) 
 {
-  /* TODO(spolu): find WebContents ExoFrame's name */
+  ExoFrame* frame = FrameForWebContents(source);
+  DCHECK(frame != NULL);
   /* TODO(spolu): Use params.transition            */
   /* TODO(spolu): Use params.referrer              */
   /* TODO(spolu): Use params.disposition           */
-  std::string source_frame();
-  NodeThread::Get()->message_loop_proxy()->PostTask(
-      FROM_HERE,
-      base::Bind(&BrowserWrap::OpenURLCallBack, wrapper_, 
-                 params.url, source_frame));
+  if(frame) {
+    NodeThread::Get()->message_loop_proxy()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::OpenURLCallBack, wrapper_, 
+                   params.url.spec(), frame->name()));
+  }
+  return NULL;
 }
 
 void 
-Browser::LoadingStateChanged(
+ExoBrowser::LoadingStateChanged(
     WebContents* source) 
 {
-  /* TODO(spolu): find WebContents ExoFrame's name */
-  /* TODO(spolu): Call into API   */
-  /* Can use: source->IsLoading() */
+  ExoFrame* frame = FrameForWebContents(source);
+  DCHECK(frame != NULL);
+  if(frame) {
+    NodeThread::Get()->message_loop_proxy()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::LoadingStateChangeCallback, wrapper_, 
+                   frame->name(), source->isLoading()));
+  }
 }
 
 void 
-Browser::RequestToLockMouse(
+ExoBrowser::RequestToLockMouse(
     WebContents* web_contents,
     bool user_gesture,
     bool last_unlocked_by_target) 
@@ -166,18 +187,21 @@ Browser::RequestToLockMouse(
 }
 
 void 
-Browser::CloseContents(
+ExoBrowser::CloseContents(
     WebContents* source) 
 {
-  /* TODO(spolu): find WebContents ExoFrame's name */
-  std::string frame_name();
-  NodeThread::Get()->message_loop_proxy()->PostTask(
-      FROM_HERE,
-      base::Bind(&BrowserWrap::CloseFrameCallBack, wrapper_, frame_name));
+  ExoFrame* frame = FrameForWebContents(source);
+  DCHECK(frame != NULL);
+  if(frame) {
+    NodeThread::Get()->message_loop_proxy()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::CloseFrameCallBack, wrapper_, 
+                   frame->name()));
+  }
 }
 
 void 
-Browser::WebContentsCreated(
+ExoBrowser::WebContentsCreated(
     WebContents* source_contents,
     int64 source_frame_id,
     const string16& frame_name,
@@ -189,7 +213,7 @@ Browser::WebContentsCreated(
 }
 
 void 
-Browser::AddNewContents(
+ExoBrowser::AddNewContents(
     WebContents* source,
     WebContents* new_contents,
     WindowOpenDisposition disposition,
@@ -202,15 +226,22 @@ Browser::AddNewContents(
 }
 
 void 
-Browser::DidNavigateMainFramePostCommit(
+ExoBrowser::DidNavigateMainFramePostCommit(
     WebContents* web_contents) 
 {
-  /* TODO(spolu): find WebContents ExoFrame's name */
-  /* TODO(spolu): Call into API */
+  ExoFrame* frame = FrameForWebContents(source);
+  DCHECK(frame != NULL);
+  if(frame) {
+    NodeThread::Get()->message_loop_proxy()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::FrameNavigateCallBack, wrapper_, 
+                   frame->name(),
+                   frame->web_contents->GetURL()->spec()));
+  }
 }
 
 JavaScriptDialogManager* 
-Browser::GetJavaScriptDialogManager() 
+ExoBrowser::GetJavaScriptDialogManager() 
 {
   /* TODO(spolu): Eventually Move to API */
   if (!dialog_manager_)
@@ -219,7 +250,7 @@ Browser::GetJavaScriptDialogManager()
 }
 
 void 
-Browser::ActivateContents(
+ExoBrowser::ActivateContents(
     WebContents* contents) 
 {
   /* TODO(spolu): find WebContents ExoFrame's name */
@@ -227,7 +258,7 @@ Browser::ActivateContents(
 }
 
 void 
-Browser::DeactivateContents(
+ExoBrowser::DeactivateContents(
     WebContents* contents) 
 {
   /* TODO(spolu): find WebContents ExoFrame's name */
@@ -235,7 +266,7 @@ Browser::DeactivateContents(
 }
 
 void 
-Browser::RendererUnresponsive(
+ExoBrowser::RendererUnresponsive(
     WebContents* source) 
 {
   /* TODO(spolu): find WebContents ExoFrame's name */
@@ -243,33 +274,13 @@ Browser::RendererUnresponsive(
 }
 
 void 
-Browser::WorkerCrashed(
+ExoBrowser::WorkerCrashed(
     WebContents* source) 
 {
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }
 
-
-void 
-ExoBrowser::Observe(
-    int type,
-    const NotificationSource& source,
-    const NotificationDetails& details) 
-{
-  if (type == NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    std::pair<NavigationEntry*, bool>* title =
-        Details<std::pair<NavigationEntry*, bool> >(details).ptr();
-
-    if (title->first) {
-      /* TODO(spolu): Call into JS */
-      //string16 text = title->first->GetTitle();
-      //PlatformSetTitle(text);
-    }
-  } else {
-    NOTREACHED();
-  }
-}
 
 
 

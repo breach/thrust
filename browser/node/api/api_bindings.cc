@@ -6,7 +6,8 @@
 #include "grit/breach_resources.h"
 #include "base/strings/string_piece.h"
 
-#include "breach/browser/node/api/browser_wrap.h"
+#include "breach/browser/node/api/exo_browser_wrap.h"
+#include "breach/browser/node/api/exo_frame_wrap.h"
 
 using namespace v8;
 
@@ -114,7 +115,8 @@ ApiBindings::RequireBreach(
   args.This()->Set(BreachSymbol, BreachExports);
 
   /* TODO(spolu): Install API */
-  BrowserWrap::Init(BreachExports);
+  ExoBrowserWrap::Init(BreachExports);
+  ExoFrameWrap::Init(BreachExports);
   
   /*
   RequireFromResource(args.This(),

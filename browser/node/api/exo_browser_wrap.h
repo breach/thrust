@@ -56,14 +56,26 @@ private:
   void AddFrameTask();
   void AddFrameCallback();
 
+
   static void SetOpenURLCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void OpenURLCallback(const GURL& url, const std::string& source_frame);
+  void OpenURLCallback(const std::string& url, const std::string& from_frame);
 
   static void SetResizeCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void ResizeCallback();
 
+  static void SetLoadinStateChangeCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void LoadingStateChangeCallback(const std::string& frame, bool loading);
+
+  static void SetCloseFrameCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CloseFrameCallback(const std::string& frame);
+
+  static void SetNavigateFrameCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void NavigateFrameCallback(const std::string& frame, const std::string& url);
 
   /****************************************************************************/
   /*                               MEMBERS                                    */

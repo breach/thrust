@@ -53,8 +53,8 @@ private:
   void SetSizeCallback();
 
   static void SetPosition(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void PositionTask();
-  void PositionCallback();
+  void SetPositionTask();
+  void SetPositionCallback();
 
   static void Size(const v8::FunctionCallbackInfo<v8::Value>& args);
   void SizeTask();
@@ -93,6 +93,11 @@ private:
   void ParentTask();
   void ParentCallback();
 
+
+  static void SetTitleUpdatedCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void TitleUpdatedCallback(const std::string& frame);
+
   
   /****************************************************************************/
   /*                               MEMBERS                                    */
@@ -103,6 +108,7 @@ private:
 
   friend class base::RefCountedThreadSafe<ExoFrameWrap>;
   friend class ExoBrowserWrap;
+  friend class ExoFrame;
 
   DISALLOW_COPY_AND_ASSIGN(ExoFrameWrap);
 };

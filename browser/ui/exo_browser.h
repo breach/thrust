@@ -10,8 +10,6 @@
 #include "base/callback_forward.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/strings/string_piece.h"
-#include "content/public/browser/notification_observer.h"
-#include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/size.h"
@@ -44,6 +42,8 @@ class BreachJavaScriptDialogManager;
 class ExoBrowserWrap;
 class ExoFrameWrap;
 
+class ExoFrame;
+
 
 // ### ExoBrowser
 // 
@@ -57,8 +57,7 @@ class ExoFrameWrap;
 //
 // The ExoBrowser lives on the BrowserThread::UI thread, and should PostTask on
 // the NodeJS thread whenever it wants to communicate with its JS Wrapper
-class ExoBrowser : public content::WebContentsDelegate,
-                   public content::NotificationObserver {
+class ExoBrowser : public content::WebContentsDelegate {
 public:
   static const int kDefaultWindowWidth;
   static const int kDefaultWindowHeight;
@@ -81,7 +80,7 @@ public:
 
   // ### instances
   // Getter for all the currently working ExoBrowser instances.
-  static std::vector<ExoBrowser*>& instances() { return instances_; }
+  static std::vector<ExoBrowser*>& instances() { return s_instances; }
 
   // ### KillAll
   // Kills all running instances and returns.
@@ -190,7 +189,8 @@ private:
   // ```
   // Retrieves within this browser, the frame associated with the provided 
   // WebContents. Returns NULL otherwise
-  ExoFrame* FrameForWebContents(content::WebContents* contents);
+  ExoFrame* FrameForWebContents(content::WebContents* web_contents);
+
 
   /****************************************************************************/
   /*                        STATIC PLATFORM INTERFACE                         */
@@ -217,9 +217,21 @@ private:
   // Creates the ExoBrowser window GUI.
   void PlatformCreateWindow(int width, int height);
 
+  // ### PlatformKill
+  // Lets each platform clean up on kill. All frames have already been removed.
+  void PlatformKill();
+
   // ### PlatformSetTitle 
   // Set the title of ExoBrowser window.
   void PlatformSetTitle(const string16& title);
+
+  // ### PlatformAddFrame
+  // Adds the frame web_contents view to the view hierarchy
+  void PlatformAddFrame(ExoFrame *frame);
+
+  // ### PlatformAddFrame
+  // Adds the frame web_contents view to the view hierarchy
+  void PlatformRemoveFrame(ExoFrame *frame);
 
   // ### PlatformSize
   // Retrieves the size of the ExoBrowser window.
@@ -235,24 +247,16 @@ private:
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
 #elif defined(TOOLKIT_GTK)
-  CHROMEGTK_CALLBACK_0(Browser, gboolean, OnWindowDestroyed);
-  CHROMEG_CALLBACK_3(Browser, gboolean, OnCloseWindowKeyPressed, GtkAccelGroup*,
+  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, GtkAccelGroup*,
                      GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(Browser, gboolean, OnNewWindowKeyPressed, GtkAccelGroup*,
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, GtkAccelGroup*,
                      GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(Browser, gboolean, OnHighlightURLView, GtkAccelGroup*,
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnHighlightURLView, GtkAccelGroup*,
                      GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(Browser, gboolean, OnReloadKeyPressed, GtkAccelGroup*,
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnReloadKeyPressed, GtkAccelGroup*,
                      GObject*, guint, GdkModifierType);
 #endif
-
-
-  /****************************************************************************/
-  /*                  NOTIFICATION OBSERVER IMPLEMENTATION                    */
-  /****************************************************************************/
-  virtual void Observe(int type,
-                       const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE;
 
 
   /****************************************************************************/
@@ -261,7 +265,6 @@ private:
   scoped_ptr<BreachJavaScriptDialogManager>    dialog_manager_;
 
   gfx::NativeWindow                            window_;
-  content::NotificationRegistrar               registrar_;
 
   std::map<std::string, ExoFrame*>             frames_;
 
@@ -283,3 +286,5 @@ private:
 };
 
 } // namespace breach
+
+#endif // BREACH_BROWSER_UI_EXO_BROWSER_H_

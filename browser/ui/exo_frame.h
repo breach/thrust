@@ -1,7 +1,6 @@
 // Copyright (c) 2013 Stanislas Polu.
 // See the LICENSE file.
 
-
 #ifndef BREACH_BROWSER_UI_EXO_FRAME_H_
 #define BREACH_BROWSER_UI_EXO_FRAME_H_
 
@@ -48,7 +47,7 @@ class ExoFrameWrap;
 //
 // The ExoFrame lives on the BrowserThread::UI thread, and should PostTask on
 // the NodeJS thread whenever it wants to communicate with its JS Wrapper
-class ExoFrame {
+class ExoFrame : public content::NotificationObserver {
 public:
   /****************************************************************************/
   /*                         PUBLIC INTERFACE                                 */
@@ -97,12 +96,12 @@ public:
 
   // ### name
   // Returns the ExoFrame name
-  const std::string& name() { return name_ };
+  const std::string& name() { return name_; }
 
 
   // ### parent
   // Returns the ExoFrame's parent ExoBrowser
-  ExoBrowser* parent() { return parent_ };
+  ExoBrowser* parent() { return parent_; }
 
 private:
   /****************************************************************************/
@@ -149,6 +148,13 @@ private:
   // Retrieves the position of the WebContents view within its parent view
   gfx::Point PlatformPosition();
 
+  /****************************************************************************/
+  /*                  NOTIFICATION OBSERVER IMPLEMENTATION                    */
+  /****************************************************************************/
+  virtual void Observe(int type,
+                       const content::NotificationSource& source,
+                       const content::NotificationDetails& details) OVERRIDE;
+
 
   /****************************************************************************/
   /*                               MEMBERS                                    */
@@ -159,6 +165,7 @@ private:
   ExoFrameWrap*                    wrapper_;
 
   scoped_ptr<content::WebContents> web_contents_;
+  content::NotificationRegistrar   registrar_;
 
   friend class ExoBrowser;
 };
