@@ -290,7 +290,7 @@
         'app/breach_main.cc',
       ],
       'mac_bundle_resources': [
-        'app/app.icns',
+        'resources/app.icns',
         'app/app-Info.plist',
       ],
       # TODO(mark): Come up with a fancier way to do this.  It should only
@@ -421,8 +421,8 @@
           'product_name': '<(breach_product_name) Framework',
           'mac_bundle': 1,
           'mac_bundle_resources': [
-            'app/English.lproj/HttpAuth.xib',
-            'app/English.lproj/MainMenu.xib',
+            #'app/English.lproj/HttpAuth.xib',
+            #'app/English.lproj/MainMenu.xib',
             '<(PRODUCT_DIR)/breach.pak'
           ],
           'dependencies': [
@@ -432,7 +432,7 @@
             '<(DEPTH)',
           ],
           'sources': [
-            'app/breach_main_mac.cc',
+            'app/breach_main_mac.mm',
             'app/breach_main_mac.h',
           ],
           'copies': [
