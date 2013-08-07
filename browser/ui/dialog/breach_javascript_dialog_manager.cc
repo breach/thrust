@@ -112,8 +112,9 @@ BreachJavaScriptDialogManager::RunBeforeUnloadDialog(
 #endif
 }
 
+
 void 
-BreachJavaScriptDialogManager::ResetJavaScriptState(
+BreachJavaScriptDialogManager::CancelActiveAndPendingDialogs(
     WebContents* web_contents) 
 {
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
@@ -122,8 +123,14 @@ BreachJavaScriptDialogManager::ResetJavaScriptState(
     dialog_.reset();
   }
 #else
-  // TODO: implement JavaScriptDialog for other platforms, drop this #if
+  // TODO: implement ShellJavaScriptDialog for other platforms, drop this #if
 #endif
+}
+
+void 
+BreachJavaScriptDialogManager::WebContentsDestroyed(
+    WebContents* web_contents) 
+{
 }
 
 void 

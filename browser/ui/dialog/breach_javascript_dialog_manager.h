@@ -36,7 +36,10 @@ class BreachJavaScriptDialogManager : public content::JavaScriptDialogManager {
       bool is_reload,
       const DialogClosedCallback& callback) OVERRIDE;
 
-  virtual void ResetJavaScriptState(
+  virtual void CancelActiveAndPendingDialogs(
+      content::WebContents* web_contents) OVERRIDE;
+
+  virtual void WebContentsDestroyed(
       content::WebContents* web_contents) OVERRIDE;
 
   // Called by the JavaScriptDialog when it closes.
