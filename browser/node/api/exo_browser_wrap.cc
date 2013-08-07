@@ -106,7 +106,8 @@ ExoBrowserWrap::CreateNewExoBrowser(
 void
 ExoBrowserWrap::CreateTask()
 {
-  browser_ = ExoBrowser::CreateNew(this, gfx::Size());
+  /* TODO(spolu): parse array in CreateNewExoBrowser */
+  browser_ = ExoBrowser::CreateNew(this, gfx::Size(800, 600));
 }
 
 void 
@@ -316,7 +317,7 @@ ExoBrowserWrap::SetControlDimension(
     (ExoBrowser::CONTROL_TYPE) (Local<Integer>::Cast(args[0]))->Value();
 
   /* args[1]: size */
-  int size = (Local<Integer>::Cast(args[0]))->Value();
+  int size = (Local<Integer>::Cast(args[1]))->Value();
 
   /* args[2]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[2]);

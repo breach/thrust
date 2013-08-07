@@ -82,7 +82,6 @@ ExoFrame::LoadURL(
   /* TODO(spolu): Manage `transition_type` */
   params.transition_type = PageTransitionFromInt(
       PAGE_TRANSITION_TYPED | PAGE_TRANSITION_FROM_ADDRESS_BAR);
-  params.frame_name = name_;
   web_contents_->GetController().LoadURLWithParams(params);
   web_contents_->GetView()->Focus();
 }

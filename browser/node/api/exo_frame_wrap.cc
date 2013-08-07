@@ -77,6 +77,11 @@ ExoFrameWrap::CreateNewExoFrame(
   HandleScope handle_scope(Isolate::GetCurrent());
   DCHECK(Isolate::GetCurrent() == args.GetIsolate());
 
+  Local<Function> c = 
+    Local<Function>::New(Isolate::GetCurrent(), s_constructor);
+  Local<Object> frame_o = c->NewInstance();
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
+
   /* args[0]: spec = { name, url } */
   Local<Object> spec = Local<Object>::Cast(args[0]);
   std::string name = std::string(
@@ -84,13 +89,8 @@ ExoFrameWrap::CreateNewExoFrame(
   std::string url = std::string(
       *String::Utf8Value(spec->Get(String::New("url"))->ToString()));
   
-  /* args[0]: cb_ */
-  Local<Function> c = 
-    Local<Function>::New(Isolate::GetCurrent(), s_constructor);
-  Local<Object> frame_o = c->NewInstance();
-  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
-
-  Local<Function> cb = Local<Function>::Cast(args[0]);
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
   Persistent<Function> *cb_p = new Persistent<Function>();
   cb_p->Reset(Isolate::GetCurrent(), cb);
 

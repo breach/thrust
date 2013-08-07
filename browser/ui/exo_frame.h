@@ -98,10 +98,6 @@ public:
   // Retrieves the frame size
   gfx::Size size() { return PlatformSize(); }
 
-  // ### position
-  // Retrieves the frame position
-  gfx::Point position() { return PlatformPosition(); }
-
   // ### name
   // Returns the ExoFrame name
   const std::string& name() { return name_; }
@@ -151,10 +147,6 @@ private:
   // ### PlatformSize
   // Retrieves the size of the WebContents view
   gfx::Size PlatformSize();
-
-  // ### PlatformPosition
-  // Retrieves the position of the WebContents view within its parent view
-  gfx::Point PlatformPosition();
 
   /****************************************************************************/
   /*                  NOTIFICATION OBSERVER IMPLEMENTATION                    */

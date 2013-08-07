@@ -287,9 +287,6 @@ private:
   // Helper for one time initialization of application
   static void PlatformInitialize(const gfx::Size& default_window_size);
 
-  // ### PlatformExit
-  // Closes all windows and exits.
-  static void PlatformExit();
 
   /****************************************************************************/
   /*                            PLATFORM INTERFACE                            */
@@ -303,12 +300,12 @@ private:
   void PlatformCreateWindow(int width, int height);
 
   // ### PlatformKill
-  // Lets each platform clean up on kill. All frames have already been removed.
+  // Let each platform clean up on kill. All frames have already been removed.
   void PlatformKill();
 
   // ### PlatformSetTitle 
   // Set the title of ExoBrowser window.
-  void PlatformSetTitle(const string16& title);
+  void PlatformSetTitle(const std::string& title);
 
 
   // ### PlatformAddPage
@@ -352,14 +349,9 @@ private:
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
 #elif defined(TOOLKIT_GTK)
-  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
   CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, GtkAccelGroup*,
                      GObject*, guint, GdkModifierType);
   CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, GtkAccelGroup*,
-                     GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnHighlightURLView, GtkAccelGroup*,
-                     GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnReloadKeyPressed, GtkAccelGroup*,
                      GObject*, guint, GdkModifierType);
 #endif
 
@@ -382,6 +374,15 @@ private:
   WNDPROC                                      default_edit_wnd_proc_;
   static HINSTANCE                             instance_handle_;
 #elif defined(TOOLKIT_GTK)
+  GtkWidget*                                   hbox_;
+  GtkWidget*                                   vbox_;
+
+  GtkWidget*                                   control_left_box_;
+  GtkWidget*                                   control_right_box_;
+  GtkWidget*                                   control_top_box_;
+  GtkWidget*                                   control_bottom_box_;
+
+  GtkWidget*                                   pages_box_;
 #endif
 
   // A static container of all the open instances. 

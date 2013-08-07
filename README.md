@@ -30,6 +30,8 @@ b.kill(cb_);
 
 b._setOpenURLCallback(cb_);
 b._setResizeCallback(cb_);
+b._setBrowserCloseCallback(cb_);
+b._setBrowserNewCallback(cb_);
 b._setFrameLoadingStateChangeCallback(cb_);
 b._setFrameCloseCallback(cb_);
 b._setFrameNavigateCallback(cb_);
