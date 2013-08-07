@@ -22,6 +22,8 @@
 #include "breach/browser/ui/dialog/breach_javascript_dialog_manager.h"
 #include "breach/common/breach_messages.h"
 #include "breach/browser/ui/exo_frame.h"
+#include "breach/browser/node/node_thread.h"
+#include "breach/browser/node/api/exo_browser_wrap.h"
 
 using namespace content;
 
@@ -71,7 +73,7 @@ ExoBrowser::CreateNew(
     ExoBrowserWrap* wrapper,
     const gfx::Size& size)
 {
-  ExoBrowser* browser = new ExoBrowser(wrapper)
+  ExoBrowser* browser = new ExoBrowser(wrapper);
   browser->PlatformCreateWindow(size.width(), size.height());
 
   return browser;
@@ -91,56 +93,131 @@ ExoFrame*
 ExoBrowser::FrameForWebContents(
     WebContents* web_contents)
 {
-  std::map<std::string, ExoFrame*>::iterator it;
-  for(it = frames_.begin; it != frames_.end(); ++it) {
-    if((*it)->web_contents == web_contents) {
-      return (it);
+  std::map<std::string, ExoFrame*>::iterator p_it;
+  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
+    if((p_it->second)->web_contents_ == web_contents) {
+      return (p_it->second);
+    }
+  }
+  std::map<CONTROL_TYPE, ExoFrame*>::iterator c_it;
+  for(c_it = controls_.begin(); c_it != controls_.end(); ++c_it) {
+    if((c_it->second)->web_contents_ == web_contents) {
+      return (c_it->second);
     }
   }
   return NULL;
 }
 
 
-ExoFrame*
-ExoBrowser::AddFrame(
+void 
+ExoBrowser::SetControl(
+    CONTROL_TYPE type,
     ExoFrame* frame)
 {
+  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
+  if(it == controls_.end()) {
+    UnsetControl(type);
+  }
+  controls_[type] = frame;
+  frame->SetType(ExoFrame::CONTROL_FRAME);
   frame->SetParent(this);
-  frames_[frame->name()] = frame;
-  PlatformAddFrame(frame);
+  PlatformSetControl(type, frame);
+}
+
+void
+ExoBrowser::UnsetControl(
+    CONTROL_TYPE type)
+{
+  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
+  if(it != controls_.end()) {
+    PlatformUnsetControl(it->first, it->second);
+    (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
+    (it->second)->SetParent(NULL);
+    controls_.erase(it);
+  }
+  /* Otherwise, nothing to do */
+}
+
+void
+ExoBrowser::SetControlDimension(
+    CONTROL_TYPE type,
+    int size)
+{
+  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
+  if(it != controls_.end()) {
+    PlatformSetControlDimension(it->first, it->second, size);
+  }
+  /* Otherwise, nothing to do */
+}
+
+
+void
+ExoBrowser::AddPage(
+    ExoFrame* frame)
+{
+  frame->SetType(ExoFrame::PAGE_FRAME);
+  frame->SetParent(this);
+  pages_[frame->name()] = frame;
+  PlatformAddPage(frame);
 }
 
 
 void 
+ExoBrowser::RemovePage(
+    const std::string& name)
+{
+  std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
+  if(it != pages_.end()) {
+    PlatformRemovePage(it->second);
+    (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
+    (it->second)->SetParent(NULL);
+    pages_.erase(it);
+  }
+  /* Otherwise, nothing to do */
+}
+
+void
+ExoBrowser::ShowPage(
+    const std::string& name)
+{
+  std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
+  if(it != pages_.end()) {
+    PlatformShowPage(it->second);
+  }
+  /* Otherwise, nothing to do */
+}
+
+
+void
 ExoBrowser::RemoveFrame(
     const std::string& name)
 {
-  std::map<std::string, ExoFrame*>::iterator it = frames_.find(name);
-  if(it != frames_.end()) {
-    (*it)->SetParent(NULL);
-    PlatformRemoveFrame(*it);
-    frames_.erase(it);
+  std::map<std::string, ExoFrame*>::iterator p_it;
+  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
+    if((p_it->second)->name() == name) {
+      return RemovePage((p_it->second)->name());
+    }
   }
+  std::map<CONTROL_TYPE, ExoFrame*>::iterator c_it;
+  for(c_it = controls_.begin(); c_it != controls_.end(); ++c_it) {
+    if((c_it->second)->name() == name) {
+      return UnsetControl(c_it->first);
+    }
+  }
+
 }
 
 void
 ExoBrowser::Kill()
 {
-  while(frames_.begin() != frames_.end()) {
-    RemoveFrame((*frames_.begin())->name());
+  while(pages_.begin() != pages_.end()) {
+    RemovePage((pages_.begin()->second)->name());
+  }
+  while(controls_.begin() != controls_.end()) {
+    UnsetControl(controls_.begin()->first);
   }
   PlatformKill();
   is_killed_ = true;
-}
-
-void 
-ExoBrowser::LoadURLForFrame(
-    const GURL& url, 
-    const std::string& frame_name) 
-{
-  NodeThread::Get()->message_loop_proxy()->PostTask(
-      FROM_HERE,
-      base::Bind(&ExoBrowserWrap::LoadURLCallBack, wrapper_, url, frame_name));
 }
 
 WebContents* 
@@ -156,7 +233,7 @@ ExoBrowser::OpenURLFromTab(
   if(frame) {
     NodeThread::Get()->message_loop_proxy()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoBrowserWrap::OpenURLCallBack, wrapper_, 
+        base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
                    params.url.spec(), frame->name()));
   }
   return NULL;
@@ -171,8 +248,8 @@ ExoBrowser::LoadingStateChanged(
   if(frame) {
     NodeThread::Get()->message_loop_proxy()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoBrowserWrap::LoadingStateChangeCallback, wrapper_, 
-                   frame->name(), source->isLoading()));
+        base::Bind(&ExoBrowserWrap::DispatchFrameLoadingStateChange, wrapper_, 
+                   frame->name(), source->IsLoading()));
   }
 }
 
@@ -195,7 +272,7 @@ ExoBrowser::CloseContents(
   if(frame) {
     NodeThread::Get()->message_loop_proxy()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoBrowserWrap::CloseFrameCallBack, wrapper_, 
+        base::Bind(&ExoBrowserWrap::DispatchFrameClose, wrapper_, 
                    frame->name()));
   }
 }
@@ -229,14 +306,14 @@ void
 ExoBrowser::DidNavigateMainFramePostCommit(
     WebContents* web_contents) 
 {
-  ExoFrame* frame = FrameForWebContents(source);
+  ExoFrame* frame = FrameForWebContents(web_contents);
   DCHECK(frame != NULL);
   if(frame) {
     NodeThread::Get()->message_loop_proxy()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoBrowserWrap::FrameNavigateCallBack, wrapper_, 
+        base::Bind(&ExoBrowserWrap::DispatchFrameNavigate, wrapper_, 
                    frame->name(),
-                   frame->web_contents->GetURL()->spec()));
+                   frame->web_contents_->GetURL().spec()));
   }
 }
 

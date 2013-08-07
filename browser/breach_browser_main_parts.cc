@@ -16,7 +16,7 @@
 
 #include "breach/browser/breach_browser_context.h"
 #include "breach/common/breach_switches.h"
-#include "breach/browser/ui/browser.h"
+#include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/devtools/breach_devtools_delegate.h"
 #include "breach/browser/net/breach_net_log.h"
 #include "breach/browser/node/node_thread.h"
@@ -95,7 +95,7 @@ BreachBrowserMainParts::PreMainMessageLoopRun()
 
   LOG(INFO) << "PreMessageLoopRun";
 
-  Browser::Initialize();
+  ExoBrowser::Initialize();
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
 
   devtools_delegate_.reset(new BreachDevToolsDelegate(browser_context_.get()));

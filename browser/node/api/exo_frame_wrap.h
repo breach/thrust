@@ -6,8 +6,6 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
-#include "ui/gfx/size.h"
-#include "ui/gfx/point.h"
 #include "breach/browser/node/api/object_wrap.h"
 #include "breach/browser/node/api/exo_browser_wrap.h"
 
@@ -32,77 +30,48 @@ private:
 
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-  void CreateTask(std::string& name,
-                  std::string& url,
-                  gfx::Point& position,
-                  gfx::Size& size,
-                  int zIndex);
+  void CreateTask(const std::string& name,
+                  const std::string& url);
   void CreateCallback(v8::Persistent<v8::Function>* pcb);
 
   static void DeleteTask(ExoFrame* frame);
 
   /****************************************************************************/
-  /*                      WRAPPERS, TASKS & CALLBACKS                         */
+  /*                           WRAPPERS, TASKS                                */
   /****************************************************************************/
-  static void SetVisible(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void SetVisibleTask();
-  void SetVisibleCallback();
-
-  static void SetSize(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void SetSizeTask();
-  void SetSizeCallback();
-
-  static void SetPosition(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void SetPositionTask();
-  void SetPositionCallback();
-
-  static void Size(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void SizeTask();
-  void SizeCallback();
-
-  static void Position(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void PositionTask();
-  void PositionCallback();
-
   static void LoadURL(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void LoadURLTask();
-  void LoadURLCallback();
+  void LoadURLTask(const std::string& url);
 
-  static void GoBack(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void GoBackTask();
-  void GoBackCallback();
-
-  static void GoForward(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void GoForwardTask();
-  void GoForwardCallback();
+  static void GoBackOrForward(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void GoBackOrForwardTask(int offset);
 
   static void Reload(const v8::FunctionCallbackInfo<v8::Value>& args);
   void ReloadTask();
-  void ReloadCallback();
 
   static void Stop(const v8::FunctionCallbackInfo<v8::Value>& args);
   void StopTask();
-  void StopCallback();
 
 
   static void Name(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void NameTask();
-  void NameCallback();
+  void NameTask(std::string* name);
 
-  static void Parent(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void ParentTask();
-  void ParentCallback();
+  static void Type(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void TypeTask(int* type);
 
-
+  /****************************************************************************/
+  /*                              DISPATCHERS                                 */
+  /****************************************************************************/
   static void SetTitleUpdatedCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void TitleUpdatedCallback(const std::string& frame);
+  void DispatchTitleUpdated(const std::string& title);
 
   
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/
-  ExoFrame*   frame_;
+  ExoFrame*                    frame_;
+
+  v8::Persistent<v8::Function> title_updated_cb_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 

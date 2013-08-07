@@ -47,13 +47,46 @@ class ExoFrame;
 
 // ### ExoBrowser
 // 
-// This represents one window of the Breach ExoBrowser. The ExoBrowser exposes
-// to Javascript the ability to add "frames" within that window (which are web
-// views) using a fixed layout with visibility and z-index capabilities.
+// This represents a Breach ExoBrowser window. The ExoBrowser exposes to 
+// Javascript the ability to add Pages (stacked, one visible at a time) and
+// controls (pre-defined paramatrizable layout).
 //
-// The ExoBrowser initialization always come from Javascript and it is
-// therefore aware of its associated Javascript wrapper (used to forward noti-
-// fications or callbacks there).
+// Pages and Controls are both ExoFrames, which are simple wrapper around
+// WebContents that are associated with a JS object.
+//
+// The pages frames are stacked with one visible at all time
+//
+//                         +--------------+
+//                         |+--------------+
+//                         ||+--------------+
+//                         |||XXXXXXXXXXXXXX|
+//                         |||XXXXXXXXXXXXXX|
+//                         |||XXX PAGES XXXX|
+//                         +||XXXXXXXXXXXXXX|
+//                          +|XXXXXXXXXXXXXX|
+//                           +--------------+
+// 
+// The control frames can be of only a limited set of predefined type. Each type
+// correspond to a position on screen:
+//
+//                                   TOP
+//                +------+-------------------------+---+
+//                |      +-------------------------+   |
+//                |      |XXXXXXXXXXXXXXXXXXXXXXXXX|   |
+//                |      |XXXXXXXXX PAGES XXXXXXXXX|   |
+//          LEFT  |      |XXXXXXXXXXXXXXXXXXXXXXXXX|   |  RIGHT
+//                |      +-------------------------+   |
+//                |      |                         |   |
+//                |      |                         |   |
+//                +------+-------------------------+---+
+//                                 BOTTOM
+//
+// As depicted in the diagram above, each control has exactly one dimension
+// (width for LEFT, RIGHT; height for TOP, BOTTOM) that can be programatically
+// set and updated.
+//
+// The ExoBrowser initialization always come from Javascript and. So it is aware 
+// of its associated JS wrapper (used to dispatch callbacks).
 //
 // The ExoBrowser lives on the BrowserThread::UI thread, and should PostTask on
 // the NodeJS thread whenever it wants to communicate with its JS Wrapper
@@ -92,26 +125,78 @@ public:
   // ### ~ExoBrowser
   virtual ~ExoBrowser();
 
-  // ### AddFrame
+
+  // ### CONTROL_TYPE
+  // An enum specifiying the different control types. Any new control should be
+  // placed above CONTROL_TYPE_COUNT
+  enum CONTROL_TYPE {
+    NOTYPE_CONTROL = 0,
+    TOP_CONTROL,
+    BOTTOM_CONTROL,
+    LEFT_CONTROL,
+    RIGHT_CONTROL,
+    CONTROL_TYPE_COUNT
+  };
+
+  // ### SetControl
   // ```
-  // @frame {ExoFrame} the frame to add to this browser
+  // @type  {CONTROL_TYPE} the control type
+  // @frame {ExoFrame} the frame to add as control
   // ```
-  // This methods adds a frame to this browser. It checks that this frame has
-  // itself as a parent. The browser is not responsible for deleting the frame
-  // as it is binded to its JS wrapper.
-  // ExoFrame object should only be created from the JS wrappers and this
-  // method can only be called from there.
-  void AddFrame(ExoFrame* frame);
+  // Adds a frame as control. If the control was already set, it is unset before
+  // and its dimension is reinitialized to 0.
+  void SetControl(CONTROL_TYPE type, ExoFrame* frame);
+
+  // ### SetControlDimension
+  // ```
+  // @type {CONTROL_TYPE} the control type
+  // @size {int} the dimension size
+  // ```
+  // Sets the control dimension size in pixel
+  void SetControlDimension(CONTROL_TYPE type, int size);
+
+  // ### UnsetControl
+  // ```
+  // @type {CONTROL_TYPE} the control type
+  // ```
+  // Unsets a control. If the control was not set, nothing is done. Otherwise
+  // the associated frame is removed from this browser. The frame is not deleted
+  // as its deletion is handled by its JS wrapper. The control dimension is 
+  // automatically reset to 0.
+  void UnsetControl(CONTROL_TYPE type);
+
+
+  // ### AddPage
+  // ```
+  // @frame {ExoFrame} the frame to add as a page
+  // ```
+  // Adds a frame to this browser as a page. The visible page is not altered by
+  // this method. The frame will be refered by its name in all subsequent API
+  // interactios.
+  void AddPage(ExoFrame* frame);
+
+  // ### RemovePage
+  // ```
+  // @name {std::string} the frame name
+  // ```
+  // Removes the frame from this browser. The frame is not deleted.
+  void RemovePage(const std::string& name);
+
+  // ### showPage
+  // ```
+  // @name {std::string} the frame name
+  // ```
+  // Make the page visible
+  void ShowPage(const std::string& name);
+
 
   // ### RemoveFrame
   // ```
-  // @name     {string} the new frame name
+  // @name {std::string} the frame name
   // ```
-  // Removes the ExoFrame designated by `name` by removing it from the current
-  // ExoBrowser window. The frame can be reassociated with a different browser.
-  // The underlying ExoFrame is not deleted as its deletion is handled by the
-  // JS wrapper.
+  // Removes the frame appproprietly depending on its type
   void RemoveFrame(const std::string& name);
+
 
   // ### Kill
   // Kills the ExoBrowser and remove all of its frame. The ExoBrowser object 
@@ -225,13 +310,33 @@ private:
   // Set the title of ExoBrowser window.
   void PlatformSetTitle(const string16& title);
 
-  // ### PlatformAddFrame
-  // Adds the frame web_contents view to the view hierarchy
-  void PlatformAddFrame(ExoFrame *frame);
 
-  // ### PlatformAddFrame
-  // Adds the frame web_contents view to the view hierarchy
-  void PlatformRemoveFrame(ExoFrame *frame);
+  // ### PlatformAddPage
+  // Adds the frame web_contents view to the page view hierarchy
+  void PlatformAddPage(ExoFrame *frame);
+
+  // ### PlatformRemovePage
+  // Removes the frame web_contents view from the page view hierarchy
+  void PlatformRemovePage(ExoFrame *frame);
+
+  // ### PlatformShowPage
+  // Shows the page, hidding all other ones
+  void PlatformShowPage(ExoFrame *frame);
+
+
+  // ### PlatformSetControl
+  // Adds the frame as a control
+  void PlatformSetControl(CONTROL_TYPE type, ExoFrame *frame);
+
+  // ### PlatformSetControlDimension
+  // Sets the control dimenstion. Must work even if control unset.
+  void PlatformSetControlDimension(
+      CONTROL_TYPE type, ExoFrame *frame, int size);
+
+  // ### PlatformUnsetControl
+  // Unset the designated control
+  void PlatformUnsetControl(CONTROL_TYPE type, ExoFrame *frame);
+
 
   // ### PlatformSize
   // Retrieves the size of the ExoBrowser window.
@@ -266,7 +371,8 @@ private:
 
   gfx::NativeWindow                            window_;
 
-  std::map<std::string, ExoFrame*>             frames_;
+  std::map<CONTROL_TYPE, ExoFrame*>            controls_;
+  std::map<std::string, ExoFrame*>             pages_;
 
   ExoBrowserWrap*                              wrapper_;
 

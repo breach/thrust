@@ -23,10 +23,11 @@ using namespace content;
 namespace breach {
 
 ExoFrame::ExoFrame(
-    std::string& name,
+    const std::string& name,
     content::WebContents* web_contents,
     ExoFrameWrap* wrapper)
   : name_(name),
+    type_(NOTYPE_FRAME),
     wrapper_(wrapper)
 {
   web_contents_.reset(web_contents);
@@ -35,9 +36,10 @@ ExoFrame::ExoFrame(
 }
 
 ExoFrame::ExoFrame(
-    std::string& name,
+    const std::string& name,
     ExoFrameWrap* wrapper)
   : name_(name),
+    type_(NOTYPE_FRAME),
     wrapper_(wrapper)
 {
   WebContents::CreateParams create_params(
@@ -54,6 +56,13 @@ ExoFrame::SetParent(
 {
   parent_ = parent;
   web_contents_->SetDelegate(parent_);
+}
+
+void
+ExoFrame::SetType(
+    FRAME_TYPE type)
+{
+  type_ = type;
 }
 
 
@@ -99,19 +108,6 @@ ExoFrame::Stop()
   web_contents_->GetView()->Focus();
 }
 
-void 
-ExoFrame::SetSize(
-    gfx::Size& size)
-{
-  PlatformSetSize(size);
-}
-
-void 
-ExoFrame::SetPosition(
-    gfx::Point& position)
-{
-  PlatformSetPosition(position);
-}
 
 void 
 ExoFrame::Observe(
@@ -127,7 +123,7 @@ ExoFrame::Observe(
       std::string t = UTF16ToUTF8(title->first->GetTitle());
       NodeThread::Get()->message_loop_proxy()->PostTask(
           FROM_HERE,
-          base::Bind(&ExoFrameWrap::TitleUpdatedCallback, wrapper_, t));
+          base::Bind(&ExoFrameWrap::DispatchTitleUpdated, wrapper_, t));
     }
   } else {
     NOTREACHED();

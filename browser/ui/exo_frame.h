@@ -41,9 +41,13 @@ class ExoFrameWrap;
 
 // ### ExoFrame
 //
-// This represents a web frame within the ExoBrowser. It is layed out using the
-// ExoBrowser fixed layout. These frames are created from Javascript and are
-// therefore aware of their associated Javascript wrapper.
+// This represents a web frame within the ExoBrowser. It can be used as a `page`
+// (stacked within the browser) or as a control. As a consequence it does not
+// have the ability to layout itself. The Size and Position is computed by the
+// managing ExoBrowser.
+//
+// Frames are created from Javascript and are therefore aware of their 
+// associated JS wrapper.
 //
 // The ExoFrame lives on the BrowserThread::UI thread, and should PostTask on
 // the NodeJS thread whenever it wants to communicate with its JS Wrapper
@@ -54,6 +58,15 @@ public:
   /****************************************************************************/
   // ### ~ExoFrame
   ~ExoFrame();
+
+  // ### FRAME_TYPE
+  // An enum representing the frame type (control or page)
+  enum FRAME_TYPE {
+    NOTYPE_FRAME = 0,
+    CONTROL_FRAME,
+    PAGE_FRAME,
+    FRAME_TYPE_COUNT
+  };
 
   // ### LoadURL
   // ```
@@ -77,14 +90,9 @@ public:
   // Stop loading the ExoFrame content.
   void Stop();
 
-  // ### SetSize
-  // Sets the frame size
-  void SetSize(gfx::Size& size);
-
-  // ### SetPosition
-  // Sets the frame position
-  void SetPosition(gfx::Point& position);
-
+  // ### type
+  // Returns the frame type
+  FRAME_TYPE type() { return type_; }
 
   // ### size
   // Retrieves the frame size
@@ -110,19 +118,29 @@ private:
   // ### ExoFrame
   // Constructor used when a new WebContents has already been created for us.
   // (generally a popup).
-  explicit ExoFrame(std::string& name,
+  explicit ExoFrame(const std::string& name,
                     content::WebContents* web_contents,
                     ExoFrameWrap* wrapper);
 
   // ### ExoFrame
   // Constructor used to create a new ExoFrame with a fresh WebContents object.
   // A call to LoadURL should be performed right after.
-  explicit ExoFrame(std::string& name,
+  explicit ExoFrame(const std::string& name,
                     ExoFrameWrap* wrapper);
 
   // ### SetParent
   // Sets the parent ExoBrowser
   void SetParent(ExoBrowser* parent);
+
+
+  // ### SetType
+  // ```
+  // @type {FRAME_TYPE} the frame type
+  // ```
+  // Sets the frame type so that it's easily `recognizable'. Should only be 
+  // called by parent ExoBrowser.
+  void SetType(FRAME_TYPE type);
+
 
   /****************************************************************************/
   /*                            PLATFORM INTERFACE                            */
@@ -130,16 +148,6 @@ private:
   // All the methods that begin with Platform need to be implemented by the
   // platform specific Browser implementation.
   
-  // ### PlatformSetSize
-  // Let the platform set the size of the WebContents view within its parent
-  // ExoBrowser main view.
-  void PlatformSetSize(gfx::Size& size);
-
-  // ### PlatformSetPosition
-  // Let the platform set the position of the WebContents view within its parent
-  // ExoBrowser main view.
-  void PlatformSetPosition(gfx::Point& position);
-
   // ### PlatformSize
   // Retrieves the size of the WebContents view
   gfx::Size PlatformSize();
@@ -160,6 +168,7 @@ private:
   /*                               MEMBERS                                    */
   /****************************************************************************/
   std::string                      name_;
+  FRAME_TYPE                       type_;
 
   ExoBrowser*                      parent_;
   ExoFrameWrap*                    wrapper_;
@@ -168,6 +177,8 @@ private:
   content::NotificationRegistrar   registrar_;
 
   friend class ExoBrowser;
+  friend class ExoFrameWrap;
+  friend class ExoBrowserWrap;
 };
 
 } // namespace breach
