@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "breach/browser/breach_network_delegate.h"
+#include "breach/browser/net/breach_network_delegate.h"
 
 #include "net/base/net_errors.h"
 #include "net/base/static_cookie_policy.h"

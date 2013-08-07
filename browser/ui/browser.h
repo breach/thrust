@@ -116,6 +116,12 @@ class Browser : public content::WebContentsDelegate,
                                   bool last_unlocked_by_target) OVERRIDE;
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
   virtual bool CanOverscrollContent() const OVERRIDE;
+  virtual void AddNewContents(content::WebContents* source,
+                              content::WebContents* new_contents,
+                              WindowOpenDisposition disposition,
+                              const gfx::Rect& initial_pos,
+                              bool user_gesture,
+                              bool* was_blocked) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
                                   const string16& frame_name,
@@ -215,8 +221,6 @@ class Browser : public content::WebContentsDelegate,
   scoped_ptr<DevToolsWebContentsObserver> devtools_observer_;
   BreachDevToolsFrontend* devtools_frontend_;
 
-  bool is_fullscreen_;
-
   gfx::NativeWindow window_;
   gfx::NativeEditView url_edit_view_;
 
@@ -242,6 +246,7 @@ class Browser : public content::WebContentsDelegate,
   int ui_elements_height_; // height of menubar, toolbar, etc.
 #endif
 
+  bool is_fullscreen_;
   bool is_closed_;
 
   // A container of all the open windows. We use a vector so we can keep track
