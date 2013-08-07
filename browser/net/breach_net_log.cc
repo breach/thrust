@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "breach/browser/breach_net_log.h"
+#include "breach/browser/net/breach_net_log.h"
 
 #include <stdio.h>
 

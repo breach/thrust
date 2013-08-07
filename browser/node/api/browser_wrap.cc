@@ -12,7 +12,10 @@
 #include "breach/browser/breach_content_browser_client.h"
 #include "breach/browser/breach_browser_context.h"
 
+
+/* TODO(spolu): There is a conflict on `Value`. Find it. Fix it. */
 using namespace v8;
+using content::BrowserThread;
 
 namespace breach {
 
@@ -31,12 +34,10 @@ static GURL GetStartupURL() {
   return net::FilePathToFileURL(base::FilePath(args[0]));
 }
 
+Persistent<Function> BrowserWrap::constructor;
+
 BrowserWrap::BrowserWrap()
 {
-  content::BrowserThread::PostTask(
-      content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&BrowserWrap::CreateTask, this));
-
 }
 
 BrowserWrap::~BrowserWrap()
@@ -69,8 +70,33 @@ BrowserWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("position"),
       FunctionTemplate::New(Position)->GetFunction());
 
-  exports->Set(String::NewSymbol("Browser"), tpl->GetFunction());
+  constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
+  //exports->Set(String::NewSymbol("Browser"), tpl->GetFunction());
+
+  exports->Set(String::NewSymbol("createNewBrowser"),
+      FunctionTemplate::New(CreateNewBrowser)->GetFunction());
 }
+
+void 
+BrowserWrap::CreateNewBrowser(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  Local<Function> c = Local<Function>::New(Isolate::GetCurrent(), constructor);
+  Local<Object> wrap = c->NewInstance();
+  BrowserWrap* obj = ObjectWrap::Unwrap<BrowserWrap>(wrap);
+
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *pcb = new Persistent<Function>();
+  pcb->Reset(Isolate::GetCurrent(), cb);
+
+  content::BrowserThread::PostTaskAndReply(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&BrowserWrap::CreateTask, obj),
+      base::Bind(&BrowserWrap::CreateCallback, obj, pcb));
+}
+
 
 void 
 BrowserWrap::New(
@@ -175,6 +201,23 @@ BrowserWrap::CreateTask()
                    NULL,
                    MSG_ROUTING_NONE,
                    gfx::Size());
+}
+
+void 
+BrowserWrap::CreateCallback(
+    Persistent<Function>* pcb)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *pcb);
+  Local<Object> wrap = Local<Object>::New(Isolate::GetCurrent(), 
+                                          this->persistent());
+
+  Local<v8::Value> argv[1] = { wrap };
+  cb->Call(wrap, 1, argv);
+
+  pcb->Dispose();
+  delete pcb;
 }
 
 void

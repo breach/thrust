@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef BREACH_BROWSER_BREACH_NETWORK_DELEGATE_H_
-#define BREACH_BROWSER_BREACH_NETWORK_DELEGATE_H_
+#ifndef BREACH_BROWSER_NET_BREACH_NETWORK_DELEGATE_H_
+#define BREACH_BROWSER_NET_BREACH_NETWORK_DELEGATE_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -68,4 +68,4 @@ class BreachNetworkDelegate : public net::NetworkDelegate {
 
 }  // namespace breach
 
-#endif  // BREACH_BROWSER_BREACH_NETWORK_DELEGATE_H_
+#endif  // BREACH_BROWSER_NET_BREACH_NETWORK_DELEGATE_H_

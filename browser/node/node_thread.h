@@ -1,8 +1,8 @@
 // Copyright (c) 2013 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef BREACH_BROWSER_NODE_NODE_WRAPPER_THREAD_H_
-#define BREACH_BROWSER_NODE_NODE_WRAPPER_THREAD_H_
+#ifndef BREACH_BROWSER_NODE_NODE_THREAD_H_
+#define BREACH_BROWSER_NODE_NODE_THREAD_H_
 
 #include "base/threading/thread.h"
 #include "v8/include/v8.h"
@@ -11,19 +11,19 @@ namespace breach {
 
 class ApiBindings;
 
-class NodeWrapperThread : public base::Thread {
- public:
+class NodeThread : public base::Thread {
+public:
+  static NodeThread* Get();
 
-  NodeWrapperThread();
-  virtual ~NodeWrapperThread();
-
- protected:
+protected:
   virtual void Init() OVERRIDE;
   virtual void Run(base::MessageLoop* message_loop) OVERRIDE;
   virtual void CleanUp() OVERRIDE;
 
 
  private:
+  NodeThread();
+  virtual ~NodeThread();
 
   // Installs all the Node symbols provided by Breach
   void InstallNodeSymbols();
@@ -40,9 +40,9 @@ class NodeWrapperThread : public base::Thread {
   // Api Bindings kept in memory
   scoped_ptr<ApiBindings> api_bindings_;;
 
-  DISALLOW_COPY_AND_ASSIGN(NodeWrapperThread);
+  DISALLOW_COPY_AND_ASSIGN(NodeThread);
 };
 
 }
 
-#endif // BREACH_BROWSER_NODE_NODE_WRAPPER_THREAD_H_
+#endif // BREACH_BROWSER_NODE_NODE_THREAD_H_

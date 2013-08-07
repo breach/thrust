@@ -12,7 +12,6 @@ namespace switches {
 extern const char kAllowExternalPages[];
 extern const char kBreachDataPath[];
 extern const char kEnableAccelerated2DCanvas[];
-extern const char kEnableSoftwareCompositing[];
 extern const char kEncodeBinary[];
 
 }  // namespace switches

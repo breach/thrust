@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Stanislas Polu.
 // See the LICENSE file.
 
-#include "breach/browser/node/node_wrapper_thread.h"
+#include "breach/browser/node/node_thread.h"
 
 #include "breach/browser/node/api/api_bindings.h"
 #include "content/public/browser/browser_thread.h"
@@ -24,27 +24,38 @@ using namespace content;
 
 namespace breach {
 
-NodeWrapperThread::NodeWrapperThread()
+static NodeThread* s_thread = NULL;
+
+NodeThread*
+NodeThread::Get()
+{
+  if(s_thread == NULL) {
+    s_thread = new NodeThread();
+  }
+  return s_thread;
+}
+
+NodeThread::NodeThread()
 : Thread("node_wrapper_thread")
 {
 }
 
-NodeWrapperThread::~NodeWrapperThread()
+NodeThread::~NodeThread()
 {
   /* All Thread subclasses must call Stop() in the destructor */
   Stop();
 }
 
 void 
-NodeWrapperThread::Init() 
+NodeThread::Init() 
 {
   message_loop()->PostTask(FROM_HERE,
-                           base::Bind(&NodeWrapperThread::RunUvLoop,
+                           base::Bind(&NodeThread::RunUvLoop,
                                       base::Unretained(this)));
 }
 
 void 
-NodeWrapperThread::Run(
+NodeThread::Run(
     base::MessageLoop* message_loop) 
 {
   int argc = 1;
@@ -83,14 +94,14 @@ NodeWrapperThread::Run(
 }
 
 void
-NodeWrapperThread::CleanUp()
+NodeThread::CleanUp()
 {
   /* Clean up. Not strictly necessary. */
   V8::Dispose();
 }
 
 void
-NodeWrapperThread::InstallNodeSymbols()
+NodeThread::InstallNodeSymbols()
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
@@ -112,13 +123,13 @@ NodeWrapperThread::InstallNodeSymbols()
 
 
 void
-NodeWrapperThread::RunUvLoop()
+NodeThread::RunUvLoop()
 {
   int ret = uv_run(uv_default_loop(), UV_RUN_ONCE);
   if(ret > 0) {
     /* Recursively call */
     message_loop()->PostTask(FROM_HERE,
-                             base::Bind(&NodeWrapperThread::RunUvLoop,
+                             base::Bind(&NodeThread::RunUvLoop,
                                         base::Unretained(this)));
   }
   else {

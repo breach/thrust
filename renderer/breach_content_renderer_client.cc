@@ -27,7 +27,6 @@ using namespace content;
 using WebKit::WebAudioDevice;
 using WebKit::WebClipboard;
 using WebKit::WebFrame;
-using WebKit::WebHyphenator;
 using WebKit::WebMIDIAccessor;
 using WebKit::WebMIDIAccessorClient;
 using WebKit::WebMediaStreamCenter;
