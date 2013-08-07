@@ -2,6 +2,7 @@
 
 {
   'variables': {
+    'breach_product_name': 'Breach',
     'breach_version': '0.0.1',
   },
   'targets': [
