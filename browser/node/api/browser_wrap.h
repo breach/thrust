@@ -23,6 +23,9 @@ public:
   static void Init(v8::Handle<v8::Object> exports);
 
 private:
+  static void CreateNewBrowser(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void ShowDevTools(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -33,6 +36,8 @@ private:
   static void DeleteTask(Browser* browser);
 
   void CreateTask();
+  void CreateCallback(v8::Persistent<v8::Function>* pcb);
+
   void CloseTask();
   void ShowDevToolsTask();
   void CloseDevToolsTask();
@@ -43,7 +48,9 @@ private:
   BrowserWrap();
   ~BrowserWrap();
 
-  Browser*   browser_;
+  Browser*                             browser_;
+
+  static v8::Persistent<v8::Function>  constructor;
 
   friend class base::RefCountedThreadSafe<BrowserWrap>;
 

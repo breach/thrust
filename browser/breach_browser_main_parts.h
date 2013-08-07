@@ -26,7 +26,7 @@ namespace breach {
 
 class BreachBrowserContext;
 class BreachDevToolsDelegate;
-class NodeWrapperThread;
+class NodeThread;
 
 class BreachBrowserMainParts : public content::BrowserMainParts {
  public:
@@ -68,7 +68,6 @@ class BreachBrowserMainParts : public content::BrowserMainParts {
   bool run_message_loop_;
 
   scoped_ptr<BreachDevToolsDelegate> devtools_delegate_;
-  scoped_ptr<NodeWrapperThread> node_thread_;
 
   DISALLOW_COPY_AND_ASSIGN(BreachBrowserMainParts);
 };

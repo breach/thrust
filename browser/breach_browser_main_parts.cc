@@ -16,10 +16,10 @@
 
 #include "breach/browser/breach_browser_context.h"
 #include "breach/common/breach_switches.h"
-#include "breach/browser/ui/browser.h"
+#include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/devtools/breach_devtools_delegate.h"
-#include "breach/browser/breach_net_log.h"
-#include "breach/browser/node/node_wrapper_thread.h"
+#include "breach/browser/net/breach_net_log.h"
+#include "breach/browser/node/node_thread.h"
 
 #include "grit/net_resources.h"
 #include "net/base/net_module.h"
@@ -63,9 +63,8 @@ BreachBrowserMainParts::~BreachBrowserMainParts() {
 int
 BreachBrowserMainParts::PreCreateThreads()
 {
-  /* We create the NodeWrapperThread which will host NodeJS */
-  node_thread_.reset(new NodeWrapperThread());
-  node_thread_->Start();
+  /* We create the NodeThread which will host NodeJS */
+  NodeThread::Get()->Start();
   return 0;
 }
 
@@ -96,7 +95,7 @@ BreachBrowserMainParts::PreMainMessageLoopRun()
 
   LOG(INFO) << "PreMessageLoopRun";
 
-  Browser::Initialize();
+  ExoBrowser::Initialize();
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
 
   devtools_delegate_.reset(new BreachDevToolsDelegate(browser_context_.get()));

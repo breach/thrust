@@ -66,12 +66,12 @@ class Browser::DevToolsWebContentsObserver : public WebContentsObserver {
 
 Browser::Browser(WebContents* web_contents)
   : devtools_frontend_(NULL),
-    is_fullscreen_(false),
     window_(NULL),
     url_edit_view_(NULL),
 #if defined(OS_WIN) && !defined(USE_AURA)
     default_edit_wnd_proc_(0),
 #endif
+    is_fullscreen_(false),
     is_closed_(false)
 {
   registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
@@ -119,7 +119,7 @@ Browser::CloseAllWindows()
   std::vector<Browser*> open_windows(windows_);
   for (size_t i = 0; i < open_windows.size(); ++i)
     open_windows[i]->Close();
-  //base::MessageLoop::current()->RunUntilIdle();
+  base::MessageLoop::current()->RunUntilIdle();
 }
 
 Browser* 
@@ -299,6 +299,7 @@ Browser::CanOverscrollContent() const
   return false;
 }
 
+// Popup
 void 
 Browser::WebContentsCreated(
     WebContents* source_contents,
@@ -309,6 +310,18 @@ Browser::WebContentsCreated(
 {
   LOG(INFO) << "WebContentsCreated";
   CreateBrowser(new_contents, source_contents->GetView()->GetContainerSize());
+}
+
+void 
+Browser::AddNewContents(
+    WebContents* source,
+    WebContents* new_contents,
+    WindowOpenDisposition disposition,
+    const gfx::Rect& initial_pos,
+    bool user_gesture,
+    bool* was_blocked) 
+{
+  LOG(INFO) << "AddNewContents";
 }
 
 void 

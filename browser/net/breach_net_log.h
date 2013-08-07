@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef BREACH_BROWSER_BREACH_NET_LOG_H_
-#define BREACH_BROWSER_BREACH_NET_LOG_H_
+#ifndef BREACH_BROWSER_NET_BREACH_NET_LOG_H_
+#define BREACH_BROWSER_NET_BREACH_NET_LOG_H_
 
 #include <string>
 
@@ -25,4 +25,4 @@ class BreachNetLog : public net::NetLog {
 
 } // namespace breach
 
-#endif // BREACH_BROWSER_NET_LOG_H_
+#endif // BREACH_BROWSER_NET_BREACH_NET_LOG_H_
