@@ -1,5 +1,5 @@
 diff --git a/.gitignore b/.gitignore
-index df9939b..28fdf92 100644
+index 9735a27..2c89d57 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -55,6 +55,7 @@ v8.log
@@ -10,7 +10,7 @@ index df9939b..28fdf92 100644
  /chrome/app/policy/chrome_settings_proto_compile.xml
  /chrome/app/policy/chrome_settings_proto_generated_compile.xml
  /chrome/app/policy/cloud_policy_backend_header_compile.xml
-@@ -231,6 +232,7 @@ v8.log
+@@ -238,6 +239,7 @@ v8.log
  /third_party/mt19937ar
  /third_party/mtpd/source/
  /third_party/nacl_sdk_binaries/
@@ -18,14 +18,14 @@ index df9939b..28fdf92 100644
  /third_party/nss
  /third_party/openmax_dl/
  /third_party/openssl
-@@ -317,3 +319,5 @@ v8.log
+@@ -324,3 +326,5 @@ v8.log
  /xcodebuild
  cscope.*
  Session.vim
 +
 +
 diff --git a/build/common.gypi b/build/common.gypi
-index 62aa480..9cb26c2 100644
+index 29f1278..29ae6e1 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -9,6 +9,18 @@
@@ -48,11 +48,11 @@ index 62aa480..9cb26c2 100644
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
-index fdab9ca..29b2800 100644
+index 0e6b848..b9db370 100644
 --- a/tools/gritsettings/resource_ids
 +++ b/tools/gritsettings/resource_ids
-@@ -224,4 +224,9 @@
-     "messages": [30000],
+@@ -218,4 +218,9 @@
+     "includes": [30500],
    },
    # Resource ids starting at 31000 are reserved for projects built on Chromium.
 +  "breach/breach_resources.grd": {
