@@ -57,7 +57,7 @@ public:
   /*                         PUBLIC INTERFACE                                 */
   /****************************************************************************/
   // ### ~ExoFrame
-  ~ExoFrame();
+  virtual ~ExoFrame();
 
   // ### FRAME_TYPE
   // An enum representing the frame type (control or page)

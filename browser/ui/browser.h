@@ -134,7 +134,7 @@ class Browser : public content::WebContentsDelegate,
 #if defined(OS_MACOSX)
   virtual void HandleKeyboardEvent(
       content::WebContents* source,
-      const NativeWebKeyboardEvent& event) OVERRIDE;
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
 #endif
   virtual bool AddMessageToConsole(content::WebContents* source,
                                    int32 level,

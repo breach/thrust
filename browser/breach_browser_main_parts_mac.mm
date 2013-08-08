@@ -8,7 +8,7 @@
 
 #include "base/mac/bundle_locations.h"
 #include "base/mac/scoped_nsobject.h"
-#include "breach/browser/breach_application_mac.h"
+#include "breach/browser/breach_browser_application_mac.h"
 
 namespace breach {
 
