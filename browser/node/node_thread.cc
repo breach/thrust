@@ -128,6 +128,9 @@ NodeThread::RunUvLoop()
   /* We therefore post a delayed task to avoid hogging the CPU but not too   */
   /* far away to avoid any delay in the execution of nodeJS code. This is no */
   /* perfect, but it works!                                                  */
+  /* An eventually very good solution would be to be able to call the run    */
+  /* loop with UV_RUN_ONCE and be able to generate a dummy request form      */
+  /* the outside when a message needs to get delivered.                      */
   /* Eventual best solution will be to implement a message_loop based on uv  */
   /* as it has already been done for node-webkit                             */
   /* Another acceptable solution would be to run the uv run_loop direclty    */
