@@ -130,6 +130,9 @@ NodeThread::RunUvLoop()
   /* perfect, but it works!                                                  */
   /* Eventual best solution will be to implement a message_loop based on uv  */
   /* as it has already been done for node-webkit                             */
+  /* Another acceptable solution would be to run the uv run_loop direclty    */
+  /* from here and expose a mechanism for existing content threads to post a */
+  /* task on that thread.                                                    */
   message_loop()->PostDelayedTask(FROM_HERE,
                                   base::Bind(&NodeThread::RunUvLoop,
                                              base::Unretained(this)),
