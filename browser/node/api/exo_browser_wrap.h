@@ -23,7 +23,7 @@ public:
 
 private:
   ExoBrowserWrap();
-  ~ExoBrowserWrap();
+  virtual ~ExoBrowserWrap();
 
   static void CreateNewExoBrowser(
       const v8::FunctionCallbackInfo<v8::Value>& args);
