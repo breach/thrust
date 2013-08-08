@@ -112,7 +112,7 @@ ExoBrowser::PlatformRemovePage(
 {
   WebContentsView* content_view = frame->web_contents_->GetView();
   if(visible_page_ == content_view->GetNativeView()) {
-    //gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
+    gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
     visible_page_ = NULL;
   }
 }
@@ -122,13 +122,14 @@ void
 ExoBrowser::PlatformShowPage(
     ExoFrame *frame)
 {
-  if(visible_page_ != NULL) {
-    gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
-  }
   WebContentsView* content_view = frame->web_contents_->GetView();
-  visible_page_ = content_view->GetNativeView();
-  LOG(INFO) << "Visible Page Set!";
-  gtk_container_add(GTK_CONTAINER(pages_box_), visible_page_);
+  if(visible_page != content_view->GetNativeView()) {
+    if(visible_page_ != NULL) {
+      gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
+    }
+    visible_page_ = content_view->GetNativeView();
+    gtk_container_add(GTK_CONTAINER(pages_box_), visible_page_);
+  }
 }
 
 

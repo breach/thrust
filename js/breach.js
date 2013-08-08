@@ -49,6 +49,21 @@ _breach._createExoBrowser({
     });
   }); 
 
+  _breach._createExoFrame({ 
+    name: 'page2', 
+    url: 'http://localhost' 
+  }, function(f) { 
+    _frames.push(f);
+
+    b._addPage(f, function() {
+      var pages = ['page1', 'page2'];
+      var i = 0;
+      setInterval(function() {
+        b._showPage(pages[++i % 2], function() {});
+      }, 500);
+    });
+  }); 
+
 
 
   b._setOpenURLCallback(function() {
