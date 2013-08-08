@@ -68,7 +68,7 @@ NodeThread::Run(
   int argc = command_line->argv().size();
   char **argv = (char**)malloc(argc * sizeof(char*));
   for(int i = 0; i < argc; i ++) {
-    unsigned len = sizeof command_line->argv()[i].c_str();
+    unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
     argv[i] = (char*) malloc(len * sizeof(char));
     memcpy(argv[i], command_line->argv()[i].c_str(), len);
   }
