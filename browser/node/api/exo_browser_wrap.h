@@ -31,7 +31,7 @@ private:
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 
-  void CreateTask();
+  void CreateTask(const gfx::Size& size);
   void CreateCallback(v8::Persistent<v8::Function>* pcb);
 
 

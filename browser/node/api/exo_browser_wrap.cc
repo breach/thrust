@@ -91,23 +91,29 @@ ExoBrowserWrap::CreateNewExoBrowser(
   Local<Object> browser_o = c->NewInstance();
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(browser_o);
 
-  /* args[0]: cb_ */
-  Local<Function> cb = Local<Function>::Cast(args[0]);
+  /* args[0]: spec = { name, url } */
+  Local<Object> spec = Local<Object>::Cast(args[0]);
+  Local<Array> in = Local<Array>::Cast(spec->Get(String::New("size")));
+  gfx::Size size(in->Get(Integer::New(0))->ToNumber()->Value(),
+                 in->Get(Integer::New(1))->ToNumber()->Value());
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
   Persistent<Function> *cb_p = new Persistent<Function>();
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   content::BrowserThread::PostTaskAndReply(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::CreateTask, browser_w),
+      base::Bind(&ExoBrowserWrap::CreateTask, browser_w, size),
       base::Bind(&ExoBrowserWrap::CreateCallback, browser_w, cb_p));
 }
 
 
 void
-ExoBrowserWrap::CreateTask()
+ExoBrowserWrap::CreateTask(const gfx::Size& size)
 {
   /* TODO(spolu): parse array in CreateNewExoBrowser */
-  browser_ = ExoBrowser::CreateNew(this, gfx::Size(800, 600));
+  browser_ = ExoBrowser::CreateNew(this, size);
 }
 
 void 
