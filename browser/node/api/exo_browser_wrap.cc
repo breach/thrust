@@ -49,6 +49,17 @@ ExoBrowserWrap::Init(
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setOpenURLCallback"),
       FunctionTemplate::New(SetOpenURLCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setResizeCallback"),
+      FunctionTemplate::New(SetResizeCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewSymbol("_setFrameLoadingStateChangeCallback"),
+      FunctionTemplate::New(SetFrameLoadingStateChangeCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameCloseCallback"),
+      FunctionTemplate::New(SetFrameCloseCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameNavigateCallback"),
+      FunctionTemplate::New(SetFrameNavigateCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameCreatedCallback"),
+      FunctionTemplate::New(SetFrameCreatedCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 

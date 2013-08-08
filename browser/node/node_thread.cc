@@ -120,18 +120,20 @@ NodeThread::CleanUp()
 void
 NodeThread::RunUvLoop()
 {
-  uv_run(uv_default_loop(), UV_RUN_NOWAIT);
-  /* Recursively call RunUvLoop. */
-  message_loop()->PostDelayedTask(FROM_HERE,
-                                  base::Bind(&NodeThread::RunUvLoop,
-                                             base::Unretained(this)),
-                                  base::TimeDelta::FromMicroseconds(100));
-  /* TODO(spolu): Find a better solution.                                     */
+  /* int ret = */ uv_run(uv_default_loop(), UV_RUN_NOWAIT);
+
+  /* TODO(spolu): FixMe [/!\ Bad Code Ahead]                                 */
   /* If we call with UV_RUN_ONCE then it will hang the thread while there is */
   /* no `uv` related events, blocking all Chromium/Breach message delivery.  */
   /* We therefore post a delayed task to avoid hogging the CPU but not too   */
   /* far away to avoid any delay in the execution of nodeJS code. This is no */
   /* perfect, but it works!                                                  */
+  /* Eventual best solution will be to implement a message_loop based on uv  */
+  /* as it has already been done for node-webkit                             */
+  message_loop()->PostDelayedTask(FROM_HERE,
+                                  base::Bind(&NodeThread::RunUvLoop,
+                                             base::Unretained(this)),
+                                  base::TimeDelta::FromMicroseconds(100));
 }
 
 } // namespace breach

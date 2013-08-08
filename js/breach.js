@@ -22,7 +22,7 @@ var _browsers = [];
 
 console.error('foo');
 _breach._createExoBrowser({
-  size: [800, 600]
+  size: [1000, 600]
 }, function(b) { 
   _browsers.push(b);
 
@@ -32,12 +32,15 @@ _breach._createExoBrowser({
   }, function(f) { 
     _frames.push(f);
 
-    b._setControl(1, f, function() {});
-    b._setControlDimension(1, 100, function() {});
+    b._setControl(3, f, function() {});
+    b._setControlDimension(3, 300, function() {});
   }); 
 
   b._setOpenURLCallback(function() {
     console.error('OPEN_URL_CALLBACK');
+  });
+  b._setFrameLoadingStateChangeCallback(function(frame, loading) {
+    console.error('FRAME_LOADING_STATE_CHANGE: ' + frame + ' ' + loading);
   });
 });
 

@@ -39,6 +39,9 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
       FunctionTemplate::New(Type)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setTitleUpdatedCallback"),
+      FunctionTemplate::New(SetTitleUpdatedCallback)->GetFunction());
+
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
   exports->Set(String::NewSymbol("_createExoFrame"),
