@@ -7,6 +7,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
 #include "third_party/node/src/node_internals.h"
+#include "base/command_line.h"
 
 using v8::Isolate;
 using v8::HandleScope;
@@ -58,8 +59,19 @@ void
 NodeThread::Run(
     base::MessageLoop* message_loop) 
 {
-  int argc = 1;
-  char* argv[] = { const_cast<char*>("node"), NULL, NULL }; 
+  /* TODO(spolu): fork execution depending on kBreachRawInit */
+  /* If not set, launch the default version of the Browser.  */
+  /* If set, pass argc/argv to Node                          */
+
+  /* Extract argc, argv to pass it directly to Node */
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  int argc = command_line->argv().size();
+  char **argv = (char**)malloc(argc * sizeof(char*));
+  for(int i = 0; i < argc; i ++) {
+    unsigned len = sizeof command_line->argv()[i].c_str();
+    argv[i] = (char*) malloc(len * sizeof(char));
+    memcpy(argv[i], command_line->argv()[i].c_str(), len);
+  }
 
   node::InitSetup(argc, argv);
   Isolate* node_isolate = Isolate::GetCurrent();
@@ -74,15 +86,15 @@ NodeThread::Run(
     const char* names[] = { "api_bindings.js" };
     v8::ExtensionConfiguration extensions(1, names);  
 
-    // Create the one and only Context.
+    /* Create the one and only Context. */
     context_ = Context::New(node_isolate, &extensions);
     Context::Scope context_scope(context_);
 
     node::SetupBindingCache();
     process_ = node::SetupProcessObject(argc, argv);
 
-    // Create all the objects, load modules, do everything.
-    // so your next reading stop should be node::Load()!
+    /* Create all the objects, load modules, do everything. */
+    /* so your next reading stop should be node::Load()!    */
     node::Load(process_);
     InstallNodeSymbols();
 
@@ -91,6 +103,10 @@ NodeThread::Run(
     node::EmitExit(process_);
     node::RunAtExit();
   }
+
+  /* Cleanup */
+  for(int i = 0; i < argc; i++) { free(argv[i]); }
+  free(argv);
 }
 
 void
@@ -106,7 +122,7 @@ NodeThread::InstallNodeSymbols()
   HandleScope handle_scope(Isolate::GetCurrent());
 
   Local<Script> script = Script::New(String::New(
-        // Overload require
+        /* Overload require */
         "global._require = global._require || global.require;"
         "global.require = function(name) {"
         "  if (name == 'breach')"
@@ -115,7 +131,7 @@ NodeThread::InstallNodeSymbols()
         "};"
         "global._breach = require('breach');"
 
-        // Save node-webkit version
+        /* Save node-webkit version */
         "process.versions['breach'] = '" BREACH_VERSION "';"
         ));
     script->Run();
@@ -134,7 +150,7 @@ NodeThread::RunUvLoop()
   }
   else {
     LOG(INFO) << "Node Exit";
-    //node::EmitExit(process_);
+    node::EmitExit(process_);
   }
 }
 
