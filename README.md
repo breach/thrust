@@ -77,3 +77,8 @@ b._showPage(name, cb_);
 
 ```
 
+### Getting the Source Code & Building Breach
+
+Please refer to the Wiki Page: 
+[Building Breach](https://github.com/spolu/breach/wiki/Building-Breach)
+
