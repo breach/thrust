@@ -36,6 +36,21 @@ _breach._createExoBrowser({
     b._setControlDimension(3, 300, function() {});
   }); 
 
+
+
+  _breach._createExoFrame({ 
+    name: 'page1', 
+    url: 'http://localhost:8989' 
+  }, function(f) { 
+    _frames.push(f);
+
+    b._addPage(f, function() {
+      b._showPage('page1', function() {});
+    });
+  }); 
+
+
+
   b._setOpenURLCallback(function() {
     console.error('OPEN_URL_CALLBACK');
   });

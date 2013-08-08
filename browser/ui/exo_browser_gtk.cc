@@ -46,8 +46,9 @@ ExoBrowser::PlatformCreateWindow(
   gtk_widget_set_size_request(control_right_box_, 0, 0);
   gtk_widget_set_size_request(control_top_box_, 0, 0);
   gtk_widget_set_size_request(control_bottom_box_, 0, 0);
-
+  
   pages_box_ = gtk_event_box_new();
+  visible_page_ = NULL;
 
   // Create the menu bar.
   gtk_box_pack_start(GTK_BOX(hbox_), control_left_box_, FALSE, FALSE, 0);
@@ -101,11 +102,7 @@ void
 ExoBrowser::PlatformAddPage(
     ExoFrame *frame)
 {
-  /* TODO(spolu) */
-  /*
-  WebContentsView* content_view = web_contents_->GetView();
-  gtk_container_add(GTK_CONTAINER(vbox_), content_view->GetNativeView());
-  */
+  /* Nothing to Do? */
 }
 
 
@@ -113,7 +110,11 @@ void
 ExoBrowser::PlatformRemovePage(
     ExoFrame *frame)
 {
-  /* TODO(spolu) */
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  if(visible_page_ == content_view->GetNativeView()) {
+    //gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
+    visible_page_ = NULL;
+  }
 }
 
 
@@ -121,7 +122,13 @@ void
 ExoBrowser::PlatformShowPage(
     ExoFrame *frame)
 {
-  /* TODO(spolu) */
+  if(visible_page_ != NULL) {
+    gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
+  }
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  visible_page_ = content_view->GetNativeView();
+  LOG(INFO) << "Visible Page Set!";
+  gtk_container_add(GTK_CONTAINER(pages_box_), visible_page_);
 }
 
 
