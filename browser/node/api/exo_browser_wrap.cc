@@ -49,8 +49,8 @@ ExoBrowserWrap::Init(
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
-  exports->Set(String::NewSymbol("_createNewExoBrowser"),
-      FunctionTemplate::New(CreateNewExoBrowser)->GetFunction());
+  exports->Set(String::NewSymbol("_createExoBrowser"),
+      FunctionTemplate::New(CreateExoBrowser)->GetFunction());
 }
 
 
@@ -80,7 +80,7 @@ ExoBrowserWrap::New(
 }
 
 void 
-ExoBrowserWrap::CreateNewExoBrowser(
+ExoBrowserWrap::CreateExoBrowser(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -112,7 +112,6 @@ ExoBrowserWrap::CreateNewExoBrowser(
 void
 ExoBrowserWrap::CreateTask(const gfx::Size& size)
 {
-  /* TODO(spolu): parse array in CreateNewExoBrowser */
   browser_ = ExoBrowser::CreateNew(this, size);
 }
 

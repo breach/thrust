@@ -41,8 +41,8 @@ ExoFrameWrap::Init(
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
-  exports->Set(String::NewSymbol("_createNewExoFrame"),
-      FunctionTemplate::New(CreateNewExoFrame)->GetFunction());
+  exports->Set(String::NewSymbol("_createExoFrame"),
+      FunctionTemplate::New(CreateExoFrame)->GetFunction());
 }
 
 ExoFrameWrap::ExoFrameWrap()
@@ -71,7 +71,7 @@ ExoFrameWrap::New(
 }
 
 void 
-ExoFrameWrap::CreateNewExoFrame(
+ExoFrameWrap::CreateExoFrame(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());

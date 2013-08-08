@@ -21,7 +21,7 @@ API v0:
 /* EXOBROWSER LOWLEVEL API */
 
 /* EXOBROWSER */
-_breach._createNewExoBrowser({
+_breach._createExoBrowser({
   size: [123, 23]
 }, cb_);
 b.size(cb_);
@@ -39,7 +39,7 @@ b._setFrameCreatedCallback(cb_);
 
 
 /* EXOFRAME */
-_breach._createNewExoFrame({
+_breach._createExoFrame({
   name: '',
   url: '',
 }, cb_);

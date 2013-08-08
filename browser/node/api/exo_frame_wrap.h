@@ -25,7 +25,7 @@ private:
   ExoFrameWrap();
   ~ExoFrameWrap();
 
-  static void CreateNewExoFrame(
+  static void CreateExoFrame(
       const v8::FunctionCallbackInfo<v8::Value>& args);
 
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
