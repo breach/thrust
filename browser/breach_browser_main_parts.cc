@@ -93,8 +93,6 @@ BreachBrowserMainParts::PreMainMessageLoopRun()
   off_the_record_browser_context_.reset(
       new BreachBrowserContext(true, net_log_.get()));
 
-  LOG(INFO) << "PreMessageLoopRun";
-
   ExoBrowser::Initialize();
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
 

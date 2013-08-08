@@ -47,6 +47,9 @@ ExoBrowserWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_unsetControl"),
       FunctionTemplate::New(UnsetControl)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setOpenURLCallback"),
+      FunctionTemplate::New(SetOpenURLCallback)->GetFunction());
+
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
   exports->Set(String::NewSymbol("_createExoBrowser"),
@@ -89,6 +92,11 @@ ExoBrowserWrap::CreateExoBrowser(
   Local<Function> c = 
     Local<Function>::New(Isolate::GetCurrent(), s_constructor);
   Local<Object> browser_o = c->NewInstance();
+
+  /* We keep a Peristent as the object will be returned asynchronously. */
+  Persistent<Object> *browser_p = new Persistent<Object>();
+  browser_p->Reset(Isolate::GetCurrent(), browser_o);
+
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(browser_o);
 
   /* args[0]: spec = { name, url } */
@@ -105,7 +113,7 @@ ExoBrowserWrap::CreateExoBrowser(
   content::BrowserThread::PostTaskAndReply(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ExoBrowserWrap::CreateTask, browser_w, size),
-      base::Bind(&ExoBrowserWrap::CreateCallback, browser_w, cb_p));
+      base::Bind(&ExoBrowserWrap::CreateCallback, browser_w, browser_p, cb_p));
 }
 
 
@@ -117,19 +125,23 @@ ExoBrowserWrap::CreateTask(const gfx::Size& size)
 
 void 
 ExoBrowserWrap::CreateCallback(
+    Persistent<Object>* browser_p,
     Persistent<Function>* cb_p)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
   Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
-  Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(), 
-                                               this->persistent());
+  Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(),
+                                               *browser_p);
 
+  LOG(INFO) << "ExoBrowserWrap CreateCallback";
   Local<v8::Value> argv[1] = { browser_o };
   cb->Call(browser_o, 1, argv);
 
   cb_p->Dispose();
   delete cb_p;
+  browser_p->Dispose();
+  delete browser_p;
 }
 
 void
@@ -332,7 +344,6 @@ ExoBrowserWrap::SetControlDimension(
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
   content::BrowserThread::PostTaskAndReply(
       content::BrowserThread::UI, FROM_HERE,
-      /* TODO(spolu): Fix usage of (void*) */
       base::Bind(&ExoBrowserWrap::SetControlDimensionTask, browser_w, 
                  type, size),
       base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));

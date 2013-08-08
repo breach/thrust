@@ -32,7 +32,8 @@ private:
 
 
   void CreateTask(const gfx::Size& size);
-  void CreateCallback(v8::Persistent<v8::Function>* pcb);
+  void CreateCallback(v8::Persistent<v8::Object>* browser_p,
+                      v8::Persistent<v8::Function>* pcb);
 
 
   static void DeleteTask(ExoBrowser* browser);

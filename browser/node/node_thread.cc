@@ -8,6 +8,7 @@
 #include "third_party/node/src/node.h"
 #include "third_party/node/src/node_internals.h"
 #include "base/command_line.h"
+#include "base/time/time.h"
 
 using v8::Isolate;
 using v8::HandleScope;
@@ -96,7 +97,6 @@ NodeThread::Run(
     /* Create all the objects, load modules, do everything. */
     /* so your next reading stop should be node::Load()!    */
     node::Load(process_);
-    InstallNodeSymbols();
 
     Thread::Run(message_loop);
 
@@ -116,42 +116,22 @@ NodeThread::CleanUp()
   V8::Dispose();
 }
 
-void
-NodeThread::InstallNodeSymbols()
-{
-  HandleScope handle_scope(Isolate::GetCurrent());
-
-  Local<Script> script = Script::New(String::New(
-        /* Overload require */
-        "global._require = global._require || global.require;"
-        "global.require = function(name) {"
-        "  if (name == 'breach')"
-        "    return apiDispatcher.requireBreach();"
-        "  return global._require(name);"
-        "};"
-        "global._breach = require('breach');"
-
-        /* Save node-webkit version */
-        "process.versions['breach'] = '" BREACH_VERSION "';"
-        ));
-    script->Run();
-}
-
 
 void
 NodeThread::RunUvLoop()
 {
-  int ret = uv_run(uv_default_loop(), UV_RUN_ONCE);
-  if(ret > 0) {
-    /* Recursively call */
-    message_loop()->PostTask(FROM_HERE,
-                             base::Bind(&NodeThread::RunUvLoop,
-                                        base::Unretained(this)));
-  }
-  else {
-    LOG(INFO) << "Node Exit";
-    node::EmitExit(process_);
-  }
+  uv_run(uv_default_loop(), UV_RUN_NOWAIT);
+  /* Recursively call RunUvLoop. */
+  message_loop()->PostDelayedTask(FROM_HERE,
+                                  base::Bind(&NodeThread::RunUvLoop,
+                                             base::Unretained(this)),
+                                  base::TimeDelta::FromMicroseconds(100));
+  /* TODO(spolu): Find a better solution.                                     */
+  /* If we call with UV_RUN_ONCE then it will hang the thread while there is */
+  /* no `uv` related events, blocking all Chromium/Breach message delivery.  */
+  /* We therefore post a delayed task to avoid hogging the CPU but not too   */
+  /* far away to avoid any delay in the execution of nodeJS code. This is no */
+  /* perfect, but it works!                                                  */
 }
 
 } // namespace breach

@@ -80,6 +80,11 @@ ExoFrameWrap::CreateExoFrame(
   Local<Function> c = 
     Local<Function>::New(Isolate::GetCurrent(), s_constructor);
   Local<Object> frame_o = c->NewInstance();
+
+  /* We keep a Peristent as the object will be returned asynchronously. */
+  Persistent<Object> *frame_p = new Persistent<Object>();
+  frame_p->Reset(Isolate::GetCurrent(), frame_o);
+
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
 
   /* args[0]: spec = { name, url } */
@@ -97,7 +102,7 @@ ExoFrameWrap::CreateExoFrame(
   content::BrowserThread::PostTaskAndReply(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ExoFrameWrap::CreateTask, frame_w, name, url),
-      base::Bind(&ExoFrameWrap::CreateCallback, frame_w, cb_p));
+      base::Bind(&ExoFrameWrap::CreateCallback, frame_w, frame_p, cb_p));
 }
 
 
@@ -113,19 +118,23 @@ ExoFrameWrap::CreateTask(
 
 void
 ExoFrameWrap::CreateCallback(
+    Persistent<Object>* frame_p,
     Persistent<Function>* cb_p)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
   Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
-  Local<Object> frame_o = Local<Object>::New(Isolate::GetCurrent(), 
-                                             this->persistent());
+  Local<Object> frame_o = Local<Object>::New(Isolate::GetCurrent(),
+                                             *frame_p);
 
+  LOG(INFO) << "CreateCallback ExoFrameWrap";
   Local<v8::Value> argv[1] = { frame_o };
   cb->Call(frame_o, 1, argv);
 
   cb_p->Dispose();
   delete cb_p;
+  frame_p->Dispose();
+  delete frame_p;
 }
 
 

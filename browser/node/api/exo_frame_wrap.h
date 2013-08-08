@@ -32,7 +32,8 @@ private:
 
   void CreateTask(const std::string& name,
                   const std::string& url);
-  void CreateCallback(v8::Persistent<v8::Function>* pcb);
+  void CreateCallback(v8::Persistent<v8::Object>* frame_p,
+                      v8::Persistent<v8::Function>* cb_p);
 
   static void DeleteTask(ExoFrame* frame);
 

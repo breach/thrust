@@ -25,9 +25,6 @@ protected:
   NodeThread();
   virtual ~NodeThread();
 
-  // Installs all the Node symbols provided by Breach
-  void InstallNodeSymbols();
-
   // This is the code which runs the node run loop. It blocks until one
   // uv event has been processed. As soon as uv returns, a PostTask is
   // called on itself
