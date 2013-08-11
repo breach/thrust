@@ -97,6 +97,10 @@ private:
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchResize(const gfx::Size& size);
 
+  static void SetKillCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchKill();
+
   static void SetFrameLoadingStateChangeCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchFrameLoadingStateChange(const std::string& frame, bool loading);
@@ -120,6 +124,7 @@ private:
 
   v8::Persistent<v8::Function> open_url_cb_;
   v8::Persistent<v8::Function> resize_cb_;
+  v8::Persistent<v8::Function> kill_cb_;
   v8::Persistent<v8::Function> frame_loading_state_change_cb_;
   v8::Persistent<v8::Function> frame_close_cb_;
   v8::Persistent<v8::Function> frame_navigate_cb_;

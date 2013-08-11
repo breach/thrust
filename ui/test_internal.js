@@ -1,5 +1,5 @@
 /*
- * Breach: breach.js
+ * Breach: test_internal.js
  *
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *
@@ -7,12 +7,12 @@
  *
  * @log:
  * 2013-08-08 spolu   Creation
+ * 2013-08-11 spolu   Renaming to test_internal.js
  */
 
 /* Module dependencies */
 var express = require('express');
 var util = require('util');
-var fs = require('fs');
 var http = require('http');
 
 _breach = apiDispatcher.requireBreach();
@@ -35,7 +35,6 @@ _breach._createExoBrowser({
     b._setControl(3, f, function() {});
     b._setControlDimension(3, 300, function() {});
   }); 
-
 
 
   _breach._createExoFrame({ 
@@ -78,7 +77,7 @@ var app = express();
 
 var setup = function() {
   app.configure(function() {
-    app.use('/', express.static(__dirname + '/ui'));
+    app.use('/', express.static(__dirname + '/static'));
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(app.router);

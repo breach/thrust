@@ -172,11 +172,10 @@ ExoBrowser::PlatformSetControl(
 void 
 ExoBrowser::PlatformSetControlDimension(
     CONTROL_TYPE type, 
-    ExoFrame *frame, 
     int size)
 {
   LOG(INFO) << "PlatformSetControlDimension: " 
-            << type << " " << frame->name() << " " << size;
+            << type << " " << size;
 
   switch(type) {
     case LEFT_CONTROL: 
@@ -255,7 +254,8 @@ gboolean
 ExoBrowser::OnWindowDestroyed(
     GtkWidget* window) 
 {
-  LOG(INFO) << "OnWindowDestroyed";
+  /* We call Kill which will dispatch an event to the API as we don't expect */
+  /* any other behavior here                                                 */
   Kill();
   return FALSE;  // Don't stop this message.
 }
@@ -269,7 +269,6 @@ ExoBrowser::OnCloseWindowKeyPressed(
 {
   /* TODO(spolu): call back into API */
   LOG(INFO) << "OnCloseWindowKeyPressed";
-  Kill(); // to be removed
   return TRUE;
 }
 
@@ -280,8 +279,8 @@ ExoBrowser::OnNewWindowKeyPressed(
     guint keyval,
     GdkModifierType modifier) 
 {
-  LOG(INFO) << "OnNewWindowKeyPressed";
   /* TODO(spolu): call back into API */
+  LOG(INFO) << "OnNewWindowKeyPressed";
   return TRUE;
 }
 

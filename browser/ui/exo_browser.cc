@@ -83,8 +83,9 @@ void
 ExoBrowser::KillAll() 
 {
   std::vector<ExoBrowser*> open(s_instances);
-  for (size_t i = 0; i < open.size(); ++i)
+  for (size_t i = 0; i < open.size(); ++i) {
     open[i]->Kill();
+  }
   base::MessageLoop::current()->RunUntilIdle();
 }
 
@@ -143,11 +144,7 @@ ExoBrowser::SetControlDimension(
     CONTROL_TYPE type,
     int size)
 {
-  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
-  if(it != controls_.end()) {
-    PlatformSetControlDimension(it->first, it->second, size);
-  }
-  /* Otherwise, nothing to do */
+  PlatformSetControlDimension(type, size);
 }
 
 
@@ -218,6 +215,10 @@ ExoBrowser::Kill()
   }
   PlatformKill();
   is_killed_ = true;
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::DispatchKill, wrapper_));
 }
 
 WebContents* 

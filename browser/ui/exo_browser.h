@@ -327,8 +327,7 @@ private:
 
   // ### PlatformSetControlDimension
   // Sets the control dimenstion. Must work even if control unset.
-  void PlatformSetControlDimension(
-      CONTROL_TYPE type, ExoFrame *frame, int size);
+  void PlatformSetControlDimension(CONTROL_TYPE type, int size);
 
   // ### PlatformUnsetControl
   // Unset the designated control

@@ -52,6 +52,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(SetOpenURLCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setResizeCallback"),
       FunctionTemplate::New(SetResizeCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setKillCallback"),
+      FunctionTemplate::New(SetKillCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(
       String::NewSymbol("_setFrameLoadingStateChangeCallback"),
       FunctionTemplate::New(SetFrameLoadingStateChangeCallback)->GetFunction());
@@ -596,6 +598,36 @@ ExoBrowserWrap::DispatchResize(
     Local<Value> argv[1] = { size_arg };
 
     cb->Call(browser_o, 1, argv);
+  }
+}
+
+
+void
+ExoBrowserWrap::SetKillCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  browser_w->kill_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoBrowserWrap::DispatchKill()
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> browser_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!kill_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), kill_cb_);
+
+    cb->Call(browser_o, 0, NULL);
   }
 }
 
