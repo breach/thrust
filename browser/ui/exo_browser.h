@@ -327,8 +327,7 @@ private:
 
   // ### PlatformSetControlDimension
   // Sets the control dimenstion. Must work even if control unset.
-  void PlatformSetControlDimension(
-      CONTROL_TYPE type, ExoFrame *frame, int size);
+  void PlatformSetControlDimension(CONTROL_TYPE type, int size);
 
   // ### PlatformUnsetControl
   // Unset the designated control
@@ -349,10 +348,11 @@ private:
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
 #elif defined(TOOLKIT_GTK)
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, GtkAccelGroup*,
-                     GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, GtkAccelGroup*,
-                     GObject*, guint, GdkModifierType);
+  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, 
+                     GtkAccelGroup*, GObject*, guint, GdkModifierType);
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, 
+                     GtkAccelGroup*, GObject*, guint, GdkModifierType);
 #endif
 
 
@@ -383,6 +383,7 @@ private:
   GtkWidget*                                   control_bottom_box_;
 
   GtkWidget*                                   pages_box_;
+  gfx::NativeView                              visible_page_;
 #endif
 
   // A static container of all the open instances. 

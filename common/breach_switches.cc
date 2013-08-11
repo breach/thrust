@@ -6,11 +6,13 @@
 
 namespace switches {
 
-// Allow access to external pages during layout tests.
-const char kAllowExternalPages[] = "allow-external-pages";
-
 // Makes Breach use the given path for its data directory.
 const char kBreachDataPath[] = "data-path";
+// Makes Breach use the given path for its data directory.
+const char kBreachRawInit[] = "breach-raw-init";
+
+// Allow access to external pages during layout tests.
+const char kAllowExternalPages[] = "allow-external-pages";
 
 // Enable accelerated 2D canvas.
 const char kEnableAccelerated2DCanvas[] = "enable-accelerated-2d-canvas";

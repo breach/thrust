@@ -83,8 +83,9 @@ void
 ExoBrowser::KillAll() 
 {
   std::vector<ExoBrowser*> open(s_instances);
-  for (size_t i = 0; i < open.size(); ++i)
+  for (size_t i = 0; i < open.size(); ++i) {
     open[i]->Kill();
+  }
   base::MessageLoop::current()->RunUntilIdle();
 }
 
@@ -143,11 +144,7 @@ ExoBrowser::SetControlDimension(
     CONTROL_TYPE type,
     int size)
 {
-  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
-  if(it != controls_.end()) {
-    PlatformSetControlDimension(it->first, it->second, size);
-  }
-  /* Otherwise, nothing to do */
+  PlatformSetControlDimension(type, size);
 }
 
 
@@ -218,6 +215,10 @@ ExoBrowser::Kill()
   }
   PlatformKill();
   is_killed_ = true;
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::DispatchKill, wrapper_));
 }
 
 WebContents* 
@@ -231,7 +232,7 @@ ExoBrowser::OpenURLFromTab(
   /* TODO(spolu): Use params.referrer              */
   /* TODO(spolu): Use params.disposition           */
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
                    params.url.spec(), frame->name()));
@@ -246,7 +247,7 @@ ExoBrowser::LoadingStateChanged(
   ExoFrame* frame = FrameForWebContents(source);
   DCHECK(frame != NULL);
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameLoadingStateChange, wrapper_, 
                    frame->name(), source->IsLoading()));
@@ -270,7 +271,7 @@ ExoBrowser::CloseContents(
   ExoFrame* frame = FrameForWebContents(source);
   DCHECK(frame != NULL);
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameClose, wrapper_, 
                    frame->name()));
@@ -309,7 +310,7 @@ ExoBrowser::DidNavigateMainFramePostCommit(
   ExoFrame* frame = FrameForWebContents(web_contents);
   DCHECK(frame != NULL);
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameNavigate, wrapper_, 
                    frame->name(),

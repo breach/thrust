@@ -120,7 +120,7 @@ ExoFrame::Observe(
 
     if (title->first) {
       std::string t = UTF16ToUTF8(title->first->GetTitle());
-      NodeThread::Get()->message_loop_proxy()->PostTask(
+      NodeThread::Get()->PostTask(
           FROM_HERE,
           base::Bind(&ExoFrameWrap::DispatchTitleUpdated, wrapper_, t));
     }

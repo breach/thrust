@@ -25,14 +25,17 @@ private:
   ExoBrowserWrap();
   virtual ~ExoBrowserWrap();
 
-  static void CreateNewExoBrowser(
+  static void CreateExoBrowser(
       const v8::FunctionCallbackInfo<v8::Value>& args);
 
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 
-  void CreateTask();
-  void CreateCallback(v8::Persistent<v8::Function>* pcb);
+  void CreateTask(const gfx::Size& size,
+                  v8::Persistent<v8::Object>* browser_p,
+                  v8::Persistent<v8::Function>* cb_p);
+  void CreateCallback(v8::Persistent<v8::Object>* browser_p,
+                      v8::Persistent<v8::Function>* cb_p);
 
 
   static void DeleteTask(ExoBrowser* browser);
@@ -41,37 +44,47 @@ private:
   /*                             WRAPPERS, TASKS                              */
   /****************************************************************************/
   static void Kill(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void KillTask();
+  void KillTask(v8::Persistent<v8::Function>* cb_p);
 
 
   static void Size(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void SizeTask(gfx::Size* size);
+  void SizeTask(gfx::Size* size, 
+                v8::Persistent<v8::Function>* cb_p);
 
   static void Position(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void PositionTask(gfx::Point* position);
+  void PositionTask(gfx::Point* position,
+                    v8::Persistent<v8::Function>* cb_p);
 
 
   static void SetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */
-  void SetControlTask(ExoBrowser::CONTROL_TYPE type, void* frame_w);
+  void SetControlTask(ExoBrowser::CONTROL_TYPE type, 
+                      void* frame_w,
+                      v8::Persistent<v8::Function>* cb_p);
 
   static void UnsetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void UnsetControlTask(ExoBrowser::CONTROL_TYPE type);
+  void UnsetControlTask(ExoBrowser::CONTROL_TYPE type,
+                        v8::Persistent<v8::Function>* cb_p);
 
   static void SetControlDimension(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void SetControlDimensionTask(ExoBrowser::CONTROL_TYPE type, int size);
+  void SetControlDimensionTask(ExoBrowser::CONTROL_TYPE type, 
+                               int size,
+                               v8::Persistent<v8::Function>* cb_p);
 
 
   static void AddPage(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */
-  void AddPageTask(void* frame_w);
+  void AddPageTask(void* frame_w,
+                   v8::Persistent<v8::Function>* cb_p);
 
   static void RemovePage(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void RemovePageTask(const std::string& name);
+  void RemovePageTask(const std::string& name,
+                      v8::Persistent<v8::Function>* cb_p);
 
   static void ShowPage(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void ShowPageTask(const std::string& name);
+  void ShowPageTask(const std::string& name,
+                    v8::Persistent<v8::Function>* cb_p);
 
   /****************************************************************************/
   /*                              DISPATCHERS                                 */
@@ -83,6 +96,10 @@ private:
   static void SetResizeCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchResize(const gfx::Size& size);
+
+  static void SetKillCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchKill();
 
   static void SetFrameLoadingStateChangeCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -107,6 +124,7 @@ private:
 
   v8::Persistent<v8::Function> open_url_cb_;
   v8::Persistent<v8::Function> resize_cb_;
+  v8::Persistent<v8::Function> kill_cb_;
   v8::Persistent<v8::Function> frame_loading_state_change_cb_;
   v8::Persistent<v8::Function> frame_close_cb_;
   v8::Persistent<v8::Function> frame_navigate_cb_;

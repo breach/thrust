@@ -80,7 +80,6 @@ ApiBindings::ApiBindings()
                NULL,  // dependencies array.
                GetStringResource(IDR_BREACH_API_BINDINGS_JS).size()) 
 {
-  LOG(INFO) << "ApiBindings Constructor";
 }
 
 ApiBindings::~ApiBindings()

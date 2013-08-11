@@ -1,0 +1,8 @@
+{
+  "name": "breach",
+  "version": "0.0.1",
+  "dependencies": {
+    "async": "0.2.x",
+    "express": "3.0.x"
+  },
+}

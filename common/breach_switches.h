@@ -9,8 +9,10 @@
 
 namespace switches {
 
-extern const char kAllowExternalPages[];
 extern const char kBreachDataPath[];
+extern const char kBreachRawInit[];
+
+extern const char kAllowExternalPages[];
 extern const char kEnableAccelerated2DCanvas[];
 extern const char kEncodeBinary[];
 
