@@ -177,10 +177,10 @@ index d6aefae..b777854 100644
      {
        'target_name': 'node_etw',
 diff --git a/src/node.cc b/src/node.cc
-index 649fd92..2792732 100644
+index 649fd92..430f739 100644
 --- a/src/node.cc
 +++ b/src/node.cc
-@@ -3039,6 +3039,20 @@ static char **copy_argv(int argc, char **argv) {
+@@ -3039,6 +3039,24 @@ static char **copy_argv(int argc, char **argv) {
    return argv_copy;
  }
  
@@ -189,9 +189,13 @@ index 649fd92..2792732 100644
 +}
 +
 +void InitSetup(int argc, char *argv[]) {
++  // Logic to duplicate argv as Init() modifies arguments
++  // that are passed into it.
++  char **argv_copy = copy_argv(argc, argv);
++
 +  // This needs to run *before* V8::Initialize()
 +  // Use copy here as to not modify the original argv:
-+  Init(argc, argv);
++  Init(argc, argv_copy);
 +
 +  // Apparently we need to reassign this one
 +  // TODO(spolu): figure out why?

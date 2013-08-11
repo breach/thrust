@@ -46,8 +46,9 @@ ExoBrowser::PlatformCreateWindow(
   gtk_widget_set_size_request(control_right_box_, 0, 0);
   gtk_widget_set_size_request(control_top_box_, 0, 0);
   gtk_widget_set_size_request(control_bottom_box_, 0, 0);
-
+  
   pages_box_ = gtk_event_box_new();
+  visible_page_ = NULL;
 
   // Create the menu bar.
   gtk_box_pack_start(GTK_BOX(hbox_), control_left_box_, FALSE, FALSE, 0);
@@ -61,6 +62,9 @@ ExoBrowser::PlatformCreateWindow(
   // Create the object that mediates accelerators.
   GtkAccelGroup* accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(window_), accel_group);
+
+  g_signal_connect(G_OBJECT(window_), "destroy",
+                   G_CALLBACK(OnWindowDestroyedThunk), this);
 
   // Set global window handling accelerators:
   gtk_accel_group_connect(
@@ -101,11 +105,7 @@ void
 ExoBrowser::PlatformAddPage(
     ExoFrame *frame)
 {
-  /* TODO(spolu) */
-  /*
-  WebContentsView* content_view = web_contents_->GetView();
-  gtk_container_add(GTK_CONTAINER(vbox_), content_view->GetNativeView());
-  */
+  /* Nothing to Do? */
 }
 
 
@@ -113,7 +113,11 @@ void
 ExoBrowser::PlatformRemovePage(
     ExoFrame *frame)
 {
-  /* TODO(spolu) */
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  if(visible_page_ == content_view->GetNativeView()) {
+    gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
+    visible_page_ = NULL;
+  }
 }
 
 
@@ -121,7 +125,14 @@ void
 ExoBrowser::PlatformShowPage(
     ExoFrame *frame)
 {
-  /* TODO(spolu) */
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  if(visible_page_ != content_view->GetNativeView()) {
+    if(visible_page_ != NULL) {
+      gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
+    }
+    visible_page_ = content_view->GetNativeView();
+    gtk_container_add(GTK_CONTAINER(pages_box_), visible_page_);
+  }
 }
 
 
@@ -161,11 +172,10 @@ ExoBrowser::PlatformSetControl(
 void 
 ExoBrowser::PlatformSetControlDimension(
     CONTROL_TYPE type, 
-    ExoFrame *frame, 
     int size)
 {
   LOG(INFO) << "PlatformSetControlDimension: " 
-            << type << " " << frame->name() << " " << size;
+            << type << " " << size;
 
   switch(type) {
     case LEFT_CONTROL: 
@@ -241,6 +251,16 @@ ExoBrowser::PlatformPosition()
 }
 
 gboolean 
+ExoBrowser::OnWindowDestroyed(
+    GtkWidget* window) 
+{
+  /* We call Kill which will dispatch an event to the API as we don't expect */
+  /* any other behavior here                                                 */
+  Kill();
+  return FALSE;  // Don't stop this message.
+}
+
+gboolean 
 ExoBrowser::OnCloseWindowKeyPressed(
     GtkAccelGroup* accel_group,
     GObject* acceleratable,
@@ -249,7 +269,6 @@ ExoBrowser::OnCloseWindowKeyPressed(
 {
   /* TODO(spolu): call back into API */
   LOG(INFO) << "OnCloseWindowKeyPressed";
-  Kill(); // to be removed
   return TRUE;
 }
 
@@ -260,8 +279,8 @@ ExoBrowser::OnNewWindowKeyPressed(
     guint keyval,
     GdkModifierType modifier) 
 {
-  LOG(INFO) << "OnNewWindowKeyPressed";
   /* TODO(spolu): call back into API */
+  LOG(INFO) << "OnNewWindowKeyPressed";
   return TRUE;
 }
 

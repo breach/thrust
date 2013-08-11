@@ -7,6 +7,8 @@
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
 #include "third_party/node/src/node_internals.h"
+#include "base/command_line.h"
+#include "base/time/time.h"
 
 using v8::Isolate;
 using v8::HandleScope;
@@ -24,6 +26,19 @@ using namespace content;
 
 namespace breach {
 
+namespace {
+
+void 
+uv_dummy_cb(
+    uv_async_t* handle, 
+    int status)
+{
+  /* Nothin to Do: This callback is used to yeield the thread to the original */
+  /* message loop when locked in the `uv_run_loop` call.                      */
+}
+
+}
+
 static NodeThread* s_thread = NULL;
 
 NodeThread*
@@ -38,6 +53,7 @@ NodeThread::Get()
 NodeThread::NodeThread()
 : Thread("node_wrapper_thread")
 {
+  uv_async_init(uv_default_loop(), &uv_dummy, uv_dummy_cb);
 }
 
 NodeThread::~NodeThread()
@@ -58,8 +74,19 @@ void
 NodeThread::Run(
     base::MessageLoop* message_loop) 
 {
-  int argc = 1;
-  char* argv[] = { const_cast<char*>("node"), NULL, NULL }; 
+  /* TODO(spolu): fork execution depending on kBreachRawInit */
+  /* If not set, launch the default version of the Browser.  */
+  /* If set, pass argc/argv to Node                          */
+
+  /* Extract argc, argv to pass it directly to Node */
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  int argc = command_line->argv().size();
+  char **argv = (char**)malloc(argc * sizeof(char*));
+  for(int i = 0; i < argc; i ++) {
+    unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
+    argv[i] = (char*) malloc(len * sizeof(char));
+    memcpy(argv[i], command_line->argv()[i].c_str(), len);
+  }
 
   node::InitSetup(argc, argv);
   Isolate* node_isolate = Isolate::GetCurrent();
@@ -74,23 +101,26 @@ NodeThread::Run(
     const char* names[] = { "api_bindings.js" };
     v8::ExtensionConfiguration extensions(1, names);  
 
-    // Create the one and only Context.
+    /* Create the one and only Context. */
     context_ = Context::New(node_isolate, &extensions);
     Context::Scope context_scope(context_);
 
     node::SetupBindingCache();
     process_ = node::SetupProcessObject(argc, argv);
 
-    // Create all the objects, load modules, do everything.
-    // so your next reading stop should be node::Load()!
+    /* Create all the objects, load modules, do everything. */
+    /* so your next reading stop should be node::Load()!    */
     node::Load(process_);
-    InstallNodeSymbols();
 
     Thread::Run(message_loop);
 
     node::EmitExit(process_);
     node::RunAtExit();
   }
+
+  /* Cleanup */
+  for(int i = 0; i < argc; i++) { free(argv[i]); }
+  free(argv);
 }
 
 void
@@ -100,42 +130,39 @@ NodeThread::CleanUp()
   V8::Dispose();
 }
 
-void
-NodeThread::InstallNodeSymbols()
-{
-  HandleScope handle_scope(Isolate::GetCurrent());
-
-  Local<Script> script = Script::New(String::New(
-        // Overload require
-        "global._require = global._require || global.require;"
-        "global.require = function(name) {"
-        "  if (name == 'breach')"
-        "    return apiDispatcher.requireBreach();"
-        "  return global._require(name);"
-        "};"
-        "global._breach = require('breach');"
-
-        // Save node-webkit version
-        "process.versions['breach'] = '" BREACH_VERSION "';"
-        ));
-    script->Run();
-}
-
 
 void
 NodeThread::RunUvLoop()
 {
-  int ret = uv_run(uv_default_loop(), UV_RUN_ONCE);
-  if(ret > 0) {
-    /* Recursively call */
-    message_loop()->PostTask(FROM_HERE,
-                             base::Bind(&NodeThread::RunUvLoop,
-                                        base::Unretained(this)));
-  }
-  else {
-    LOG(INFO) << "Node Exit";
-    //node::EmitExit(process_);
-  }
+  /* The simplest and most efficient solution we found is to sleep on the UV */
+  /* run loop and immediatly re post the task as soon as the uv_run call     */
+  /* returns.                                                                */
+  /* The drawback is that the original chromium message loop gets stuck in   */
+  /* this call and cannot process incoming messages (wrapper, to/from API).  */
+  /* In case the message loop is stuck, we yield the thread to it by calling */
+  /* `uv_async_send` with a dummy callback each time we post a message on    */
+  /* that thread. Meaning that we must use special interfaces to do so, see  */
+  /* `PostTask` here.                                                        */
+  /* The alternative were to poll (yuk!) or to reimplement the chromium      */
+  /* message loop using libuv. This is by far the less intrusive solution.   */
+  /* int ret = */ uv_run(uv_default_loop(), UV_RUN_ONCE);
+
+  message_loop()->PostTask(FROM_HERE,
+                           base::Bind(&NodeThread::RunUvLoop,
+                                      base::Unretained(this)));
+
+  /* This means that we cannot use PostTaskAndReply from this thread to */
+  /* another (since we decided not to touch the message loop). See the  */
+  /* wrappers for an example of manual implementation.                  */
+}
+
+void 
+NodeThread::PostTask(
+    const tracked_objects::Location& from_here,
+    const base::Closure& task)
+{
+  this->message_loop_proxy()->PostTask(from_here, task);
+  uv_async_send(&uv_dummy);
 }
 
 } // namespace breach

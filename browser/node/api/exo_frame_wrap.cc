@@ -9,6 +9,7 @@
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/ui/exo_frame.h"
 #include "breach/browser/node/api/exo_browser_wrap.h"
+#include "breach/browser/node/node_thread.h"
 
 using namespace v8;
 
@@ -39,10 +40,13 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
       FunctionTemplate::New(Type)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setTitleUpdatedCallback"),
+      FunctionTemplate::New(SetTitleUpdatedCallback)->GetFunction());
+
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
-  exports->Set(String::NewSymbol("_createNewExoFrame"),
-      FunctionTemplate::New(CreateNewExoFrame)->GetFunction());
+  exports->Set(String::NewSymbol("_createExoFrame"),
+      FunctionTemplate::New(CreateExoFrame)->GetFunction());
 }
 
 ExoFrameWrap::ExoFrameWrap()
@@ -71,7 +75,7 @@ ExoFrameWrap::New(
 }
 
 void 
-ExoFrameWrap::CreateNewExoFrame(
+ExoFrameWrap::CreateExoFrame(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -80,6 +84,11 @@ ExoFrameWrap::CreateNewExoFrame(
   Local<Function> c = 
     Local<Function>::New(Isolate::GetCurrent(), s_constructor);
   Local<Object> frame_o = c->NewInstance();
+
+  /* We keep a Peristent as the object will be returned asynchronously. */
+  Persistent<Object> *frame_p = new Persistent<Object>();
+  frame_p->Reset(Isolate::GetCurrent(), frame_o);
+
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
 
   /* args[0]: spec = { name, url } */
@@ -94,38 +103,47 @@ ExoFrameWrap::CreateNewExoFrame(
   Persistent<Function> *cb_p = new Persistent<Function>();
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::CreateTask, frame_w, name, url),
-      base::Bind(&ExoFrameWrap::CreateCallback, frame_w, cb_p));
+      base::Bind(&ExoFrameWrap::CreateTask, frame_w, name, url, frame_p, cb_p));
 }
 
 
 void
 ExoFrameWrap::CreateTask(
     const std::string& name,
-    const std::string& url)
+    const std::string& url,
+    Persistent<Object>* frame_p,
+    Persistent<Function>* cb_p)
 {
   frame_ = new ExoFrame(name,
                         this);
   frame_->LoadURL(GURL(url));
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::CreateCallback, this, frame_p, cb_p));
 }
 
 void
 ExoFrameWrap::CreateCallback(
+    Persistent<Object>* frame_p,
     Persistent<Function>* cb_p)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
   Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
-  Local<Object> frame_o = Local<Object>::New(Isolate::GetCurrent(), 
-                                             this->persistent());
+  Local<Object> frame_o = Local<Object>::New(Isolate::GetCurrent(),
+                                             *frame_p);
 
+  LOG(INFO) << "CreateCallback ExoFrameWrap";
   Local<v8::Value> argv[1] = { frame_o };
   cb->Call(frame_o, 1, argv);
 
   cb_p->Dispose();
   delete cb_p;
+  frame_p->Dispose();
+  delete frame_p;
 }
 
 
@@ -162,18 +180,22 @@ ExoFrameWrap::LoadURL(
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
 
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::LoadURLTask, frame_w, url),
-      base::Bind(&ExoFrameWrap::EmptyCallback, frame_w, cb_p));
+      base::Bind(&ExoFrameWrap::LoadURLTask, frame_w, url, cb_p));
 }
 
 
 void
 ExoFrameWrap::LoadURLTask(
-    const std::string& url)
+    const std::string& url,
+    Persistent<Function>* cb_p)
 {
   frame_->LoadURL(GURL(url));
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -192,18 +214,22 @@ ExoFrameWrap::GoBackOrForward(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::GoBackOrForwardTask, frame_w, offset),
-      base::Bind(&ExoFrameWrap::EmptyCallback, frame_w, cb_p));
+      base::Bind(&ExoFrameWrap::GoBackOrForwardTask, frame_w, offset, cb_p));
 }
 
 
 void
 ExoFrameWrap::GoBackOrForwardTask(
-    int offset)
+    int offset,
+    Persistent<Function>* cb_p)
 {
   frame_->GoBackOrForward(offset);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -219,17 +245,21 @@ ExoFrameWrap::Reload(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::ReloadTask, frame_w),
-      base::Bind(&ExoFrameWrap::EmptyCallback, frame_w, cb_p));
+      base::Bind(&ExoFrameWrap::ReloadTask, frame_w, cb_p));
 }
 
 
 void
-ExoFrameWrap::ReloadTask()
+ExoFrameWrap::ReloadTask(
+    Persistent<Function>* cb_p)
 {
   frame_->Reload();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
 }
 
 void 
@@ -244,17 +274,21 @@ ExoFrameWrap::Stop(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::StopTask, frame_w),
-      base::Bind(&ExoFrameWrap::EmptyCallback, frame_w, cb_p));
+      base::Bind(&ExoFrameWrap::StopTask, frame_w, cb_p));
 }
 
 
 void
-ExoFrameWrap::StopTask()
+ExoFrameWrap::StopTask(
+    Persistent<Function>* cb_p)
 {
   frame_->Stop();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -272,18 +306,22 @@ ExoFrameWrap::Name(
   std::string* name = new std::string();
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::NameTask, frame_w, name),
-      base::Bind(&ExoFrameWrap::StringCallback, frame_w, cb_p, name));
+      base::Bind(&ExoFrameWrap::NameTask, frame_w, name, cb_p));
 }
 
 
 void
 ExoFrameWrap::NameTask(
-    std::string* name)
+    std::string* name,
+    Persistent<Function>* cb_p)
 {
   (*name) = frame_->name();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, name));
 }
 
 
@@ -301,18 +339,22 @@ ExoFrameWrap::Type(
   int* type = new int;
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::TypeTask, frame_w, type),
-      base::Bind(&ExoFrameWrap::IntCallback, frame_w, cb_p, type));
+      base::Bind(&ExoFrameWrap::TypeTask, frame_w, type, cb_p));
 }
 
 
 void
 ExoFrameWrap::TypeTask(
-    int* type)
+    int* type,
+    Persistent<Function>* cb_p)
 {
   (*type) = (int)frame_->type();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::IntCallback, this, cb_p, type));
 }
 
 /******************************************************************************/
