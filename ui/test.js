@@ -19,29 +19,6 @@ var b = api.exo_browser({
   size: [1000, 600]
 });
 
-setTimeout(function() {
-  b.set_control(api.LEFT_CONTROL, api.exo_frame({
-    url: 'http://localhost:8989'
-  }));
-  b.set_control_dimension(api.LEFT_CONTROL, 300);
-
-  var p1 = api.exo_frame({
-    url: 'http://localhost'
-  });
-  var p2 = api.exo_frame({
-    url: 'http://localhost:8989'
-  });
-
-  b.add_page(p1);
-  b.add_page(p2);
-
-  var i = 0;
-  setInterval(function() {
-    b.show_page((++i % 2) ? p1 : p2, function() {});
-  }, 500);
-}, 100);
-
-
 var app = express();
 
 var setup = function() {
@@ -57,3 +34,25 @@ setup();
 
 var http_srv = http.createServer(app).listen(8989);
 console.error('Listening on port 8989');
+
+b.set_control(api.LEFT_CONTROL, api.exo_frame({
+  url: 'http://localhost:8989'
+}));
+b.set_control_dimension(api.LEFT_CONTROL, 300);
+
+var p1 = api.exo_frame({
+  url: 'http://localhost'
+});
+var p2 = api.exo_frame({
+  url: 'http://localhost:8989'
+});
+
+b.add_page(p1);
+b.add_page(p2);
+
+var i = 0;
+setInterval(function() {
+  b.show_page((++i % 2) ? p1 : p2, function() {});
+}, 500);
+
+
