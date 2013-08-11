@@ -26,6 +26,19 @@ using namespace content;
 
 namespace breach {
 
+namespace {
+
+void 
+uv_dummy_cb(
+    uv_async_t* handle, 
+    int status)
+{
+  /* Nothin to Do: This callback is used to yeield the thread to the original */
+  /* message loop when locked in the `uv_run_loop` call.                      */
+}
+
+}
+
 static NodeThread* s_thread = NULL;
 
 NodeThread*
@@ -40,6 +53,7 @@ NodeThread::Get()
 NodeThread::NodeThread()
 : Thread("node_wrapper_thread")
 {
+  uv_async_init(uv_default_loop(), &uv_dummy, uv_dummy_cb);
 }
 
 NodeThread::~NodeThread()
@@ -120,26 +134,35 @@ NodeThread::CleanUp()
 void
 NodeThread::RunUvLoop()
 {
-  /* int ret = */ uv_run(uv_default_loop(), UV_RUN_NOWAIT);
+  /* The simplest and most efficient solution we found is to sleep on the UV */
+  /* run loop and immediatly re post the task as soon as the uv_run call     */
+  /* returns.                                                                */
+  /* The drawback is that the original chromium message loop gets stuck in   */
+  /* this call and cannot process incoming messages (wrapper, to/from API).  */
+  /* In case the message loop is stuck, we yield the thread to it by calling */
+  /* `uv_async_send` with a dummy callback each time we post a message on    */
+  /* that thread. Meaning that we must use special interfaces to do so, see  */
+  /* `PostTask` here.                                                        */
+  /* The alternative were to poll (yuk!) or to reimplement the chromium      */
+  /* message loop using libuv. This is by far the less intrusive solution.   */
+  /* int ret = */ uv_run(uv_default_loop(), UV_RUN_ONCE);
 
-  /* TODO(spolu): FixMe [/!\ Bad Code Ahead]                                 */
-  /* If we call with UV_RUN_ONCE then it will hang the thread while there is */
-  /* no `uv` related events, blocking all Chromium/Breach message delivery.  */
-  /* We therefore post a delayed task to avoid hogging the CPU but not too   */
-  /* far away to avoid any delay in the execution of nodeJS code. This is no */
-  /* perfect, but it works!                                                  */
-  /* An eventually very good solution would be to be able to call the run    */
-  /* loop with UV_RUN_ONCE and be able to generate a dummy request form      */
-  /* the outside when a message needs to get delivered.                      */
-  /* Eventual best solution will be to implement a message_loop based on uv  */
-  /* as it has already been done for node-webkit                             */
-  /* Another acceptable solution would be to run the uv run_loop direclty    */
-  /* from here and expose a mechanism for existing content threads to post a */
-  /* task on that thread.                                                    */
-  message_loop()->PostDelayedTask(FROM_HERE,
-                                  base::Bind(&NodeThread::RunUvLoop,
-                                             base::Unretained(this)),
-                                  base::TimeDelta::FromMicroseconds(100));
+  message_loop()->PostTask(FROM_HERE,
+                           base::Bind(&NodeThread::RunUvLoop,
+                                      base::Unretained(this)));
+
+  /* This means that we cannot use PostTaskAndReply from this thread to */
+  /* another (since we decided not to touch the message loop). See the  */
+  /* wrappers for an example of manual implementation.                  */
+}
+
+void 
+NodeThread::PostTask(
+    const tracked_objects::Location& from_here,
+    const base::Closure& task)
+{
+  this->message_loop_proxy()->PostTask(from_here, task);
+  uv_async_send(&uv_dummy);
 }
 
 } // namespace breach

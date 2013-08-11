@@ -63,6 +63,9 @@ ExoBrowser::PlatformCreateWindow(
   GtkAccelGroup* accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(window_), accel_group);
 
+  g_signal_connect(G_OBJECT(window_), "destroy",
+                   G_CALLBACK(OnWindowDestroyedThunk), this);
+
   // Set global window handling accelerators:
   gtk_accel_group_connect(
       accel_group, GDK_w, GDK_CONTROL_MASK,
@@ -123,7 +126,7 @@ ExoBrowser::PlatformShowPage(
     ExoFrame *frame)
 {
   WebContentsView* content_view = frame->web_contents_->GetView();
-  if(visible_page != content_view->GetNativeView()) {
+  if(visible_page_ != content_view->GetNativeView()) {
     if(visible_page_ != NULL) {
       gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
     }
@@ -246,6 +249,15 @@ ExoBrowser::PlatformPosition()
   int x,y;
   gtk_window_get_position(window_, &x, &y);
   return gfx::Point(x, y);
+}
+
+gboolean 
+ExoBrowser::OnWindowDestroyed(
+    GtkWidget* window) 
+{
+  LOG(INFO) << "OnWindowDestroyed";
+  Kill();
+  return FALSE;  // Don't stop this message.
 }
 
 gboolean 

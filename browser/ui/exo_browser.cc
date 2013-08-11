@@ -231,7 +231,7 @@ ExoBrowser::OpenURLFromTab(
   /* TODO(spolu): Use params.referrer              */
   /* TODO(spolu): Use params.disposition           */
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
                    params.url.spec(), frame->name()));
@@ -246,7 +246,7 @@ ExoBrowser::LoadingStateChanged(
   ExoFrame* frame = FrameForWebContents(source);
   DCHECK(frame != NULL);
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameLoadingStateChange, wrapper_, 
                    frame->name(), source->IsLoading()));
@@ -270,7 +270,7 @@ ExoBrowser::CloseContents(
   ExoFrame* frame = FrameForWebContents(source);
   DCHECK(frame != NULL);
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameClose, wrapper_, 
                    frame->name()));
@@ -309,7 +309,7 @@ ExoBrowser::DidNavigateMainFramePostCommit(
   ExoFrame* frame = FrameForWebContents(web_contents);
   DCHECK(frame != NULL);
   if(frame) {
-    NodeThread::Get()->message_loop_proxy()->PostTask(
+    NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameNavigate, wrapper_, 
                    frame->name(),

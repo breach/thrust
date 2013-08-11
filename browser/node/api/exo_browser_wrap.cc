@@ -9,6 +9,7 @@
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/ui/exo_frame.h"
 #include "breach/browser/node/api/exo_frame_wrap.h"
+#include "breach/browser/node/node_thread.h"
 
 using namespace v8;
 
@@ -121,17 +122,24 @@ ExoBrowserWrap::CreateExoBrowser(
   Persistent<Function> *cb_p = new Persistent<Function>();
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::CreateTask, browser_w, size),
-      base::Bind(&ExoBrowserWrap::CreateCallback, browser_w, browser_p, cb_p));
+      base::Bind(&ExoBrowserWrap::CreateTask, browser_w, 
+                 size, browser_p, cb_p));
 }
 
 
 void
-ExoBrowserWrap::CreateTask(const gfx::Size& size)
+ExoBrowserWrap::CreateTask(
+    const gfx::Size& size,
+    Persistent<Object>* browser_p,
+    Persistent<Function>* cb_p)
 {
   browser_ = ExoBrowser::CreateNew(this, size);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::CreateCallback, this, browser_p, cb_p));
 }
 
 void 
@@ -184,18 +192,22 @@ ExoBrowserWrap::Kill(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::KillTask, browser_w),
-      base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));
+      base::Bind(&ExoBrowserWrap::KillTask, browser_w, cb_p));
 }
 
 
 void
-ExoBrowserWrap::KillTask()
+ExoBrowserWrap::KillTask(
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed())
     browser_->Kill();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -213,18 +225,22 @@ ExoBrowserWrap::Size(
   gfx::Size* size = new gfx::Size();
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::SizeTask, browser_w, size),
-      base::Bind(&ExoBrowserWrap::SizeCallback, browser_w, cb_p, size));
+      base::Bind(&ExoBrowserWrap::SizeTask, browser_w, size, cb_p));
 }
 
 void
 ExoBrowserWrap::SizeTask(
-    gfx::Size* size)
+    gfx::Size* size,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed())
     (*size) = browser_->size();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::SizeCallback, this, cb_p, size));
 }
 
 
@@ -243,18 +259,22 @@ ExoBrowserWrap::Position(
   gfx::Point* position = new gfx::Point();
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::PositionTask, browser_w, position),
-      base::Bind(&ExoBrowserWrap::PointCallback, browser_w, cb_p, position));
+      base::Bind(&ExoBrowserWrap::PositionTask, browser_w, position, cb_p));
 }
 
 void
 ExoBrowserWrap::PositionTask(
-    gfx::Point* position)
+    gfx::Point* position,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed())
     (*position) = browser_->position();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::PointCallback, this, cb_p, position));
 }
 
 
@@ -280,23 +300,27 @@ ExoBrowserWrap::SetControl(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       /* TODO(spolu): Fix usage of (void*) */
       base::Bind(&ExoBrowserWrap::SetControlTask, browser_w, 
-                 type, (void*)frame_w),
-      base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));
+                 type, (void*)frame_w, cb_p));
 }
 
 
 void
 ExoBrowserWrap::SetControlTask(
     ExoBrowser::CONTROL_TYPE type,
-    void* frame_w)
+    void* frame_w,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed()) {
     browser_->SetControl(type, ((ExoFrameWrap*)frame_w)->frame_);
   }
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -317,20 +341,24 @@ ExoBrowserWrap::UnsetControl(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::UnsetControlTask, browser_w, type),
-      base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));
+      base::Bind(&ExoBrowserWrap::UnsetControlTask, browser_w, type, cb_p));
 }
 
 
 void
 ExoBrowserWrap::UnsetControlTask(
-    ExoBrowser::CONTROL_TYPE type)
+    ExoBrowser::CONTROL_TYPE type,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed()) {
     browser_->UnsetControl(type);
   }
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -353,22 +381,26 @@ ExoBrowserWrap::SetControlDimension(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ExoBrowserWrap::SetControlDimensionTask, browser_w, 
-                 type, size),
-      base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));
+                 type, size, cb_p));
 }
 
 
 void
 ExoBrowserWrap::SetControlDimensionTask(
     ExoBrowser::CONTROL_TYPE type,
-    int size)
+    int size,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed()) {
     browser_->SetControlDimension(type, size);
   }
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -391,21 +423,26 @@ ExoBrowserWrap::AddPage(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       /* TODO(spolu): Fix usage of (void*) */
-      base::Bind(&ExoBrowserWrap::AddPageTask, browser_w, (void*)frame_w),
-      base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));
+      base::Bind(&ExoBrowserWrap::AddPageTask, browser_w, 
+                 (void*)frame_w, cb_p));
 }
 
 
 void
 ExoBrowserWrap::AddPageTask(
-    void* frame_w)
+    void* frame_w,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed()) {
     browser_->AddPage(((ExoFrameWrap*)frame_w)->frame_);
   }
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -427,20 +464,24 @@ ExoBrowserWrap::RemovePage(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::RemovePageTask, browser_w, name),
-      base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));
+      base::Bind(&ExoBrowserWrap::RemovePageTask, browser_w, name, cb_p));
 }
 
 
 void
 ExoBrowserWrap::RemovePageTask(
-    const std::string& name)
+    const std::string& name,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed()) {
     browser_->RemovePage(name);
   }
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
 
@@ -462,20 +503,24 @@ ExoBrowserWrap::ShowPage(
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  content::BrowserThread::PostTaskAndReply(
+  content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::ShowPageTask, browser_w, name),
-      base::Bind(&ExoBrowserWrap::EmptyCallback, browser_w, cb_p));
+      base::Bind(&ExoBrowserWrap::ShowPageTask, browser_w, name, cb_p));
 }
 
 
 void
 ExoBrowserWrap::ShowPageTask(
-    const std::string& name)
+    const std::string& name,
+    Persistent<Function>* cb_p)
 {
   if(!browser_->is_killed()) {
     browser_->ShowPage(name);
   }
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
 /******************************************************************************/

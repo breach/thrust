@@ -349,10 +349,11 @@ private:
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
 #elif defined(TOOLKIT_GTK)
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, GtkAccelGroup*,
-                     GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, GtkAccelGroup*,
-                     GObject*, guint, GdkModifierType);
+  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, 
+                     GtkAccelGroup*, GObject*, guint, GdkModifierType);
+  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, 
+                     GtkAccelGroup*, GObject*, guint, GdkModifierType);
 #endif
 
 
