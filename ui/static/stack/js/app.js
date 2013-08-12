@@ -23,8 +23,15 @@ angular.module('breach', ['breach.services',
 // Initializations goes here as well as global objects
 //
 function StackTopCtrl($scope, $location, $rootScope, $window, $timeout,
-                      _session) {
-  $scope.session = _session.name();
+                      _session, _socket) {
+
+  /* Handhsaking */
+  _socket.emit('handshake', _session.name() + '_stack');
+
+  _socket.on('entries', function(entries) {
+    console.log(entries);
+    $scope.entries = entries;
+  });
 }
 
 angular.module('breach.directives', []);

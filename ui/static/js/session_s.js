@@ -15,7 +15,6 @@ angular.module('breach.services').
   factory('_session', function($location, _socket) {
 
   var session = $location.search().session;
-  _socket.emit('handshake', session);
 
   return {
     'name': function () {

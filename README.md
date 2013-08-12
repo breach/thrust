@@ -14,7 +14,7 @@ No DevTools ATM
 Native objects live on the BrowserThread::UI thread but are aware of their
 JS counterparts Wrappers.
 
-#### API v0:
+#### API v0.alpha:
 
 ```
 var b = _breach.exo_browser({
@@ -73,7 +73,7 @@ exo_frame.stop([cb_]);
 ```
 
 
-#### Internal API v0:
+#### Internal API v0.alpha:
 
 ```
 /* EXOBROWSER */

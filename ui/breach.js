@@ -41,7 +41,7 @@ factory.log().out('Starting...');
 
   io.sockets.on('connection', function (socket) {
     socket.on('handshake', function (name) {
-      var name_r = /^(br-[0-9]+)_(stack|home)$/;
+      var name_r = /^(br-[0-9]+)_(.*)$/;
       var name_m = name_r.exec(name);
       if(name_m && sessions[name_m[1]]) {
         sessions[name_m[1]].handshake(name, socket);

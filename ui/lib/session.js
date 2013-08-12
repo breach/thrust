@@ -12,6 +12,8 @@
 var common = require('./common.js');
 var factory = common.factory;
 var api = require('./api.js');
+var async = require('async');
+
 
 //
 // ## session
@@ -27,33 +29,33 @@ var session = function(spec, my) {
 
   my.base_url = spec.base_url;
   my.name = 'no_session';
-
-  my.stack = { 
-    socket: null,
-    frame: null
-  };
-  my.home = { 
-    socket: null,
-    frame: null
-  } 
   my.exo_browser = null;
+
+  my.loading_frame = null;
+
+  my.stack = null;
+  my.box = null;
 
   //
   // #### _public_
   //
+  var show_stack;  /* show_stack(); */
+  var hide_stack;  /* hide_stack(); */
+  var show_box;    /* show_box(); */
+  var hide_box;    /* hide_box(); */
+
   var handshake;   /* handshake(name, socket); */
 
   //
   // #### _private_
   //
   var init;        /* init(); */
-  var init_stack;  /* init_stack(); */
-  var init_home;   /* init_home(); */
 
   //
   // #### _that_
   //
   var that = {};
+
 
   //
   // ### handshake
@@ -67,36 +69,14 @@ var session = function(spec, my) {
   // ```
   //
   handshake = function(name, socket) {
-    var name_r = /^(br-[0-9]+)_(stack|home)$/;
+    var name_r = /^(br-[0-9]+)_(stack|box)$/;
     var name_m = name_r.exec(name);
     if(name_m) {
-      console.log('HANDSHAKE: ' + my.name + ' ' + name_m[2]);
-      my[name_m[2]].socket = socket;
       if(name_m[2] === 'stack')
-        init_stack();
-      if(name_m[2] === 'home')
-        init_home();
+        my.stack.handshake(socket);
+      if(name_m[2] === 'box')
+        my.box.handshake(socket);
     }
-  };
-
-  // 
-  // ### init_stack
-  //
-  // Sets up all the socket bindings for the stack. This must be called after
-  // the handshake.
-  //
-  //
-  init_stack = function() {
-    my.exo_browser.set_control_dimension(api.LEFT_CONTROL, 100);
-  };
-
-  //
-  // ### init_home
-  //
-  // Sets up all the socket bindings for the home. This must be called after
-  // the handshake.
-  //
-  init_home = function() {
   };
 
   //
@@ -105,31 +85,39 @@ var session = function(spec, my) {
   // Initialializes this session and spawns the associated exo_browser
   //
   init = function() {
-    my.exo_browser = api.exo_browser({});
+    my.exo_browser = api.exo_browser({
+      size: [1200, 800]
+    });
     my.name = my.exo_browser.name();
 
-    my.stack.frame = api.exo_frame({
-      name: my.name + '_stack',
-      url: spec.base_url + '/stack/#/?session=' + my.name + '_stack'
+    my.loading_frame = api.exo_frame({
+      name: my.name + '_loading',
+      url: spec.base_url + '/loading.html'
     });
-    my.home.frame = api.exo_frame({
-      name: my.name + '_home',
-      url: spec.base_url + '/home/#/?session=' + my.name + '_home'
+    my.exo_browser.add_page(my.loading_frame, function() {
+      my.exo_browser.show_page(my.loading_frame);
     });
 
-    my.exo_browser.set_control(api.LEFT_CONTROL, my.stack.frame);
-    my.exo_browser.set_control_dimension(api.LEFT_CONTROL, 0);
+    my.stack = require('./stack.js').stack({
+      session: that
+    });
 
-    my.exo_browser.add_page(my.home.frame, function() {
-      my.exo_browser.show_page(my.home.frame);
+    async.parallel({
+      stack: function(cb_) {
+        my.stack.init(cb_);
+      }
+    }, function(err) {
+      my.stack.show();
     });
   };
   
-  init();
-
   common.method(that, 'handshake', handshake, _super);
 
   common.getter(that, 'name', my, 'name');
+  common.getter(that, 'exo_browser', my, 'exo_browser');
+  common.getter(that, 'base_url', my, 'base_url');
+
+  init();
 
   return that;
 };
