@@ -232,7 +232,7 @@ var factory = function(spec, my) {
       else if(debug)
         util.debug(pre + line);
       else 
-        util.print(pre + line);
+        console.log(pre + line);
     });
   };
 
