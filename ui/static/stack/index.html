@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" ng-app="breach">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="lib/normalize.css" rel="stylesheet"/>
+  </head>
+
+  <body ng-controller="StackTopCtrl">
+
+    {{session}}
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/lib/angular.min.js"></script>
+    <script src="/stack/js/app.js"></script>
+
+    <!-- Components -->
+    <script src="/stack/js/search_d.js"></script>
+    <script src="/stack/js/stack_d.js"></script>
+
+    <!-- Services -->
+    <script src="/js/session_s.js"></script>
+    <script src="/js/bind_s.js"></script>
+    <script src="/js/socket_s.js"></script>
+
+  </body>
+</html>
+
+
