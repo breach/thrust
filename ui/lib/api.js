@@ -6,6 +6,7 @@
  * @author: spolu
  *
  * @log:
+ * 2013-08-12 spolu   Add name to browser
  * 2013-08-11 spolu   Creation
  */
 
@@ -46,7 +47,7 @@ var exo_frame = function(spec, my) {
   my.internal = null;
 
   my.url = spec.url || '';
-  my.name = spec.name || ('frame-' + (exports.frame_count++));
+  my.name = spec.name || ('fr-' + (exports.frame_count++));
   my.visible = false;
   my.ready = false;
   my.parent = null;
@@ -242,12 +243,17 @@ var exo_frame = function(spec, my) {
 exports.exo_frame = exo_frame;
 
 
-exports._browsers = [];
+exports._exo_browsers = {};
+exports.exo_browser = function(name) {
+  return exports._exo_browsers[name] || null;
+};
 
 exports.TOP_CONTROL = 1;
 exports.BOTTOM_CONTROL = 2;
 exports.LEFT_CONTROL = 3;
 exports.RIGHT_CONTROL = 4;
+
+exports.browser_count = 0;
 
 
 //
@@ -260,8 +266,12 @@ exports.RIGHT_CONTROL = 4;
 // syntax. In particular it makes sure that all objects that are alive (not 
 // killed) are not garbage collected.
 //
+// ExoFrames are named objects. Their names are expected to be uniques. If no
+// name is specifed a statically incremented counter is used to provide a unique
+// human readable name.
+//
 // ```
-// @spec { size }
+// @spec { size, [name] }
 // ```
 //
 var exo_browser = function(spec, my) {
@@ -274,6 +284,7 @@ var exo_browser = function(spec, my) {
   my.ready = false;
   my.killed = false;
   my.size = spec.size || [800, 600];
+  my.name = spec.name || ('br-' + (exports.frame_count++));
 
   my.frames = {};
   my.pages = {};
@@ -540,7 +551,7 @@ var exo_browser = function(spec, my) {
       size: my.size
     }, function(b) {
       my.internal = b;
-      exports._browsers.push(that);
+      exports._exo_browsers[my.name] = that;
 
       my.internal._setOpenURLCallback(function(url, from) {
         var origin = my.frames[from] || null;
@@ -556,7 +567,7 @@ var exo_browser = function(spec, my) {
         delete my.internal;
         my.killed = true;
         my.ready = false;
-        common.remove(exports._browsers, that);
+        delete exports._exo_browsers[my.name];
       });
       my.internal._setFrameLoadingStateChangeCallback(function(from, loading) {
         if(my.frames[from]) {
@@ -588,6 +599,7 @@ var exo_browser = function(spec, my) {
 
   init();
   
+  common.getter(that, 'name', my, 'name');
   common.getter(that, 'ready', my, 'ready');
   common.getter(that, 'killed', my, 'killed');
   common.getter(that, 'internal', my, 'internal');
