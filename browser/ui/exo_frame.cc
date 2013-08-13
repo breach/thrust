@@ -107,6 +107,12 @@ ExoFrame::Stop()
   web_contents_->GetView()->Focus();
 }
 
+void
+ExoFrame::Focus()
+{
+  web_contents_->GetView()->Focus();
+}
+
 
 void 
 ExoFrame::Observe(

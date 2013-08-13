@@ -34,6 +34,8 @@ ExoFrameWrap::Init(
       FunctionTemplate::New(Reload)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_stop"),
       FunctionTemplate::New(Stop)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
+      FunctionTemplate::New(Focus)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_name"),
       FunctionTemplate::New(Name)->GetFunction());
@@ -285,6 +287,36 @@ ExoFrameWrap::StopTask(
     Persistent<Function>* cb_p)
 {
   frame_->Stop();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+
+void 
+ExoFrameWrap::Focus(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::FocusTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::FocusTask(
+    Persistent<Function>* cb_p)
+{
+  frame_->Focus();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,

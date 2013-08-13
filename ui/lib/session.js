@@ -39,10 +39,8 @@ var session = function(spec, my) {
   //
   // #### _public_
   //
-  var show_stack;  /* show_stack(); */
-  var hide_stack;  /* hide_stack(); */
-  var show_box;    /* show_box(); */
-  var hide_box;    /* hide_box(); */
+  var toggle_stack; /* toggle_stack([visible]); */
+  var toggle_box;   /* toggle_box([visible]); */
 
   var handshake;   /* handshake(name, socket); */
 
@@ -56,6 +54,30 @@ var session = function(spec, my) {
   //
   var that = {};
 
+  //
+  // ### toggle_stack
+  //
+  // If no argument is provided it just toggles the stack visibility. If a
+  // visibility argument is provided, it shows or hides it.
+  //
+  // ```
+  // @visibilty {boolean} toggle to this visibility
+  // ```
+  //
+  toggle_stack = function(visible) {
+    if(typeof visible === 'boolean') {
+      if(visible) 
+        my.stack.show();
+      else
+        my.stack.hide();
+    }
+    else {
+      if(my.stack.visible())
+        my.stack.hide();
+      else
+        my.stack.show();
+    }
+  };
 
   //
   // ### handshake
@@ -105,17 +127,27 @@ var session = function(spec, my) {
     async.parallel({
       stack: function(cb_) {
         my.stack.init(cb_);
-      }
+      },
+      box: function(cb_) {
+        /* TODO(spolu): Implement box initialization */
+        return cb_();
+      },
     }, function(err) {
-      my.stack.show();
+      toggle_stack(true);
     });
 
     my.exo_browser.on('frame_keyboard', function(frame, event) { 
-      console.log('KEYBOARD: ' + JSON.stringify(event));
+      if(event.type === 9 &&
+         event.modifiers === 2 &&
+         event.keycode === 71) {
+        toggle_stack();
+      }
     });
   };
   
   common.method(that, 'handshake', handshake, _super);
+  common.method(that, 'toggle_stack', toggle_stack, _super);
+  common.method(that, 'toggle_box', toggle_box, _super);
 
   common.getter(that, 'name', my, 'name');
   common.getter(that, 'exo_browser', my, 'exo_browser');

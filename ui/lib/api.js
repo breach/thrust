@@ -62,6 +62,7 @@ var exo_frame = function(spec, my) {
   var go_back_or_forward;  /* go_back_or_forward(offset, [cb_]); */
   var reload;              /* reload([cb_]); */
   var stop;                /* stop([cb_]); */ 
+  var focus;               /* focus([cb_]); */
 
   //
   // #### _private_
@@ -181,6 +182,29 @@ var exo_frame = function(spec, my) {
       }
       else {
         my.internal._stop(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+
+  //
+  // ### focus
+  //
+  // Focuses the frame
+  //
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  //
+  stop = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._focus(function() {
           if(cb_) return cb_();
         });
       }
@@ -371,6 +395,12 @@ var exo_browser = function(spec, my) {
           /* TODO(spolu): update frame state */
           my.frames[frame.name()] = frame;
           my.controls[type] = frame;
+          if(my.control_dimensions[type] === 0) {
+            my.controls[type].set_visible(false);
+          }
+          else {
+            my.controls[type].set_visible(true);
+          }
           if(cb_) return cb_();
         });
       }
@@ -398,6 +428,7 @@ var exo_browser = function(spec, my) {
           var control = my.controls[type];
           my.controls[type] = null;
           my.control_dimensions[type] = 0;
+          my.controls[type].set_visible(false);
           delete my.frames[control.name()];
           if(cb_) return cb_(null, control);
         });
@@ -424,6 +455,12 @@ var exo_browser = function(spec, my) {
       else {
         my.internal._setControlDimension(type, size, function() {
           my.control_dimensions[type] = size;
+          if(my.control_dimensions[type] === 0) {
+            my.controls[type].set_visible(false);
+          }
+          else {
+            my.controls[type].set_visible(true);
+          }
           if(cb_) return cb_(null, my.controls[type]);
         });
       }
@@ -477,7 +514,7 @@ var exo_browser = function(spec, my) {
           return cb_(new Error('Frame not known: ' + frame.name()));
         }
         my.internal._removePagE(frame.name(), function() {
-          /* TODO(spolu): update frame state */
+          frame.set_visible(false);
           delete my.pages[frame.name()];
           delete my.frames[frame.name()];
           if(cb_) return cb_();
@@ -507,7 +544,12 @@ var exo_browser = function(spec, my) {
           return cb_(new Error('Frame not known: ' + frame.name()));
         }
         my.internal._showPage(frame.name(), function() {
-          /* TODO(spolu): update frame state */
+          for(var name in my.pages) {
+            if(my.pages.hasOwnProperty(name)) {
+              my.pages[name].set_visible(false);
+            }
+          }
+          frame.set_visible(true);
           if(cb_) return cb_();
         });
       }

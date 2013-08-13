@@ -82,7 +82,6 @@ var stack = function(spec, my) {
   //
   handshake = function(socket) {
     _super.handshake(socket);
-
     new_entry();
   };
 
@@ -132,7 +131,7 @@ var stack = function(spec, my) {
   push = function() {
     var update = [];
     my.entries.forEach(function(e) {
-      update.push(e.navs)
+      update.push({ navs: e.navs })
     });
     my.socket.emit('entries', update);
   };
