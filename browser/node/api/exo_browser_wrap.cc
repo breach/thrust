@@ -664,7 +664,7 @@ ExoBrowserWrap::DispatchFrameLoadingStateChange(
                            frame_loading_state_change_cb_);
 
     Local<String> frame_arg = String::New(frame.c_str());
-    Local<Boolean> loading_arg = Boolean::New(loading);
+    Local<v8::Boolean> loading_arg = v8::Boolean::New(loading);
 
     Local<Value> argv[2] = { frame_arg,
                              loading_arg };

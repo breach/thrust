@@ -110,6 +110,7 @@
         'browser/node/api/api_bindings.h',
         'browser/node/api/api_bindings.cc',
         'browser/node/api/object_wrap.h',
+        'browser/node/api/object_wrap.cc',
         'browser/node/api/exo_browser_wrap.h',
         'browser/node/api/exo_browser_wrap.cc',
         'browser/node/api/exo_frame_wrap.h',

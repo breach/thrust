@@ -20,8 +20,6 @@
 // CrAppControlProtocol:
 - (void)setHandlingSendEvent:(BOOL)handlingSendEvent;
 
-- (IBAction)newDocument:(id)sender;
-
 @end
 
 #endif  // BREACH_BROWSER_BREACH_APPLICATION_MAC_H_
