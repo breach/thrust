@@ -82,7 +82,6 @@ var stack = function(spec, my) {
   //
   handshake = function(socket) {
     _super.handshake(socket);
-
     new_entry();
   };
 
@@ -132,7 +131,7 @@ var stack = function(spec, my) {
   push = function() {
     var update = [];
     my.entries.forEach(function(e) {
-      update.push(e.navs)
+      update.push({ navs: e.navs })
     });
     my.socket.emit('entries', update);
   };
@@ -189,9 +188,9 @@ var stack = function(spec, my) {
   //
   frame_title_updated = function(frame, title) {
     var e = entry_for_frame(frame);
-    if(e) {
+    if(e && e.navs.length > 0) {
       console.log('TITLE: ' + title);
-      e.title = title;
+      e.navs[0].title = title;
       push();
     }
   };

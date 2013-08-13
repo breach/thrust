@@ -1,0 +1,11 @@
+
+.entry {
+  background-color: #222;
+  color: white;
+}
+
+.entry > .title {
+}
+
+.entry > .url {
+}

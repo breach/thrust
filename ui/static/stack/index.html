@@ -5,27 +5,32 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="lib/normalize.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="lib/normalize-2.1.2.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="css/stack.css"/>
+    <link rel="stylesheet" href="css/entry_d.css"/>
   </head>
 
   <body ng-controller="StackTopCtrl">
-
-    {{session}}
-    {{entries}}
+    <div class="search"></div>
+    <div class="entries">
+      <entry ng-repeat="entry in entries" data="entry">
+      </entry>
+    </div>
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/lib/angular.min.js"></script>
+    <script src="/lib/angular-1.0.7.min.js"></script>
+    <script src="/lib/jquery-2.0.3.min.js"></script>
     <script src="/stack/js/app.js"></script>
-
-    <!-- Components -->
-    <script src="/stack/js/search_d.js"></script>
-    <script src="/stack/js/stack_d.js"></script>
 
     <!-- Services -->
     <script src="/js/session_s.js"></script>
     <script src="/js/bind_s.js"></script>
     <script src="/js/socket_s.js"></script>
+
+    <!-- Components -->
+    <script src="js/entry_d.js"></script>
 
   </body>
 </html>

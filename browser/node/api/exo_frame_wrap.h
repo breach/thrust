@@ -57,6 +57,9 @@ private:
   static void Stop(const v8::FunctionCallbackInfo<v8::Value>& args);
   void StopTask(v8::Persistent<v8::Function>* cb_p);
 
+  static void Focus(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void FocusTask(v8::Persistent<v8::Function>* cb_p);
+
 
   static void Name(const v8::FunctionCallbackInfo<v8::Value>& args);
   void NameTask(std::string* name,

@@ -1,5 +1,5 @@
 /*
- * Nitrogram: app.js
+ * Breach: app.js
  *
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *
@@ -29,7 +29,7 @@ function StackTopCtrl($scope, $location, $rootScope, $window, $timeout,
   _socket.emit('handshake', _session.name() + '_stack');
 
   _socket.on('entries', function(entries) {
-    console.log(entries);
+    console.log('RECEIVED ENTRIES: ' + entries.length);
     $scope.entries = entries;
   });
 }

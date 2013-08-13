@@ -90,6 +90,10 @@ public:
   // Stop loading the ExoFrame content.
   void Stop();
 
+  // ### Focus
+  // Focuses the ExoFrame
+  void Focus();
+
   // ### type
   // Returns the frame type
   FRAME_TYPE type() { return type_; }
