@@ -117,6 +117,11 @@ private:
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchFrameCreated(const ExoFrame* frame);
 
+  static void SetFrameKeyboardCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchFrameKeyboard(const std::string& frame,
+                             const content::NativeWebKeyboardEvent& event);
+
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/
@@ -129,6 +134,7 @@ private:
   v8::Persistent<v8::Function> frame_close_cb_;
   v8::Persistent<v8::Function> frame_navigate_cb_;
   v8::Persistent<v8::Function> frame_created_cb_;
+  v8::Persistent<v8::Function> frame_keyboard_cb_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 

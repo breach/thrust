@@ -290,6 +290,24 @@ ExoBrowser::WebContentsCreated(
   /* TODO(spolu): Call into API if necessary */
 }
 
+bool 
+ExoBrowser::PreHandleKeyboardEvent(
+    WebContents* source,
+    const NativeWebKeyboardEvent& event,
+    bool* is_keyboard_shortcut)
+{
+  ExoFrame* frame = FrameForWebContents(source);
+  DCHECK(frame != NULL);
+  if(frame) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::DispatchFrameKeyboard, wrapper_, 
+                   frame->name(), event));
+  }
+  return false;
+}
+
+
 void 
 ExoBrowser::AddNewContents(
     WebContents* source,

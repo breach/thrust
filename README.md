@@ -33,6 +33,7 @@ exo_browser#frame_loading_state_change(frame, loading)
 exo_browser#frame_close(frame)
 exo_browser#frame_navigate(frame, url)
 exo_browser#frame_title_updated(frame, title)
+exo_browser#frame_keyboard(frame, event)
 
 exo_browser.frame(name);
 
@@ -92,6 +93,7 @@ b._setFrameLoadingStateChangeCallback(cb_);
 b._setFrameCloseCallback(cb_);
 b._setFrameNavigateCallback(cb_);
 b._setFrameCreatedCallback(cb_);
+b._setFrameKeyboardCallback(cb_);
 
 b.kill(cb_);
 
