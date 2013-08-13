@@ -190,7 +190,7 @@ var stack = function(spec, my) {
   frame_title_updated = function(frame, title) {
     var e = entry_for_frame(frame);
     if(e) {
-      console.log('TITLE: ' + url);
+      console.log('TITLE: ' + title);
       e.title = title;
       push();
     }
