@@ -188,9 +188,9 @@ var stack = function(spec, my) {
   //
   frame_title_updated = function(frame, title) {
     var e = entry_for_frame(frame);
-    if(e) {
+    if(e && e.navs.length > 0) {
       console.log('TITLE: ' + title);
-      e.title = title;
+      e.navs[0].title = title;
       push();
     }
   };

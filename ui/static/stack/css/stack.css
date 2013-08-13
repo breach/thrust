@@ -6,7 +6,7 @@ body {
 .search {
   position: absolute;
   top: 0px;
-  height: 100px;
+  height: 40px;
   left: 0px;
   right: 0px;
   background-color: hsl(200, 20%, 20%);
@@ -14,11 +14,11 @@ body {
 
 .entries {
   position: absolute;
-  top: 100px;
+  top: 40px;
   bottom: 0px;
   left: 0px;
   right: 0px;
   overflow: hidden;
-  background-color: hsl(0, 0%, 20%);
+  background-color: hsl(200, 0%, 20%);
 }
 
