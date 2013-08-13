@@ -200,6 +200,13 @@ var exo_frame = function(spec, my) {
     }, function(f) {
       my.internal = f;
 
+      my.internal._setTitleUpdatedCallback(function(title) {
+        my.title = title;
+        if(my.parent) {
+          my.parent.emit('frame_title_updated', that, title);
+        }
+      });
+
       my.ready = true;
       that.emit('ready');
     });
@@ -368,7 +375,8 @@ var exo_browser = function(spec, my) {
       }
       else {
         my.internal._setControl(type, frame.internal(), function() {
-          /* TODO(spolu): update frame state */
+          frame.set_parent(that);
+          frame.set_type(exports.CONTROL_TYPE);
           my.frames[frame.name()] = frame;
           my.controls[type] = frame;
           if(cb_) return cb_();
@@ -394,8 +402,9 @@ var exo_browser = function(spec, my) {
       }
       else {
         my.internal._unsetControl(type, function() {
-          /* TODO(spolu): update frame state */
           var control = my.controls[type];
+          control.set_parent(that);
+          control.set_type(exports.NO_TYPE);
           my.controls[type] = null;
           my.control_dimensions[type] = 0;
           delete my.frames[control.name()];
@@ -448,7 +457,8 @@ var exo_browser = function(spec, my) {
       }
       else {
         my.internal._addPage(frame.internal(), function() {
-          /* TODO(spolu): update frame state */
+          frame.set_parent(that);
+          frame.set_type(exports.PAGE_TYPE);
           my.pages[frame.name()] = frame;
           my.frames[frame.name()] = frame;
           if(cb_) return cb_();
@@ -477,7 +487,8 @@ var exo_browser = function(spec, my) {
           return cb_(new Error('Frame not known: ' + frame.name()));
         }
         my.internal._removePagE(frame.name(), function() {
-          /* TODO(spolu): update frame state */
+          frame.set_parent(null);
+          frame.set_type(exports.NO_TYPE);
           delete my.pages[frame.name()];
           delete my.frames[frame.name()];
           if(cb_) return cb_();
@@ -571,7 +582,7 @@ var exo_browser = function(spec, my) {
       });
       my.internal._setFrameLoadingStateChangeCallback(function(from, loading) {
         if(my.frames[from]) {
-          /* TODO(spolu): update frame state */
+          my.frames[from].set_loading(loading);
           that.emit('frame_loading_state_change', my.frames[from], loading);
         }
       });
@@ -583,7 +594,7 @@ var exo_browser = function(spec, my) {
       });
       my.internal._setFrameNavigateCallback(function(from, url) {
         if(my.frames[from]) {
-          /* TODO(spolu): update frame state */
+          my.frames[from].set_url(url);
           that.emit('frame_navigate', my.frames[from], url);
         }
       });
