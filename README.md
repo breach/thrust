@@ -71,6 +71,7 @@ exo_frame.load_url(url, [cb_]);
 exo_frame.go_back_or_forward(offset, [cb_]);
 exo_frame.reload([cb_]);
 exo_frame.stop([cb_]);
+exo_frame.focus([cb_]);
 ```
 
 
@@ -107,6 +108,7 @@ f._loadURL(url, cb_);
 f._goBackOrForward(offset, cb_);
 f._reload(cb_);
 f._stop(cb_);
+f._focus(cb_);
 
 f._name(cb_);
 f._type(cb_);

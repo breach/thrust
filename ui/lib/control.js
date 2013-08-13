@@ -49,6 +49,10 @@ var control = function(spec, my) {
   var init;         /* init(cb_); */
   var handshake;    /* handshake(socket); */
 
+  var show;         /* show(); */
+  var hide;         /* hide(); */
+  var visible;      /* visible(); */
+
   //
   // ### _protected_
   //
@@ -87,6 +91,16 @@ var control = function(spec, my) {
   hide = function() {
     my.session.exo_browser().set_control_dimension(api.LEFT_CONTROL, 
                                                    0);
+  };
+
+  //
+  // ### visible
+  //
+  // Forward to underlying frame `visible` which already handles the logic of
+  // computing the visibility
+  //
+  visible = function() {
+    return my.frame.visible();
   };
 
   //
@@ -130,6 +144,7 @@ var control = function(spec, my) {
 
   common.method(that, 'show', show, _super);
   common.method(that, 'hide', hide, _super);
+  common.method(that, 'visible', visible, _super);
 
   common.getter(that, 'frame', my, 'frame');
 
