@@ -32,6 +32,7 @@ namespace content {
 class BrowserContext;
 class SiteInstance;
 class WebContents;
+struct NativeWebKeyboardEvent;
 }
 
 namespace breach {
@@ -233,6 +234,11 @@ public:
   virtual void RequestToLockMouse(content::WebContents* web_contents,
                                   bool user_gesture,
                                   bool last_unlocked_by_target) OVERRIDE;
+
+  virtual bool PreHandleKeyboardEvent(
+      content::WebContents* source,
+      const content::NativeWebKeyboardEvent& event,
+      bool* is_keyboard_shortcut) OVERRIDE;
 
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
 
