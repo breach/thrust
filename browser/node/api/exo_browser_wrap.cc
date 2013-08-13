@@ -10,6 +10,7 @@
 #include "breach/browser/ui/exo_frame.h"
 #include "breach/browser/node/api/exo_frame_wrap.h"
 #include "breach/browser/node/node_thread.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 
 using namespace v8;
 
@@ -63,6 +64,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(SetFrameNavigateCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameCreatedCallback"),
       FunctionTemplate::New(SetFrameCreatedCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameKeyboardCallback"),
+      FunctionTemplate::New(SetFrameKeyboardCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -771,6 +774,46 @@ ExoBrowserWrap::DispatchFrameCreated(
 
     Local<Value> argv[1] = { frame_arg };
     cb->Call(browser_o, 1, argv);
+  }
+}
+
+void
+ExoBrowserWrap::SetFrameKeyboardCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  browser_w->frame_keyboard_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoBrowserWrap::DispatchFrameKeyboard(
+    const std::string& frame,
+    const content::NativeWebKeyboardEvent& event)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> browser_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!frame_keyboard_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), frame_keyboard_cb_);
+
+    Local<String> frame_arg = String::New(frame.c_str());
+
+    Local<Object> event_arg = Object::New();
+    event_arg->Set(String::New("type"), Integer::New(event.type));
+    event_arg->Set(String::New("modifiers"), Integer::New(event.modifiers));
+    event_arg->Set(String::New("keycode"), Integer::New(event.windowsKeyCode));
+
+    Local<Value> argv[2] = { frame_arg,
+                             event_arg };
+    cb->Call(browser_o, 2, argv);
   }
 }
 

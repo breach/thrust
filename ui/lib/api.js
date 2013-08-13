@@ -588,7 +588,10 @@ var exo_browser = function(spec, my) {
         }
       });
       my.internal._setFrameCreatedCallback(function(frame) {
-        that.emit('frame_Created', frame);
+        that.emit('frame_created', frame);
+      });
+      my.internal._setFrameKeyboardCallback(function(from, event) {
+        that.emit('frame_keyboard', my.frames[from], event);
       });
 
       my.ready = true;

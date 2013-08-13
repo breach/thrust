@@ -109,6 +109,10 @@ var session = function(spec, my) {
     }, function(err) {
       my.stack.show();
     });
+
+    my.exo_browser.on('frame_keyboard', function(frame, event) { 
+      console.log('KEYBOARD: ' + JSON.stringify(event));
+    });
   };
   
   common.method(that, 'handshake', handshake, _super);
