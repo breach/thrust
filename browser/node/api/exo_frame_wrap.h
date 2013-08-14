@@ -24,7 +24,7 @@ public:
 
 private:
   ExoFrameWrap();
-  ~ExoFrameWrap();
+  virtual ~ExoFrameWrap();
 
   static void CreateExoFrame(
       const v8::FunctionCallbackInfo<v8::Value>& args);

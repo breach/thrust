@@ -25,7 +25,7 @@ index 9735a27..2c89d57 100644
 +
 +
 diff --git a/build/common.gypi b/build/common.gypi
-index 29f1278..29ae6e1 100644
+index 0d20ba9..a6a3e66 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -9,6 +9,18 @@
@@ -47,6 +47,54 @@ index 29f1278..29ae6e1 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
+@@ -84,6 +96,7 @@
+             # Compute the architecture that we're building on.
+             ['OS=="win" or OS=="mac" or OS=="ios"', {
+               'host_arch%': 'ia32',
++              'use_openssl%': '0',
+             }, {
+               # This handles the Unix platforms for which there is some support.
+               # Anything else gets passed through, which probably won't work
+@@ -2718,6 +2731,16 @@
+     }],
+     ['os_posix==1 and OS!="mac" and OS!="ios"', {
+       'target_defaults': {
++        'target_conditions': [
++          ['_target_name=="v8" or _target_name=="v8_snapshot" or _target_name=="v8_base" or _target_name=="uv" or _target_name=="node" or _target_name=="openssl" or _target_name=="zlib"', {
++            'cflags!': [
++              '-fvisibility=hidden',
++              '-fdata-sections',
++              '-ffunction-sections',
++            ],
++            'cflags_cc!': ['-fvisibility-inlines-hidden'],
++          }],
++        ],
+         # Enable -Werror by default, but put it in a variable so it can
+         # be disabled in ~/.gyp/include.gypi on the valgrind builders.
+         'variables': {
+@@ -3810,7 +3833,7 @@
+           'GCC_OBJC_CALL_CXX_CDTORS': 'YES',        # -fobjc-call-cxx-cdtors
+           'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',      # -fvisibility=hidden
+           'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
+-          'GCC_TREAT_WARNINGS_AS_ERRORS': 'YES',    # -Werror
++          'GCC_TREAT_WARNINGS_AS_ERRORS': 'NO',    # -Werror
+           'GCC_VERSION': '4.2',
+           'GCC_WARN_ABOUT_MISSING_NEWLINE': 'YES',  # -Wnewline-eof
+           'USE_HEADERMAP': 'NO',
+@@ -4015,6 +4038,13 @@
+           ],
+         },
+         'target_conditions': [
++          ['_target_name=="v8" or _target_name=="v8_snapshot" or _target_name=="v8_base" or _target_name=="uv" or _target_name=="node" or _target_name=="openssl" or _target_name=="zlib"', {
++            'xcode_settings': {
++              'DEAD_CODE_STRIPPING': 'NO',  # -Wl,-dead_strip
++              'GCC_INLINES_ARE_PRIVATE_EXTERN': 'NO',
++              'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
++            },
++          }],
+           ['_type=="executable"', {
+             'postbuilds': [
+               {
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
 index 0e6b848..b9db370 100644
 --- a/tools/gritsettings/resource_ids
