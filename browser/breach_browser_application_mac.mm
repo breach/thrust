@@ -5,7 +5,7 @@
 #include "breach/browser/breach_browser_application_mac.h"
 
 #include "base/auto_reset.h"
-#include "breach/browser/ui/browser.h"
+#include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/breach_browser_context.h"
 #include "breach/browser/breach_content_browser_client.h"
 #include "url/gurl.h"
@@ -23,16 +23,6 @@
 
 - (void)setHandlingSendEvent:(BOOL)handlingSendEvent {
   handlingSendEvent_ = handlingSendEvent;
-}
-
-- (IBAction)newDocument:(id)sender {
-  breach::BreachBrowserContext* browserContext =
-    breach::BreachContentBrowserClient::Get()->browser_context();
-  breach::Breach::CreateNewWindow(browserContext,
-                                  GURL("about:blank"),
-                                  NULL,
-                                  MSG_ROUTING_NONE,
-                                  gfx::Size());
 }
 
 @end

@@ -16,7 +16,7 @@ void
 BreachBrowserMainParts::PreMainMessageLoopStart() 
 {
   // Force the NSApplication subclass to be used.
-  [BreachCrApplication sharedApplication];
+  [BrowserCrApplication sharedApplication];
 
   /* TODO(spolu): removed from content (not in chrome) */
   /*
