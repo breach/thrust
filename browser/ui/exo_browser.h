@@ -384,8 +384,8 @@ private:
   GtkWidget*                                   control_bottom_box_;
 
   GtkWidget*                                   pages_box_;
-  gfx::NativeView                              visible_page_;
 #endif
+  gfx::NativeView                              visible_page_;
 
   // A static container of all the open instances. 
   static std::vector<ExoBrowser*>              s_instances;
