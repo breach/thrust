@@ -74,16 +74,3 @@ body {
   font-size: 14px;
 }
 
-.entries {
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  overflow: hidden;
-  background: -webkit-linear-gradient(top, 
-                                      hsl(220, 12%, 10%), 
-                                      hsl(220, 12%, 20%));
-  border-right: 1px solid hsl(220, 12%, 5%);
-}
-
