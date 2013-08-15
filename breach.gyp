@@ -3,7 +3,7 @@
 {
   'variables': {
     'breach_product_name': 'Breach',
-    'breach_version': '0.0.1',
+    'breach_version': '0.0.0.1',
   },
   'targets': [
     {
@@ -73,6 +73,7 @@
         'browser/ui/exo_browser.h',
         'browser/ui/exo_browser.cc',
         'browser/ui/exo_browser_gtk.cc',
+        'browser/ui/exo_browser_mac.mm',
         'browser/ui/exo_frame.h',
         'browser/ui/exo_frame.cc',
         'browser/ui/exo_frame_gtk.cc',

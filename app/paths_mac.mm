@@ -49,7 +49,7 @@ void OverrideChildProcessPath() {
       GetFrameworksPath().Append("Breach Helper.app")
                                             .Append("Contents")
                                             .Append("MacOS")
-                                            .Append("Content Shell Helper");
+                                            .Append("Breach Helper");
 
   PathService::Override(content::CHILD_PROCESS_EXE, helper_path);
 }
