@@ -11,6 +11,7 @@
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
+#include "content/public/browser/web_contents_observer.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/size.h"
 #include "ui/gfx/point.h"
@@ -51,7 +52,8 @@ class ExoFrameWrap;
 //
 // The ExoFrame lives on the BrowserThread::UI thread, and should PostTask on
 // the NodeJS thread whenever it wants to communicate with its JS Wrapper
-class ExoFrame : public content::NotificationObserver {
+class ExoFrame : public content::NotificationObserver,
+                 public content::WebContentsObserver {
 public:
   /****************************************************************************/
   /*                         PUBLIC INTERFACE                                 */
@@ -110,6 +112,35 @@ public:
   // ### parent
   // Returns the ExoFrame's parent ExoBrowser
   ExoBrowser* parent() { return parent_; }
+
+  /****************************************************************************/
+  /*                   WEBCONTENTSOBSERVER IMPLEMENTATION                     */
+  /****************************************************************************/
+  virtual void DidUpdateFaviconURL(
+      int32 page_id,
+      const std::vector<content::FaviconURL>& candidates) OVERRIDE;
+
+  virtual void ProvisionalChangeToMainFrameUrl(
+      const GURL& url,
+      content::RenderViewHost* render_view_host) OVERRIDE;
+  virtual void DidFailLoad(
+      int64 frame_id,
+      const GURL& validated_url,
+      bool is_main_frame,
+      int error_code,
+      const string16& error_description,
+      content::RenderViewHost* render_view_host) OVERRIDE;
+  virtual void DidFinishLoad(
+      int64 frame_id,
+      const GURL& validated_url,
+      bool is_main_frame,
+      content::RenderViewHost* render_view_host) OVERRIDE;
+
+  virtual void DidStartLoading(
+      content::RenderViewHost* render_view_host) OVERRIDE;
+  virtual void DidStopLoading(
+      content::RenderViewHost* render_view_host) OVERRIDE;
+
 
 private:
   /****************************************************************************/

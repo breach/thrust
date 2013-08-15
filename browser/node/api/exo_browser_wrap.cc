@@ -55,13 +55,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(SetResizeCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setKillCallback"),
       FunctionTemplate::New(SetKillCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(
-      String::NewSymbol("_setFrameLoadingStateChangeCallback"),
-      FunctionTemplate::New(SetFrameLoadingStateChangeCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameCloseCallback"),
       FunctionTemplate::New(SetFrameCloseCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameNavigateCallback"),
-      FunctionTemplate::New(SetFrameNavigateCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameCreatedCallback"),
       FunctionTemplate::New(SetFrameCreatedCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameKeyboardCallback"),
@@ -636,44 +631,6 @@ ExoBrowserWrap::DispatchKill()
 
 
 void
-ExoBrowserWrap::SetFrameLoadingStateChangeCallback(
-      const v8::FunctionCallbackInfo<v8::Value>& args)
-{
-  HandleScope handle_scope(Isolate::GetCurrent());
-
-  /* args[0]: cb_ */
-  Local<Function> cb = Local<Function>::Cast(args[0]);
-
-  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  browser_w->frame_loading_state_change_cb_.Reset(Isolate::GetCurrent(), cb);
-}
-
-void
-ExoBrowserWrap::DispatchFrameLoadingStateChange(
-    const std::string& frame,
-    const bool loading)
-{
-  HandleScope handle_scope(Isolate::GetCurrent());
-  Local<Object> browser_o = 
-    Local<Object>::New(Isolate::GetCurrent(), 
-                       this->persistent());
-
-  if(!frame_loading_state_change_cb_.IsEmpty()) {
-    Local<Function> cb = 
-      Local<Function>::New(Isolate::GetCurrent(), 
-                           frame_loading_state_change_cb_);
-
-    Local<String> frame_arg = String::New(frame.c_str());
-    Local<v8::Boolean> loading_arg = v8::Boolean::New(loading);
-
-    Local<Value> argv[2] = { frame_arg,
-                             loading_arg };
-    cb->Call(browser_o, 2, argv);
-  }
-}
-
-
-void
 ExoBrowserWrap::SetFrameCloseCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
@@ -703,43 +660,6 @@ ExoBrowserWrap::DispatchFrameClose(
 
     Local<Value> argv[1] = { frame_arg };
     cb->Call(browser_o, 1, argv);
-  }
-}
-
-
-void
-ExoBrowserWrap::SetFrameNavigateCallback(
-      const v8::FunctionCallbackInfo<v8::Value>& args)
-{
-  HandleScope handle_scope(Isolate::GetCurrent());
-
-  /* args[0]: cb_ */
-  Local<Function> cb = Local<Function>::Cast(args[0]);
-
-  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
-  browser_w->frame_navigate_cb_.Reset(Isolate::GetCurrent(), cb);
-}
-
-void
-ExoBrowserWrap::DispatchFrameNavigate(
-    const std::string& frame,
-    const std::string& url)
-{
-  HandleScope handle_scope(Isolate::GetCurrent());
-  Local<Object> browser_o = 
-    Local<Object>::New(Isolate::GetCurrent(), 
-                       this->persistent());
-
-  if(!frame_navigate_cb_.IsEmpty()) {
-    Local<Function> cb = 
-      Local<Function>::New(Isolate::GetCurrent(), frame_navigate_cb_);
-
-    Local<String> frame_arg = String::New(frame.c_str());
-    Local<String> url_arg = String::New(url.c_str());
-
-    Local<Value> argv[2] = { frame_arg,
-                             url_arg };
-    cb->Call(browser_o, 2, argv);
   }
 }
 

@@ -229,8 +229,6 @@ public:
       content::WebContents* source,
       const content::OpenURLParams& params) OVERRIDE;
 
-  virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
-
   virtual void RequestToLockMouse(content::WebContents* web_contents,
                                   bool user_gesture,
                                   bool last_unlocked_by_target) OVERRIDE;
@@ -254,9 +252,6 @@ public:
                                   const string16& frame_name,
                                   const GURL& target_url,
                                   content::WebContents* new_contents) OVERRIDE;
-
-  virtual void DidNavigateMainFramePostCommit(
-      content::WebContents* web_contents) OVERRIDE;
 
   virtual content::JavaScriptDialogManager* 
     GetJavaScriptDialogManager() OVERRIDE;

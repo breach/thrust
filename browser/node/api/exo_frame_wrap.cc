@@ -6,6 +6,7 @@
 #include "breach/browser/node/api/exo_frame_wrap.h"
 
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/favicon_url.h"
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/ui/exo_frame.h"
 #include "breach/browser/node/api/exo_browser_wrap.h"
@@ -42,8 +43,22 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
       FunctionTemplate::New(Type)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setTitleUpdatedCallback"),
-      FunctionTemplate::New(SetTitleUpdatedCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setTitleUpdateCallback"),
+      FunctionTemplate::New(SetTitleUpdateCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFaviconUpdateCallback"),
+      FunctionTemplate::New(SetFaviconUpdateCallback)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setPendingURLCallback"),
+      FunctionTemplate::New(SetPendingURLCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadFailCallback"),
+      FunctionTemplate::New(SetLoadFailCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadFinishCallback"),
+      FunctionTemplate::New(SetLoadFinishCallback)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadingStartCallback"),
+      FunctionTemplate::New(SetLoadingStartCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadingStopCallback"),
+      FunctionTemplate::New(SetLoadingStopCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -394,7 +409,7 @@ ExoFrameWrap::TypeTask(
 /******************************************************************************/
 
 void
-ExoFrameWrap::SetTitleUpdatedCallback(
+ExoFrameWrap::SetTitleUpdateCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -403,11 +418,11 @@ ExoFrameWrap::SetTitleUpdatedCallback(
   Local<Function> cb = Local<Function>::Cast(args[0]);
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
-  frame_w->title_updated_cb_.Reset(Isolate::GetCurrent(), cb);
+  frame_w->title_update_cb_.Reset(Isolate::GetCurrent(), cb);
 }
 
 void
-ExoFrameWrap::DispatchTitleUpdated(
+ExoFrameWrap::DispatchTitleUpdate(
     const std::string& title)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -415,9 +430,9 @@ ExoFrameWrap::DispatchTitleUpdated(
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
 
-  if(!title_updated_cb_.IsEmpty()) {
+  if(!title_update_cb_.IsEmpty()) {
     Local<Function> cb = 
-      Local<Function>::New(Isolate::GetCurrent(), title_updated_cb_);
+      Local<Function>::New(Isolate::GetCurrent(), title_update_cb_);
 
     Local<String> title_arg = String::New(title.c_str());
 
@@ -425,5 +440,215 @@ ExoFrameWrap::DispatchTitleUpdated(
     cb->Call(frame_o, 1, argv);
   }
 }
+
+
+void
+ExoFrameWrap::SetFaviconUpdateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->favicon_update_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoFrameWrap::DispatchFaviconUpdate(
+    const std::vector<content::FaviconURL>& candidates)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!favicon_update_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), favicon_update_cb_);
+
+    Local<Array> favicons_arg = Array::New();
+    for(unsigned int i = 0; i < candidates.size(); i ++) {
+      if(candidates[i].icon_type == content::FaviconURL::INVALID_ICON) {
+        favicons_arg->Set(Integer::New(i), Null());
+      }
+      else {
+        favicons_arg->Set(Integer::New(i), 
+                          String::New(candidates[i].icon_url.spec().c_str()));
+      }
+    };
+
+    Local<Value> argv[1] = { favicons_arg };
+    cb->Call(frame_o, 1, argv);
+  }
+}
+
+
+void
+ExoFrameWrap::SetPendingURLCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->pending_url_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoFrameWrap::DispatchPendingURL(
+    const std::string& url)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!pending_url_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), pending_url_cb_);
+
+    Local<String> url_arg = String::New(url.c_str());
+
+    Local<Value> argv[1] = { url_arg };
+    cb->Call(frame_o, 1, argv);
+  }
+}
+
+
+void
+ExoFrameWrap::SetLoadFailCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->load_fail_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoFrameWrap::DispatchLoadFail(
+    const std::string& url,
+    const int error_code,
+    const std::string& error_desc)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!load_fail_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), load_fail_cb_);
+
+    Local<String> url_arg = String::New(url.c_str());
+    Local<Integer> error_code_arg = Integer::New(error_code);
+    Local<String> error_desc_arg = String::New(error_desc.c_str());
+
+    Local<Value> argv[3] = { url_arg,
+                             error_code_arg,
+                             error_desc_arg };
+    cb->Call(frame_o, 3, argv);
+  }
+}
+
+void
+ExoFrameWrap::SetLoadFinishCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->load_finish_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoFrameWrap::DispatchLoadFinish(
+    const std::string& url)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!load_finish_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), load_finish_cb_);
+
+    Local<String> url_arg = String::New(url.c_str());
+
+    Local<Value> argv[1] = { url_arg };
+    cb->Call(frame_o, 1, argv);
+  }
+}
+
+
+void
+ExoFrameWrap::SetLoadingStartCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->loading_start_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoFrameWrap::DispatchLoadingStart()
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!loading_start_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), loading_start_cb_);
+
+    cb->Call(frame_o, 0, NULL);
+  }
+}
+
+void
+ExoFrameWrap::SetLoadingStopCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->loading_stop_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoFrameWrap::DispatchLoadingStop()
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!loading_stop_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), loading_stop_cb_);
+
+    cb->Call(frame_o, 0, NULL);
+  }
+}
+
 
 } // namespace breach

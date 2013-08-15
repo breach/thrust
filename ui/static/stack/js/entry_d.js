@@ -15,14 +15,19 @@
 // `entry` directive controller
 //
 angular.module('breach.directives').controller('EntryCtrl',
-  function($scope) {
+  function($scope, _socket) {
     $scope.$watch('data', function(entry) {
-      console.log('EntryCtrl: ' + JSON.stringify(entry));
       if(entry.navs.length > 0) {
+        $scope.entry = entry;
+        $scope.favicon = entry.navs[0].favicon;
         $scope.title = entry.navs[0].title;
         $scope.url = entry.navs[0].url;
       }
     });
+
+    $scope.select = function() {
+      _socket.emit('select_entry', $scope.entry.name);
+    };
   });
 
 //

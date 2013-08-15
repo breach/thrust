@@ -12,7 +12,6 @@
   </head>
 
   <body ng-controller="StackTopCtrl">
-    <div class="search"></div>
     <div class="entries">
       <entry ng-repeat="entry in entries" data="entry">
       </entry>
@@ -23,6 +22,9 @@
     <script src="/lib/angular-1.0.7.min.js"></script>
     <script src="/lib/jquery-2.0.3.min.js"></script>
     <script src="/stack/js/app.js"></script>
+
+    <!-- Filters -->
+    <script src="/js/filters.js"></script>
 
     <!-- Services -->
     <script src="/js/session_s.js"></script>

@@ -1,24 +1,89 @@
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 200;
+  src: url('/fonts/SourceSansPro-ExtraLight.tff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/SourceSansPro-Light.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/SourceSansPro-Regular.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/SourceSansPro-Semibold.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/SourceSansPro-Bold.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 900;
+  src: url('/fonts/SourceSansPro-Black.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 200;
+  src: url('/fonts/SourceSansPro-ExtraLightItalic.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 300;
+  src: url('/fonts/SourceSansPro-LightItalic.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/fonts/SourceSansPro-Italic.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 600;
+  src: url('/fonts/SourceSansPro-SemiboldItalic.ttf');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 700;
+  src: url('/fonts/SourceSansPro-BoldItalic.ttf');
+}
+
+
+
 body {
   padding: 0;
   margin: 0;
-}
-
-.search {
-  position: absolute;
-  top: 0px;
-  height: 40px;
-  left: 0px;
-  right: 0px;
-  background-color: hsl(200, 20%, 20%);
+  font-family: 'Source Sans Pro';
+  font-size: 14px;
 }
 
 .entries {
   position: absolute;
-  top: 40px;
+  top: 0px;
   bottom: 0px;
   left: 0px;
   right: 0px;
   overflow: hidden;
-  background-color: hsl(200, 0%, 20%);
+  background: -webkit-linear-gradient(top, 
+                                      hsl(220, 12%, 10%), 
+                                      hsl(220, 12%, 20%));
+  border-right: 1px solid hsl(220, 12%, 5%);
 }
 

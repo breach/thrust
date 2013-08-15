@@ -14,6 +14,10 @@ namespace node {
 class ObjectWrap;
 }
 
+namespace content {
+struct FaviconURL;
+}
+
 namespace breach {
 
 class ExoFrame;
@@ -72,17 +76,52 @@ private:
   /****************************************************************************/
   /*                              DISPATCHERS                                 */
   /****************************************************************************/
-  static void SetTitleUpdatedCallback(
+  static void SetTitleUpdateCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchTitleUpdated(const std::string& title);
+  void DispatchTitleUpdate(const std::string& title);
 
+  static void SetFaviconUpdateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchFaviconUpdate(
+      const std::vector<content::FaviconURL>& candidates);
+
+
+  static void SetPendingURLCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchPendingURL(const std::string& url);
+
+  static void SetLoadFailCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchLoadFail(const std::string& url,
+                        const int error_code,
+                        const std::string& error_desc);
+
+  static void SetLoadFinishCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchLoadFinish(const std::string& url);
+
+
+  static void SetLoadingStartCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchLoadingStart();
+
+  static void SetLoadingStopCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchLoadingStop();
   
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/
   ExoFrame*                    frame_;
 
-  v8::Persistent<v8::Function> title_updated_cb_;
+  v8::Persistent<v8::Function> title_update_cb_;
+  v8::Persistent<v8::Function> favicon_update_cb_;
+
+  v8::Persistent<v8::Function> pending_url_cb_;
+  v8::Persistent<v8::Function> load_fail_cb_;
+  v8::Persistent<v8::Function> load_finish_cb_;
+  v8::Persistent<v8::Function> loading_start_cb_;
+  v8::Persistent<v8::Function> loading_stop_cb_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 
