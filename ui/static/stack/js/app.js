@@ -29,7 +29,6 @@ function StackTopCtrl($scope, $location, $rootScope, $window, $timeout,
   _socket.emit('handshake', _session.name() + '_stack');
 
   _socket.on('entries', function(entries) {
-    console.log('RECEIVED ENTRIES: ' + entries.length);
     $scope.entries = entries;
   });
 }

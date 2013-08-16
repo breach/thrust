@@ -81,6 +81,8 @@ ExoBrowser::PlatformCreateWindow(
 
   gtk_container_add(GTK_CONTAINER(window_), hbox_);
   gtk_window_resize(window_, width, height);
+  /* TODO(spolu): move to API */
+  gtk_window_maximize(window_);
 
   // Finally, show the window.
   gtk_widget_show_all(GTK_WIDGET(window_));
@@ -134,7 +136,6 @@ ExoBrowser::PlatformShowPage(
     gtk_container_add(GTK_CONTAINER(pages_box_), visible_page_);
   }
 }
-
 
 
 void 

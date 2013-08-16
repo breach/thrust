@@ -6,6 +6,7 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
+#include "content/public/common/favicon_url.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/browser/navigation_controller.h"
@@ -26,13 +27,15 @@ ExoFrame::ExoFrame(
     const std::string& name,
     content::WebContents* web_contents,
     ExoFrameWrap* wrapper)
-  : name_(name),
+  : WebContentsObserver(web_contents),
+    name_(name),
     type_(NOTYPE_FRAME),
     wrapper_(wrapper)
 {
   web_contents_.reset(web_contents);
   registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
       Source<WebContents>(web_contents));
+
 }
 
 ExoFrame::ExoFrame(
@@ -48,6 +51,7 @@ ExoFrame::ExoFrame(
   web_contents_.reset(web_contents);
   registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
       Source<WebContents>(web_contents));
+  WebContentsObserver::Observe(web_contents);
 }
 
 void
@@ -113,6 +117,81 @@ ExoFrame::Focus()
   web_contents_->GetView()->Focus();
 }
 
+/******************************************************************************/
+/*                    WEBCONTENTSOBSERVER IMPLEMENTATION                      */
+/******************************************************************************/
+
+void 
+ExoFrame::DidUpdateFaviconURL(
+    int32 page_id,
+    const std::vector<FaviconURL>& candidates)
+{
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::DispatchFaviconUpdate, wrapper_, candidates));
+}
+
+void 
+ExoFrame::ProvisionalChangeToMainFrameUrl(
+    const GURL& url,
+    content::RenderViewHost* render_view_host)
+{
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::DispatchPendingURL, wrapper_, url.spec()));
+}
+
+void 
+ExoFrame::DidFailLoad(
+    int64 frame_id,
+    const GURL& validated_url,
+    bool is_main_frame,
+    int error_code,
+    const string16& error_description,
+    RenderViewHost* render_view_host)
+{
+  if(is_main_frame) {
+    std::string desc = UTF16ToUTF8(error_description);
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoFrameWrap::DispatchLoadFail, wrapper_,
+                   validated_url.spec(), error_code, desc));
+  }
+}
+
+void 
+ExoFrame::DidFinishLoad(
+    int64 frame_id,
+    const GURL& validated_url,
+    bool is_main_frame,
+    RenderViewHost* render_view_host)
+{
+  if(is_main_frame) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoFrameWrap::DispatchLoadFinish, wrapper_,
+                   validated_url.spec()));
+  }
+}
+
+void 
+ExoFrame::DidStartLoading(
+    RenderViewHost* render_view_host)
+{
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoFrameWrap::DispatchLoadingStart, wrapper_));
+}
+
+void 
+ExoFrame::DidStopLoading(
+    RenderViewHost* render_view_host)
+{
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoFrameWrap::DispatchLoadingStop, wrapper_));
+}
+
 
 void 
 ExoFrame::Observe(
@@ -128,7 +207,7 @@ ExoFrame::Observe(
       std::string t = UTF16ToUTF8(title->first->GetTitle());
       NodeThread::Get()->PostTask(
           FROM_HERE,
-          base::Bind(&ExoFrameWrap::DispatchTitleUpdated, wrapper_, t));
+          base::Bind(&ExoFrameWrap::DispatchTitleUpdate, wrapper_, t));
     }
   } else {
     NOTREACHED();

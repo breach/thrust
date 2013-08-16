@@ -52,7 +52,7 @@ var exo_frame = function(spec, my) {
   my.ready = false;
   my.parent = null;
   my.type = exports.NOTYPE_FRAME;
-  my.loading = false;
+  my.loading = 0;
   my.title = '';
 
   //
@@ -224,10 +224,42 @@ var exo_frame = function(spec, my) {
     }, function(f) {
       my.internal = f;
 
-      my.internal._setTitleUpdatedCallback(function(title) {
+      my.internal._setTitleUpdateCallback(function(title) {
         my.title = title;
         if(my.parent) {
-          my.parent.emit('frame_title_updated', that, title);
+          my.parent.emit('frame_title_update', that, title);
+        }
+      });
+      my.internal._setFaviconUpdateCallback(function(favicons) {
+        if(my.parent) {
+          my.parent.emit('frame_favicon_update', that, favicons);
+        }
+      });
+      my.internal._setPendingURLCallback(function(url) {
+        if(my.parent) {
+          my.parent.emit('frame_pending_url', that, url);
+        }
+      });
+      my.internal._setLoadFailCallback(function(url, error_code, error_desc) {
+        if(my.parent) {
+          my.parent.emit('frame_load_fail', that, url, error_code, error_desc);
+        }
+      });
+      my.internal._setLoadFinishCallback(function(url) {
+        if(my.parent) {
+          my.parent.emit('frame_load_finish', that, url);
+        }
+      });
+      my.internal._setLoadingStartCallback(function() {
+        if(my.parent) {
+          my.loading++;
+          my.parent.emit('frame_loading_start', that);
+        }
+      });
+      my.internal._setLoadingStopCallback(function() {
+        if(my.parent) {
+          my.loading--;
+          my.parent.emit('frame_loading_stop', that);
         }
       });
 
@@ -263,7 +295,6 @@ var exo_frame = function(spec, my) {
   common.setter(that, 'ready', my, 'ready');
   common.setter(that, 'parent', my, 'parent');
   common.setter(that, 'type', my, 'type');
-  common.setter(that, 'loading', my, 'loading');
   common.setter(that, 'title', my, 'title');
 
   common.method(that, 'pre', pre, _super);
@@ -623,22 +654,10 @@ var exo_browser = function(spec, my) {
         my.ready = false;
         delete exports._exo_browsers[my.name];
       });
-      my.internal._setFrameLoadingStateChangeCallback(function(from, loading) {
-        if(my.frames[from]) {
-          my.frames[from].set_loading(loading);
-          that.emit('frame_loading_state_change', my.frames[from], loading);
-        }
-      });
       my.internal._setFrameCloseCallback(function(from) {
         factory.log().out('frame_close: ' + from);
         if(my.frames[from]) {
           /* TODO(spolu): figure out if this event is useful */
-        }
-      });
-      my.internal._setFrameNavigateCallback(function(from, url) {
-        if(my.frames[from]) {
-          my.frames[from].set_url(url);
-          that.emit('frame_navigate', my.frames[from], url);
         }
       });
       my.internal._setFrameCreatedCallback(function(frame) {
