@@ -6,7 +6,7 @@ All you need to know about Breach:
 
 ### Getting the Source Code & Building Breach
 
-[Building Breach](https://github.com/spolu/breach/wiki/Building-Breach)
+[Building & Updating Breach](https://github.com/spolu/breach/wiki/Building-&-Updating-Breach)
 
 ### Hacking Breach
 
