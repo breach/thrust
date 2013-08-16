@@ -17,6 +17,7 @@
 angular.module('breach.directives').controller('StackCtrl',
   function($scope, _socket) {
     $scope.$watch('entries', function(entries) {
+      entries = entries || [];
       // console.log(JSON.stringify($scope.entries));
       
       entries.forEach(function(e, i) {

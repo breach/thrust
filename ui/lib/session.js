@@ -123,17 +123,20 @@ var session = function(spec, my) {
     my.stack = require('./stack.js').stack({
       session: that
     });
+    my.box = require('./box.js').box({
+      session: that
+    });
 
     async.parallel({
       stack: function(cb_) {
         my.stack.init(cb_);
       },
       box: function(cb_) {
-        /* TODO(spolu): Implement box initialization */
-        return cb_();
+        my.box.init(cb_);
       },
     }, function(err) {
       toggle_stack(true);
+      my.box.show();
     });
 
     my.exo_browser.on('frame_keyboard', function(frame, event) { 
@@ -158,6 +161,9 @@ var session = function(spec, my) {
   common.getter(that, 'name', my, 'name');
   common.getter(that, 'exo_browser', my, 'exo_browser');
   common.getter(that, 'base_url', my, 'base_url');
+
+  common.getter(that, 'stack', my, 'stack');
+  common.getter(that, 'box', my, 'box');
 
   init();
 

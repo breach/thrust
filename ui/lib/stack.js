@@ -25,7 +25,11 @@ var stack = function(spec, my) {
   my = my || {};
   spec = spec || {};
 
-  /* [{ frame, navs: [{ url, last, title, favicon }] }] */
+  /* [{ frame,                  */
+  /*    navs: [{ url,           */
+  /*             last,          */
+  /*             title,         */
+  /*             favicon }] }]  */
   my.entries = [];
 
   //
@@ -163,6 +167,9 @@ var stack = function(spec, my) {
       update.push({ name: e.frame.name(), navs: e.navs })
     });
     my.socket.emit('entries', update);
+    if(my.entries.length > 0) {
+      that.emit('active_entry', my.entries[0]);
+    }
   };
   
 
