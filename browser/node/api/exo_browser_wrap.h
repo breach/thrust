@@ -101,17 +101,9 @@ private:
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchKill();
 
-  static void SetFrameLoadingStateChangeCallback(
-      const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchFrameLoadingStateChange(const std::string& frame, bool loading);
-
   static void SetFrameCloseCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchFrameClose(const std::string& frame);
-
-  static void SetFrameNavigateCallback(
-      const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchFrameNavigate(const std::string& frame, const std::string& url);
 
   static void SetFrameCreatedCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);

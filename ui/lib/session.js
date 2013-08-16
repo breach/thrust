@@ -108,7 +108,7 @@ var session = function(spec, my) {
   //
   init = function() {
     my.exo_browser = api.exo_browser({
-      size: [1200, 800]
+      size: [1200, 768]
     });
     my.name = my.exo_browser.name();
 
@@ -137,10 +137,16 @@ var session = function(spec, my) {
     });
 
     my.exo_browser.on('frame_keyboard', function(frame, event) { 
+      //console.log(JSON.stringify(event));
       if(event.type === 9 &&
          event.modifiers === 2 &&
          event.keycode === 71) {
         toggle_stack();
+      }
+      if(event.type === 9 &&
+         event.modifiers === 2 &&
+         event.keycode === 84) {
+        my.stack.new_entry();
       }
     });
   };

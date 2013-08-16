@@ -241,20 +241,6 @@ ExoBrowser::OpenURLFromTab(
 }
 
 void 
-ExoBrowser::LoadingStateChanged(
-    WebContents* source) 
-{
-  ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
-  if(frame) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchFrameLoadingStateChange, wrapper_, 
-                   frame->name(), source->IsLoading()));
-  }
-}
-
-void 
 ExoBrowser::RequestToLockMouse(
     WebContents* web_contents,
     bool user_gesture,
@@ -319,21 +305,6 @@ ExoBrowser::AddNewContents(
 {
   LOG(INFO) << "AddNewContents";
   /* TODO(spolu): Call into API */
-}
-
-void 
-ExoBrowser::DidNavigateMainFramePostCommit(
-    WebContents* web_contents) 
-{
-  ExoFrame* frame = FrameForWebContents(web_contents);
-  DCHECK(frame != NULL);
-  if(frame) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchFrameNavigate, wrapper_, 
-                   frame->name(),
-                   frame->web_contents_->GetURL().spec()));
-  }
 }
 
 JavaScriptDialogManager* 
