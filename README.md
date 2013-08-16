@@ -11,3 +11,8 @@ All you need to know about Breach:
 ### Hacking Breach
 
 [Breach ExoBrowser JS API Specification](https://github.com/spolu/breach/blob/master/API.md)
+
+### Get in Touch
+
+- Mailing list: [breach-dev@googlegroups.com](https://groups.google.com/forum/#!forum/breach-dev)
+- IRC Channel: #breach on Freenode
