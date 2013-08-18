@@ -54,7 +54,7 @@
   display: inline-block;
   height: 20px;
   width: 20px;
-  margin-top: 5px;
+  margin-top: 4px;
   margin-right: 5px;
   background-color: hsl(228, 14%, 18%);
   border: 1px solid hsl(228, 14%, 12%);
@@ -72,6 +72,10 @@
 .stack .entry > .title {
   font-weight: 700;
   font-size: 0.9em;
+}
+
+.stack .entry.active > .title {
+  margin-top: 7px;
 }
 
 .stack .entry > .url {

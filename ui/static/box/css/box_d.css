@@ -11,26 +11,44 @@
   border-bottom: 1px solid hsl(228, 14%, 75%);
   color: black;
   height: 34px;
+  width: 100%;
 }
 
+
 .box > a.button {
-  display: inline-block;
-  height: 25px;
-  width: 25px;
-  margin-top: 2px;
-  border: 1px solid hsl(228, 14%, 85%);
+  display: block;
+
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  top: 4px;
+
+  border: 1px solid hsl(228, 14%, 95%);
   text-align: center;
   border-radius: 2px;
 
+  cursor: pointer;
+}
+
+.box > a.button:hover {
+  border: 1px solid hsl(228, 14%, 85%);
+}
+
+.box > a.button.prev {
+  left: 3px;
+}
+.box > a.button.next {
+  left: 32px;
 }
 
 .box > input,
 .box > input:focus {
-  margin: 0;
-  margin-top: 3px;
-  margin-left: 2px;
-  width: 400px;
+  position: absolute;
+  top: 3px;
   height: 25px;
+  left: 63px;
+  right: 3px;
+
   line-height: 20px;
   color: hsl(200, 0%, 40%);
   background-color: hsl(200, 0%, 100%);
