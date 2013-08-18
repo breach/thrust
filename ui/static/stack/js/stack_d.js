@@ -16,6 +16,31 @@
 //
 angular.module('breach.directives').controller('StackCtrl',
   function($scope, _socket) {
+
+    $scope.selection = 0;
+
+    jQuery('body').bind('keyup.viewer', function(e) {
+      $scope.$apply(function() {
+        if(e.which === 74) { /* J */
+          $scope.selection = ($scope.selection + 1) 
+                        % $scope.entries.length;
+        }
+        if(e.which === 75) { /* K */
+          $scope.selection = ($scope.selection - 1 + $scope.entries.length) 
+                        % $scope.entries.length;
+        }
+        if(e.which === 13) { /* ENTER */
+          _socket.emit('select_entry', 
+                       $scope.entries[$scope.selection].name);
+          $scope.selection = 0;
+        }
+      });
+    });
+
+    $scope.is_selected = function(entry) {
+      return ($scope.entries[$scope.selection].name === entry.name);
+    };
+
     $scope.$watch('entries', function(entries) {
       entries = entries || [];
       // console.log(JSON.stringify($scope.entries));

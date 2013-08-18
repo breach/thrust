@@ -144,7 +144,13 @@ var session = function(spec, my) {
       if(event.type === 9 &&
          event.modifiers === 2 &&
          event.keycode === 71) {
-        toggle_stack();
+        toggle_stack(true);
+        /* TODO(spolu): focus on stack */
+      }
+      if(event.type === 9 &&
+         event.modifiers === 2 &&
+         event.keycode === 72) {
+        toggle_stack(false);
       }
       if(event.type === 9 &&
          event.modifiers === 2 &&

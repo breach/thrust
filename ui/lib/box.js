@@ -43,6 +43,7 @@ var box = function(spec, my) {
 
   var stack_active_entry;   /* frame_load_finish(frame, url); */
   var socket_box_input;     /* socket_box_input(input); */
+  var socket_box_submit;    /* socket_box_submit(input); */
   
   //
   // ### _protected_
@@ -83,6 +84,7 @@ var box = function(spec, my) {
     _super.handshake(socket);
 
     my.socket.on('box_input', socket_box_input);
+    my.socket.on('box_submit', socket_box_submit);
     push();
   };
 
@@ -151,6 +153,22 @@ var box = function(spec, my) {
   // ```
   //
   socket_box_input = function(input) {
+  };
+  
+  //
+  // ### socket_box_submit
+  //
+  // Received whenever the box input is submitted by the user
+  //
+  // ```
+  // @input {string} the box input string
+  // ```
+  //
+  socket_box_submit = function(input) {
+    var active = my.session.stack().active_entry();
+    if(active) {
+      active.frame.load_url(input);
+    }
   };
 
 

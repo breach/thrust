@@ -2,7 +2,7 @@
   <div ng-repeat="entry in entries"
        class="entry" 
        ng-click="select_entry(entry)"
-       ng-class="{ active: entry.active }">
+       ng-class="{ selected: is_selected(entry), active: entry.active }">
     <div class="favicon" 
          style="background-image: url({{entry.favicon}});"></div>
     <div class="title">{{entry.title|truncate:30}}</div>

@@ -41,8 +41,8 @@
   left: 32px;
 }
 
-.box > input,
-.box > input:focus {
+.box > form > input,
+.box > form > input:focus {
   position: absolute;
   top: 3px;
   height: 25px;

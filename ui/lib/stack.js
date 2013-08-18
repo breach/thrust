@@ -13,13 +13,11 @@ var common = require('./common.js');
 var factory = common.factory;
 var api = require('./api.js');
 
-//
 // ### stack
 //
 // ```
 // @spec { session }
 // ```
-//
 var stack = function(spec, my) {
   var _super = {};
   my = my || {};
@@ -35,10 +33,11 @@ var stack = function(spec, my) {
   //
   // ### _public_
   //
-  var init;       /* init(cb_); */
-  var handshake;  /* handshake(); */
+  var init;         /* init(cb_); */
+  var handshake;    /* handshake(); */
 
-  var new_entry;  /* new_entry([url]); */
+  var new_entry;    /* new_entry([url]); */
+  var active_entry; /* active_entry(); */
 
   //
   // ### _private_
@@ -71,24 +70,19 @@ var stack = function(spec, my) {
   /****************************************************************************/
   /*                            CONTROL INTERFACE                             */
   /****************************************************************************/
-  //
   // ### dimension
   //  
   // Returns the desired canonical dimension
-  // 
   dimension = function() {
     return 250;
   };
 
-  // 
   // ### handshake
   //
   // Receives the socket and sets up events
-  //
   // ```
   // @socket {socket.io socket}
   // ```
-  //
   handshake = function(socket) {
     _super.handshake(socket);
 
@@ -97,16 +91,13 @@ var stack = function(spec, my) {
     new_entry();
   };
 
-  //
   // ### init
   // 
   // Initialization (asynchronous) [see control.js]. Also sets up the event
   // handlers on the exo_browser events
-  // 
   // ```
   // @cb_ {function(err)} callack
   // ```
-  //
   init = function(cb_) {
     _super.init(cb_);
 
@@ -120,16 +111,13 @@ var stack = function(spec, my) {
   /****************************************************************************/
   /*                             PRIVATE HELPERS                              */
   /****************************************************************************/
-  //
   // ### entry_for_frame
   //
   // Retrieves the entry associated with this frame if it exists within this
   // stack or null otherwise
-  // 
   // ```
   // @frame {exo_frame} the frame to search for
   // ```
-  //
   entry_for_frame = function(frame) {
     for(var i = 0; i < my.entries.length; i ++) {
       if(my.entries[i].frame === frame)
@@ -138,16 +126,13 @@ var stack = function(spec, my) {
     return null;
   };
 
-  //
   // ### entry_for_frame_name
   //
   // Retrieves the entry associated with this frame_name if it exists within 
   // this stack or null otherwise
-  // 
   // ```
   // @frame {exo_frame} the frame to search for
   // ```
-  //
   entry_for_frame_name = function(name) {
     for(var i = 0; i < my.entries.length; i ++) {
       if(my.entries[i].frame.name() === name)
@@ -176,18 +161,15 @@ var stack = function(spec, my) {
   /****************************************************************************/
   /*                            EXOBROWSER EVENTS                             */
   /****************************************************************************/
-  //
   // ### frame_load_finish
   //
   // We receive the final URL. We don't create a new nav we only update the
   // most recent one as it must have been preceded by a call to
   // `frame_pending_url`
-  //
   // ```
   // @frame {exo_frame} the target frame
   // @url   {string} the new url
   // ```
-  //
   frame_load_finish = function(frame, url) {
     var e = entry_for_frame(frame);
     if(e && e.navs.length > 0) {
@@ -204,12 +186,10 @@ var stack = function(spec, my) {
   // ### frame_pending_url
   //
   // ExoBrowser event handler to update internal state of stack
-  //
   // ```
   // @frame {exo_frame} the target frame
   // @url   {string} the new url
   // ```
-  //
   frame_pending_url = function(frame, url) {
     var e = entry_for_frame(frame);
     if(e) {
@@ -236,16 +216,13 @@ var stack = function(spec, my) {
     }
   };
 
-  //
   // ### frame_title_update
   //
   // ExoBrowser event handler to update internal state of stack
-  //
   // ```
   // @frame {exo_frame} the target frame
   // @title {string} the new title
   // ```
-  //
   frame_title_update = function(frame, title) {
     var e = entry_for_frame(frame);
     if(e && e.navs.length > 0) {
@@ -255,16 +232,13 @@ var stack = function(spec, my) {
     }
   };
 
-  //
   // ### frame_favicon_update
   //
   // Received whenever a favicon url is retrieved
-  //
   // ```
   // @frame    {exo_frame} the target frame
   // @favicons {array} array of candidates favicon urls
   // ```
-  //
   frame_favicon_update = function(frame, favicons) {
     /* TODO(spolu): for now we take the frist one always. Add the type into */
     /* the API so that a better logic can be implemented here.              */
@@ -281,15 +255,12 @@ var stack = function(spec, my) {
   /****************************************************************************/
   /*                          SOCKET EVENT HANDLERS                           */
   /****************************************************************************/
-  //
   // ### socket_select_entry
   //
   // Received when an entry is selected from the UI
-  // 
   // ```
   // @name {string} the frame name of the entry
   // ```
-  //
   socket_select_entry = function(name) {
     for(var i = 0; i < my.entries.length; i ++) {
       if(my.entries[i].frame.name() === name) {
@@ -305,11 +276,9 @@ var stack = function(spec, my) {
   /****************************************************************************/
   /*                              PUBLIC METHODS                              */
   /****************************************************************************/
-  //
   // ### new_entry
   //
   // Creates a new entry for the provided url or a default one if not specified.
-  //
   // ```
   // @url {string} the url to navigate to
   // ```
@@ -330,12 +299,23 @@ var stack = function(spec, my) {
     });
     push();
   };
+
+  // ### active_entry
+  //
+  // Returns the current actrive entry
+  active_entry = function() {
+    if(my.entries.length > 0) {
+      return my.entries[0]
+    }
+    return null;
+  };
   
 
   common.method(that, 'init', init, _super);
   common.method(that, 'handshake', handshake, _super);
   common.method(that, 'dimension', dimension, _super);
   common.method(that, 'new_entry', new_entry, _super);
+  common.method(that, 'active_entry', active_entry, _super);
   
   return that;
 };

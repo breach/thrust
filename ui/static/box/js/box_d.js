@@ -19,6 +19,14 @@ angular.module('breach.directives').controller('BoxCtrl',
     $scope.$watch('active_url', function(active_url) {
       console.log('BOX_D ACTIVE URL: ' + active_url);
     });
+
+    $scope.$watch('input', function(input) {
+      _socket.emit('box_input', input);
+    });
+
+    $scope.submit = function() {
+      _socket.emit('box_submit', $scope.input);
+    };
   });
 
 //
