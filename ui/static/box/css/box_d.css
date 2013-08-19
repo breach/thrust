@@ -1,0 +1,63 @@
+.box {
+  background-color: hsl(228, 7%, 95%);
+  background: -webkit-gradient(radial, 
+                               100 36,
+                               0,
+                               100 -40,
+                               120,
+                               from(hsl(0, 0%, 98%)),
+                               to(hsl(0, 0%, 95%))),
+              hsl(0, 0%, 95%);
+  border-bottom: 1px solid hsl(228, 14%, 75%);
+  color: black;
+  height: 34px;
+  width: 100%;
+}
+
+
+.box > a.button {
+  display: block;
+
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  top: 4px;
+
+  border: 1px solid hsl(228, 14%, 95%);
+  text-align: center;
+  border-radius: 2px;
+
+  cursor: pointer;
+}
+
+.box > a.button:hover {
+  border: 1px solid hsl(228, 14%, 85%);
+}
+
+.box > a.button.prev {
+  left: 3px;
+}
+.box > a.button.next {
+  left: 32px;
+}
+
+.box > form > input,
+.box > form > input:focus {
+  position: absolute;
+  top: 3px;
+  height: 25px;
+  left: 63px;
+  right: 3px;
+
+  line-height: 20px;
+  color: hsl(200, 0%, 40%);
+  background-color: hsl(200, 0%, 100%);
+  border: 0;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .3), 
+              0 1px 0 rgba(255, 255, 255, .3);
+  outline: none !important;
+  border-radius: 2px;
+  padding-left: 5px;
+  font-size: 0.8;
+  font-weight: 500;
+}

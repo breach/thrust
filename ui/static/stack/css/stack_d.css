@@ -8,15 +8,14 @@
   background: -webkit-linear-gradient(top, 
                                       hsl(220, 12%, 10%), 
                                       hsl(220, 12%, 20%));
-  border-right: 1px solid hsl(220, 12%, 5%);
 }
 
 
 .stack .entry {
   color: white;
   background-color: hsl(228, 14%, 14%);
-  padding-top: 4px;
-  height: 36px;
+  padding-top: 2px;
+  height: 32px;
   line-height: 14px;
   padding-left: 5px;
   padding-right: 5px;
@@ -25,15 +24,24 @@
   cursor: pointer;
 }
 
+.stack .entry:not(.active) {
+  border-right: 1px solid hsl(220, 12%, 5%);
+}
+
 .stack .entry:not(.active):hover {
   background-color: hsl(228, 14%, 16%);
   border-bottom: 1px solid hsl(228, 14%, 20%);
 }
 
+.stack .entry.selected:not(.active) {
+  background-color: hsl(228, 14%, 30%);
+  border-bottom: 1px solid hsl(228, 14%, 16%);
+}
+
 .stack .entry.active {
   cursor: default;
-  background-color: hsl(228, 7%, 55%);
-  border-bottom: 1px solid hsl(228, 14%, 18%);
+  background-color: hsl(228, 7%, 95%);
+  border-bottom: 1px solid hsl(228, 14%, 25%);
   background: -webkit-gradient(radial, 
                                100 36,
                                0,
@@ -42,6 +50,7 @@
                                from(hsl(0, 0%, 98%)),
                                to(hsl(0, 0%, 95%))),
               hsl(0, 0%, 95%);
+  color: black;
 }
 
 
@@ -50,18 +59,28 @@
   display: inline-block;
   height: 20px;
   width: 20px;
-  margin-top: 5px;
+  margin-top: 4px;
   margin-right: 5px;
   background-color: hsl(228, 14%, 18%);
   border: 1px solid hsl(228, 14%, 12%);
-  -webkit-border-radius: 3px;
+  border-radius: 3px;
   background-size: cover;
 
 }
 
+.stack .entry.active > .favicon {
+  background-color: hsl(228, 7%, 90%);
+  border: 1px solid hsl(228, 14%, 85%);
+}
+
+
 .stack .entry > .title {
   font-weight: 700;
   font-size: 0.9em;
+}
+
+.stack .entry.active > .title {
+  margin-top: 7px;
 }
 
 .stack .entry > .url {
