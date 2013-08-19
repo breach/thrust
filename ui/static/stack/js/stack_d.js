@@ -47,12 +47,12 @@ angular.module('breach.directives').controller('StackCtrl',
       
       entries.forEach(function(e, i) {
         if(e.navs.length > 0) {
-          e.url = e.navs[0].url || '';
+          e.url = e.navs[0].url;
           e.title = e.navs[0].title || '';
           e.favicon = e.navs[0].favicon || '';
         }
         else {
-          e.url = '';
+          e.url = { hostname: '', href: '' };
           e.title = '';
           e.favicon = '';
         }

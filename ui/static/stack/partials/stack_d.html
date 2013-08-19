@@ -6,6 +6,8 @@
     <div class="favicon" 
          style="background-image: url({{entry.favicon}});"></div>
     <div class="title">{{entry.title|truncate:30}}</div>
-    <div class="url" ng-hide="entry.active">{{entry.url|truncate:40}}</div>
+    <div class="url" ng-hide="entry.active">
+      {{entry.url.hostname|truncate:40}}
+    </div>
   </div>
 </div>

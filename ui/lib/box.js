@@ -34,8 +34,6 @@ var box = function(spec, my) {
   var init;           /* init(cb_); */
   var handshake;      /* handshake(); */
 
-  var google_search;  /* new_entry([url]); */
-
   //
   // ### _private_
   //
@@ -68,7 +66,7 @@ var box = function(spec, my) {
   // Returns the desired canonical dimension
   // 
   dimension = function() {
-    return 41;
+    return 35;
   };
 
   // 
@@ -134,7 +132,7 @@ var box = function(spec, my) {
   //
   stack_active_entry = function(entry) {
     if(entry.navs.length > 0 && 
-       entry.navs[0].url !== my.active_url) {
+       entry.navs[0].url.href !== my.active_url.href) {
       my.active_url = entry.navs[0].url;
       push();
     }
@@ -158,7 +156,11 @@ var box = function(spec, my) {
   //
   // ### socket_box_submit
   //
-  // Received whenever the box input is submitted by the user
+  // Received whenever the box input is submitted by the user. We operate an 
+  // heuristic here, if we detect that it is an url, we sanitize it and navigate
+  // to it.
+  //
+  // Otherwise, we perform a google search
   //
   // ```
   // @input {string} the box input string
@@ -167,7 +169,20 @@ var box = function(spec, my) {
   socket_box_submit = function(input) {
     var active = my.session.stack().active_entry();
     if(active) {
-      active.frame.load_url(input);
+      var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
+      var http_r = /^http(s{0,1})\:\/\//;
+      if(url_r.test(input)) {
+        if(!http_r.test(input)) {
+          input = 'http://' + input;
+        }
+        active.frame.load_url(input);
+      }
+      else {
+        var search_url = 'https://www.google.com/search?' +
+                            'q=' + escape(input) + '&' +
+                            'ie=UTF-8';
+        active.frame.load_url(search_url);
+      }
     }
   };
 

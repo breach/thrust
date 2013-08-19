@@ -34,8 +34,8 @@
 }
 
 .stack .entry.selected:not(.active) {
-  background-color: hsl(228, 14%, 16%);
-  border-bottom: 1px solid hsl(228, 14%, 20%);
+  background-color: hsl(228, 14%, 30%);
+  border-bottom: 1px solid hsl(228, 14%, 16%);
 }
 
 .stack .entry.active {

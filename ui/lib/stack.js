@@ -24,7 +24,7 @@ var stack = function(spec, my) {
   spec = spec || {};
 
   /* [{ frame,                  */
-  /*    navs: [{ url,           */
+  /*    navs: [{ url (spec),    */
   /*             last,          */
   /*             title,         */
   /*             favicon }] }]  */
@@ -168,15 +168,17 @@ var stack = function(spec, my) {
   // `frame_pending_url`
   // ```
   // @frame {exo_frame} the target frame
-  // @url   {string} the new url
+  // @raw_url   {string} the new url
   // ```
-  frame_load_finish = function(frame, url) {
+  frame_load_finish = function(frame, raw_url) {
     var e = entry_for_frame(frame);
+    var url = require('url').parse(raw_url || '');
+
     if(e && e.navs.length > 0) {
-      console.log('[STACK] FINAL: ' + url);
+      console.log('[STACK] FINAL: ' + url.href);
       e.navs[0].url = url;
       if(e.navs[0].title === 'Loading...') {
-        e.navs[0].title = require('url').parse(url).hostname + ' - No TItLe';
+        e.navs[0].title = url.hostname + ' - No TiTLe';
       }
       e.navs[0].last = new Date();
       push();
@@ -188,16 +190,18 @@ var stack = function(spec, my) {
   // ExoBrowser event handler to update internal state of stack
   // ```
   // @frame {exo_frame} the target frame
-  // @url   {string} the new url
+  // @raw_url   {string} the new url
   // ```
-  frame_pending_url = function(frame, url) {
+  frame_pending_url = function(frame, raw_url) {
     var e = entry_for_frame(frame);
+    var url = require('url').parse(raw_url || '');
+
     if(e) {
-      console.log('[STACK] PENDING: ' + url);
+      console.log('[STACK] PENDING: ' + url.href);
       var i = 0;
       var exists = false;
       for(var i = e.navs.length - 1; i >= 0; i--) {
-        if(e.navs[i].url === url) {
+        if(e.navs[i].url.href === url.href) {
           var nav = e.navs.splice(i, 1)[0];
           nav.last = new Date();
           e.navs.unshift(nav);
@@ -279,6 +283,7 @@ var stack = function(spec, my) {
   // ### new_entry
   //
   // Creates a new entry for the provided url or a default one if not specified.
+  // The url is supposed to be a valid url. There's nothing smart here.
   // ```
   // @url {string} the url to navigate to
   // ```
