@@ -136,11 +136,13 @@ var control = function(spec, my) {
   handshake = function(socket) {
     my.socket = socket;
     factory.log().out('HANDSHAKE: ' + my.name);
-    if(my.init_cb_)
-      return my.init_cb_();
-    /* We make sure to call init_cb_ only once as multuple handshakes could */
-    /* happen (reload for dev) */
-    delete my.init_cb_();
+    if(my.init_cb_) {
+      var cb_ = my.init_cb_;
+      /* We make sure to call init_cb_ only once as multuple handshakes could */
+      /* happen (reload for dev) */
+      delete my.init_cb_;
+      return cb_();
+    }
   };
 
   common.method(that, 'init', init, _super);
