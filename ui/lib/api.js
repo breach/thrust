@@ -23,7 +23,6 @@ exports.PAGE_FRAME = 2;
 
 exports.frame_count = 0;
 
-//
 // ## exo_frame
 //
 // Wrapper around the internal API representation of an ExoFrame. It alos serves
@@ -34,11 +33,9 @@ exports.frame_count = 0;
 // human readable name.
 //
 // The `url` argument is expected.
-//
 // ```
 // @spec { url, [name] }
 // ```
-//
 var exo_frame = function(spec, my) {
   var _super = {};
   my = my || {};
@@ -76,16 +73,13 @@ var exo_frame = function(spec, my) {
   var that = new events.EventEmitter();
 
 
-  //
   // ### pre
   //
   // Takes care of the syncronization. If the frame is not yet ready it will
   // wait on the `ready` event.
-  //
   // ```
   // @cb_ {function(err)}
   // ```
-  //
   pre = function(cb_) {
     if(!my.ready) {
       that.on('ready', function() {
@@ -97,15 +91,12 @@ var exo_frame = function(spec, my) {
     }
   };
 
-  //
   // ### load_url
   //
   // Loads the specified url within this frame.
-  //
   // ```
   // @url {string} the url to load
   // @cb_ {function(err)} [optional]
-  //
   load_url = function(url, cb_) {
     pre(function(err) {
       if(err) {
@@ -121,16 +112,13 @@ var exo_frame = function(spec, my) {
     });
   };
 
-  //
   // ### go_back_or_forward
   //
   // Goes back or forward in history for that frame
-  //
   // ```
   // @offset {number} where we go in history
   // @cb_    {functio(err)}
   // ```
-  //
   go_back_or_forward = function(offset, cb_) {
     pre(function(err) {
       if(err) {
@@ -144,15 +132,12 @@ var exo_frame = function(spec, my) {
     });
   };
 
-  //
   // ### reload
   //
   // Reloads the frame
-  //
   // ```
   // @cb_    {functio(err)}
   // ```
-  //
   reload = function(cb_) {
     pre(function(err) {
       if(err) {
@@ -166,15 +151,12 @@ var exo_frame = function(spec, my) {
     });
   };
 
-  //
   // ### stop
   //
   // Stops the frame
-  //
   // ```
   // @cb_    {functio(err)}
   // ```
-  //
   stop = function(cb_) {
     pre(function(err) {
       if(err) {
@@ -189,15 +171,12 @@ var exo_frame = function(spec, my) {
   };
 
 
-  //
   // ### focus
   //
   // Focuses the frame
-  //
   // ```
   // @cb_    {functio(err)}
   // ```
-  //
   stop = function(cb_) {
     pre(function(err) {
       if(err) {
@@ -212,11 +191,9 @@ var exo_frame = function(spec, my) {
   };
 
 
-  //
   // ### init
   //
   // Runs initialization procedure.
-  //
   init = function() {
     _breach._createExoFrame({
       name: my.name,
@@ -318,7 +295,6 @@ exports.RIGHT_CONTROL = 4;
 exports.browser_count = 0;
 
 
-//
 // ## exo_browser
 //
 // Wrapper around the internal API representation of an ExoBrowser. It also
@@ -331,11 +307,9 @@ exports.browser_count = 0;
 // ExoFrames are named objects. Their names are expected to be uniques. If no
 // name is specifed a statically incremented counter is used to provide a unique
 // human readable name.
-//
 // ```
 // @spec { size, [name] }
 // ```
-//
 var exo_browser = function(spec, my) {
   var _super = {};
   my = my || {};
@@ -368,6 +342,7 @@ var exo_browser = function(spec, my) {
   // #### _public_
   //
   var kill;                  /* kill([cb_]); */
+  var focus;                 /* focus([cb_]); */
 
   var set_control;           /* set_control(type, frame, [cb_]); */
   var unset_control;         /* unset_control(type, [cb_]); */
@@ -388,16 +363,13 @@ var exo_browser = function(spec, my) {
   //
   var that = new events.EventEmitter();
 
-  //
   // ### pre
   //
   // Takes care of the syncronization. If the browser is not yet ready it will
   // wait on the `ready` event. If the browser is killed it will return an error
-  //
   // ```
   // @cb_ {function(err)}
   // ```
-  //
   pre = function(cb_) {
     if(my.killed)
       return cb_(new Error('Browser has already been killed'));
@@ -411,17 +383,35 @@ var exo_browser = function(spec, my) {
     }
   };
 
-  //
+  // ### focus
+  // 
+  // Attempts to focus on the browser window depending on what the native
+  // platform lets us do.
+  // ```
+  // @cb_ {function(err)} [optional]
+  // ```
+  focus = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._focus(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+
   // ### set_control
   //
   // Adds the specified as a control for the given type
-  //
   // ```
   // @type  {control_type} the type (see exports constants)
   // @frame {exo_frame} the frame to set as control
   // @cb_   {function(err)} [optional]
   // ```
-  //
   set_control = function(type, frame, cb_) {
     /* We take care of "synchronization" */
     async.parallel([ pre, frame.pre ], function(err) {
@@ -446,16 +436,13 @@ var exo_browser = function(spec, my) {
     });
   };
 
-  //
   // ### unset_control
   //
   // Unsets the control specified by type (returns its frame if it was set)
-  //
   // ```
   // @type  {control_type} the type (see exports constants)
   // @cb_   {function(err, frame)} [optional]
   // ```
-  //
   unset_control = function(type, cb_) {
     pre(function(err) {
       if(err) {
@@ -476,17 +463,14 @@ var exo_browser = function(spec, my) {
     });
   };
 
-  //
   // ### set_control_dimension
   //
   // Sets the given size as pixels as canonical dimension for the control
-  //
   // ```
   // @type  {Number} the type (see exports contants)
   // @size  {Number} the size in pixels
   // @cb_   {function(err, frame)} [optional]
   // ```
-  //
   set_control_dimension = function(type, size, cb_) {
     pre(function(err) {
       if(err) {
@@ -507,16 +491,13 @@ var exo_browser = function(spec, my) {
     });
   };
 
-  //
   // ### add_page
   //
   // Adds a page to the browser. The visible page is not altered by this method
-  //
   // ```
   // @frame {exo_frame} the frame to add as a page
   // @cb_   {funciton(err)
   // ```
-  //
   add_page = function(frame, cb_) {
     /* We take care of "synchronization" */
     async.parallel([ pre, frame.pre ], function(err) {
@@ -535,11 +516,9 @@ var exo_browser = function(spec, my) {
     });
   };
 
-  //
   // ### remove_page
   //
   // Removes the specified page
-  //
   // ```
   // @frame {exo_frame} the frame to add as a page
   // @cb_   {funciton(err)
@@ -566,16 +545,13 @@ var exo_browser = function(spec, my) {
     });
   };
 
-  //
   // ### show_page
   //
   // Shows the provided page in the browser.
-  // 
   // ```
   // @frame {exo_frame} the frame to add as a page
   // @cb_   {funciton(err)
   // ```
-  //
   show_page = function(frame, cb_) {
     /* We take care of "synchronization" */
     async.parallel([ pre, frame.pre ], function(err) {
@@ -600,16 +576,13 @@ var exo_browser = function(spec, my) {
   };
 
 
-  //
   // ### kill
   //
   // Kills the browser, removes it from the internal registry and deletes its
   // internal representation so that the native objects get deleted.
-  // 
   // ```
   // @cb_ {function(err)} [optional]
   // ```
-  //
   kill = function(cb_) {
     pre(function(err) {
       if(err) {
@@ -619,18 +592,16 @@ var exo_browser = function(spec, my) {
         /* The `Kill` Callback is going to be called so we should not do  */
         /* anything here, esp. as `KIll` can be called internally (window */
         /* closed).                                                       */
-        my.internal.Kill(function() {
+        my.internal._kill(function() {
           if(cb_) return cb_();
         });
       }
     });
   };
 
-  //
   // ### init
   //
   // Runs initialization procedure and adds itself to the internal registry.
-  //
   init = function() {
     _breach._createExoBrowser({
       size: my.size
@@ -684,6 +655,8 @@ var exo_browser = function(spec, my) {
   common.getter(that, 'controls', my, 'controls');
   common.getter(that, 'pages', my, 'pages');
 
+  common.method(that, 'kill', kill, _super);
+
   common.method(that, 'set_control', set_control, _super);
   common.method(that, 'unset_control', unset_control, _super);
   common.method(that, 'set_control_dimension', set_control_dimension, _super);
@@ -692,7 +665,7 @@ var exo_browser = function(spec, my) {
   common.method(that, 'remove_page', remove_page, _super);
   common.method(that, 'show_page', show_page, _super);
 
-  common.method(that, 'kill', kill, _super);
+  common.method(that, 'focus', focus, _super);
 
   return that;
 };

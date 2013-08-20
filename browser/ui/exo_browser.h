@@ -199,6 +199,11 @@ public:
   void RemoveFrame(const std::string& name);
 
 
+  // ### Focus
+  // Focuses the ExoBrowser window
+  void Focus() { PlatformFocus(); }
+
+
   // ### Kill
   // Kills the ExoBrowser and remove all of its frame. The ExoBrowser object 
   // will not be deleted on kill (as it will be reclaimed when the JS object 
@@ -307,6 +312,10 @@ private:
   // ### PlatformSetTitle 
   // Set the title of ExoBrowser window.
   void PlatformSetTitle(const std::string& title);
+
+  // ### PlatformFocus
+  // Focuses the ExoBrowser window
+  void PlatformFocus();
 
 
   // ### PlatformAddPage

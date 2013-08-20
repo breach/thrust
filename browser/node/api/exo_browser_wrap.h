@@ -55,6 +55,9 @@ private:
   void PositionTask(gfx::Point* position,
                     v8::Persistent<v8::Function>* cb_p);
 
+  static void Focus(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void FocusTask(v8::Persistent<v8::Function>* cb_p);
+
 
   static void SetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */

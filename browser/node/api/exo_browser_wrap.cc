@@ -34,6 +34,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(Size)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_position"),
       FunctionTemplate::New(Position)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
+      FunctionTemplate::New(Focus)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_addPage"),
       FunctionTemplate::New(AddPage)->GetFunction());
@@ -277,6 +279,34 @@ ExoBrowserWrap::PositionTask(
       base::Bind(&ExoBrowserWrap::PointCallback, this, cb_p, position));
 }
 
+
+void 
+ExoBrowserWrap::Focus(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoBrowserWrap::FocusTask, browser_w, cb_p));
+}
+
+void
+ExoBrowserWrap::FocusTask(
+    Persistent<Function>* cb_p)
+{
+  browser_->Focus();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
+}
 
 
 

@@ -83,8 +83,9 @@ _breach._createExoBrowser({
   size: [123, 23]
 }, cb_);
 
-b.size(cb_);
-b.position(cb_);
+b._size(cb_);
+b._position(cb_);
+b._focus(cb_);
 
 b._setOpenURLCallback(cb_);
 b._setResizeCallback(cb_);
