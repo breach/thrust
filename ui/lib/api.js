@@ -177,7 +177,7 @@ var exo_frame = function(spec, my) {
   // ```
   // @cb_    {functio(err)}
   // ```
-  stop = function(cb_) {
+  focus = function(cb_) {
     pre(function(err) {
       if(err) {
         if(cb_) return cb_(err);
@@ -253,6 +253,7 @@ var exo_frame = function(spec, my) {
   common.method(that, 'go_back_or_forward', go_back_or_forward, _super);
   common.method(that, 'reload', reload, _super);
   common.method(that, 'stop', stop, _super);
+  common.method(that, 'focus', focus, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');

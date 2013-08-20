@@ -204,6 +204,7 @@ ExoBrowser::RemoveFrame(
 
 }
 
+
 void
 ExoBrowser::Kill()
 {
@@ -320,6 +321,7 @@ void
 ExoBrowser::ActivateContents(
     WebContents* contents) 
 {
+  LOG(INFO) << "Activate Content";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }
@@ -328,6 +330,7 @@ void
 ExoBrowser::DeactivateContents(
     WebContents* contents) 
 {
+  LOG(INFO) << "Dectivate Content";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API (blur) */
 }

@@ -15,7 +15,7 @@
 // `box` directive controller
 //
 angular.module('breach.directives').controller('BoxCtrl',
-  function($scope, _socket) {
+  function($scope, $element, $window, _socket) {
     $scope.$watch('active_url', function(active_url) {
       console.log('BOX_D ACTIVE URL: ' + active_url);
     });

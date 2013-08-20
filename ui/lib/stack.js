@@ -141,11 +141,9 @@ var stack = function(spec, my) {
     return null;
   };
 
-  //
   // ### push
   //
   // Pushes the entries to the control ui for update
-  // 
   push = function() {
     var update = [];
     my.entries.forEach(function(e) {
@@ -285,10 +283,11 @@ var stack = function(spec, my) {
   // Creates a new entry for the provided url or a default one if not specified.
   // The url is supposed to be a valid url. There's nothing smart here.
   // ```
-  // @url {string} the url to navigate to
+  // @url        {string} the url to navigate to
   // ```
   //
   new_entry = function(url) {
+    var box_focus = !url ? true : false;
     url = url || (my.session.base_url() + '/home.html');
 
     var e = {
@@ -300,7 +299,16 @@ var stack = function(spec, my) {
 
     my.entries.unshift(e);
     my.session.exo_browser().add_page(e.frame, function() {
-      my.session.exo_browser().show_page(e.frame);
+      my.session.exo_browser().show_page(e.frame, function() {
+        if(!box_focus) {
+          e.frame.focus();
+        }
+        else {
+          setTimeout(function() {
+            my.session.box().focus();
+          }, 100);
+        }
+      });
     });
     push();
   };

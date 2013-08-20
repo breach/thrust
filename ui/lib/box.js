@@ -60,24 +60,19 @@ var box = function(spec, my) {
   /****************************************************************************/
   /*                            CONTROL INTERFACE                             */
   /****************************************************************************/
-  //
   // ### dimension
   //  
   // Returns the desired canonical dimension
-  // 
   dimension = function() {
     return 35;
   };
 
-  // 
   // ### handshake
   //
   // Receives the socket and sets up events
-  //
   // ```
   // @socket {socket.io socket}
   // ```
-  //
   handshake = function(socket) {
     _super.handshake(socket);
 
@@ -86,16 +81,13 @@ var box = function(spec, my) {
     push();
   };
 
-  //
   // ### init
   // 
   // Initialization (asynchronous) [see control.js]. Also sets up the event
   // handlers on the stack control.
-  // 
   // ```
   // @cb_ {function(err)} callack
   // ```
-  //
   init = function(cb_) {
     _super.init(cb_);
 
@@ -105,12 +97,10 @@ var box = function(spec, my) {
   /****************************************************************************/
   /*                             PRIVATE HELPERS                              */
   /****************************************************************************/
-  //
   // ### push
   //
   // Pushes the current active entry url to the control UI for eventual update 
   // (The url might not get directly updated if it is being edited, etc)
-  // 
   push = function() {
     if(my.socket) {
       my.socket.emit('active_url', my.active_url);
@@ -120,16 +110,13 @@ var box = function(spec, my) {
   /****************************************************************************/
   /*                             STACK EVENTS                                 */
   /****************************************************************************/
-  //
   // ### stack_active_entry
   //
   // Received from the stack whenever the active entry is updated as it can
   // potentially impact the url to display
-  //
   // ```
   // @entry {object} the current active entry
   // ```
-  //
   stack_active_entry = function(entry) {
     if(entry.navs.length > 0 && 
        entry.navs[0].url.href !== my.active_url.href) {
@@ -141,19 +128,15 @@ var box = function(spec, my) {
   /****************************************************************************/
   /*                          SOCKET EVENT HANDLERS                           */
   /****************************************************************************/
-  //
   // ### socket_box_input
   //
   // Received when the user types into the box
-  // 
   // ```
   // @input {string} the box input string
   // ```
-  //
   socket_box_input = function(input) {
   };
   
-  //
   // ### socket_box_submit
   //
   // Received whenever the box input is submitted by the user. We operate an 
@@ -161,11 +144,9 @@ var box = function(spec, my) {
   // to it.
   //
   // Otherwise, we perform a google search
-  //
   // ```
   // @input {string} the box input string
   // ```
-  //
   socket_box_submit = function(input) {
     var active = my.session.stack().active_entry();
     if(active) {
@@ -186,6 +167,9 @@ var box = function(spec, my) {
     }
   };
 
+  /****************************************************************************/
+  /*                              PUBLIC METHODS                              */
+  /****************************************************************************/
 
   common.method(that, 'init', init, _super);
   common.method(that, 'handshake', handshake, _super);

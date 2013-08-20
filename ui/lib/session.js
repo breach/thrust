@@ -15,13 +15,11 @@ var api = require('./api.js');
 var async = require('async');
 
 
-//
 // ## session
 //
 // ```
 // @spec { base_url }
 // ```
-//
 var session = function(spec, my) {
   var _super = {};
   my = my || {};
@@ -54,42 +52,40 @@ var session = function(spec, my) {
   //
   var that = {};
 
-  //
   // ### toggle_stack
   //
   // If no argument is provided it just toggles the stack visibility. If a
   // visibility argument is provided, it shows or hides it.
-  //
   // ```
   // @visibilty {boolean} toggle to this visibility
   // ```
-  //
   toggle_stack = function(visible) {
     if(typeof visible === 'boolean') {
-      if(visible) 
+      if(visible) {
         my.stack.show();
-      else
+      }
+      else {
         my.stack.hide();
+      }
     }
     else {
-      if(my.stack.visible())
+      if(my.stack.visible()) {
         my.stack.hide();
-      else
+      }
+      else {
         my.stack.show();
+      }
     }
   };
 
-  //
   // ### handshake
   //
   // Receives the socket io socket associated with one of this session's frame.
   // (stack, home, ...)
-  //
   // ```
   // @name   {string} the name of the frame
   // @socket {socket.io socket}
   // ```
-  //
   handshake = function(name, socket) {
     var name_r = /^(br-[0-9]+)_(stack|box)$/;
     var name_m = name_r.exec(name);
@@ -101,11 +97,9 @@ var session = function(spec, my) {
     }
   };
 
-  //
   // ### init
   // 
   // Initialializes this session and spawns the associated exo_browser
-  //
   init = function() {
     my.exo_browser = api.exo_browser({
       size: [1200, 768]
@@ -137,6 +131,11 @@ var session = function(spec, my) {
     }, function(err) {
       toggle_stack(true);
       my.box.show();
+
+      my.exo_browser.focus(function() {
+        console.log('CALLED FOCUS EXOBROWSER');
+        my.box.focus();
+      });
     });
 
     my.exo_browser.on('frame_keyboard', function(frame, event) { 
@@ -145,7 +144,7 @@ var session = function(spec, my) {
          event.modifiers === 2 &&
          event.keycode === 71) {
         toggle_stack(true);
-        /* TODO(spolu): focus on stack */
+        my.stack.focus();
       }
       if(event.type === 9 &&
          event.modifiers === 2 &&

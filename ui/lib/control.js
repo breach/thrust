@@ -14,7 +14,6 @@ var common = require('./common.js');
 var factory = common.factory;
 var api = require('./api.js');
 
-//
 // ### control
 //
 // A control is a base class for all controls. It is in charge of setting up
@@ -25,11 +24,9 @@ var api = require('./api.js');
 //
 // Only after the handshake is done should the control should the init
 // callback be returned.
-//
 // ```
 // spec { session, type, control_type }
 // ```
-//
 var control = function(spec, my) {
   var _super = {};
   my = my || {};
@@ -51,6 +48,7 @@ var control = function(spec, my) {
 
   var show;         /* show(); */
   var hide;         /* hide(); */
+  var focus;        /* focus([cb_]); */
   var visible;      /* visible(); */
 
   //
@@ -73,46 +71,47 @@ var control = function(spec, my) {
     return 100;
   };
 
-  //
   // ### show
   //
   // Makes the stack visible (and focus on it?)
-  //
   show = function() {
     my.session.exo_browser().set_control_dimension(my.control_type, 
                                                    that.dimension());
   };
 
-  //
   // ### hide
   //
   // Hides the stack
-  //
   hide = function() {
     my.session.exo_browser().set_control_dimension(api.LEFT_CONTROL, 
                                                    0);
   };
 
+  // ### focus
   //
+  // Focuses the control frame
+  // ```
+  // @cb_ {function()} optional callback
+  focus = function(cb_) {
+    return my.frame.focus(cb_);
+  };
+
+
   // ### visible
   //
   // Forward to underlying frame `visible` which already handles the logic of
   // computing the visibility
-  //
   visible = function() {
     return my.frame.visible();
   };
 
-  //
   // ### init
   // 
   // This init method should be overriden by the control implementation which
   // should finish by calling its parent method (this one)
-  // 
   // ```
   // @cb_ {function(err)} callack
   // ```
-  //
   init = function(cb_) {
     var url = my.session.base_url() + '/' + my.type + 
       '/#/?session=' + my.session.name()
@@ -124,15 +123,12 @@ var control = function(spec, my) {
     my.init_cb_ = cb_;
   };
 
-  //
   // ### handshake
   //
   // Receives the socket.io socket on handshake
-  //
   // ```
   // @socket {socket.io socket}
   // ```
-  //
   handshake = function(socket) {
     my.socket = socket;
     factory.log().out('HANDSHAKE: ' + my.name);
@@ -150,6 +146,7 @@ var control = function(spec, my) {
 
   common.method(that, 'show', show, _super);
   common.method(that, 'hide', hide, _super);
+  common.method(that, 'focus', focus, _super);
   common.method(that, 'visible', visible, _super);
 
   common.getter(that, 'frame', my, 'frame');

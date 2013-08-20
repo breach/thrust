@@ -14,6 +14,7 @@
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#include "content/public/browser/render_view_host.h" 
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/node/node_thread.h"
 #include "breach/browser/breach_content_browser_client.h"
@@ -87,28 +88,24 @@ ExoFrame::LoadURL(
   params.transition_type = PageTransitionFromInt(
       PAGE_TRANSITION_TYPED | PAGE_TRANSITION_FROM_ADDRESS_BAR);
   web_contents_->GetController().LoadURLWithParams(params);
-  web_contents_->GetView()->Focus();
 }
 
 void
 ExoFrame::GoBackOrForward(int offset)
 {
   web_contents_->GetController().GoToOffset(offset);
-  web_contents_->GetView()->Focus();
 }
 
 void 
 ExoFrame::Reload() 
 {
   web_contents_->GetController().Reload(false);
-  web_contents_->GetView()->Focus();
 }
 
 void 
 ExoFrame::Stop() 
 {
   web_contents_->Stop();
-  web_contents_->GetView()->Focus();
 }
 
 void
@@ -171,6 +168,7 @@ ExoFrame::DidFinishLoad(
         FROM_HERE,
         base::Bind(&ExoFrameWrap::DispatchLoadFinish, wrapper_,
                    validated_url.spec()));
+    web_contents_->GetView()->Focus();
   }
 }
 

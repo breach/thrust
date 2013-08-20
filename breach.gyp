@@ -4,13 +4,17 @@
   'variables': {
     'breach_product_name': 'Breach',
     'breach_version': '0.0.0.1',
+    'ua_version': '28.0.1500.95',
   },
   'targets': [
     {
       'target_name': 'breach_lib',
       'type': 'static_library',
       'defines!': ['CONTENT_IMPLEMENTATION'],
-      'defines': ['BREACH_VERSION="<(breach_version)"'],
+      'defines': [
+        'BREACH_VERSION="<(breach_version)"',
+        'UA_VERSION="<(ua_version)"',
+      ],
       'variables': {
         'chromium_code': 1,
       },
@@ -77,6 +81,8 @@
         'browser/ui/exo_frame.h',
         'browser/ui/exo_frame.cc',
         'browser/ui/exo_frame_gtk.cc',
+        'browser/ui/breach_web_contents_view_delegate.h',
+        'browser/ui/breach_web_contents_view_delegate_gtk.cc',
         'browser/breach_browser_application_mac.h',
         'browser/breach_browser_application_mac.mm',
         'browser/breach_browser_context.cc',
