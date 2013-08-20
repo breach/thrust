@@ -384,6 +384,13 @@ private:
   GtkWidget*                                   control_bottom_box_;
 
   GtkWidget*                                   pages_box_;
+#elif defined(OS_MACOSX)
+  NSView*                                      control_left_box_;
+  NSView*                                      control_right_box_;
+  NSView*                                      control_top_box_;
+  NSView*                                      control_bottom_box_;
+  NSView*                                      vertical_box_;
+  NSView*                                      pages_box_;
 #endif
   gfx::NativeView                              visible_page_;
 
