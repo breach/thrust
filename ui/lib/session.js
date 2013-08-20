@@ -114,7 +114,7 @@ var session = function(spec, my) {
 
     my.loading_frame = api.exo_frame({
       name: my.name + '_loading',
-      url: spec.base_url + '/loading.html'
+      url: my.base_url + '/loading.html'
     });
     my.exo_browser.add_page(my.loading_frame, function() {
       my.exo_browser.show_page(my.loading_frame);
@@ -170,6 +170,7 @@ var session = function(spec, my) {
 
   common.getter(that, 'stack', my, 'stack');
   common.getter(that, 'box', my, 'box');
+  common.getter(that, 'base_url', my, 'base_url');
 
   init();
 

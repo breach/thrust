@@ -289,7 +289,7 @@ var stack = function(spec, my) {
   // ```
   //
   new_entry = function(url) {
-    url = url || 'http://google.com';
+    url = url || (my.session.base_url() + '/home.html');
 
     var e = {
       frame: api.exo_frame({
