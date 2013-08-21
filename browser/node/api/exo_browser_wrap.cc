@@ -795,7 +795,8 @@ namespace {
 
 static Local<Object> 
 ObjectFromNavigationEntry(
-    content::NavigationEntry* entry)
+    content::NavigationEntry* entry,
+    bool visible = false)
 {
   Local<Object> entry_o = Object::New();
 
@@ -807,6 +808,11 @@ ObjectFromNavigationEntry(
                String::New(entry->GetTitle().c_str()));
   entry_o->Set(String::New("favicon"),
                String::New(entry->GetFavicon().url.spec().c_str()));
+  entry_o->Set(String::New("visible"),
+               Boolean::New(visible));
+  entry_o->Set(String::New("timestamp"),
+               Number::New(
+                 (entry->GetTimestamp().ToInternalValue() / 1000)));
 
   switch(entry->GetPageType()) {
     case content::PAGE_TYPE_ERROR:
@@ -874,7 +880,11 @@ ExoBrowserWrap::DispatchNavigationState(
         i++) {
       content::NavigationEntry *entry =
         frame->web_contents_->GetController().GetEntryAtIndex(i);
-      entries->Set(Integer::New(i), ObjectFromNavigationEntry(entry));
+      bool visible = false;
+      if(entry == frame->web_contents()->GetController().GetVisibleEntry()) {
+        visible = true;
+      }
+      entries->Set(Integer::New(i), ObjectFromNavigationEntry(entry, visible));
     }
     state_arg->Set(String::New("entries"), entries);
     /*

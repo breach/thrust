@@ -133,7 +133,6 @@ var session = function(spec, my) {
       my.box.show();
 
       my.exo_browser.focus(function() {
-        console.log('CALLED FOCUS EXOBROWSER');
         my.box.focus();
       });
     });
@@ -154,7 +153,7 @@ var session = function(spec, my) {
       if(event.type === 9 &&
          event.modifiers === 2 &&
          event.keycode === 84) {
-        my.stack.new_entry();
+        my.stack.new_page();
       }
     });
   };

@@ -25,8 +25,11 @@ var box = function(spec, my) {
   my = my || {};
   spec = spec || {};
 
-  my.active_url = '';
-  my.input = null;
+  my.state = {
+    value: '',
+    can_go_back: false,
+    can_go_forward: false
+  };
 
   //
   // ### _public_
@@ -39,9 +42,10 @@ var box = function(spec, my) {
   //
   var push;                 /* push(); */
 
-  var stack_active_entry;   /* frame_load_finish(frame, url); */
+  var stack_active_page;    /* stack_active_page(page); */
   var socket_box_input;     /* socket_box_input(input); */
   var socket_box_submit;    /* socket_box_submit(input); */
+
   var socket_box_back;      /* socket_box_back(); */
   var socket_box_forward;   /* socket_box_forward(); */
   
@@ -96,7 +100,7 @@ var box = function(spec, my) {
   init = function(cb_) {
     _super.init(cb_);
 
-    my.session.stack().on('active_entry', stack_active_entry);
+    my.session.stack().on('active_page', stack_active_page);
   };
 
   /****************************************************************************/
@@ -104,30 +108,35 @@ var box = function(spec, my) {
   /****************************************************************************/
   // ### push
   //
-  // Pushes the current active entry url to the control UI for eventual update 
+  // Pushes the current active page url to the control UI for eventual update 
   // (The url might not get directly updated if it is being edited, etc)
   push = function() {
     if(my.socket) {
-      my.socket.emit('active_url', my.active_url);
+      my.socket.emit('state', my.state);
     }
   };
 
   /****************************************************************************/
   /*                             STACK EVENTS                                 */
   /****************************************************************************/
-  // ### stack_active_entry
+  // ### stack_active_page
   //
-  // Received from the stack whenever the active entry is updated as it can
+  // Received from the stack whenever the active page is updated as it can
   // potentially impact the url to display
   // ```
-  // @entry {object} the current active entry
+  // @page {object} the current active page
   // ```
-  stack_active_entry = function(entry) {
-    if(entry.navs.length > 0 && 
-       entry.navs[0].url.href !== my.active_url.href) {
-      my.active_url = entry.navs[0].url;
-      push();
-    }
+  stack_active_page = function(page) {
+    page.state.entries.forEach(function(n) {
+      if(n.active) {
+        my.state.value = n.url.href;
+        my.state.can_go_back = n.can_go_back;
+        my.state.can_go_forward = n.can_go_forward;
+      }
+    });
+    if(page.box_value && page.box_value.length > 0)
+      my.state.value = page.box_value;
+    push();
   };
 
   /****************************************************************************/
@@ -140,6 +149,9 @@ var box = function(spec, my) {
   // @input {string} the box input string
   // ```
   socket_box_input = function(input) {
+    var page = my.session.stack().active_page();
+    if(page)
+      page.box_value = input;
   };
   
   // ### socket_box_submit
@@ -153,22 +165,23 @@ var box = function(spec, my) {
   // @input {string} the box input string
   // ```
   socket_box_submit = function(input) {
-    var active = my.session.stack().active_entry();
-    if(active) {
+    var page = my.session.stack().active_page();
+    if(page) {
       var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
       var http_r = /^http(s{0,1})\:\/\//;
       if(url_r.test(input)) {
         if(!http_r.test(input)) {
           input = 'http://' + input;
         }
-        active.frame.load_url(input);
+        page.frame.load_url(input);
       }
       else {
         var search_url = 'https://www.google.com/search?' +
                             'q=' + escape(input) + '&' +
                             'ie=UTF-8';
-        active.frame.load_url(search_url);
+        page.frame.load_url(search_url);
       }
+      page.box_value = null;
     }
   };
 
