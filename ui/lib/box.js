@@ -42,6 +42,8 @@ var box = function(spec, my) {
   var stack_active_entry;   /* frame_load_finish(frame, url); */
   var socket_box_input;     /* socket_box_input(input); */
   var socket_box_submit;    /* socket_box_submit(input); */
+  var socket_box_back;      /* socket_box_back(); */
+  var socket_box_forward;   /* socket_box_forward(); */
   
   //
   // ### _protected_
@@ -78,6 +80,9 @@ var box = function(spec, my) {
 
     my.socket.on('box_input', socket_box_input);
     my.socket.on('box_submit', socket_box_submit);
+
+    my.socket.on('box_back', socket_box_back);
+    my.socket.on('box_forward', socket_box_forward);
     push();
   };
 
@@ -165,6 +170,18 @@ var box = function(spec, my) {
         active.frame.load_url(search_url);
       }
     }
+  };
+
+  // ### socket_box_back
+  //
+  // Received when the back button is clicked
+  socket_box_back = function() {
+  };
+
+  // ### socket_box_forward
+  //
+  // Received when the back button is clicked
+  socket_box_forward = function() {
   };
 
   /****************************************************************************/

@@ -27,18 +27,22 @@
   text-align: center;
   border-radius: 2px;
 
+  background-image: url('/box/img/arrow.png');
+  background-size: cover;
+
   cursor: pointer;
 }
 
 .box > a.button:hover {
-  border: 1px solid hsl(228, 14%, 85%);
+  border: 1px solid hsl(228, 14%, 80%);
 }
 
-.box > a.button.prev {
+.box > a.button.back {
   left: 3px;
 }
-.box > a.button.next {
+.box > a.button.forward {
   left: 32px;
+  -webkit-transform: scaleX(-1);
 }
 
 .box > form > input,

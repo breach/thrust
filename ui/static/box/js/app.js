@@ -29,7 +29,7 @@ function BoxTopCtrl($scope, $location, $rootScope, $window, $timeout,
   _socket.emit('handshake', _session.name() + '_box');
 
   _socket.on('active_url', function(active_url) {
-    console.log('RECEIVED ACTIVE_URL: ' + active_url);
+    console.log('RECEIVED ACTIVE_URL: ' + active_url.href);
     $scope.active_url = active_url;
   });
 }
