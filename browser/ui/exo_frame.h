@@ -116,6 +116,10 @@ public:
   /****************************************************************************/
   /*                   WEBCONTENTSOBSERVER IMPLEMENTATION                     */
   /****************************************************************************/
+  virtual void DidUpdateFaviconURL(
+      int32 page_id,
+      const std::vector<content::FaviconURL>& candidates) OVERRIDE;
+
   virtual void DidFailLoad(
       int64 frame_id,
       const GURL& validated_url,

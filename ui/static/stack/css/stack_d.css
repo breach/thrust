@@ -11,7 +11,7 @@
 }
 
 
-.stack .entry {
+.stack .page {
   color: white;
   background-color: hsl(228, 14%, 14%);
   padding-top: 2px;
@@ -24,21 +24,21 @@
   cursor: pointer;
 }
 
-.stack .entry:not(.active) {
+.stack .page:not(.active) {
   border-right: 1px solid hsl(220, 12%, 5%);
 }
 
-.stack .entry:not(.active):hover {
+.stack .page:not(.active):hover {
   background-color: hsl(228, 14%, 16%);
   border-bottom: 1px solid hsl(228, 14%, 20%);
 }
 
-.stack .entry.selected:not(.active) {
+.stack .page.selected:not(.active) {
   background-color: hsl(228, 14%, 30%);
   border-bottom: 1px solid hsl(228, 14%, 16%);
 }
 
-.stack .entry.active {
+.stack .page.active {
   cursor: default;
   background-color: hsl(228, 7%, 95%);
   border-bottom: 1px solid hsl(228, 14%, 25%);
@@ -54,7 +54,7 @@
 }
 
 
-.stack .entry > .favicon {
+.stack .page > .favicon {
   float:left;
   display: inline-block;
   height: 20px;
@@ -68,22 +68,22 @@
 
 }
 
-.stack .entry.active > .favicon {
+.stack .page.active > .favicon {
   background-color: hsl(228, 7%, 90%);
   border: 1px solid hsl(228, 14%, 85%);
 }
 
 
-.stack .entry > .title {
+.stack .page > .title {
   font-weight: 700;
   font-size: 0.9em;
 }
 
-.stack .entry.active > .title {
+.stack .page.active > .title {
   margin-top: 7px;
 }
 
-.stack .entry > .url {
+.stack .page > .url {
   font-size: 0.8em;
   opacity: 0.7;
   letter-spacing: -1px;

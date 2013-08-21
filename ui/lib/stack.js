@@ -27,6 +27,7 @@ var stack = function(spec, my) {
   /*    state,       */
   /*    box_value }] */
   my.pages = [];
+  my.favicons = {}
 
   //
   // ### _public_
@@ -45,6 +46,7 @@ var stack = function(spec, my) {
   var push;                   /* push(); */
 
   var frame_navigation_state; /* frame_navigation_state(frame, state); */
+  var frame_favicon_update;   /* frame_favicon_update(frame, favicons); */
 
   var socket_select_page;    /* socket_select_page(name); */
   
@@ -98,6 +100,8 @@ var stack = function(spec, my) {
 
     my.session.exo_browser().on('frame_navigation_state', 
                                 frame_navigation_state);
+    my.session.exo_browser().on('frame_favicon_update', 
+                                frame_favicon_update);
   };
 
 
@@ -163,10 +167,39 @@ var stack = function(spec, my) {
   frame_navigation_state = function(frame, state) {
     var p = page_for_frame(frame);
     if(p) {
+      //console.log(state);
       p.state = state;
+      p.state.entries.forEach(function(n) {
+        if(my.favicons[n.id]) {
+          n.favicon = my.favicons[n.id];
+        }
+      });
       push();
     }
   };
+
+  // ### frame_favicon_update
+  //
+  // We receive the favicon (and not use the `navigation_state` because of:
+  // CRBUG 277069) and attempt to stitch it in the correct state entry
+  // ```
+  // @frame    {exo_frame} the target frame
+  // @favicons {array} array of candidates favicon urls
+  // ```
+  frame_favicon_update = function(frame, favicons) {
+    /* TODO(spolu): for now we take the frist one always. Add the type into */
+    /* the API so that a better logic can be implemented here.              */
+    var p = page_for_frame(frame);
+    if(favicons.length > 0 && p) {
+      p.state.entries.forEach(function(n) {
+        if(n.visible) {
+          my.favicons[n.id] = favicons[0];
+          n.favicon = favicons[0];
+        }
+      });
+      push();
+    }
+  }; 
 
   /****************************************************************************/
   /*                          SOCKET EVENT HANDLERS                           */

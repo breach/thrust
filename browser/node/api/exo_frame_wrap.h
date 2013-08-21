@@ -94,7 +94,12 @@ private:
   static void SetLoadingStopCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchLoadingStop();
-  
+
+  static void SetFaviconUpdateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchFaviconUpdate(
+      const std::vector<content::FaviconURL>& candidates);
+
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/

@@ -201,6 +201,11 @@ var exo_frame = function(spec, my) {
     }, function(f) {
       my.internal = f;
 
+      my.internal._setFaviconUpdateCallback(function(favicons) {
+        if(my.parent) {
+          my.parent.emit('frame_favicon_update', that, favicons);
+        }
+      });
       my.internal._setLoadFailCallback(function(url, error_code, error_desc) {
         if(my.parent) {
           my.parent.emit('frame_load_fail', that, url, error_code, error_desc);

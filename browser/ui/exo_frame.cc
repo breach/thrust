@@ -112,6 +112,15 @@ ExoFrame::Focus()
 /******************************************************************************/
 /*                    WEBCONTENTSOBSERVER IMPLEMENTATION                      */
 /******************************************************************************/
+void 
+ExoFrame::DidUpdateFaviconURL(
+    int32 page_id,
+    const std::vector<FaviconURL>& candidates)
+{
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::DispatchFaviconUpdate, wrapper_, candidates));
+}
 
 void 
 ExoFrame::DidFailLoad(

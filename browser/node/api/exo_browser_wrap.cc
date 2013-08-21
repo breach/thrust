@@ -806,13 +806,17 @@ ObjectFromNavigationEntry(
                String::New(entry->GetVirtualURL().spec().c_str()));
   entry_o->Set(String::New("title"), 
                String::New(entry->GetTitle().c_str()));
+  /*
   entry_o->Set(String::New("favicon"),
                String::New(entry->GetFavicon().url.spec().c_str()));
+  */
   entry_o->Set(String::New("visible"),
                Boolean::New(visible));
   entry_o->Set(String::New("timestamp"),
                Number::New(
                  (entry->GetTimestamp().ToInternalValue() / 1000)));
+  entry_o->Set(String::New("id"),
+               Number::New(entry->GetUniqueID()));
 
   switch(entry->GetPageType()) {
     case content::PAGE_TYPE_ERROR:
@@ -887,14 +891,6 @@ ExoBrowserWrap::DispatchNavigationState(
       entries->Set(Integer::New(i), ObjectFromNavigationEntry(entry, visible));
     }
     state_arg->Set(String::New("entries"), entries);
-    /*
-    state_arg->Set(String::New("active"), 
-                   ObjectFromNavigationEntry(
-                     frame->web_contents()->GetController().GetActiveEntry()));
-    */
-    state_arg->Set(String::New("visible"), 
-                   ObjectFromNavigationEntry(
-                     frame->web_contents()->GetController().GetVisibleEntry()));
     state_arg->Set(String::New("can_go_back"),
                    Boolean::New(
                      frame->web_contents()->GetController().CanGoBack()));
