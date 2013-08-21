@@ -31,9 +31,15 @@
   background-size: cover;
 
   cursor: pointer;
+
+  opacity: 0.3;
 }
 
-.box > a.button:hover {
+.box > a.button.active {
+  opacity: 1.0;
+}
+
+.box > a.button.active:hover {
   border: 1px solid hsl(228, 14%, 80%);
 }
 
@@ -44,6 +50,7 @@
   left: 32px;
   -webkit-transform: scaleX(-1);
 }
+
 
 .box > form > input,
 .box > form > input:focus {

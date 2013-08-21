@@ -167,7 +167,7 @@ var stack = function(spec, my) {
   frame_navigation_state = function(frame, state) {
     var p = page_for_frame(frame);
     if(p) {
-      //console.log(state);
+      p.box_value = null;
       p.state = state;
       p.state.entries.forEach(function(n) {
         if(my.favicons[n.id]) {
@@ -246,7 +246,7 @@ var stack = function(spec, my) {
         can_go_back: false,
         can_go_forward: false
       },
-      box_value: null
+      box_value: url ? null : ''
     };
 
     my.pages.unshift(p);

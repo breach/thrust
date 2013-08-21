@@ -16,17 +16,21 @@
 //
 angular.module('breach.directives').controller('BoxCtrl',
   function($scope, $element, $window, _socket) {
-    $scope.$watch('active_url', function(active_url) {
-      $scope.input = active_url;
-      console.log('BOX_D ACTIVE URL: ' + active_url);
+    $scope.$watch('state', function(state) {
+      if(state) {
+        $scope.can_go_back = state.can_go_back;
+        $scope.can_go_forward = state.can_go_forward;
+        $scope.value = state.value;
+      }
     });
 
-    $scope.$watch('input', function(input) {
-      _socket.emit('box_input', input);
+    jQuery($element).find('input').keydown(function() {
+      _socket.emit('box_input', $scope.value);
     });
 
+    
     $scope.submit = function() {
-      _socket.emit('box_submit', $scope.input);
+      _socket.emit('box_submit', $scope.value);
     };
 
     $scope.back = function() {
@@ -51,7 +55,7 @@ angular.module('breach.directives').directive('box', function() {
     restrict: 'E',
     replace: true,
     scope: {
-      active_url: '=active_url',
+      state: '=state',
     },
     templateUrl: 'partials/box_d.html',
     controller: 'BoxCtrl'

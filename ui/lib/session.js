@@ -138,7 +138,7 @@ var session = function(spec, my) {
     });
 
     my.exo_browser.on('frame_keyboard', function(frame, event) { 
-      //console.log(JSON.stringify(event));
+      console.log(JSON.stringify(event));
       if(event.type === 9 &&
          event.modifiers === 2 &&
          event.keycode === 71) {

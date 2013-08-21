@@ -128,13 +128,13 @@ var box = function(spec, my) {
   // ```
   stack_active_page = function(page) {
     page.state.entries.forEach(function(n) {
-      if(n.active) {
+      if(n.visible) {
         my.state.value = n.url.href;
-        my.state.can_go_back = n.can_go_back;
-        my.state.can_go_forward = n.can_go_forward;
       }
     });
-    if(page.box_value && page.box_value.length > 0)
+    my.state.can_go_back = page.state.can_go_back;
+    my.state.can_go_forward = page.state.can_go_forward;
+    if(page.box_value)
       my.state.value = page.box_value;
     push();
   };
@@ -167,6 +167,7 @@ var box = function(spec, my) {
   socket_box_submit = function(input) {
     var page = my.session.stack().active_page();
     if(page) {
+      page.box_value = input;
       var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
       var http_r = /^http(s{0,1})\:\/\//;
       if(url_r.test(input)) {
@@ -181,7 +182,6 @@ var box = function(spec, my) {
                             'ie=UTF-8';
         page.frame.load_url(search_url);
       }
-      page.box_value = null;
     }
   };
 
@@ -189,12 +189,20 @@ var box = function(spec, my) {
   //
   // Received when the back button is clicked
   socket_box_back = function() {
+    var page = my.session.stack().active_page();
+    if(page) {
+      page.frame.go_back_or_forward(-1);
+    }
   };
 
   // ### socket_box_forward
   //
   // Received when the back button is clicked
   socket_box_forward = function() {
+    var page = my.session.stack().active_page();
+    if(page) {
+      page.frame.go_back_or_forward(1);
+    }
   };
 
   /****************************************************************************/
