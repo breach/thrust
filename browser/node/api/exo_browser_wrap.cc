@@ -6,11 +6,20 @@
 #include "breach/browser/node/api/exo_browser_wrap.h"
 
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/navigation_entry.h"
+#include "content/public/browser/navigation_controller.h"
+#include "content/public/browser/native_web_keyboard_event.h"
+#include "content/public/browser/favicon_status.h"
+#include "content/public/common/ssl_status.h"
+#include "content/public/common/page_type.h"
+
+#include "net/cert/cert_status_flags.h"
+
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/ui/exo_frame.h"
 #include "breach/browser/node/api/exo_frame_wrap.h"
 #include "breach/browser/node/node_thread.h"
-#include "content/public/browser/native_web_keyboard_event.h"
 
 using namespace v8;
 
@@ -63,6 +72,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(SetFrameCreatedCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameKeyboardCallback"),
       FunctionTemplate::New(SetFrameKeyboardCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setNavigationStateCallback"),
+      FunctionTemplate::New(SetNavigationStateCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -767,6 +778,130 @@ ExoBrowserWrap::DispatchFrameKeyboard(
   }
 }
 
+void
+ExoBrowserWrap::SetNavigationStateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  browser_w->navigation_state_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+namespace {
+
+static Local<Object> 
+ObjectFromNavigationEntry(
+    content::NavigationEntry* entry)
+{
+  Local<Object> entry_o = Object::New();
+
+  entry_o->Set(String::New("url"), 
+               String::New(entry->GetURL().spec().c_str()));
+  entry_o->Set(String::New("virtual_url"), 
+               String::New(entry->GetVirtualURL().spec().c_str()));
+  entry_o->Set(String::New("title"), 
+               String::New(entry->GetTitle().c_str()));
+  entry_o->Set(String::New("favicon"),
+               String::New(entry->GetFavicon().url.spec().c_str()));
+
+  switch(entry->GetPageType()) {
+    case content::PAGE_TYPE_ERROR:
+      entry_o->Set(String::New("type"),
+                   String::New("error"));
+      break;
+    case content::PAGE_TYPE_INTERSTITIAL:
+      entry_o->Set(String::New("type"),
+                   String::New("interstitial"));
+      break;
+    default:
+      entry_o->Set(String::New("type"),
+                   String::New("normal"));
+      break;
+  }
+
+  Local<Object> ssl_o = Object::New();
+
+  switch(entry->GetSSL().security_style) {
+    case content::SECURITY_STYLE_UNAUTHENTICATED:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("unauthenticated"));
+      break;
+    case content::SECURITY_STYLE_AUTHENTICATION_BROKEN:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("broken"));
+      break;
+    case content::SECURITY_STYLE_AUTHENTICATED:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("authenticated"));
+      break;
+    default:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("unknown"));
+  }
+
+  ssl_o->Set(String::New("cert_status"), 
+             Integer::New(entry->GetSSL().cert_status));
+  ssl_o->Set(String::New("content_status"), 
+             Integer::New(entry->GetSSL().content_status));
+
+  entry_o->Set(String::New("ssl"), ssl_o);
+
+  return entry_o;
+}
+
+}
+
+
+void
+ExoBrowserWrap::DispatchNavigationState(
+    const ExoFrame* frame)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> browser_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!navigation_state_cb_.IsEmpty()) {
+    Local<Object> state_arg = Object::New();
+    
+    Local<Array> entries = Array::New();
+    for(int i = 0; 
+        i < frame->web_contents()->GetController().GetEntryCount(); 
+        i++) {
+      content::NavigationEntry *entry =
+        frame->web_contents_->GetController().GetEntryAtIndex(i);
+      entries->Set(Integer::New(i), ObjectFromNavigationEntry(entry));
+    }
+    state_arg->Set(String::New("entries"), entries);
+    /*
+    state_arg->Set(String::New("active"), 
+                   ObjectFromNavigationEntry(
+                     frame->web_contents()->GetController().GetActiveEntry()));
+    */
+    state_arg->Set(String::New("visible"), 
+                   ObjectFromNavigationEntry(
+                     frame->web_contents()->GetController().GetVisibleEntry()));
+    state_arg->Set(String::New("can_go_back"),
+                   Boolean::New(
+                     frame->web_contents()->GetController().CanGoBack()));
+    state_arg->Set(String::New("can_go_forward"),
+                   Boolean::New(
+                     frame->web_contents()->GetController().CanGoForward()));
+
+    Local<String> frame_arg = String::New((frame->name()).c_str());
+
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), navigation_state_cb_);
+
+    Local<Value> argv[2] = { frame_arg,
+                             state_arg };
+    cb->Call(browser_o, 2, argv);
+  }
+}
 
 } // namespace breach
     

@@ -34,9 +34,6 @@ ExoFrame::ExoFrame(
     wrapper_(wrapper)
 {
   web_contents_.reset(web_contents);
-  registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-      Source<WebContents>(web_contents));
-
 }
 
 ExoFrame::ExoFrame(
@@ -50,8 +47,6 @@ ExoFrame::ExoFrame(
       (BrowserContext*)BreachContentBrowserClient::Get()->browser_context());
   WebContents* web_contents = WebContents::Create(create_params);
   web_contents_.reset(web_contents);
-  registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-      Source<WebContents>(web_contents));
   WebContentsObserver::Observe(web_contents);
 }
 
@@ -99,7 +94,7 @@ ExoFrame::GoBackOrForward(int offset)
 void 
 ExoFrame::Reload() 
 {
-  web_contents_->GetController().Reload(false);
+  web_contents_->GetController().Reload(true);
 }
 
 void 
@@ -117,26 +112,6 @@ ExoFrame::Focus()
 /******************************************************************************/
 /*                    WEBCONTENTSOBSERVER IMPLEMENTATION                      */
 /******************************************************************************/
-
-void 
-ExoFrame::DidUpdateFaviconURL(
-    int32 page_id,
-    const std::vector<FaviconURL>& candidates)
-{
-  NodeThread::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&ExoFrameWrap::DispatchFaviconUpdate, wrapper_, candidates));
-}
-
-void 
-ExoFrame::ProvisionalChangeToMainFrameUrl(
-    const GURL& url,
-    content::RenderViewHost* render_view_host)
-{
-  NodeThread::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&ExoFrameWrap::DispatchPendingURL, wrapper_, url.spec()));
-}
 
 void 
 ExoFrame::DidFailLoad(
@@ -197,19 +172,7 @@ ExoFrame::Observe(
     const NotificationSource& source,
     const NotificationDetails& details) 
 {
-  if (type == NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    std::pair<NavigationEntry*, bool>* title =
-        Details<std::pair<NavigationEntry*, bool> >(details).ptr();
-
-    if (title->first) {
-      std::string t = UTF16ToUTF8(title->first->GetTitle());
-      NodeThread::Get()->PostTask(
-          FROM_HERE,
-          base::Bind(&ExoFrameWrap::DispatchTitleUpdate, wrapper_, t));
-    }
-  } else {
-    NOTREACHED();
-  }
+  NOTREACHED();
 }
 
 

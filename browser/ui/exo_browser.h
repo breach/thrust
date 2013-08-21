@@ -278,6 +278,8 @@ public:
   virtual content::JavaScriptDialogManager* 
     GetJavaScriptDialogManager() OVERRIDE;
 
+  virtual void NavigationStateChanged(const content::WebContents* source,
+                                      unsigned changed_flags);
 
   virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
   virtual void DeactivateContents(content::WebContents* contents) OVERRIDE;
@@ -298,7 +300,7 @@ private:
   // ```
   // @content {WebContents} a WebContents
   // ```
-  ExoFrame* FrameForWebContents(content::WebContents* web_contents);
+  ExoFrame* FrameForWebContents(const content::WebContents* web_contents);
 
 
   /****************************************************************************/

@@ -201,22 +201,6 @@ var exo_frame = function(spec, my) {
     }, function(f) {
       my.internal = f;
 
-      my.internal._setTitleUpdateCallback(function(title) {
-        my.title = title;
-        if(my.parent) {
-          my.parent.emit('frame_title_update', that, title);
-        }
-      });
-      my.internal._setFaviconUpdateCallback(function(favicons) {
-        if(my.parent) {
-          my.parent.emit('frame_favicon_update', that, favicons);
-        }
-      });
-      my.internal._setPendingURLCallback(function(url) {
-        if(my.parent) {
-          my.parent.emit('frame_pending_url', that, url);
-        }
-      });
       my.internal._setLoadFailCallback(function(url, error_code, error_desc) {
         if(my.parent) {
           my.parent.emit('frame_load_fail', that, url, error_code, error_desc);
@@ -637,6 +621,10 @@ var exo_browser = function(spec, my) {
       });
       my.internal._setFrameKeyboardCallback(function(from, event) {
         that.emit('frame_keyboard', my.frames[from], event);
+      });
+      my.internal._setNavigationStateCallback(function(from, state) {
+        that.emit('frame_navigation_state', my.frames[from], state);
+        console.log(JSON.stringify(state));
       });
 
       my.ready = true;

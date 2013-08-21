@@ -26,9 +26,7 @@ exo_browser#kill()
 ?exo_browser#frame_created(frame)
 exo_browser#frame_close(frame)
 exo_browser#frame_keyboard(frame, event)
-exo_browser#frame_title_update(frame, title)
-exo_browser#frame_favicon_update(frame, favicon)
-exo_browser#frame_pending_url(frame, url)
+exo_browser#frame_navigation_state(frame, state)
 exo_browser#frame_load_fail(frame, url, error_code, error_desc)
 exo_browser#frame_load_finish(frame, url)
 exo_browser#frame_loading_start(frame)
@@ -94,6 +92,7 @@ b._setKillCallback(cb_);
 b._setFrameCloseCallback(cb_);
 b._setFrameCreatedCallback(cb_);
 b._setFrameKeyboardCallback(cb_);
+b._setNavigationStateCallback(cb_);
 
 b.kill(cb_);
 
@@ -112,9 +111,6 @@ f._focus(cb_);
 f._name(cb_);
 f._type(cb_);
 
-b._setTitleUpdateCallback(cb_);
-b._setFaviconUpdateCallback(cb_);
-b._setPendingURLCallback(cb_);
 b._setLoadFailCallback(cb_);
 b._setLoadFinishCallback(cb_);
 b._setLoadingStartCallback(cb_);
