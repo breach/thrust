@@ -48,7 +48,9 @@ var stack = function(spec, my) {
   var frame_navigation_state; /* frame_navigation_state(frame, state); */
   var frame_favicon_update;   /* frame_favicon_update(frame, favicons); */
 
-  var socket_select_page;    /* socket_select_page(name); */
+  var socket_select_page;     /* socket_select_page(name); */
+
+  var shortcut_new_page;      /* shortcut_new_page(); */
   
   //
   // ### _protected_
@@ -102,6 +104,8 @@ var stack = function(spec, my) {
                                 frame_navigation_state);
     my.session.exo_browser().on('frame_favicon_update', 
                                 frame_favicon_update);
+
+    my.session.keyboard_shortcuts().on('new_page', shortcut_new_page);
   };
 
 
@@ -167,7 +171,15 @@ var stack = function(spec, my) {
   frame_navigation_state = function(frame, state) {
     var p = page_for_frame(frame);
     if(p) {
-      p.box_value = null;
+      /* We clear the box_value for this page only if the state visible entry */
+      /* `id` has changed (we navigated somewhere)                            */
+      var new_id = null, old_id = null;
+      p.state.entries.forEach(function(n) { if(n.visible) old_id = n.id; });
+      state.entries.forEach(function(n) { if(n.visible) new_id = n.id; });
+      if(new_id !== old_id && new_id !== null) {
+        p.box_value = null;
+      }
+
       p.state = state;
       p.state.entries.forEach(function(n) {
         if(my.favicons[n.id]) {
@@ -220,6 +232,16 @@ var stack = function(spec, my) {
         break;
       }
     }
+  };
+
+  /****************************************************************************/
+  /*                      KEYBOARD SHORTCUT EVENT HANDLERS                    */
+  /****************************************************************************/
+  // ### shortcut_new_page
+  //
+  // Keyboard shorcut to create a new page
+  shortcut_new_page = function() {
+    that.new_page();
   };
 
   /****************************************************************************/

@@ -48,6 +48,8 @@ var box = function(spec, my) {
 
   var socket_box_back;      /* socket_box_back(); */
   var socket_box_forward;   /* socket_box_forward(); */
+
+  var shortcut_go;          /* shortcut_go(); */
   
   //
   // ### _protected_
@@ -101,6 +103,10 @@ var box = function(spec, my) {
     _super.init(cb_);
 
     my.session.stack().on('active_page', stack_active_page);
+
+    my.session.keyboard_shortcuts().on('go', shortcut_go);
+    my.session.keyboard_shortcuts().on('back', shortcut_back);
+    my.session.keyboard_shortcuts().on('forward', shortcut_forward);
   };
 
   /****************************************************************************/
@@ -204,6 +210,39 @@ var box = function(spec, my) {
       page.frame.go_back_or_forward(1);
     }
   };
+
+  /****************************************************************************/
+  /*                      KEYBOARD SHORTCUT EVENT HANDLERS                    */
+  /****************************************************************************/
+  // ### shortcut_go
+  //
+  // Keyboard shorcut to create focus on box and select all text
+  shortcut_go = function() {
+    that.focus();
+    if(my.socket) {
+      my.socket.emit('select_all');
+    }
+  };
+
+  // ### shortcut_back
+  //
+  // Keyboard shorcut for the back button
+  shortcut_back = function() {
+    var page = my.session.stack().active_page();
+    if(page) {
+      page.frame.go_back_or_forward(-1);
+    }
+  };
+  // ### shortcut_forward
+  //
+  // Keyboard shorcut for the forward button
+  shortcut_forward = function() {
+    var page = my.session.stack().active_page();
+    if(page) {
+      page.frame.go_back_or_forward(1);
+    }
+  };
+
 
   /****************************************************************************/
   /*                              PUBLIC METHODS                              */

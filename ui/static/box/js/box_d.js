@@ -24,8 +24,16 @@ angular.module('breach.directives').controller('BoxCtrl',
       }
     });
 
+
+    _socket.on('select_all', function() {
+      jQuery($element).find('input').focus().select();
+    });
+    
     jQuery($element).find('input').keydown(function() {
       _socket.emit('box_input', $scope.value);
+    });
+    jQuery($element).find('input').focusout(function() {
+      $(this).blur();
     });
 
     

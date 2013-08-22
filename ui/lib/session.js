@@ -33,6 +33,7 @@ var session = function(spec, my) {
 
   my.stack = null;
   my.box = null;
+  my.keyboard_shortcuts = null;
 
   //
   // #### _public_
@@ -106,6 +107,11 @@ var session = function(spec, my) {
     });
     my.name = my.exo_browser.name();
 
+    my.keyboard_shortcuts = 
+      require('./keyboard_shortcuts.js').keyboard_shortcuts({
+      session: that
+    });
+
     my.loading_frame = api.exo_frame({
       name: my.name + '_loading',
       url: my.base_url + '/loading.html'
@@ -136,26 +142,6 @@ var session = function(spec, my) {
         my.box.focus();
       });
     });
-
-    my.exo_browser.on('frame_keyboard', function(frame, event) { 
-      console.log(JSON.stringify(event));
-      if(event.type === 9 &&
-         event.modifiers === 2 &&
-         event.keycode === 71) {
-        toggle_stack(true);
-        my.stack.focus();
-      }
-      if(event.type === 9 &&
-         event.modifiers === 2 &&
-         event.keycode === 72) {
-        toggle_stack(false);
-      }
-      if(event.type === 9 &&
-         event.modifiers === 2 &&
-         event.keycode === 84) {
-        my.stack.new_page();
-      }
-    });
   };
   
   common.method(that, 'handshake', handshake, _super);
@@ -168,6 +154,8 @@ var session = function(spec, my) {
 
   common.getter(that, 'stack', my, 'stack');
   common.getter(that, 'box', my, 'box');
+  common.getter(that, 'keyboard_shortcuts', my, 'keyboard_shortcuts');
+
   common.getter(that, 'base_url', my, 'base_url');
 
   init();
