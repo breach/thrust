@@ -17,52 +17,30 @@
 angular.module('breach.directives').controller('StackCtrl',
   function($scope, _socket) {
 
-    $scope.selection = 0;
-
-    jQuery('body').bind('keyup.viewer', function(e) {
-      $scope.$apply(function() {
-        if(e.which === 74) { /* J */
-          $scope.selection = ($scope.selection + 1) 
-                        % $scope.entries.length;
-        }
-        if(e.which === 75) { /* K */
-          $scope.selection = ($scope.selection - 1 + $scope.entries.length) 
-                        % $scope.entries.length;
-        }
-        if(e.which === 13) { /* ENTER */
-          _socket.emit('select_entry', 
-                       $scope.entries[$scope.selection].name);
-          $scope.selection = 0;
-        }
-      });
-    });
-
-    $scope.is_selected = function(entry) {
-      return ($scope.entries[$scope.selection].name === entry.name);
-    };
-
-    $scope.$watch('entries', function(entries) {
-      entries = entries || [];
-      // console.log(JSON.stringify($scope.entries));
+    $scope.$watch('pages', function(pages) {
+      pages = pages || [];
+      //console.log(JSON.stringify($scope.pages));
       
-      entries.forEach(function(e, i) {
-        if(e.navs.length > 0) {
-          e.url = e.navs[0].url;
-          e.title = e.navs[0].title || '';
-          e.favicon = e.navs[0].favicon || '';
+      pages.forEach(function(p, i) {
+        if(p.state.entries.length > 0) {
+          p.state.entries.forEach(function(n) {
+            if(n.visible) {
+              p.url = n.url;
+              p.title = n.title;
+              p.favicon = n.favicon;
+            }
+          });
         }
-        else {
-          e.url = { hostname: '', href: '' };
-          e.title = '';
-          e.favicon = '';
-        }
-        e.active = (i === 0) ? true: false;
+        p.url = p.url || { hostname: '', href: '' };
+        p.title = p.title || '';
+        p.favicon = p.favicon || ''
+        p.top = (i === 0) ? true: false;
       });
     });
 
-    $scope.select_entry = function(entry) {
-      if(!entry.active)
-        _socket.emit('select_entry', entry.name);
+    $scope.select_page = function(page) {
+      if(!page.active)
+        _socket.emit('select_page', page.name);
     };
   });
 
@@ -80,7 +58,7 @@ angular.module('breach.directives').directive('stack', function() {
     restrict: 'E',
     replace: true,
     scope: {
-      entries: '=entries',
+      pages: '=pages',
     },
     templateUrl: 'partials/stack_d.html',
     controller: 'StackCtrl'

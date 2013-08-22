@@ -15,17 +15,40 @@
 // `box` directive controller
 //
 angular.module('breach.directives').controller('BoxCtrl',
-  function($scope, _socket) {
-    $scope.$watch('active_url', function(active_url) {
-      console.log('BOX_D ACTIVE URL: ' + active_url);
+  function($scope, $element, $window, _socket) {
+    $scope.$watch('state', function(state) {
+      if(state) {
+        $scope.can_go_back = state.can_go_back;
+        $scope.can_go_forward = state.can_go_forward;
+        $scope.value = state.value;
+      }
     });
 
-    $scope.$watch('input', function(input) {
-      _socket.emit('box_input', input);
+
+    _socket.on('select_all', function() {
+      jQuery($element).find('input').focus().select();
+    });
+    
+    jQuery($element).find('input').keydown(function() {
+      _socket.emit('box_input', $scope.value);
     });
 
+    /* TODO(spolu): Fix, CallStack Exceeded. Duh? */
+    /*
+    jQuery($element).find('input').focusout(function() {
+      $(this).blur();
+    });
+    */
+    
     $scope.submit = function() {
-      _socket.emit('box_submit', $scope.input);
+      _socket.emit('box_submit', $scope.value);
+    };
+
+    $scope.back = function() {
+      _socket.emit('box_back');
+    };
+    $scope.forward = function() {
+      _socket.emit('box_forward');
     };
   });
 
@@ -43,7 +66,7 @@ angular.module('breach.directives').directive('box', function() {
     restrict: 'E',
     replace: true,
     scope: {
-      active_url: '=active_url',
+      state: '=state',
     },
     templateUrl: 'partials/box_d.html',
     controller: 'BoxCtrl'

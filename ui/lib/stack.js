@@ -23,12 +23,12 @@ var stack = function(spec, my) {
   my = my || {};
   spec = spec || {};
 
-  /* [{ frame,                  */
-  /*    navs: [{ url (spec),    */
-  /*             last,          */
-  /*             title,         */
-  /*             favicon }] }]  */
-  my.entries = [];
+  /* [{ frame,       */
+  /*    state,       */
+  /*    box_value }] */
+  my.pages = [];
+  my.active = -1;
+  my.favicons = {}
 
   //
   // ### _public_
@@ -36,22 +36,26 @@ var stack = function(spec, my) {
   var init;         /* init(cb_); */
   var handshake;    /* handshake(); */
 
-  var new_entry;    /* new_entry([url]); */
-  var active_entry; /* active_entry(); */
+  var new_page;     /* new_page([url]); */
+  var active_page;  /* active_page(); */
 
   //
   // ### _private_
   //
-  var entry_for_frame;      /* entry_for_frame(frame); */
-  var entry_for_frame_name; /* entry_for_frame_name(frame); */
-  var push;                 /* push(); */
+  var page_for_frame;         /* page_for_frame(frame); */
+  var page_for_frame_name;    /* page_for_frame_name(frame); */
+  var push;                   /* push(); */
 
-  var frame_load_finish;    /* frame_load_finish(frame, url); */
-  var frame_pending_url;    /* frame_pending_url(frame, url); */
-  var frame_title_update;   /* frame_title_update(frame, title); */
-  var frame_favicon_update; /* frame_favicon_update(frame, favicons); */
+  var frame_navigation_state; /* frame_navigation_state(frame, state); */
+  var frame_favicon_update;   /* frame_favicon_update(frame, favicons); */
 
-  var socket_select_entry;  /* socket_select_entry(name); */
+  var socket_select_page;     /* socket_select_page(name); */
+
+  var shortcut_new_page;      /* shortcut_new_page(); */
+  var shortcut_stack_toggle;  /* shortcut_stack_toggle(); */
+  var shortcut_stack_next;    /* shortcut_stack_next(); */
+  var shortcut_stack_prev;    /* shortcut_stack_prev(); */
+  var shortcut_stack_commit;  /* shortcut_stack_commit(); */
   
   //
   // ### _protected_
@@ -86,9 +90,9 @@ var stack = function(spec, my) {
   handshake = function(socket) {
     _super.handshake(socket);
 
-    my.socket.on('select_entry', socket_select_entry);
+    my.socket.on('select_page', socket_select_page);
 
-    new_entry();
+    new_page();
   };
 
   // ### init
@@ -101,59 +105,72 @@ var stack = function(spec, my) {
   init = function(cb_) {
     _super.init(cb_);
 
-    my.session.exo_browser().on('frame_favicon_update', frame_favicon_update);
-    my.session.exo_browser().on('frame_pending_url', frame_pending_url);
-    my.session.exo_browser().on('frame_load_finish', frame_load_finish);
-    my.session.exo_browser().on('frame_title_update', frame_title_update);
+    my.session.exo_browser().on('frame_navigation_state', 
+                                frame_navigation_state);
+    my.session.exo_browser().on('frame_favicon_update', 
+                                frame_favicon_update);
+
+    my.session.keyboard_shortcuts().on('new_page', 
+                                       shortcut_new_page);
+    my.session.keyboard_shortcuts().on('stack_toggle', 
+                                       shortcut_stack_toggle);
+    my.session.keyboard_shortcuts().on('stack_next', 
+                                       shortcut_stack_next);
+    my.session.keyboard_shortcuts().on('stack_prev', 
+                                       shortcut_stack_prev);
+    my.session.keyboard_shortcuts().on('stack_commit', 
+                                       shortcut_stack_commit);
   };
 
 
   /****************************************************************************/
   /*                             PRIVATE HELPERS                              */
   /****************************************************************************/
-  // ### entry_for_frame
+  // ### page_for_frame
   //
-  // Retrieves the entry associated with this frame if it exists within this
+  // Retrieves the page associated with this frame if it exists within this
   // stack or null otherwise
   // ```
   // @frame {exo_frame} the frame to search for
   // ```
-  entry_for_frame = function(frame) {
-    for(var i = 0; i < my.entries.length; i ++) {
-      if(my.entries[i].frame === frame)
-        return my.entries[i];
+  page_for_frame = function(frame) {
+    for(var i = 0; i < my.pages.length; i ++) {
+      if(my.pages[i].frame === frame)
+        return my.pages[i];
     }
     return null;
   };
 
-  // ### entry_for_frame_name
+  // ### page_for_frame_name
   //
-  // Retrieves the entry associated with this frame_name if it exists within 
+  // Retrieves the page associated with this frame_name if it exists within 
   // this stack or null otherwise
   // ```
   // @frame {exo_frame} the frame to search for
   // ```
-  entry_for_frame_name = function(name) {
-    for(var i = 0; i < my.entries.length; i ++) {
-      if(my.entries[i].frame.name() === name)
-        return my.entries[i];
+  page_for_frame_name = function(name) {
+    for(var i = 0; i < my.pages.length; i ++) {
+      if(my.pages[i].frame.name() === name)
+        return my.pages[i];
     }
     return null;
   };
 
-  //
   // ### push
   //
   // Pushes the entries to the control ui for update
-  // 
   push = function() {
     var update = [];
-    my.entries.forEach(function(e) {
-      update.push({ name: e.frame.name(), navs: e.navs })
+    my.pages.forEach(function(p, i) {
+      update.push({ 
+        name: p.frame.name(), 
+        state: p.state, 
+        active: i === my.active
+      })
     });
-    my.socket.emit('entries', update);
-    if(my.entries.length > 0) {
-      that.emit('active_entry', my.entries[0]);
+    my.socket.emit('pages', update);
+    if(my.pages.length > 0) {
+      that.emit('active_page', my.pages[0]);
     }
   };
   
@@ -161,84 +178,40 @@ var stack = function(spec, my) {
   /****************************************************************************/
   /*                            EXOBROWSER EVENTS                             */
   /****************************************************************************/
-  // ### frame_load_finish
+  // ### frame_navigation_state
   //
-  // We receive the final URL. We don't create a new nav we only update the
-  // most recent one as it must have been preceded by a call to
-  // `frame_pending_url`
+  // An update has been made to the navigation state, so we should update our
+  // own internal state
   // ```
-  // @frame {exo_frame} the target frame
-  // @raw_url   {string} the new url
+  // @frame {exo_frame} the target_frame
+  // @state {object} the navigation state
   // ```
-  frame_load_finish = function(frame, raw_url) {
-    var e = entry_for_frame(frame);
-    var url = require('url').parse(raw_url || '');
-
-    if(e && e.navs.length > 0) {
-      console.log('[STACK] FINAL: ' + url.href);
-      e.navs[0].url = url;
-      if(e.navs[0].title === 'Loading...') {
-        e.navs[0].title = url.hostname + ' - No TiTLe';
+  frame_navigation_state = function(frame, state) {
+    var p = page_for_frame(frame);
+    if(p) {
+      /* We clear the box_value for this page only if the state visible entry */
+      /* `id` has changed (we navigated somewhere)                            */
+      var new_id = null, old_id = null;
+      p.state.entries.forEach(function(n) { if(n.visible) old_id = n.id; });
+      state.entries.forEach(function(n) { if(n.visible) new_id = n.id; });
+      if(new_id !== old_id && new_id !== null) {
+        p.box_value = null;
       }
-      e.navs[0].last = new Date();
-      push();
-    }
-  };
 
-  // ### frame_pending_url
-  //
-  // ExoBrowser event handler to update internal state of stack
-  // ```
-  // @frame {exo_frame} the target frame
-  // @raw_url   {string} the new url
-  // ```
-  frame_pending_url = function(frame, raw_url) {
-    var e = entry_for_frame(frame);
-    var url = require('url').parse(raw_url || '');
-
-    if(e) {
-      console.log('[STACK] PENDING: ' + url.href);
-      var i = 0;
-      var exists = false;
-      for(var i = e.navs.length - 1; i >= 0; i--) {
-        if(e.navs[i].url.href === url.href) {
-          var nav = e.navs.splice(i, 1)[0];
-          nav.last = new Date();
-          e.navs.unshift(nav);
-          exists = true;
-          break;
+      p.state = state;
+      p.state.entries.forEach(function(n) {
+        if(my.favicons[n.id]) {
+          n.favicon = my.favicons[n.id];
         }
-      }
-      if(!exists) {
-        e.navs.unshift({
-          url: url,
-          title: 'Loading...',
-          last: new Date()
-        });
-      }
-      push();
-    }
-  };
-
-  // ### frame_title_update
-  //
-  // ExoBrowser event handler to update internal state of stack
-  // ```
-  // @frame {exo_frame} the target frame
-  // @title {string} the new title
-  // ```
-  frame_title_update = function(frame, title) {
-    var e = entry_for_frame(frame);
-    if(e && e.navs.length > 0) {
-      console.log('[STACK] TITLE: ' + title);
-      e.navs[0].title = title;
+      });
       push();
     }
   };
 
   // ### frame_favicon_update
   //
-  // Received whenever a favicon url is retrieved
+  // We receive the favicon (and not use the `navigation_state` because of:
+  // CRBUG 277069) and attempt to stitch it in the correct state entry
   // ```
   // @frame    {exo_frame} the target frame
   // @favicons {array} array of candidates favicon urls
@@ -246,31 +219,34 @@ var stack = function(spec, my) {
   frame_favicon_update = function(frame, favicons) {
     /* TODO(spolu): for now we take the frist one always. Add the type into */
     /* the API so that a better logic can be implemented here.              */
-    if(favicons.length > 0) {
-      console.log('[STACK] FAVICON: ' + favicons[0]);
-      var e = entry_for_frame(frame);
-      if(e && e.navs.length > 0) {
-        e.navs[0].favicon = favicons[0];
-        push();
-      }
+    var p = page_for_frame(frame);
+    if(favicons.length > 0 && p) {
+      p.state.entries.forEach(function(n) {
+        if(n.visible) {
+          my.favicons[n.id] = favicons[0];
+          n.favicon = favicons[0];
+        }
+      });
+      push();
     }
-  };
+  }; 
 
   /****************************************************************************/
   /*                          SOCKET EVENT HANDLERS                           */
   /****************************************************************************/
-  // ### socket_select_entry
+  // ### socket_select_page
   //
-  // Received when an entry is selected from the UI
+  // Received when an page is selected from the UI
   // ```
-  // @name {string} the frame name of the entry
+  // @name {string} the frame name of the page
   // ```
-  socket_select_entry = function(name) {
-    for(var i = 0; i < my.entries.length; i ++) {
-      if(my.entries[i].frame.name() === name) {
-        var e = my.entries.splice(i, 1)[0];
-        my.entries.unshift(e);
-        my.session.exo_browser().show_page(e.frame);
+  socket_select_page = function(name) {
+    for(var i = 0; i < my.pages.length; i ++) {
+      if(my.pages[i].frame.name() === name) {
+        var p = my.pages.splice(i, 1)[0];
+        my.pages.unshift(p);
+        my.active = 0;
+        my.session.exo_browser().show_page(p.frame);
         push();
         break;
       }
@@ -278,49 +254,122 @@ var stack = function(spec, my) {
   };
 
   /****************************************************************************/
+  /*                      KEYBOARD SHORTCUT EVENT HANDLERS                    */
+  /****************************************************************************/
+  // ### shortcut_new_page
+  //
+  // Keyboard shorcut to create a new page
+  shortcut_new_page = function() {
+    that.new_page();
+  };
+
+  // ### shortcut_stack_toggle
+  //
+  // Keyboard shorcut to toggle the stack visibility
+  shortcut_stack_toggle = function() {
+    that.toggle();
+  };
+
+  // ### shortcut_stack_next
+  //
+  // Keyboard shorcut to preview next page
+  shortcut_stack_next = function() {
+    if(my.active < my.pages.length - 1) {
+      my.active++;
+      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+        my.pages[my.active].frame.focus();
+      });
+      push();
+    }
+  };
+
+  // ### shortcut_stack_prev
+  //
+  // Keyboard shorcut to preview previous page
+  shortcut_stack_prev = function() {
+    if(my.active > 0) {
+      my.active--;
+      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+        my.pages[my.active].frame.focus();
+      });
+      push();
+    }
+  };
+
+  // ### shortcut_stack_commit
+  //
+  // Keyboard shorcut to commit to currently visible page
+  shortcut_stack_commit = function() {
+    var p = my.pages.splice(my.active, 1)[0];
+    my.pages.unshift(p);
+    my.active = 0;
+    push();
+  };
+
+  /****************************************************************************/
   /*                              PUBLIC METHODS                              */
   /****************************************************************************/
-  // ### new_entry
+  // ### new_page
   //
-  // Creates a new entry for the provided url or a default one if not specified.
+  // Creates a new page for the provided url or a default one if not specified.
   // The url is supposed to be a valid url. There's nothing smart here.
   // ```
-  // @url {string} the url to navigate to
+  // @url        {string} the url to navigate to
   // ```
   //
-  new_entry = function(url) {
-    url = url || 'http://google.com';
+  new_page = function(url) {
+    var box_focus = !url ? true : false;
+    url = url || (my.session.base_url() + '/home.html');
 
-    var e = {
+    var p = {
       frame: api.exo_frame({
         url: url
       }),
-      navs: []
+      state: { 
+        entries: [],
+        can_go_back: false,
+        can_go_forward: false
+      },
+      box_value: url ? null : ''
     };
 
-    my.entries.unshift(e);
-    my.session.exo_browser().add_page(e.frame, function() {
-      my.session.exo_browser().show_page(e.frame);
+    my.pages.unshift(p);
+    my.active = 0;
+
+    my.session.exo_browser().add_page(p.frame, function() {
+      my.session.exo_browser().show_page(p.frame, function() {
+        if(!box_focus) {
+          setTimeout(function() {
+            p.frame.focus();
+          }, 100);
+        }
+        else {
+          setTimeout(function() {
+            my.session.box().focus();
+          }, 100);
+        }
+      });
     });
     push();
   };
 
-  // ### active_entry
+  // ### active_page
   //
-  // Returns the current actrive entry
-  active_entry = function() {
-    if(my.entries.length > 0) {
-      return my.entries[0]
+  // Returns the current actrive page
+  active_page = function() {
+    if(my.pages.length > 0) {
+      return my.pages[0]
     }
     return null;
   };
+
   
 
   common.method(that, 'init', init, _super);
   common.method(that, 'handshake', handshake, _super);
   common.method(that, 'dimension', dimension, _super);
-  common.method(that, 'new_entry', new_entry, _super);
-  common.method(that, 'active_entry', active_entry, _super);
+  common.method(that, 'new_page', new_page, _super);
+  common.method(that, 'active_page', active_page, _super);
   
   return that;
 };

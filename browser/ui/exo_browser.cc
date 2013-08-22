@@ -14,6 +14,8 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_view.h"
+#include "content/public/browser/navigation_entry.h"
+#include "content/public/browser/navigation_controller.h"
 #include "content/public/common/renderer_preferences.h"
 
 #include "breach/common/breach_switches.h"
@@ -92,7 +94,7 @@ ExoBrowser::KillAll()
 
 ExoFrame* 
 ExoBrowser::FrameForWebContents(
-    WebContents* web_contents)
+    const WebContents* web_contents)
 {
   std::map<std::string, ExoFrame*>::iterator p_it;
   for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
@@ -204,6 +206,7 @@ ExoBrowser::RemoveFrame(
 
 }
 
+
 void
 ExoBrowser::Kill()
 {
@@ -293,6 +296,20 @@ ExoBrowser::PreHandleKeyboardEvent(
   return false;
 }
 
+void 
+ExoBrowser::NavigationStateChanged(
+    const WebContents* source,
+    unsigned changed_flags)
+{
+  ExoFrame* frame = FrameForWebContents(source);
+  DCHECK(frame != NULL);
+  if(frame) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::DispatchNavigationState, wrapper_, frame));
+  }
+}
+
 
 void 
 ExoBrowser::AddNewContents(
@@ -320,6 +337,7 @@ void
 ExoBrowser::ActivateContents(
     WebContents* contents) 
 {
+  LOG(INFO) << "Activate Content";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }
@@ -328,6 +346,7 @@ void
 ExoBrowser::DeactivateContents(
     WebContents* contents) 
 {
+  LOG(INFO) << "Dectivate Content";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API (blur) */
 }
