@@ -274,10 +274,11 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to preview next page
   shortcut_stack_next = function() {
-    console.log('NEXT');
     if(my.active < my.pages.length - 1) {
       my.active++;
-      my.session.exo_browser().show_page(my.pages[my.active].frame);
+      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+        my.pages[my.active].frame.focus();
+      });
       push();
     }
   };
@@ -286,10 +287,11 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to preview previous page
   shortcut_stack_prev = function() {
-    console.log('PREV');
     if(my.active > 0) {
       my.active--;
-      my.session.exo_browser().show_page(my.pages[my.active].frame);
+      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+        my.pages[my.active].frame.focus();
+      });
       push();
     }
   };
@@ -298,7 +300,6 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to commit to currently visible page
   shortcut_stack_commit = function() {
-    console.log('COMMIT');
     var p = my.pages.splice(my.active, 1)[0];
     my.pages.unshift(p);
     my.active = 0;

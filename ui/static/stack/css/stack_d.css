@@ -34,8 +34,7 @@
 }
 
 .stack .page.active:not(.top) {
-  background-color: hsl(228, 14%, 30%);
-  border-bottom: 1px solid hsl(228, 14%, 16%);
+  box-shadow: inset 1px -1px 0px hsl(228, 70%, 50%);
 }
 
 .stack .page.top {
