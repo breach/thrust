@@ -98,7 +98,7 @@ public:
 
   // ### type
   // Returns the frame type
-  FRAME_TYPE type() { return type_; }
+  FRAME_TYPE type() const { return type_; }
 
   // ### size
   // Retrieves the frame size
@@ -106,12 +106,12 @@ public:
 
   // ### name
   // Returns the ExoFrame name
-  const std::string& name() { return name_; }
+  const std::string& name() const { return name_; }
 
 
   // ### parent
   // Returns the ExoFrame's parent ExoBrowser
-  ExoBrowser* parent() { return parent_; }
+  ExoBrowser* parent() const { return parent_; }
 
   /****************************************************************************/
   /*                   WEBCONTENTSOBSERVER IMPLEMENTATION                     */
@@ -120,9 +120,6 @@ public:
       int32 page_id,
       const std::vector<content::FaviconURL>& candidates) OVERRIDE;
 
-  virtual void ProvisionalChangeToMainFrameUrl(
-      const GURL& url,
-      content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DidFailLoad(
       int64 frame_id,
       const GURL& validated_url,
@@ -182,6 +179,10 @@ private:
   // ### PlatformSize
   // Retrieves the size of the WebContents view
   gfx::Size PlatformSize();
+
+  // ### PlatformFocus
+  // Attempts to focus this widget within its window
+  void PlatformFocus();
 
   /****************************************************************************/
   /*                  NOTIFICATION OBSERVER IMPLEMENTATION                    */

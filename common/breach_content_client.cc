@@ -25,7 +25,7 @@ BreachContentClient::~BreachContentClient()
 std::string 
 BreachContentClient::GetUserAgent() const 
 {
-  std::string product = "Breach/" BREACH_VERSION;
+  std::string product = "Chrome/" UA_VERSION;
   return webkit_glue::BuildUserAgentFromProduct(product);
 }
 

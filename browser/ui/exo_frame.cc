@@ -14,6 +14,7 @@
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#include "content/public/browser/render_view_host.h" 
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/node/node_thread.h"
 #include "breach/browser/breach_content_browser_client.h"
@@ -33,9 +34,6 @@ ExoFrame::ExoFrame(
     wrapper_(wrapper)
 {
   web_contents_.reset(web_contents);
-  registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-      Source<WebContents>(web_contents));
-
 }
 
 ExoFrame::ExoFrame(
@@ -49,8 +47,6 @@ ExoFrame::ExoFrame(
       (BrowserContext*)BreachContentBrowserClient::Get()->browser_context());
   WebContents* web_contents = WebContents::Create(create_params);
   web_contents_.reset(web_contents);
-  registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-      Source<WebContents>(web_contents));
   WebContentsObserver::Observe(web_contents);
 }
 
@@ -87,28 +83,24 @@ ExoFrame::LoadURL(
   params.transition_type = PageTransitionFromInt(
       PAGE_TRANSITION_TYPED | PAGE_TRANSITION_FROM_ADDRESS_BAR);
   web_contents_->GetController().LoadURLWithParams(params);
-  web_contents_->GetView()->Focus();
 }
 
 void
 ExoFrame::GoBackOrForward(int offset)
 {
   web_contents_->GetController().GoToOffset(offset);
-  web_contents_->GetView()->Focus();
 }
 
 void 
 ExoFrame::Reload() 
 {
-  web_contents_->GetController().Reload(false);
-  web_contents_->GetView()->Focus();
+  web_contents_->GetController().Reload(true);
 }
 
 void 
 ExoFrame::Stop() 
 {
   web_contents_->Stop();
-  web_contents_->GetView()->Focus();
 }
 
 void
@@ -120,7 +112,6 @@ ExoFrame::Focus()
 /******************************************************************************/
 /*                    WEBCONTENTSOBSERVER IMPLEMENTATION                      */
 /******************************************************************************/
-
 void 
 ExoFrame::DidUpdateFaviconURL(
     int32 page_id,
@@ -129,16 +120,6 @@ ExoFrame::DidUpdateFaviconURL(
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoFrameWrap::DispatchFaviconUpdate, wrapper_, candidates));
-}
-
-void 
-ExoFrame::ProvisionalChangeToMainFrameUrl(
-    const GURL& url,
-    content::RenderViewHost* render_view_host)
-{
-  NodeThread::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&ExoFrameWrap::DispatchPendingURL, wrapper_, url.spec()));
 }
 
 void 
@@ -171,6 +152,7 @@ ExoFrame::DidFinishLoad(
         FROM_HERE,
         base::Bind(&ExoFrameWrap::DispatchLoadFinish, wrapper_,
                    validated_url.spec()));
+    web_contents_->GetView()->Focus();
   }
 }
 
@@ -199,19 +181,7 @@ ExoFrame::Observe(
     const NotificationSource& source,
     const NotificationDetails& details) 
 {
-  if (type == NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    std::pair<NavigationEntry*, bool>* title =
-        Details<std::pair<NavigationEntry*, bool> >(details).ptr();
-
-    if (title->first) {
-      std::string t = UTF16ToUTF8(title->first->GetTitle());
-      NodeThread::Get()->PostTask(
-          FROM_HERE,
-          base::Bind(&ExoFrameWrap::DispatchTitleUpdate, wrapper_, t));
-    }
-  } else {
-    NOTREACHED();
-  }
+  NOTREACHED();
 }
 
 

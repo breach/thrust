@@ -28,8 +28,8 @@ function StackTopCtrl($scope, $location, $rootScope, $window, $timeout,
   /* Handhsaking */
   _socket.emit('handshake', _session.name() + '_stack');
 
-  _socket.on('entries', function(entries) {
-    $scope.entries = entries;
+  _socket.on('pages', function(pages) {
+    $scope.pages = pages;
   });
 }
 

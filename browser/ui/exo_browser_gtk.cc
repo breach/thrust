@@ -234,6 +234,12 @@ ExoBrowser::PlatformUnsetControl(
 }
 
 
+void
+ExoBrowser::PlatformFocus()
+{
+  gtk_window_present(window_);
+}
+
 
 gfx::Size
 ExoBrowser::PlatformSize()

@@ -55,6 +55,9 @@ private:
   void PositionTask(gfx::Point* position,
                     v8::Persistent<v8::Function>* cb_p);
 
+  static void Focus(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void FocusTask(v8::Persistent<v8::Function>* cb_p);
+
 
   static void SetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */
@@ -114,6 +117,10 @@ private:
   void DispatchFrameKeyboard(const std::string& frame,
                              const content::NativeWebKeyboardEvent& event);
 
+  static void SetNavigationStateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchNavigationState(const ExoFrame* frame);
+
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/
@@ -127,6 +134,7 @@ private:
   v8::Persistent<v8::Function> frame_navigate_cb_;
   v8::Persistent<v8::Function> frame_created_cb_;
   v8::Persistent<v8::Function> frame_keyboard_cb_;
+  v8::Persistent<v8::Function> navigation_state_cb_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 
