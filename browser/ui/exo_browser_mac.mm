@@ -131,27 +131,20 @@ ExoBrowser::PlatformCreateWindow(
       [[ExoBrowserWindowDelegate alloc] initWithExoBrowser:this];
   [window_ setDelegate:delegate];
 
-  NSRect rect = [window_ frame];
+  control_left_box_ = [[[NSView alloc] init] autorelease];
+  control_right_box_ = [[[NSView alloc] init] autorelease];
+  control_top_box_ = [[[NSView alloc] init] autorelease];
+  control_bottom_box_ = [[[NSView alloc] init] autorelease];
+  vertical_box_ = [[[NSView alloc] init] autorelease];
+  pages_box_ = [[[NSView alloc] init] autorelease];
 
-  control_left_box_ = [[[NSView alloc] initWithFrame:rect] autorelease];
-  control_right_box_ = [[[NSView alloc] initWithFrame:rect] autorelease];
-  control_top_box_ = [[[NSView alloc] initWithFrame:rect] autorelease];
-  control_bottom_box_ = [[[NSView alloc] initWithFrame:rect] autorelease];
-  vertical_box_ = [[[NSView alloc] initWithFrame:rect] autorelease];
-  pages_box_ = [[[NSView alloc] initWithFrame:rect] autorelease];
-
-  [content addSubview: control_left_box_];
-  [content addSubview: vertical_box_];
-  [content addSubview: control_right_box_];
-  [vertical_box_ addSubview: control_top_box_];
-  [vertical_box_ addSubview: pages_box_];
-  [vertical_box_ addSubview: control_bottom_box_];
-  
+  /* Horizontal Layout */
   [control_left_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [control_right_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [control_top_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [control_bottom_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [content addSubview: control_left_box_]; 
   [vertical_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [content addSubview: vertical_box_];
+  [control_right_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [content addSubview: control_right_box_]; 
 
   NSDictionary *content_dict = 
     NSDictionaryOfVariableBindings(control_left_box_,
@@ -159,12 +152,62 @@ ExoBrowser::PlatformCreateWindow(
                                    vertical_box_);
   [content addConstraints:
     [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"H:|-0-[control_left_box_(>=200)]-[vertical_box_(>=300)]-[control_right_box_(>=200)]-0-|"
+      constraintsWithVisualFormat:@"|[control_left_box_][vertical_box_][control_right_box_]|"
                           options:0
                           metrics:nil
                             views:content_dict]];
 
+  NSArray * control_left_box_constraints = 
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"[control_left_box_(0)]"
+                          options:0
+                          metrics:nil
+                            views:content_dict];
+  [content addConstraints: control_left_box_constraints];
+  control_left_constraint_ = [control_left_box_constraints objectAtIndex: 0];
 
+  NSArray * control_right_box_constraints = 
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"[control_right_box_(0)]"
+                          options:0
+                          metrics:nil
+                            views:content_dict];
+  [content addConstraints: control_right_box_constraints];
+  control_right_constraint_ = [control_right_box_constraints objectAtIndex: 0];
+
+  [content addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"[vertical_box_(>=100)]"
+                          options:0
+                          metrics:nil
+                            views:content_dict]];
+  [content addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:|-0-[vertical_box_(>=100)]-0-|"
+                          options:0
+                          metrics:nil
+                            views:content_dict]];
+  [content addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:|-0-[control_left_box_]-0-|"
+                          options:0
+                          metrics:nil
+                            views:content_dict]];
+  [content addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:|-0-[control_right_box_]-0-|"
+                          options:0
+                          metrics:nil
+                            views:content_dict]];
+
+  /* Vertical Layout */
+  [control_top_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [vertical_box_ addSubview: control_top_box_];
+  [pages_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [vertical_box_ addSubview: pages_box_];
+  [control_bottom_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [vertical_box_ addSubview: control_bottom_box_];
+   
   NSDictionary *vertical_dict = 
     NSDictionaryOfVariableBindings(control_top_box_,
                                    control_bottom_box_,
@@ -172,31 +215,59 @@ ExoBrowser::PlatformCreateWindow(
 
   [vertical_box_ addConstraints:
     [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"V:|-0-[control_top_box_(>=100)]-[pages_box_(>=400)]-[control_bottom_box_(>=100)]-0-|"
+      constraintsWithVisualFormat:@"V:|[control_top_box_][pages_box_][control_bottom_box_]|"
                           options:0
                           metrics:nil
                             views:vertical_dict]];
-   
+
+  NSArray * control_top_box_constraints = 
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:[control_top_box_(0)]"
+                          options:0
+                          metrics:nil
+                            views:vertical_dict];
+  [vertical_box_ addConstraints: control_top_box_constraints];
+  control_top_constraint_ = [control_top_box_constraints objectAtIndex: 0];
+
+  NSArray * control_bottom_box_constraints = 
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:[control_bottom_box_(0)]"
+                          options:0
+                          metrics:nil
+                            views:vertical_dict];
+  [vertical_box_ addConstraints: control_bottom_box_constraints];
+  control_bottom_constraint_ = [control_bottom_box_constraints objectAtIndex: 0];
+
+  [vertical_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:[pages_box_(>=100)]"
+                          options:0
+                          metrics:nil
+                            views:vertical_dict]];
+
+  [vertical_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"|-0-[pages_box_(>=100)]-0-|"
+                          options:0
+                          metrics:nil
+                            views:vertical_dict]];
+  [vertical_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"|-0-[control_top_box_]-0-|"
+                          options:0
+                          metrics:nil
+                            views:vertical_dict]];
+  [vertical_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"|-0-[control_bottom_box_]-0-|"
+                          options:0
+                          metrics:nil
+                            views:vertical_dict]];
+
   // show the window
   [window_ makeKeyAndOrderFront:nil];
 }
 
-/*
-void 
-ExoBrowser::PlatformSetContents() 
-{
-  NSView* web_view = web_contents_->GetView()->GetNativeView();
-
-  NSView* content = [window_ contentView];
-  [content addSubview:web_view];
-
-  NSRect frame = [content bounds];
-  frame.size.height -= kURLBarHeight;
-  [web_view setFrame:frame];
-  [web_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
-  [web_view setNeedsDisplay:YES];
-}
-*/
 
 void 
 ExoBrowser::PlatformSetTitle(
@@ -238,23 +309,15 @@ ExoBrowser::PlatformShowPage(
     ExoFrame *frame)
 {
   NSView* web_view = frame->web_contents_->GetView()->GetNativeView();
-  [pages_box_ setSubviews:[NSArray array]];
-  [pages_box_ addSubview: web_view];
 
-  NSRect rect = [[window_ contentView] bounds];
+  [pages_box_ setSubviews:[NSArray array]];
+
+  NSRect rect = [pages_box_ bounds];
   [web_view setFrame:rect];
   [web_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+  [pages_box_ addSubview: web_view];
+
   [web_view setNeedsDisplay:YES];
-/*
-  WebContentsView* content_view = frame->web_contents_->GetView();
-  if(visible_page_ != content_view->GetNativeView()) {
-    if(visible_page_ != NULL) {
-      [visible_page_ removeFromSuperview];
-    }
-    visible_page_ = content_view->GetNativeView();
-    [pages_box_ addSubview: visible_page_];
-  }
-*/
 }
 
 
@@ -264,29 +327,32 @@ ExoBrowser::PlatformSetControl(
     CONTROL_TYPE type, 
     ExoFrame *frame)
 {
-  WebContentsView* content_view = frame->web_contents_->GetView();
+  NSView* web_view = frame->web_contents_->GetView()->GetNativeView();
+  [web_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
   LOG(INFO) << "PlatformSetControl: " << type << " " << frame->name();
 
+  NSView* container = nil;
   switch(type) {
     case LEFT_CONTROL: 
-      [control_left_box_ addSubview: content_view->GetNativeView()];
-      /* TODO(spolu): implement */
+      container = control_left_box_;
       break;
     case RIGHT_CONTROL: 
-      [control_right_box_ addSubview: content_view->GetNativeView()];
-      /* TODO(spolu): implement */
+      container = control_right_box_;
       break;
     case TOP_CONTROL: 
-      [control_top_box_ addSubview: content_view->GetNativeView()];
-      /* TODO(spolu): implement */
+      container = control_top_box_;
       break;
     case BOTTOM_CONTROL: 
-      [control_bottom_box_ addSubview: content_view->GetNativeView()];
-      /* TODO(spolu): implement */
+      container = control_bottom_box_;
       break;
     default:
       /* Nothing to do */
       ;
+  }
+  if(container) {
+    NSRect rect = [container bounds];
+    [web_view setFrame:rect];
+    [container addSubview: web_view];
   }
 }
 
@@ -299,22 +365,26 @@ ExoBrowser::PlatformSetControlDimension(
   LOG(INFO) << "PlatformSetControlDimension: " 
             << type << " " << size;
 
+  NSLayoutConstraint* constraint = nil;
   switch(type) {
     case LEFT_CONTROL: 
-      /* TODO(spolu): implement */
+      constraint = control_left_constraint_;
       break;
     case RIGHT_CONTROL: 
-      /* TODO(spolu): implement */
+      constraint = control_right_constraint_;
       break;
     case TOP_CONTROL: 
-      /* TODO(spolu): implement */
+      constraint = control_top_constraint_;
       break;
     case BOTTOM_CONTROL: 
-      /* TODO(spolu): implement */
+      constraint = control_bottom_constraint_;
       break;
     default:
       /* Nothing to do */
       ;
+  }
+  if(constraint) {
+    [constraint setConstant: size];
   }
 }
 
@@ -324,25 +394,34 @@ ExoBrowser::PlatformUnsetControl(
     CONTROL_TYPE type, 
     ExoFrame *frame)
 {
-  WebContentsView* content_view = frame->web_contents_->GetView();
   LOG(INFO) << "PlatformUnsetControl: " << type << " " << frame->name();
 
+  NSView* container = nil;
+  NSLayoutConstraint* constraint = nil;
   switch(type) {
     case LEFT_CONTROL: 
-      /* TODO(spolu): implement */
+      container = control_left_box_;
+      constraint = control_left_constraint_;
       break;
     case RIGHT_CONTROL: 
-      /* TODO(spolu): implement */
+      container = control_right_box_;
+      constraint = control_right_constraint_;
       break;
     case TOP_CONTROL: 
-      /* TODO(spolu): implement */
+      container = control_top_box_;
+      constraint = control_top_constraint_;
       break;
     case BOTTOM_CONTROL: 
-      /* TODO(spolu): implement */
+      container = control_bottom_box_;
+      constraint = control_bottom_constraint_;
       break;
     default:
       /* Nothing to do */
       ;
+  }
+  if(container) {
+    [container setSubviews:[NSArray array]];
+    [constraint setConstant: 0];
   }
 }
 

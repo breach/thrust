@@ -24,6 +24,13 @@ namespace views {
 class Widget;
 class ViewsDelegate;
 }
+#elif defined(OS_MACOSX)
+struct CGContext;
+#ifdef __OBJC__
+@class NSLayoutConstraint;
+#else
+class NSLayoutConstraint;
+#endif // __OBJC__
 #endif
 
 class GURL;
@@ -386,9 +393,13 @@ private:
   GtkWidget*                                   pages_box_;
 #elif defined(OS_MACOSX)
   NSView*                                      control_left_box_;
+  NSLayoutConstraint*                          control_left_constraint_;
   NSView*                                      control_right_box_;
+  NSLayoutConstraint*                          control_right_constraint_;
   NSView*                                      control_top_box_;
+  NSLayoutConstraint*                          control_top_constraint_;
   NSView*                                      control_bottom_box_;
+  NSLayoutConstraint*                          control_bottom_constraint_;
   NSView*                                      vertical_box_;
   NSView*                                      pages_box_;
 #endif
