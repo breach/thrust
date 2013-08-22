@@ -17,32 +17,6 @@
 angular.module('breach.directives').controller('StackCtrl',
   function($scope, _socket) {
 
-    $scope.selection = 0;
-
-    jQuery('body').bind('keyup.viewer', function(e) {
-      $scope.$apply(function() {
-        if(e.which === 74) { /* J */
-          $scope.selection = ($scope.selection + 1) 
-                        % $scope.pages.length;
-          if($scope.selection === 0) $scope.selection += 1;
-        }
-        if(e.which === 75) { /* K */
-          $scope.selection = ($scope.selection - 1 + $scope.pages.length) 
-                        % $scope.pages.length;
-          if($scope.selection === 0) $scope.selection = $scope.pages.length - 1;
-        }
-        if(e.which === 13) { /* ENTER */
-          _socket.emit('select_page', 
-                       $scope.pages[$scope.selection].name);
-          $scope.selection = 0;
-        }
-      });
-    });
-
-    $scope.is_selected = function(page) {
-      return ($scope.pages[$scope.selection].name === page.name);
-    };
-
     $scope.$watch('pages', function(pages) {
       pages = pages || [];
       //console.log(JSON.stringify($scope.pages));
@@ -60,7 +34,7 @@ angular.module('breach.directives').controller('StackCtrl',
         p.url = p.url || { hostname: '', href: '' };
         p.title = p.title || '';
         p.favicon = p.favicon || ''
-        p.active = (i === 0) ? true: false;
+        p.top = (i === 0) ? true: false;
       });
     });
 

@@ -2,11 +2,11 @@
   <div ng-repeat="page in pages"
        class="page" 
        ng-click="select_page(page)"
-       ng-class="{ selected: is_selected(page), active: page.active }">
+       ng-class="{ top: page.top, active: page.active }">
     <div class="favicon" 
          style="background-image: url({{page.favicon}});"></div>
     <div class="title">{{page.title|truncate:30}}</div>
-    <div class="url" ng-hide="page.active">
+    <div class="url" ng-hide="page.top">
       {{page.url.hostname|truncate:40}}
     </div>
   </div>

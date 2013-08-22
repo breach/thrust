@@ -32,10 +32,13 @@ angular.module('breach.directives').controller('BoxCtrl',
     jQuery($element).find('input').keydown(function() {
       _socket.emit('box_input', $scope.value);
     });
+
+    /* TODO(spolu): Fix, CallStack Exceeded. Duh? */
+    /*
     jQuery($element).find('input').focusout(function() {
       $(this).blur();
     });
-
+    */
     
     $scope.submit = function() {
       _socket.emit('box_submit', $scope.value);

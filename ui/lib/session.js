@@ -38,9 +38,6 @@ var session = function(spec, my) {
   //
   // #### _public_
   //
-  var toggle_stack; /* toggle_stack([visible]); */
-  var toggle_box;   /* toggle_box([visible]); */
-
   var handshake;   /* handshake(name, socket); */
 
   //
@@ -53,31 +50,6 @@ var session = function(spec, my) {
   //
   var that = {};
 
-  // ### toggle_stack
-  //
-  // If no argument is provided it just toggles the stack visibility. If a
-  // visibility argument is provided, it shows or hides it.
-  // ```
-  // @visibilty {boolean} toggle to this visibility
-  // ```
-  toggle_stack = function(visible) {
-    if(typeof visible === 'boolean') {
-      if(visible) {
-        my.stack.show();
-      }
-      else {
-        my.stack.hide();
-      }
-    }
-    else {
-      if(my.stack.visible()) {
-        my.stack.hide();
-      }
-      else {
-        my.stack.show();
-      }
-    }
-  };
 
   // ### handshake
   //
@@ -135,7 +107,7 @@ var session = function(spec, my) {
         my.box.init(cb_);
       },
     }, function(err) {
-      toggle_stack(true);
+      my.stack.show();
       my.box.show();
 
       my.exo_browser.focus(function() {
@@ -145,8 +117,6 @@ var session = function(spec, my) {
   };
   
   common.method(that, 'handshake', handshake, _super);
-  common.method(that, 'toggle_stack', toggle_stack, _super);
-  common.method(that, 'toggle_box', toggle_box, _super);
 
   common.getter(that, 'name', my, 'name');
   common.getter(that, 'exo_browser', my, 'exo_browser');

@@ -175,8 +175,9 @@ var box = function(spec, my) {
     if(page) {
       page.box_value = input;
       var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
+      var ip_r = /^(http(s{0,1})\:\/\/){0,1}[0-9]{1,3}(\.[0-9]{1,3}){3}/
       var http_r = /^http(s{0,1})\:\/\//;
-      if(url_r.test(input)) {
+      if(url_r.test(input) || ip_r.test(input)) {
         if(!http_r.test(input)) {
           input = 'http://' + input;
         }

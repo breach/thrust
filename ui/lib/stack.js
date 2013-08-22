@@ -27,6 +27,7 @@ var stack = function(spec, my) {
   /*    state,       */
   /*    box_value }] */
   my.pages = [];
+  my.active = -1;
   my.favicons = {}
 
   //
@@ -51,6 +52,10 @@ var stack = function(spec, my) {
   var socket_select_page;     /* socket_select_page(name); */
 
   var shortcut_new_page;      /* shortcut_new_page(); */
+  var shortcut_stack_toggle;  /* shortcut_stack_toggle(); */
+  var shortcut_stack_next;    /* shortcut_stack_next(); */
+  var shortcut_stack_prev;    /* shortcut_stack_prev(); */
+  var shortcut_stack_commit;  /* shortcut_stack_commit(); */
   
   //
   // ### _protected_
@@ -105,7 +110,16 @@ var stack = function(spec, my) {
     my.session.exo_browser().on('frame_favicon_update', 
                                 frame_favicon_update);
 
-    my.session.keyboard_shortcuts().on('new_page', shortcut_new_page);
+    my.session.keyboard_shortcuts().on('new_page', 
+                                       shortcut_new_page);
+    my.session.keyboard_shortcuts().on('stack_toggle', 
+                                       shortcut_stack_toggle);
+    my.session.keyboard_shortcuts().on('stack_next', 
+                                       shortcut_stack_next);
+    my.session.keyboard_shortcuts().on('stack_prev', 
+                                       shortcut_stack_prev);
+    my.session.keyboard_shortcuts().on('stack_commit', 
+                                       shortcut_stack_commit);
   };
 
 
@@ -147,8 +161,12 @@ var stack = function(spec, my) {
   // Pushes the entries to the control ui for update
   push = function() {
     var update = [];
-    my.pages.forEach(function(p) {
-      update.push({ name: p.frame.name(), state: p.state })
+    my.pages.forEach(function(p, i) {
+      update.push({ 
+        name: p.frame.name(), 
+        state: p.state, 
+        active: i === my.active
+      })
     });
     my.socket.emit('pages', update);
     if(my.pages.length > 0) {
@@ -227,6 +245,7 @@ var stack = function(spec, my) {
       if(my.pages[i].frame.name() === name) {
         var p = my.pages.splice(i, 1)[0];
         my.pages.unshift(p);
+        my.active = 0;
         my.session.exo_browser().show_page(p.frame);
         push();
         break;
@@ -242,6 +261,48 @@ var stack = function(spec, my) {
   // Keyboard shorcut to create a new page
   shortcut_new_page = function() {
     that.new_page();
+  };
+
+  // ### shortcut_stack_toggle
+  //
+  // Keyboard shorcut to toggle the stack visibility
+  shortcut_stack_toggle = function() {
+    that.toggle();
+  };
+
+  // ### shortcut_stack_next
+  //
+  // Keyboard shorcut to preview next page
+  shortcut_stack_next = function() {
+    console.log('NEXT');
+    if(my.active < my.pages.length - 1) {
+      my.active++;
+      my.session.exo_browser().show_page(my.pages[my.active].frame);
+      push();
+    }
+  };
+
+  // ### shortcut_stack_prev
+  //
+  // Keyboard shorcut to preview previous page
+  shortcut_stack_prev = function() {
+    console.log('PREV');
+    if(my.active > 0) {
+      my.active--;
+      my.session.exo_browser().show_page(my.pages[my.active].frame);
+      push();
+    }
+  };
+
+  // ### shortcut_stack_commit
+  //
+  // Keyboard shorcut to commit to currently visible page
+  shortcut_stack_commit = function() {
+    console.log('COMMIT');
+    var p = my.pages.splice(my.active, 1)[0];
+    my.pages.unshift(p);
+    my.active = 0;
+    push();
   };
 
   /****************************************************************************/
@@ -272,6 +333,7 @@ var stack = function(spec, my) {
     };
 
     my.pages.unshift(p);
+    my.active = 0;
 
     my.session.exo_browser().add_page(p.frame, function() {
       my.session.exo_browser().show_page(p.frame, function() {
@@ -299,6 +361,7 @@ var stack = function(spec, my) {
     }
     return null;
   };
+
   
 
   common.method(that, 'init', init, _super);

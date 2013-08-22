@@ -24,21 +24,21 @@
   cursor: pointer;
 }
 
-.stack .page:not(.active) {
+.stack .page:not(.top) {
   border-right: 1px solid hsl(220, 12%, 5%);
 }
 
-.stack .page:not(.active):hover {
+.stack .page:not(.top):hover {
   background-color: hsl(228, 14%, 16%);
   border-bottom: 1px solid hsl(228, 14%, 20%);
 }
 
-.stack .page.selected:not(.active) {
+.stack .page.active:not(.top) {
   background-color: hsl(228, 14%, 30%);
   border-bottom: 1px solid hsl(228, 14%, 16%);
 }
 
-.stack .page.active {
+.stack .page.top {
   cursor: default;
   background-color: hsl(228, 7%, 95%);
   border-bottom: 1px solid hsl(228, 14%, 25%);
@@ -68,7 +68,7 @@
 
 }
 
-.stack .page.active > .favicon {
+.stack .page.top > .favicon {
   background-color: hsl(228, 7%, 90%);
   border: 1px solid hsl(228, 14%, 85%);
 }
@@ -79,7 +79,7 @@
   font-size: 0.9em;
 }
 
-.stack .page.active > .title {
+.stack .page.top > .title {
   margin-top: 7px;
 }
 

@@ -82,36 +82,65 @@ var keyboard_shortcuts = function(spec, my) {
     console.log(JSON.stringify(event));
 
     if(event.type === 7 &&
-       (event.modeifirs | (1 << 1)) &&
+       (event.modifiers & (1 << 1)) &&
        event.keycode === 84 &&
        !is_last(event)) {
-      /* No Repetition */
+      /* Ctrl - T ; No Repetition */
       that.emit('new_page');
     }
 
     if(event.type === 7 &&
-       (event.modeifirs | (1 << 1)) &&
+       (event.modifiers & (1 << 1)) &&
        event.keycode === 71 &&
        !is_last(event)) {
-      /* No Repetition */
+      /* Ctrl - G ; No Repetition */
       that.emit('go');
     }
 
     if(event.type === 7 &&
-       (event.modeifirs | (1 << 1)) &&
+       (event.modifiers & (1 << 1)) &&
        event.keycode === 72 &&
        !is_last(event)) {
-      /* No Repetition */
+      /* Ctrl - H ; No Repetition */
       that.emit('back');
     }
     if(event.type === 7 &&
-       (event.modeifirs | (1 << 1)) &&
+       (event.modifiers & (1 << 1)) &&
        event.keycode === 76 &&
        !is_last(event)) {
-      /* No Repetition */
+      /* Ctrl - L ; No Repetition */
       that.emit('forward');
     }
 
+    if(event.type === 7 &&
+       (event.modifiers & (1 << 1)) &&
+       event.keycode === 77 &&
+       !is_last(event)) {
+      /* Ctrl - M ; No Repetition */
+      that.emit('stack_toggle');
+    }
+
+    if(event.type === 7 &&
+       (event.modifiers & (1 << 1)) &&
+       event.keycode === 74) {
+      /* Ctrl - J ; Repetition OK */
+      that.emit('stack_next');
+      my.stack_moving = true;
+    }
+    if(event.type === 7 &&
+       (event.modifiers & (1 << 1)) &&
+       event.keycode === 75) {
+      /* Ctrl - K ; Repetition OK */
+      that.emit('stack_prev');
+      my.stack_moving = true;
+    }
+    if(event.type === 9 &&
+       event.keycode === 17) {
+      /* Ctrl Released */
+      if(my.stack_moving)
+        that.emit('stack_commit');
+      my.stack_moving = false;
+    }
 
     my.last = event;
 

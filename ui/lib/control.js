@@ -50,6 +50,7 @@ var control = function(spec, my) {
   var hide;         /* hide(); */
   var focus;        /* focus([cb_]); */
   var visible;      /* visible(); */
+  var toggle;       /* toggle([visible]); */
 
   //
   // ### _protected_
@@ -105,6 +106,32 @@ var control = function(spec, my) {
     return my.frame.visible();
   };
 
+  // ### toggle
+  //
+  // If no argument is provided it just toggles the stack visibility. If a
+  // visibility argument is provided, it shows or hides it.
+  // ```
+  // @visible {boolean} toggle to this visibility
+  // ```
+  toggle = function(visible) {
+    if(typeof visible === 'boolean') {
+      if(visible) {
+        that.show();
+      }
+      else {
+        that.hide();
+      }
+    }
+    else {
+      if(that.visible()) {
+        that.hide();
+      }
+      else {
+        that.show();
+      }
+    }
+  };
+
   // ### init
   // 
   // This init method should be overriden by the control implementation which
@@ -148,6 +175,7 @@ var control = function(spec, my) {
   common.method(that, 'hide', hide, _super);
   common.method(that, 'focus', focus, _super);
   common.method(that, 'visible', visible, _super);
+  common.method(that, 'toggle', toggle, _super);
 
   common.getter(that, 'frame', my, 'frame');
 
