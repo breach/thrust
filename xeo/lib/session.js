@@ -39,6 +39,7 @@ var session = function(spec, my) {
   // #### _public_
   //
   var handshake;   /* handshake(name, socket); */
+  var kill;        /* kill(); */
 
   //
   // #### _private_
@@ -50,25 +51,6 @@ var session = function(spec, my) {
   //
   var that = {};
 
-
-  // ### handshake
-  //
-  // Receives the socket io socket associated with one of this session's frame.
-  // (stack, home, ...)
-  // ```
-  // @name   {string} the name of the frame
-  // @socket {socket.io socket}
-  // ```
-  handshake = function(name, socket) {
-    var name_r = /^(br-[0-9]+)_(stack|box)$/;
-    var name_m = name_r.exec(name);
-    if(name_m) {
-      if(name_m[2] === 'stack')
-        my.stack.handshake(socket);
-      if(name_m[2] === 'box')
-        my.box.handshake(socket);
-    }
-  };
 
   // ### init
   // 
@@ -115,8 +97,40 @@ var session = function(spec, my) {
       });
     });
   };
+
+
+  /****************************************************************************/
+  /*                              PUBLIC METHODS                              */
+  /****************************************************************************/
+  // ### handshake
+  //
+  // Receives the socket io socket associated with one of this session's frame.
+  // (stack, home, ...)
+  // ```
+  // @name   {string} the name of the frame
+  // @socket {socket.io socket}
+  // ```
+  handshake = function(name, socket) {
+    var name_r = /^(br-[0-9]+)_(stack|box)$/;
+    var name_m = name_r.exec(name);
+    if(name_m) {
+      if(name_m[2] === 'stack')
+        my.stack.handshake(socket);
+      if(name_m[2] === 'box')
+        my.box.handshake(socket);
+    }
+  };
+
+  // ### kill
+  //
+  // Kills this session as well as the underlying exo_browser
+  kill = function() {
+    my.exo_browser.kill();
+  };
+
   
   common.method(that, 'handshake', handshake, _super);
+  common.method(that, 'kill', kill, _super);
 
   common.getter(that, 'name', my, 'name');
   common.getter(that, 'exo_browser', my, 'exo_browser');

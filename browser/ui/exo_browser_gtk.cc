@@ -59,25 +59,8 @@ ExoBrowser::PlatformCreateWindow(
   gtk_box_pack_start(GTK_BOX(vbox_), pages_box_, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(vbox_), control_bottom_box_, FALSE, FALSE, 0);
 
-  // Create the object that mediates accelerators.
-  GtkAccelGroup* accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(window_), accel_group);
-
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(OnWindowDestroyedThunk), this);
-
-  // Set global window handling accelerators:
-  gtk_accel_group_connect(
-      accel_group, GDK_w, GDK_CONTROL_MASK,
-      GTK_ACCEL_VISIBLE,
-      g_cclosure_new(G_CALLBACK(OnCloseWindowKeyPressedThunk),
-                     this, NULL));
-
-  gtk_accel_group_connect(
-      accel_group, GDK_n, GDK_CONTROL_MASK,
-      GTK_ACCEL_VISIBLE,
-      g_cclosure_new(G_CALLBACK(OnNewWindowKeyPressedThunk),
-                    this, NULL));
 
   gtk_container_add(GTK_CONTAINER(window_), hbox_);
   gtk_window_resize(window_, width, height);
@@ -265,30 +248,6 @@ ExoBrowser::OnWindowDestroyed(
   /* any other behavior here                                                 */
   Kill();
   return FALSE;  // Don't stop this message.
-}
-
-gboolean 
-ExoBrowser::OnCloseWindowKeyPressed(
-    GtkAccelGroup* accel_group,
-    GObject* acceleratable,
-    guint keyval,
-    GdkModifierType modifier) 
-{
-  /* TODO(spolu): call back into API */
-  LOG(INFO) << "OnCloseWindowKeyPressed";
-  return TRUE;
-}
-
-gboolean 
-ExoBrowser::OnNewWindowKeyPressed(
-    GtkAccelGroup* accel_group,
-    GObject* acceleratable,
-    guint keyval,
-    GdkModifierType modifier) 
-{
-  /* TODO(spolu): call back into API */
-  LOG(INFO) << "OnNewWindowKeyPressed";
-  return TRUE;
 }
 
 } // namespace breach

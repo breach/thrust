@@ -51,11 +51,13 @@ var stack = function(spec, my) {
 
   var socket_select_page;     /* socket_select_page(name); */
 
-  var shortcut_new_page;      /* shortcut_new_page(); */
-  var shortcut_stack_toggle;  /* shortcut_stack_toggle(); */
-  var shortcut_stack_next;    /* shortcut_stack_next(); */
-  var shortcut_stack_prev;    /* shortcut_stack_prev(); */
-  var shortcut_stack_commit;  /* shortcut_stack_commit(); */
+  var shortcut_new_page;        /* shortcut_new_page(); */
+  var shortcut_stack_toggle;    /* shortcut_stack_toggle(); */
+  var shortcut_stack_next;      /* shortcut_stack_next(); */
+  var shortcut_stack_prev;      /* shortcut_stack_prev(); */
+  var shortcut_stack_move_next; /* shortcut_stack_move_next(); */
+  var shortcut_stack_move_prev; /* shortcut_stack_move_prev(); */
+  var shortcut_stack_close;     /* shortcut_stack_close(); */
   
   //
   // ### _protected_
@@ -118,8 +120,12 @@ var stack = function(spec, my) {
                                        shortcut_stack_next);
     my.session.keyboard_shortcuts().on('stack_prev', 
                                        shortcut_stack_prev);
-    my.session.keyboard_shortcuts().on('stack_commit', 
-                                       shortcut_stack_commit);
+    my.session.keyboard_shortcuts().on('stack_move_next', 
+                                       shortcut_stack_move_next);
+    my.session.keyboard_shortcuts().on('stack_move_prev', 
+                                       shortcut_stack_move_prev);
+    my.session.keyboard_shortcuts().on('stack_close', 
+                                       shortcut_stack_close);
   };
 
 
@@ -170,7 +176,7 @@ var stack = function(spec, my) {
     });
     my.socket.emit('pages', update);
     if(my.pages.length > 0) {
-      that.emit('active_page', my.pages[0]);
+      that.emit('active_page', my.pages[my.active]);
     }
   };
   
@@ -243,10 +249,12 @@ var stack = function(spec, my) {
   socket_select_page = function(name) {
     for(var i = 0; i < my.pages.length; i ++) {
       if(my.pages[i].frame.name() === name) {
-        var p = my.pages.splice(i, 1)[0];
-        my.pages.unshift(p);
-        my.active = 0;
-        my.session.exo_browser().show_page(p.frame);
+        var p = my.pages[i];
+        my.active = i;
+        my.session.exo_browser().show_page(my.pages[my.active].frame, 
+                                           function() {
+          my.pages[my.active].frame.focus();
+        });
         push();
         break;
       }
@@ -272,39 +280,72 @@ var stack = function(spec, my) {
 
   // ### shortcut_stack_next
   //
-  // Keyboard shorcut to preview next page
+  // Keyboard shorcut to view next page
   shortcut_stack_next = function() {
-    if(my.active < my.pages.length - 1) {
-      my.active++;
-      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
-        my.pages[my.active].frame.focus();
-      });
-      push();
-    }
+    my.active += my.pages.length + 1;
+    my.active %= my.pages.length;
+    my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+      my.pages[my.active].frame.focus();
+    });
+    push();
   };
 
   // ### shortcut_stack_prev
   //
-  // Keyboard shorcut to preview previous page
+  // Keyboard shorcut to view previous page
   shortcut_stack_prev = function() {
-    if(my.active > 0) {
-      my.active--;
-      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
-        my.pages[my.active].frame.focus();
-      });
+    my.active += my.pages.length - 1;
+    my.active %= my.pages.length;
+    my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+      my.pages[my.active].frame.focus();
+    });
+    push();
+  };
+
+  // ### shortcut_stack_move_next
+  //
+  // Keyboard shorcut to move page to next slot
+  shortcut_stack_move_next = function() {
+    if(my.active < my.pages.length - 1) {
+      var p = my.pages.splice(my.active, 1)[0];
+      my.active++;
+      my.pages.splice(my.active, 0, p);
       push();
     }
   };
 
-  // ### shortcut_stack_commit
+  // ### shortcut_stack_move_prev
   //
-  // Keyboard shorcut to commit to currently visible page
-  shortcut_stack_commit = function() {
-    var p = my.pages.splice(my.active, 1)[0];
-    my.pages.unshift(p);
-    my.active = 0;
-    push();
+  // Keyboard shorcut to move page to prev slot
+  shortcut_stack_move_prev = function() {
+    if(my.active > 0) {
+      var p = my.pages.splice(my.active, 1)[0];
+      my.active--
+      my.pages.splice(my.active, 0, p);
+      push();
+    }
   };
+
+  // ### shortcut_stack_close
+  //
+  // Keyboard shorcut to close current page
+  shortcut_stack_close = function() {
+    var p = my.pages.splice(my.active, 1)[0]
+    my.session.exo_browser().remove_page(p.frame, function() {
+      if(my.active > 0)
+        my.active--;
+      if(my.pages.length === 0) {
+        my.session.kill();
+      }
+      else {
+        my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+          my.pages[my.active].frame.focus();
+        });
+        push();
+      }
+    });
+  };
+
 
   /****************************************************************************/
   /*                              PUBLIC METHODS                              */
@@ -358,7 +399,7 @@ var stack = function(spec, my) {
   // Returns the current actrive page
   active_page = function() {
     if(my.pages.length > 0) {
-      return my.pages[0]
+      return my.pages[my.active]
     }
     return null;
   };

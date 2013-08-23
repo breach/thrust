@@ -523,7 +523,7 @@ var exo_browser = function(spec, my) {
         if(my.frames[frame.name()] !== frame) {
           return cb_(new Error('Frame not known: ' + frame.name()));
         }
-        my.internal._removePagE(frame.name(), function() {
+        my.internal._removePage(frame.name(), function() {
           frame.set_visible(false);
           frame.set_parent(null);
           frame.set_type(exports.NO_TYPE);
