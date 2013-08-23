@@ -23,7 +23,6 @@ exo_browser#open_url(url)
 exo_browser#resize()
 exo_browser#kill()
 
-?exo_browser#frame_created(frame)
 exo_browser#frame_close(frame)
 exo_browser#frame_keyboard(frame, event)
 exo_browser#frame_navigation_state(frame, state)
@@ -31,6 +30,7 @@ exo_browser#frame_load_fail(frame, url, error_code, error_desc)
 exo_browser#frame_load_finish(frame, url)
 exo_browser#frame_loading_start(frame)
 exo_browser#frame_loading_stop(frame)
+exo_browser#frame_created(frame, dispostion, from)
 
 
 exo_browser.frame(name);

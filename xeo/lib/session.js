@@ -44,7 +44,10 @@ var session = function(spec, my) {
   //
   // #### _private_
   //
-  var init;        /* init(); */
+  var init;          /* init(); */
+
+  var browser_frame_created; /* frame_created(frame, disp, origin); */
+  var browser_open_url;      /* open_url(url, disp, origin); */
 
   //
   // #### _that_
@@ -65,6 +68,9 @@ var session = function(spec, my) {
       require('./keyboard_shortcuts.js').keyboard_shortcuts({
       session: that
     });
+
+    my.exo_browser.on('frame_created', browser_frame_created);
+    my.exo_browser.on('open_url', browser_open_url);
 
     my.loading_frame = api.exo_frame({
       name: my.name + '_loading',
@@ -98,6 +104,48 @@ var session = function(spec, my) {
     });
   };
 
+  /****************************************************************************/
+  /*                            EXOBROWSER EVENTS                             */
+  /****************************************************************************/
+  // ### browser_frame_created
+  //
+  // Event received when a new frame has been created (generally a popup).
+  // Depending on the disposition, we'll ignore it (handled by the stack) or 
+  // we'll create a new exo_browser to handle the detached popup
+  // ```
+  // @frame       {exo_frame} the newly created frame
+  // @disposition {string} the disposition for opening that frame
+  // @origin      {exo_frame} origin exo_frame
+  // ```
+  browser_frame_created = function(frame, disposition, from) {
+    if(disposition === 'new_window') {
+      /* TODO(spolu): Handle new window. */
+    }
+    if(disposition === 'new_popup') {
+      /* TODO(spolu): Handle new popup. */
+    }
+    /*TODO(spolu): Handle other dispsition not handled by the stack. */
+  };
+
+  // ### browser_open_url
+  //
+  // Event received when a new URL should be opened by the session. Depending on
+  // the disposition we'll ignore it (handled by the stack) or we'll create a
+  // new exo_browser to handle the detached popup
+  // ```
+  // @url         {string} the URL to open
+  // @disposition {string} the disposition for opening that frame
+  // @origin      {exo_frame} origin exo_frame
+  // ```
+  browser_open_url = function(url, disposition, origin) {
+    if(disposition === 'new_window') {
+      /* TODO(spolu): Handle new window. */
+    }
+    if(disposition === 'new_popup') {
+      /* TODO(spolu): Handle new Popup. */
+    }
+    /*TODO(spolu): Handle other dispsition not handled by the stack. */
+  };
 
   /****************************************************************************/
   /*                              PUBLIC METHODS                              */

@@ -48,6 +48,8 @@ var stack = function(spec, my) {
 
   var frame_navigation_state; /* frame_navigation_state(frame, state); */
   var frame_favicon_update;   /* frame_favicon_update(frame, favicons); */
+  var browser_frame_created;  /* browser_frame_created(frame, disp, origin); */
+  var browser_open_url;       /* browser_open_url(frame, disp, origin); */
 
   var socket_select_page;     /* socket_select_page(name); */
 
@@ -111,6 +113,10 @@ var stack = function(spec, my) {
                                 frame_navigation_state);
     my.session.exo_browser().on('frame_favicon_update', 
                                 frame_favicon_update);
+    my.session.exo_browser().on('frame_created', 
+                                browser_frame_created);
+    my.session.exo_browser().on('open_url', 
+                                browser_open_url);
 
     my.session.keyboard_shortcuts().on('new_page', 
                                        shortcut_new_page);
@@ -236,6 +242,92 @@ var stack = function(spec, my) {
       push();
     }
   }; 
+
+  // ### browser_frame_created
+  //
+  // Received when a new frame was created. We'll handle the disposition 
+  // `new_background_tab` and `new_foreground_tab` and will ignore the other
+  // ones that should be handled by the session.
+  // ```
+  // @frame       {exo_frame} the newly created frame
+  // @disposition {string} the disposition for opening that frame
+  // @origin      {exo_frame} origin exo_frame
+  // ```
+  browser_frame_created = function(frame, disposition, origin) {
+    if(disposition !== 'new_foreground_tab' &&
+       disposition !== 'new_background_tab') {
+      return;
+    }
+
+    var p = {
+      frame: frame,
+      state: { 
+        entries: [],
+        can_go_back: false,
+        can_go_forward: false
+      },
+      box_value: null
+    };
+
+    my.pages.splice(my.active + 1, 0, p);
+
+    my.session.exo_browser().add_page(p.frame, function() {
+      if(disposition === 'new_foreground_tab') {
+        my.active++;
+        my.session.exo_browser().show_page(p.frame, function() {
+          setTimeout(function() {
+            p.frame.focus();
+          }, 100);
+        });
+      }
+    });
+
+    push();
+  };
+
+  // ### browser_open_url
+  //
+  // Event received when a new URL should be opened by the session. Depending on
+  // the disposition we'll ignore it (handled by the stack) or we'll create a
+  // new exo_browser to handle the detached popup
+  // ```
+  // @url         {string} the URL to open
+  // @disposition {string} the disposition for opening that frame
+  // @origin      {exo_frame} origin exo_frame
+  // ```
+  browser_open_url = function(url, disposition, origin) {
+    if(disposition !== 'new_foreground_tab' &&
+       disposition !== 'new_background_tab') {
+      return;
+    }
+
+    var p = {
+      frame: api.exo_frame({
+        url: url
+      }),
+      state: { 
+        entries: [],
+        can_go_back: false,
+        can_go_forward: false
+      },
+      box_value: null 
+    };
+
+    my.pages.splice(my.active + 1, 0, p);
+
+    my.session.exo_browser().add_page(p.frame, function() {
+      if(disposition === 'new_foreground_tab') {
+        my.active++;
+        my.session.exo_browser().show_page(p.frame, function() {
+          setTimeout(function() {
+            p.frame.focus();
+          }, 100);
+        });
+      }
+    });
+
+    push();
+  };
 
   /****************************************************************************/
   /*                          SOCKET EVENT HANDLERS                           */
@@ -371,7 +463,7 @@ var stack = function(spec, my) {
         can_go_back: false,
         can_go_forward: false
       },
-      box_value: url ? null : ''
+      box_value: null 
     };
 
     my.pages.unshift(p);

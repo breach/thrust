@@ -34,14 +34,14 @@ exports.frame_count = 0;
 //
 // The `url` argument is expected.
 // ```
-// @spec { url, [name] }
+// @spec { url, [name] | internal }
 // ```
 var exo_frame = function(spec, my) {
   var _super = {};
   my = my || {};
   spec = spec || {};
 
-  my.internal = null;
+  my.internal = spec.internal || null;
 
   my.url = spec.url || '';
   my.name = spec.name || ('fr-' + (exports.frame_count++));
@@ -195,12 +195,7 @@ var exo_frame = function(spec, my) {
   //
   // Runs initialization procedure.
   init = function() {
-    _breach._createExoFrame({
-      name: my.name,
-      url: my.url
-    }, function(f) {
-      my.internal = f;
-
+    var finish = function() {
       my.internal._setFaviconUpdateCallback(function(favicons) {
         if(my.parent) {
           my.parent.emit('frame_favicon_update', that, favicons);
@@ -231,7 +226,23 @@ var exo_frame = function(spec, my) {
 
       my.ready = true;
       that.emit('ready');
-    });
+    };
+
+    if(my.internal) {
+      my.internal._name(function(name) {
+        my.name = name;
+        return finish();
+      });
+    }
+    else {
+      _breach._createExoFrame({
+        name: my.name,
+        url: my.url
+      }, function(f) {
+        my.internal = f;
+        return finish();
+      });
+    }
   };
 
 
@@ -599,9 +610,9 @@ var exo_browser = function(spec, my) {
       my.internal = b;
       exports._exo_browsers[my.name] = that;
 
-      my.internal._setOpenURLCallback(function(url, from) {
+      my.internal._setOpenURLCallback(function(url, disposition, from) {
         var origin = my.frames[from] || null;
-        that.emit('open_url', url, origin);
+        that.emit('open_url', url, disposition, origin);
       });
       my.internal._setResizeCallback(function(size) {
         my.size = size;
@@ -621,8 +632,12 @@ var exo_browser = function(spec, my) {
           /* TODO(spolu): figure out if this event is useful */
         }
       });
-      my.internal._setFrameCreatedCallback(function(frame) {
-        that.emit('frame_created', frame);
+      my.internal._setFrameCreatedCallback(function(_frame, disposition, from) {
+        var origin = my.frames[from] || null;
+        var frame = exo_frame({ internal: _frame });
+        frame.on('ready', function() {
+          that.emit('frame_created', frame, disposition, origin);
+        });
       });
       my.internal._setFrameKeyboardCallback(function(from, event) {
         that.emit('frame_keyboard', my.frames[from], event);

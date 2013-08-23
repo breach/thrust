@@ -233,12 +233,11 @@ ExoBrowser::OpenURLFromTab(
   DCHECK(frame != NULL);
   /* TODO(spolu): Use params.transition            */
   /* TODO(spolu): Use params.referrer              */
-  /* TODO(spolu): Use params.disposition           */
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
-                   params.url.spec(), frame->name()));
+                   params.url.spec(), params.disposition, frame->name()));
   }
   return NULL;
 }
@@ -321,7 +320,14 @@ ExoBrowser::AddNewContents(
     bool* was_blocked) 
 {
   LOG(INFO) << "AddNewContents";
-  /* TODO(spolu): Call into API */
+  ExoFrame* src_frame = FrameForWebContents(source);
+  DCHECK(src_frame != NULL);
+  if(src_frame) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
+                   src_frame->name(), disposition, new_contents));
+  }
 }
 
 JavaScriptDialogManager* 
