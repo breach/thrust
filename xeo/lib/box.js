@@ -135,7 +135,13 @@ var box = function(spec, my) {
   stack_active_page = function(page) {
     page.state.entries.forEach(function(n) {
       if(n.visible) {
-        my.state.value = n.url.href;
+        var home_url_r = /^http:\/\/127\.0\.0\.1\:[0-9]+\/home\.html$/;
+        if(home_url_r.test(n.url.href)) {
+          my.state.value = '';
+        }
+        else {
+          my.state.value = n.url.href;
+        }
       }
     });
     my.state.can_go_back = page.state.can_go_back;
