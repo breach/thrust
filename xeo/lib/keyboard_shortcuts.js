@@ -30,6 +30,7 @@ var keyboard_shortcuts = function(spec, my) {
   my.session = spec.session;
 
   my.last = null;
+  my.can_commit = false;
 
   //
   // #### _private_
@@ -114,26 +115,32 @@ var keyboard_shortcuts = function(spec, my) {
        event.keycode === 74) {
       /* Ctrl - J ; Repetition OK */
       that.emit('stack_next');
-    }
-    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) &&
-       event.keycode === 74) {
-      /* Ctrl - Shit - J ; Repetition OK */
-      that.emit('stack_move_next');
+      my.can_commit = true;
     }
     if(event.type === 7 && (event.modifiers === (1 << 1)) &&
        event.keycode === 75) {
       /* Ctrl - K ; Repetition OK */
       that.emit('stack_prev');
+      my.can_commit = true;
+    }
+    if(event.type === 9 && (event.modifiers === (1 << 11)) &&
+       event.keycode === 17) {
+      /* Ctrl (Release); No Repetition */
+      if(my.can_commit) {
+        my.can_commit = false;
+        that.emit('stack_commit');
+      }
+    }
+
+    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) &&
+       event.keycode === 74) {
+      /* Ctrl - Shit - J ; Repetition OK */
+      that.emit('stack_move_next');
     }
     if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) && 
        event.keycode === 75) {
       /* Ctrl - Shit - K ; Repetition OK */
       that.emit('stack_move_prev');
-    }
-    if(event.type === 9 && (event.modifiers === (1 << 11)) &&
-       event.keycode === 17) {
-      /* Ctrl (Release); No Repetition */
-      that.emit('stack_commit');
     }
 
     if(event.type === 7 && (event.modifiers === (1 << 1)) && 
@@ -142,6 +149,11 @@ var keyboard_shortcuts = function(spec, my) {
       that.emit('stack_close');
     }
 
+    if(event.type === 7 && (event.modifiers === (1 << 1)) && 
+       event.keycode === 80 && !is_last(event)) {
+      /* Ctrl - W ; No Repetition */
+      that.emit('stack_pin');
+    }
       
 
     my.last = event;
