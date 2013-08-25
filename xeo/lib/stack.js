@@ -126,6 +126,8 @@ var stack = function(spec, my) {
                                        shortcut_stack_next);
     my.session.keyboard_shortcuts().on('stack_prev', 
                                        shortcut_stack_prev);
+    my.session.keyboard_shortcuts().on('stack_commit', 
+                                       shortcut_stack_commit);
     my.session.keyboard_shortcuts().on('stack_move_next', 
                                        shortcut_stack_move_next);
     my.session.keyboard_shortcuts().on('stack_move_prev', 
@@ -392,6 +394,13 @@ var stack = function(spec, my) {
       my.pages[my.active].frame.focus();
     });
     push();
+  };
+
+  // ### shortcut_stack_commit
+  //
+  // Keyboard shortcut to commit page change
+  shortcut_stack_commit = function() {
+    /* Nothing to do */
   };
 
   // ### shortcut_stack_move_next

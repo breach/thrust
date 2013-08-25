@@ -130,12 +130,19 @@ var keyboard_shortcuts = function(spec, my) {
       /* Ctrl - Shit - K ; Repetition OK */
       that.emit('stack_move_prev');
     }
+    if(event.type === 9 && (event.modifiers === (1 << 11)) &&
+       event.keycode === 17) {
+      /* Ctrl (Release); No Repetition */
+      that.emit('stack_commit');
+    }
 
     if(event.type === 7 && (event.modifiers === (1 << 1)) && 
        event.keycode === 87 && !is_last(event)) {
       /* Ctrl - W ; No Repetition */
       that.emit('stack_close');
     }
+
+      
 
     my.last = event;
 
