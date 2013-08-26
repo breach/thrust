@@ -43,7 +43,7 @@ ObjectFromNavigationEntry(
                String::New(entry->GetFavicon().url.spec().c_str()));
   */
   entry_o->Set(String::New("visible"),
-               Boolean::New(visible));
+               v8::Boolean::New(visible));
   entry_o->Set(String::New("timestamp"),
                Number::New(
                  (entry->GetTimestamp().ToInternalValue() / 1000)));
@@ -1006,10 +1006,10 @@ ExoBrowserWrap::DispatchNavigationState(
     }
     state_arg->Set(String::New("entries"), entries);
     state_arg->Set(String::New("can_go_back"),
-                   Boolean::New(
+                   v8::Boolean::New(
                      frame->web_contents()->GetController().CanGoBack()));
     state_arg->Set(String::New("can_go_forward"),
-                   Boolean::New(
+                   v8::Boolean::New(
                      frame->web_contents()->GetController().CanGoForward()));
 
     Local<String> frame_arg = String::New((frame->name()).c_str());
