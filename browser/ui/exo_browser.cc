@@ -181,6 +181,9 @@ ExoBrowser::ShowPage(
 {
   std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
   if(it != pages_.end()) {
+    LOG(INFO) << "ExoBrowser::ShowPage [" << this << "]: "
+              << "\nweb_contents: " << it->second->web_contents_
+              << "\nview: " << it->second->web_contents_->GetView();
     PlatformShowPage(it->second);
   }
   /* Otherwise, nothing to do */
@@ -322,15 +325,39 @@ ExoBrowser::AddNewContents(
     bool* was_blocked) 
 {
   LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
-            << " " <<  new_contents
-            << " " <<  new_contents->GetURL();
+            << "user_gesture: " << user_gesture
+            << "disposition: " << disposition
+            << "\nsrc: " << source
+            << "\nsrc url: " << source->GetVisibleURL()
+            << "\nnew: " <<  new_contents
+            << "\nnew url: " <<  new_contents->GetVisibleURL()
+            << "\nRenderProcessHost: " << new_contents->GetRenderProcessHost()
+            << "\nRenderViewHost: " << new_contents->GetRenderViewHost() 
+            << "\nView: " << new_contents->GetView()
+            << "\nWaiting Response: " << new_contents->IsWaitingForResponse()
+            << "\nInterstitial: " << new_contents->GetInterstitialPage();
+
   ExoFrame* src_frame = FrameForWebContents(source);
   DCHECK(src_frame != NULL);
   if(src_frame) {
+    /* We generate a unique name for this new frame */
+    std::ostringstream oss;
+    static int pop_cnt = 0;
+    oss << src_frame->name() << "-" << (++pop_cnt);
+
+    LOG(INFO) << "Source ExoFrame: " << src_frame->name();
+    LOG(INFO) << "New ExoFrame: " << oss.str();
+
+    ExoFrame* new_frame = new ExoFrame(oss.str(),
+                                       new_contents);
+    this->AddPage(new_frame);
+    this->ShowPage(new_frame->name());
+    return;
+
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
-                   src_frame->name(), disposition, new_contents));
+                   src_frame->name(), disposition, new_frame));
   }
 }
 
@@ -365,6 +392,7 @@ void
 ExoBrowser::RendererUnresponsive(
     WebContents* source) 
 {
+  LOG(INFO) << "RendererUnresponsive";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }
@@ -373,6 +401,7 @@ void
 ExoBrowser::WorkerCrashed(
     WebContents* source) 
 {
+  LOG(INFO) << "WorkerCrashed";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }

@@ -115,6 +115,8 @@ ExoBrowser::PlatformShowPage(
     if(visible_page_ != NULL) {
       gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
     }
+    LOG(INFO) << "PlatformSetPage [" << frame->name() << "]: " 
+              << content_view->GetNativeView();
     visible_page_ = content_view->GetNativeView();
     gtk_container_add(GTK_CONTAINER(pages_box_), visible_page_);
   }

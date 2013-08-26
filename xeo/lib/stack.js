@@ -546,6 +546,8 @@ var stack = function(spec, my) {
       box_value: null 
     };
 
+    console.log('NEW FRAME : ' + p.frame.name());
+
     insert_page(p, false, function() {
       if(!box_focus) {
         setTimeout(function() {

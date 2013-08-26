@@ -183,6 +183,7 @@ BreachWebContentsViewDelegate::Initialize(
 gfx::NativeView 
 BreachWebContentsViewDelegate::GetNativeView() const 
 {
+  LOG(INFO) << "VIEWDELEGATE GetNativeView " << floating_.get();
   return floating_.get();
 }
 

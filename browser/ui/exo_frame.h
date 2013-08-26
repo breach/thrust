@@ -148,13 +148,13 @@ private:
   // (generally a popup).
   explicit ExoFrame(const std::string& name,
                     content::WebContents* web_contents,
-                    ExoFrameWrap* wrapper);
+                    ExoFrameWrap* wrapper = NULL);
 
   // ### ExoFrame
   // Constructor used to create a new ExoFrame with a fresh WebContents object.
   // A call to LoadURL should be performed right after.
   explicit ExoFrame(const std::string& name,
-                    ExoFrameWrap* wrapper);
+                    ExoFrameWrap* wrapper = NULL);
 
   // ### SetParent
   // Sets the parent ExoBrowser

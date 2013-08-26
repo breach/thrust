@@ -114,11 +114,11 @@ private:
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchFrameCreated(const std::string& src_frame,
                             const WindowOpenDisposition disposition,
-                            content::WebContents* new_contents);
+                            ExoFrame* new_frame);
   /* TODO(spolu): Fix usage of (void*) */
   void FrameCreatedTask(const std::string& src_frame,
                         const WindowOpenDisposition disposition,
-                        content::WebContents* new_contents,
+                        ExoFrame* new_frame,
                         void* frame_w,
                         v8::Persistent<v8::Object>* frame_p);
   void FrameCreatedFinish(const std::string& src_frame,
