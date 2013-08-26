@@ -12,12 +12,6 @@
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/context_menu_params.h"
 #include "content/shell/common/shell_switches.h"
-#include "content/shell/shell.h"
-#include "content/shell/shell_browser_context.h"
-#include "content/shell/shell_browser_main_parts.h"
-#include "content/shell/shell_content_browser_client.h"
-#include "content/shell/shell_devtools_frontend.h"
-#include "content/shell/shell_web_contents_view_delegate_creator.h"
 #include "third_party/WebKit/public/web/WebContextMenuData.h"
 #include "ui/base/gtk/focus_store_gtk.h"
 #include "ui/base/gtk/gtk_floating_container.h"
@@ -27,6 +21,12 @@ using namespace content;
 using WebKit::WebContextMenuData;
 
 namespace breach {
+
+WebContentsViewDelegate* 
+CreateBreachWebContentsViewDelegate(
+    WebContents* web_contents) {
+  return new BreachWebContentsViewDelegate(web_contents);
+}
 
 BreachWebContentsViewDelegate::BreachWebContentsViewDelegate(
     WebContents* web_contents)
@@ -275,7 +275,7 @@ BreachWebContentsViewDelegate::OnInspectMenuActivated(
     GtkWidget* widget) 
 {
   /* TODO(spolu): Handle when DevTools are implemented */
-  //BreachDevToolsFrontend::Show(web_contents_);
+  // BreachDevToolsFrontend::Show(web_contents_);
 }
 
 }  // namespace content

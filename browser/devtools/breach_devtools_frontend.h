@@ -21,7 +21,7 @@ class WebContents;
 
 
 namespace breach {
-class Browser;
+class ExoFrame;
 
 class BreachDevToolsFrontend : public content::WebContentsObserver,
                                public content::DevToolsFrontendHostDelegate {
@@ -31,11 +31,11 @@ class BreachDevToolsFrontend : public content::WebContentsObserver,
   void Focus();
   void Close();
 
-  Browser* browser() const { return browser_; }
+  ExoFrame* exo_frame() const { return exo_frame_; }
 
  private:
   BreachDevToolsFrontend(
-      Browser* browser, 
+      ExoFrame* exo_frame, 
       content::DevToolsAgentHost* agent_host);
   virtual ~BreachDevToolsFrontend();
 
@@ -69,7 +69,7 @@ class BreachDevToolsFrontend : public content::WebContentsObserver,
 
   virtual void InspectedContentsClosing() OVERRIDE;
 
-  Browser* browser_;
+  ExoFrame* exo_frame_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   scoped_ptr<content::DevToolsClientHost> frontend_host_;
 
