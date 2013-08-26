@@ -29,6 +29,7 @@ var stack = function(spec, my) {
   my.pages = [];
   my.pinned = 0;
   my.active = 0;
+  my.visible = true;
   my.favicons = {}
 
   //
@@ -43,17 +44,17 @@ var stack = function(spec, my) {
   //
   // ### _private_
   //
-  var page_for_frame;         /* page_for_frame(frame); */
-  var page_for_frame_name;    /* page_for_frame_name(frame); */
-  var push;                   /* push(); */
-  var insert_page;            /* insert_page(page, [background], [cb_]); */
+  var page_for_frame;           /* page_for_frame(frame); */
+  var page_for_frame_name;      /* page_for_frame_name(frame); */
+  var push;                     /* push(); */
+  var insert_page;              /* insert_page(page, [background], [cb_]); */
 
-  var frame_navigation_state; /* frame_navigation_state(frame, state); */
-  var frame_favicon_update;   /* frame_favicon_update(frame, favicons); */
-  var browser_frame_created;  /* browser_frame_created(frame, disp, origin); */
-  var browser_open_url;       /* browser_open_url(frame, disp, origin); */
+  var frame_navigation_state;   /* frame_navigation_state(frame, state); */
+  var frame_favicon_update;     /* frame_favicon_update(frame, favicons); */
+  var browser_frame_created;    /* browser_frame_created(frame, disp, origin); */
+  var browser_open_url;         /* browser_open_url(frame, disp, origin); */
 
-  var socket_select_page;     /* socket_select_page(name); */
+  var socket_select_page;       /* socket_select_page(name); */
 
   var shortcut_new_page;        /* shortcut_new_page(); */
   var shortcut_stack_toggle;    /* shortcut_stack_toggle(); */
@@ -369,13 +370,20 @@ var stack = function(spec, my) {
   socket_select_page = function(name) {
     for(var i = 0; i < my.pages.length; i ++) {
       if(my.pages[i].frame.name() === name) {
-        var p = my.pages[i];
-        my.active = i;
+
+        if(!my.pages[i].pinned) {
+          var p = my.pages.splice(i, 1)[0];
+          my.pages.splice(my.pinned, 0, p);
+          my.active = my.pinned;
+        }
+        else {
+          my.active = i;
+        }
         my.session.exo_browser().show_page(my.pages[my.active].frame, 
                                            function() {
           my.pages[my.active].frame.focus();
+          push();
         });
-        push();
         break;
       }
     }
@@ -395,13 +403,16 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to toggle the stack visibility
   shortcut_stack_toggle = function() {
-    that.toggle();
+    my.visible = !my.visible;
+    that.toggle(my.visible);
   };
 
   // ### shortcut_stack_next
   //
   // Keyboard shorcut to view next page
   shortcut_stack_next = function() {
+    if(!my.visible)
+      that.toggle(true);
     if(my.active < my.pages.length - 1) {
       my.active++;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
@@ -415,6 +426,8 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to view previous page
   shortcut_stack_prev = function() {
+    if(!my.visible)
+      that.toggle(true);
     if(my.active > 0) {
       my.active--;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
@@ -428,6 +441,8 @@ var stack = function(spec, my) {
   //
   // Keyboard shortcut to commit page change
   shortcut_stack_commit = function() {
+    if(!my.visible)
+      that.toggle(false);
     if(!my.pages[my.active].pinned) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned, 0, p);

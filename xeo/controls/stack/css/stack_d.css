@@ -24,10 +24,6 @@
   cursor: pointer;
 }
 
-.stack .page {
-  border-right: 1px solid hsl(220, 12%, 5%);
-}
-
 .stack .page:hover {
   background-color: hsl(228, 14%, 16%);
   border-bottom: 1px solid hsl(228, 14%, 20%);
@@ -51,6 +47,7 @@
 }
 
 .stack .page > .content {
+  vertical-align: top;
   display: inline-block;
   width: 190px;
 }
@@ -58,6 +55,7 @@
 .stack .page > .content .title {
   font-weight: 700;
   font-size: 0.9em;
+  margin-top: 7px;
 }
 
 .stack .page > .content .url {

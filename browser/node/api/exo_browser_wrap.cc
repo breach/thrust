@@ -888,6 +888,9 @@ ExoBrowserWrap::FrameCreatedTask(
   ((ExoFrameWrap*)frame_w)->frame_ = new ExoFrame(oss.str(),
                                                   new_contents,
                                                   ((ExoFrameWrap*)frame_w));
+  LOG(INFO) << "FrameCreatedTask: "
+            << " " <<  new_contents
+            << " " <<  new_contents->GetURL();
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoBrowserWrap::FrameCreatedFinish, this, 

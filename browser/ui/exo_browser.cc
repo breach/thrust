@@ -266,18 +266,6 @@ ExoBrowser::CloseContents(
   }
 }
 
-void 
-ExoBrowser::WebContentsCreated(
-    WebContents* source_contents,
-    int64 source_frame_id,
-    const string16& frame_name,
-    const GURL& target_url,
-    WebContents* new_contents) 
-{
-  LOG(INFO) << "WebContentsCreated";
-  /* TODO(spolu): Call into API if necessary */
-}
-
 bool 
 ExoBrowser::PreHandleKeyboardEvent(
     WebContents* source,
@@ -309,6 +297,20 @@ ExoBrowser::NavigationStateChanged(
   }
 }
 
+void 
+ExoBrowser::WebContentsCreated(
+    WebContents* source_contents,
+    int64 source_frame_id,
+    const string16& frame_name,
+    const GURL& target_url,
+    WebContents* new_contents) 
+{
+  LOG(INFO) << "WebContentsCreated: " << target_url 
+            << " " << frame_name
+            << " " <<  new_contents;
+  /* TODO(spolu): Call into API if necessary */
+}
+
 
 void 
 ExoBrowser::AddNewContents(
@@ -319,7 +321,9 @@ ExoBrowser::AddNewContents(
     bool user_gesture,
     bool* was_blocked) 
 {
-  LOG(INFO) << "AddNewContents";
+  LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
+            << " " <<  new_contents
+            << " " <<  new_contents->GetURL();
   ExoFrame* src_frame = FrameForWebContents(source);
   DCHECK(src_frame != NULL);
   if(src_frame) {

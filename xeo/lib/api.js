@@ -637,6 +637,7 @@ var exo_browser = function(spec, my) {
         var frame = exo_frame({ internal: _frame });
         frame.on('ready', function() {
           that.emit('frame_created', frame, disposition, origin);
+          console.log(frame.name() + ': ' + disposition + ' [' + origin.name() + ']');
         });
       });
       my.internal._setFrameKeyboardCallback(function(from, event) {

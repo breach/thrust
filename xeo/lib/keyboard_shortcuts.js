@@ -131,6 +131,15 @@ var keyboard_shortcuts = function(spec, my) {
         that.emit('stack_commit');
       }
     }
+    /* CapsLock as a Ctrl case */
+    if(event.type === 9 && (event.modifiers === (1 << 1)) &&
+       event.keycode === 20) {
+      /* Ctrl (Release); No Repetition */
+      if(my.can_commit) {
+        my.can_commit = false;
+        that.emit('stack_commit');
+      }
+    }
 
     if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) &&
        event.keycode === 74) {
