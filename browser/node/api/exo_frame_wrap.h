@@ -76,20 +76,6 @@ private:
   /****************************************************************************/
   /*                              DISPATCHERS                                 */
   /****************************************************************************/
-  static void SetTitleUpdateCallback(
-      const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchTitleUpdate(const std::string& title);
-
-  static void SetFaviconUpdateCallback(
-      const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchFaviconUpdate(
-      const std::vector<content::FaviconURL>& candidates);
-
-
-  static void SetPendingURLCallback(
-      const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchPendingURL(const std::string& url);
-
   static void SetLoadFailCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchLoadFail(const std::string& url,
@@ -108,7 +94,12 @@ private:
   static void SetLoadingStopCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchLoadingStop();
-  
+
+  static void SetFaviconUpdateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchFaviconUpdate(
+      const std::vector<content::FaviconURL>& candidates);
+
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/

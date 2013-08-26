@@ -28,7 +28,7 @@ class BreachContentBrowserClient : public content::ContentBrowserClient {
   BreachContentBrowserClient();
   virtual ~BreachContentBrowserClient();
 
-  // ContentBrowserClient overrides.
+  // ContentBrowserClient Override.
   virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
 
@@ -45,6 +45,9 @@ class BreachContentBrowserClient : public content::ContentBrowserClient {
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
 
   virtual std::string GetDefaultDownloadName() OVERRIDE;
+
+  virtual content::WebContentsViewDelegate* GetWebContentsViewDelegate(
+      content::WebContents* web_contents) OVERRIDE;
 
   virtual void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) OVERRIDE;

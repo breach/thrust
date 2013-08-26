@@ -6,13 +6,140 @@
 #include "breach/browser/node/api/exo_browser_wrap.h"
 
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/navigation_entry.h"
+#include "content/public/browser/navigation_controller.h"
+#include "content/public/browser/native_web_keyboard_event.h"
+#include "content/public/browser/favicon_status.h"
+#include "content/public/common/ssl_status.h"
+#include "content/public/common/page_type.h"
+
+#include "net/cert/cert_status_flags.h"
+
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/ui/exo_frame.h"
 #include "breach/browser/node/api/exo_frame_wrap.h"
 #include "breach/browser/node/node_thread.h"
-#include "content/public/browser/native_web_keyboard_event.h"
 
 using namespace v8;
+
+namespace {
+
+static Local<Object> 
+ObjectFromNavigationEntry(
+    content::NavigationEntry* entry,
+    bool visible = false)
+{
+  Local<Object> entry_o = Object::New();
+
+  entry_o->Set(String::New("url"), 
+               String::New(entry->GetURL().spec().c_str()));
+  entry_o->Set(String::New("virtual_url"), 
+               String::New(entry->GetVirtualURL().spec().c_str()));
+  entry_o->Set(String::New("title"), 
+               String::New(entry->GetTitle().c_str()));
+  /*
+  entry_o->Set(String::New("favicon"),
+               String::New(entry->GetFavicon().url.spec().c_str()));
+  */
+  entry_o->Set(String::New("visible"),
+               Boolean::New(visible));
+  entry_o->Set(String::New("timestamp"),
+               Number::New(
+                 (entry->GetTimestamp().ToInternalValue() / 1000)));
+  entry_o->Set(String::New("id"),
+               Number::New(entry->GetUniqueID()));
+
+  switch(entry->GetPageType()) {
+    case content::PAGE_TYPE_ERROR:
+      entry_o->Set(String::New("type"),
+                   String::New("error"));
+      break;
+    case content::PAGE_TYPE_INTERSTITIAL:
+      entry_o->Set(String::New("type"),
+                   String::New("interstitial"));
+      break;
+    default:
+      entry_o->Set(String::New("type"),
+                   String::New("normal"));
+      break;
+  }
+
+  Local<Object> ssl_o = Object::New();
+
+  switch(entry->GetSSL().security_style) {
+    case content::SECURITY_STYLE_UNAUTHENTICATED:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("unauthenticated"));
+      break;
+    case content::SECURITY_STYLE_AUTHENTICATION_BROKEN:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("broken"));
+      break;
+    case content::SECURITY_STYLE_AUTHENTICATED:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("authenticated"));
+      break;
+    default:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("unknown"));
+  }
+
+  ssl_o->Set(String::New("cert_status"), 
+             Integer::New(entry->GetSSL().cert_status));
+  ssl_o->Set(String::New("content_status"), 
+             Integer::New(entry->GetSSL().content_status));
+
+  entry_o->Set(String::New("ssl"), ssl_o);
+
+  return entry_o;
+}
+
+static Local<String> 
+StringFromWindowOpenDisposition(
+    const WindowOpenDisposition disposition)
+{
+  Local<String> disposition_str;
+  switch(disposition) {
+    case SUPPRESS_OPEN:
+      disposition_str = String::New("suppress_open");
+      break;
+    case CURRENT_TAB:
+      disposition_str = String::New("current_tab");
+      break;
+    case SINGLETON_TAB:
+      disposition_str = String::New("singelton_tab");
+      break;
+    case NEW_FOREGROUND_TAB:
+      disposition_str = String::New("new_foreground_tab");
+      break;
+    case NEW_BACKGROUND_TAB:
+      disposition_str = String::New("new_background_tab");
+      break;
+    case NEW_POPUP:
+      disposition_str = String::New("new_popup");
+      break;
+    case NEW_WINDOW:
+      disposition_str = String::New("new_window");
+      break;
+    case SAVE_TO_DISK:
+      disposition_str = String::New("save_to_disk");
+      break;
+    case OFF_THE_RECORD:
+      disposition_str = String::New("off_the_record");
+      break;
+    case IGNORE_ACTION:
+      disposition_str = String::New("ignore_action");
+      break;
+    default:
+      disposition_str = String::New("unknown");
+  }
+  return disposition_str;
+}
+
+}
+
+
 
 namespace breach {
 
@@ -34,6 +161,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(Size)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_position"),
       FunctionTemplate::New(Position)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
+      FunctionTemplate::New(Focus)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_addPage"),
       FunctionTemplate::New(AddPage)->GetFunction());
@@ -61,6 +190,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(SetFrameCreatedCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameKeyboardCallback"),
       FunctionTemplate::New(SetFrameKeyboardCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setNavigationStateCallback"),
+      FunctionTemplate::New(SetNavigationStateCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -277,6 +408,34 @@ ExoBrowserWrap::PositionTask(
       base::Bind(&ExoBrowserWrap::PointCallback, this, cb_p, position));
 }
 
+
+void 
+ExoBrowserWrap::Focus(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoBrowserWrap::FocusTask, browser_w, cb_p));
+}
+
+void
+ExoBrowserWrap::FocusTask(
+    Persistent<Function>* cb_p)
+{
+  browser_->Focus();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
+}
 
 
 
@@ -543,6 +702,7 @@ ExoBrowserWrap::SetOpenURLCallback(
 void
 ExoBrowserWrap::DispatchOpenURL(
     const std::string& url,
+    const WindowOpenDisposition disposition,
     const std::string& from_frame)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -555,11 +715,14 @@ ExoBrowserWrap::DispatchOpenURL(
       Local<Function>::New(Isolate::GetCurrent(), open_url_cb_);
 
     Local<String> url_arg = String::New(url.c_str());
+    Local<String> disposition_arg = 
+      StringFromWindowOpenDisposition(disposition);
     Local<String> from_frame_arg = String::New(from_frame.c_str());
 
-    Local<Value> argv[2] = { url_arg,
+    Local<Value> argv[3] = { url_arg,
+                             disposition_arg,
                              from_frame_arg };
-    cb->Call(browser_o, 2, argv);
+    cb->Call(browser_o, 3, argv);
   }
 }
 
@@ -679,22 +842,89 @@ ExoBrowserWrap::SetFrameCreatedCallback(
 
 void
 ExoBrowserWrap::DispatchFrameCreated(
-    const ExoFrame* frame)
+    const std::string& src_frame,
+    const WindowOpenDisposition disposition,
+    content::WebContents* new_contents)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
+
+  if(!frame_created_cb_.IsEmpty()) {
+
+
+    Local<Function> c = 
+      Local<Function>::New(Isolate::GetCurrent(), ExoFrameWrap::s_constructor);
+    Local<Object> frame_o = c->NewInstance();
+
+    /* We keep a Peristent as the object will be returned asynchronously. */
+    Persistent<Object> *frame_p = new Persistent<Object>();
+    frame_p->Reset(Isolate::GetCurrent(), frame_o);
+
+    /* We will need to pass the ExoFrameWrap directly as we won't be able to */
+    /* UnWrap it on the UI thread. */
+    ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
+
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        /* TODO(spolu): Fix usage of (void*) */
+        base::Bind(&ExoBrowserWrap::FrameCreatedTask, this, 
+                   src_frame, disposition, new_contents, 
+                   (void*)frame_w, frame_p));
+  }
+}
+
+void 
+ExoBrowserWrap::FrameCreatedTask(
+    const std::string& src_frame,
+    const WindowOpenDisposition disposition,
+    content::WebContents* new_contents,
+    void* frame_w,
+    Persistent<Object>* frame_p)
+{
+  /* We generate a unique name for this new frame */
+  std::ostringstream oss;
+  static int pop_cnt = 0;
+  oss << src_frame << "-" << (++pop_cnt);
+
+  ((ExoFrameWrap*)frame_w)->frame_ = new ExoFrame(oss.str(),
+                                                  new_contents,
+                                                  ((ExoFrameWrap*)frame_w));
+  LOG(INFO) << "FrameCreatedTask: "
+            << " " <<  new_contents
+            << " " <<  new_contents->GetURL();
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::FrameCreatedFinish, this, 
+                 src_frame, disposition, frame_p));
+}
+
+void 
+ExoBrowserWrap::FrameCreatedFinish(
+    const std::string& src_frame,
+    const WindowOpenDisposition disposition,
+    Persistent<Object>* frame_p)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
 
-  if(!frame_created_cb_.IsEmpty()) {
-    Local<Function> cb = 
-      Local<Function>::New(Isolate::GetCurrent(), frame_created_cb_);
+  Local<Object> frame_o = Local<Object>::New(Isolate::GetCurrent(),
+                                             *frame_p);
 
-    Local<Object> frame_arg = frame->wrapper_->handle();
+  Local<Function> cb = 
+    Local<Function>::New(Isolate::GetCurrent(), frame_created_cb_);
 
-    Local<Value> argv[1] = { frame_arg };
-    cb->Call(browser_o, 1, argv);
-  }
+  Local<String> from_arg = String::New(src_frame.c_str());
+  Local<String> disposition_arg = StringFromWindowOpenDisposition(disposition);
+
+  Local<Value> argv[3] = { frame_o,
+                           disposition_arg,
+                           from_arg };
+  cb->Call(browser_o, 3, argv);
+
+  frame_p->Dispose();
+  delete frame_p;
 }
 
 void
@@ -737,6 +967,61 @@ ExoBrowserWrap::DispatchFrameKeyboard(
   }
 }
 
+void
+ExoBrowserWrap::SetNavigationStateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  browser_w->navigation_state_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoBrowserWrap::DispatchNavigationState(
+    const ExoFrame* frame)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> browser_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!navigation_state_cb_.IsEmpty()) {
+    Local<Object> state_arg = Object::New();
+    
+    Local<Array> entries = Array::New();
+    for(int i = 0; 
+        i < frame->web_contents()->GetController().GetEntryCount(); 
+        i++) {
+      content::NavigationEntry *entry =
+        frame->web_contents_->GetController().GetEntryAtIndex(i);
+      bool visible = false;
+      if(entry == frame->web_contents()->GetController().GetVisibleEntry()) {
+        visible = true;
+      }
+      entries->Set(Integer::New(i), ObjectFromNavigationEntry(entry, visible));
+    }
+    state_arg->Set(String::New("entries"), entries);
+    state_arg->Set(String::New("can_go_back"),
+                   Boolean::New(
+                     frame->web_contents()->GetController().CanGoBack()));
+    state_arg->Set(String::New("can_go_forward"),
+                   Boolean::New(
+                     frame->web_contents()->GetController().CanGoForward()));
+
+    Local<String> frame_arg = String::New((frame->name()).c_str());
+
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), navigation_state_cb_);
+
+    Local<Value> argv[2] = { frame_arg,
+                             state_arg };
+    cb->Call(browser_o, 2, argv);
+  }
+}
 
 } // namespace breach
     

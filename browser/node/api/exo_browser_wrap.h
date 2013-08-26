@@ -55,6 +55,9 @@ private:
   void PositionTask(gfx::Point* position,
                     v8::Persistent<v8::Function>* cb_p);
 
+  static void Focus(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void FocusTask(v8::Persistent<v8::Function>* cb_p);
+
 
   static void SetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */
@@ -91,7 +94,9 @@ private:
   /****************************************************************************/
   static void SetOpenURLCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchOpenURL(const std::string& url, const std::string& from_frame);
+  void DispatchOpenURL(const std::string& url, 
+                       const WindowOpenDisposition disposition,
+                       const std::string& from_frame);
 
   static void SetResizeCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -107,12 +112,27 @@ private:
 
   static void SetFrameCreatedCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchFrameCreated(const ExoFrame* frame);
+  void DispatchFrameCreated(const std::string& src_frame,
+                            const WindowOpenDisposition disposition,
+                            content::WebContents* new_contents);
+  /* TODO(spolu): Fix usage of (void*) */
+  void FrameCreatedTask(const std::string& src_frame,
+                        const WindowOpenDisposition disposition,
+                        content::WebContents* new_contents,
+                        void* frame_w,
+                        v8::Persistent<v8::Object>* frame_p);
+  void FrameCreatedFinish(const std::string& src_frame,
+                          const WindowOpenDisposition disposition,
+                          v8::Persistent<v8::Object>* frame_p);
 
   static void SetFrameKeyboardCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchFrameKeyboard(const std::string& frame,
                              const content::NativeWebKeyboardEvent& event);
+
+  static void SetNavigationStateCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchNavigationState(const ExoFrame* frame);
 
   /****************************************************************************/
   /*                               MEMBERS                                    */
@@ -127,6 +147,7 @@ private:
   v8::Persistent<v8::Function> frame_navigate_cb_;
   v8::Persistent<v8::Function> frame_created_cb_;
   v8::Persistent<v8::Function> frame_keyboard_cb_;
+  v8::Persistent<v8::Function> navigation_state_cb_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 

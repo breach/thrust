@@ -14,6 +14,8 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_view.h"
+#include "content/public/browser/navigation_entry.h"
+#include "content/public/browser/navigation_controller.h"
 #include "content/public/common/renderer_preferences.h"
 
 #include "breach/common/breach_switches.h"
@@ -92,7 +94,7 @@ ExoBrowser::KillAll()
 
 ExoFrame* 
 ExoBrowser::FrameForWebContents(
-    WebContents* web_contents)
+    const WebContents* web_contents)
 {
   std::map<std::string, ExoFrame*>::iterator p_it;
   for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
@@ -204,6 +206,7 @@ ExoBrowser::RemoveFrame(
 
 }
 
+
 void
 ExoBrowser::Kill()
 {
@@ -230,12 +233,11 @@ ExoBrowser::OpenURLFromTab(
   DCHECK(frame != NULL);
   /* TODO(spolu): Use params.transition            */
   /* TODO(spolu): Use params.referrer              */
-  /* TODO(spolu): Use params.disposition           */
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
-                   params.url.spec(), frame->name()));
+                   params.url.spec(), params.disposition, frame->name()));
   }
   return NULL;
 }
@@ -264,18 +266,6 @@ ExoBrowser::CloseContents(
   }
 }
 
-void 
-ExoBrowser::WebContentsCreated(
-    WebContents* source_contents,
-    int64 source_frame_id,
-    const string16& frame_name,
-    const GURL& target_url,
-    WebContents* new_contents) 
-{
-  LOG(INFO) << "WebContentsCreated";
-  /* TODO(spolu): Call into API if necessary */
-}
-
 bool 
 ExoBrowser::PreHandleKeyboardEvent(
     WebContents* source,
@@ -293,6 +283,36 @@ ExoBrowser::PreHandleKeyboardEvent(
   return false;
 }
 
+void 
+ExoBrowser::NavigationStateChanged(
+    const WebContents* source,
+    unsigned changed_flags)
+{
+  ExoFrame* frame = FrameForWebContents(source);
+  DCHECK(frame != NULL);
+  if(frame) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::DispatchNavigationState, wrapper_, frame));
+  }
+}
+
+void 
+ExoBrowser::WebContentsCreated(
+    WebContents* source_contents,
+    int64 source_frame_id,
+    const string16& frame_name,
+    const GURL& target_url,
+    WebContents* new_contents) 
+{
+  LOG(INFO) << "WebContentsCreated: " << target_url 
+            << "\nframe_name: " << frame_name
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nnew_contents: " <<  new_contents;
+  /* TODO(spolu): Call into API if necessary */
+}
+
 
 void 
 ExoBrowser::AddNewContents(
@@ -303,8 +323,17 @@ ExoBrowser::AddNewContents(
     bool user_gesture,
     bool* was_blocked) 
 {
-  LOG(INFO) << "AddNewContents";
-  /* TODO(spolu): Call into API */
+  LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
+            << " " <<  new_contents
+            << " " <<  new_contents->GetURL();
+  ExoFrame* src_frame = FrameForWebContents(source);
+  DCHECK(src_frame != NULL);
+  if(src_frame) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
+                   src_frame->name(), disposition, new_contents));
+  }
 }
 
 JavaScriptDialogManager* 
@@ -320,6 +349,7 @@ void
 ExoBrowser::ActivateContents(
     WebContents* contents) 
 {
+  LOG(INFO) << "Activate Content";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }
@@ -328,6 +358,7 @@ void
 ExoBrowser::DeactivateContents(
     WebContents* contents) 
 {
+  LOG(INFO) << "Dectivate Content";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API (blur) */
 }
