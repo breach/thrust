@@ -25,7 +25,7 @@ factory.log().out('Starting...');
 (function() {
   /* App Configuration */
   app.configure(function() {
-    app.use('/', express.static(__dirname + '/static'));
+    app.use('/', express.static(__dirname + '/controls'));
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(app.router);

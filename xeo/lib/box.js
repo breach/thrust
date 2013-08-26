@@ -135,7 +135,13 @@ var box = function(spec, my) {
   stack_active_page = function(page) {
     page.state.entries.forEach(function(n) {
       if(n.visible) {
-        my.state.value = n.url.href;
+        var home_url_r = /^http:\/\/127\.0\.0\.1\:[0-9]+\/home\.html$/;
+        if(home_url_r.test(n.url.href)) {
+          my.state.value = '';
+        }
+        else {
+          my.state.value = n.url.href;
+        }
       }
     });
     my.state.can_go_back = page.state.can_go_back;
@@ -173,7 +179,6 @@ var box = function(spec, my) {
   socket_box_submit = function(input) {
     var page = my.session.stack().active_page();
     if(page) {
-      page.box_value = input;
       var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
       var ip_r = /^(http(s{0,1})\:\/\/){0,1}[0-9]{1,3}(\.[0-9]{1,3}){3}/
       var http_r = /^http(s{0,1})\:\/\//;

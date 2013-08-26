@@ -34,7 +34,6 @@ angular.module('breach.directives').controller('StackCtrl',
         p.url = p.url || { hostname: '', href: '' };
         p.title = p.title || '';
         p.favicon = p.favicon || ''
-        p.top = (i === 0) ? true: false;
       });
     });
 

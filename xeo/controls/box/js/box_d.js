@@ -21,6 +21,7 @@ angular.module('breach.directives').controller('BoxCtrl',
         $scope.can_go_back = state.can_go_back;
         $scope.can_go_forward = state.can_go_forward;
         $scope.value = state.value;
+        $scope.last = $scope.value; 
       }
     });
 
@@ -30,7 +31,10 @@ angular.module('breach.directives').controller('BoxCtrl',
     });
     
     jQuery($element).find('input').keydown(function() {
-      _socket.emit('box_input', $scope.value);
+      if($scope.value !== $scope.last) {
+        _socket.emit('box_input', $scope.value);
+        $scope.last = $scope.value;
+      }
     });
 
     /* TODO(spolu): Fix, CallStack Exceeded. Duh? */
