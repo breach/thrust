@@ -22,6 +22,12 @@ using WebKit::WebContextMenuData;
 
 namespace breach {
 
+WebContentsViewDelegate* 
+CreateBreachWebContentsViewDelegate(
+    WebContents* web_contents) {
+  return new BreachWebContentsViewDelegate(web_contents);
+}
+
 BreachWebContentsViewDelegate::BreachWebContentsViewDelegate(
     WebContents* web_contents)
     : web_contents_(web_contents),

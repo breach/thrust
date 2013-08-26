@@ -286,7 +286,7 @@ public:
     GetJavaScriptDialogManager() OVERRIDE;
 
   virtual void NavigationStateChanged(const content::WebContents* source,
-                                      unsigned changed_flags);
+                                      unsigned changed_flags) OVERRIDE;
 
   virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
   virtual void DeactivateContents(content::WebContents* contents) OVERRIDE;

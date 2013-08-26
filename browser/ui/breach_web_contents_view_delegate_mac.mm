@@ -34,12 +34,12 @@ enum {
 
 @interface BreachContextMenuDelegate : NSObject<NSMenuDelegate> {
  @private
-  content::BreachWebContentsViewDelegate* delegate_;
+  breach::BreachWebContentsViewDelegate* delegate_;
 }
 @end
 
 @implementation BreachContextMenuDelegate
-- (id)initWithDelegate:(content::BreachWebContentsViewDelegate*) delegate {
+- (id)initWithDelegate:(breach::BreachWebContentsViewDelegate*) delegate {
   if ((self = [super init])) {
     delegate_ = delegate;
   }
@@ -77,6 +77,12 @@ MakeContextMenuItem(
 }  // namespace
 
 namespace breach {
+
+WebContentsViewDelegate* 
+CreateBreachWebContentsViewDelegate(
+    WebContents* web_contents) {
+  return new BreachWebContentsViewDelegate(web_contents);
+}
 
 BreachWebContentsViewDelegate::BreachWebContentsViewDelegate(
     WebContents* web_contents)

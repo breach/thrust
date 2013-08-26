@@ -25,8 +25,7 @@
 #include "breach/browser/devtools/breach_devtools_delegate.h"
 #include "breach/geolocation/breach_access_token_store.h"
 #include "breach/common/breach_switches.h"
-#include "breach/browser/ui/browser.h"
-#include "breach/browser/ui/breach_web_contents_view_delegate.h"
+#include "breach/browser/ui/breach_web_contents_view_delegate_creator.h"
 
 #include "net/url_request/url_request_context_getter.h"
 #include "webkit/common/webpreferences.h"
@@ -94,7 +93,7 @@ BreachContentBrowserClient::GetWebContentsViewDelegate(
     WebContents* web_contents) 
 { 
 #if !defined(USE_AURA)
-  return new BreachWebContentsViewDelegate(web_contents);
+  return CreateBreachWebContentsViewDelegate(web_contents);
 #else
   return NULL;
 #endif

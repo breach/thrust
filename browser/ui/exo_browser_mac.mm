@@ -426,6 +426,12 @@ ExoBrowser::PlatformUnsetControl(
 }
 
 
+void
+ExoBrowser::PlatformFocus()
+{
+  [window_ makeKeyAndOrderFront:nil];
+}
+
 
 gfx::Size
 ExoBrowser::PlatformSize()
