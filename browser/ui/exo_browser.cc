@@ -306,8 +306,10 @@ ExoBrowser::WebContentsCreated(
     WebContents* new_contents) 
 {
   LOG(INFO) << "WebContentsCreated: " << target_url 
-            << " " << frame_name
-            << " " <<  new_contents;
+            << "\nframe_name: " << frame_name
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nnew_contents: " <<  new_contents;
   /* TODO(spolu): Call into API if necessary */
 }
 
