@@ -233,12 +233,11 @@ ExoBrowser::OpenURLFromTab(
   DCHECK(frame != NULL);
   /* TODO(spolu): Use params.transition            */
   /* TODO(spolu): Use params.referrer              */
-  /* TODO(spolu): Use params.disposition           */
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
-                   params.url.spec(), frame->name()));
+                   params.url.spec(), params.disposition, frame->name()));
   }
   return NULL;
 }
@@ -265,18 +264,6 @@ ExoBrowser::CloseContents(
         base::Bind(&ExoBrowserWrap::DispatchFrameClose, wrapper_, 
                    frame->name()));
   }
-}
-
-void 
-ExoBrowser::WebContentsCreated(
-    WebContents* source_contents,
-    int64 source_frame_id,
-    const string16& frame_name,
-    const GURL& target_url,
-    WebContents* new_contents) 
-{
-  LOG(INFO) << "WebContentsCreated";
-  /* TODO(spolu): Call into API if necessary */
 }
 
 bool 
@@ -310,6 +297,22 @@ ExoBrowser::NavigationStateChanged(
   }
 }
 
+void 
+ExoBrowser::WebContentsCreated(
+    WebContents* source_contents,
+    int64 source_frame_id,
+    const string16& frame_name,
+    const GURL& target_url,
+    WebContents* new_contents) 
+{
+  LOG(INFO) << "WebContentsCreated: " << target_url 
+            << "\nframe_name: " << frame_name
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nnew_contents: " <<  new_contents;
+  /* TODO(spolu): Call into API if necessary */
+}
+
 
 void 
 ExoBrowser::AddNewContents(
@@ -320,8 +323,17 @@ ExoBrowser::AddNewContents(
     bool user_gesture,
     bool* was_blocked) 
 {
-  LOG(INFO) << "AddNewContents";
-  /* TODO(spolu): Call into API */
+  LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
+            << " " <<  new_contents
+            << " " <<  new_contents->GetURL();
+  ExoFrame* src_frame = FrameForWebContents(source);
+  DCHECK(src_frame != NULL);
+  if(src_frame) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
+                   src_frame->name(), disposition, new_contents));
+  }
 }
 
 JavaScriptDialogManager* 

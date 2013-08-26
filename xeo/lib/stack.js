@@ -27,7 +27,9 @@ var stack = function(spec, my) {
   /*    state,       */
   /*    box_value }] */
   my.pages = [];
-  my.active = -1;
+  my.pinned = 0;
+  my.active = 0;
+  my.visible = true;
   my.favicons = {}
 
   //
@@ -42,20 +44,26 @@ var stack = function(spec, my) {
   //
   // ### _private_
   //
-  var page_for_frame;         /* page_for_frame(frame); */
-  var page_for_frame_name;    /* page_for_frame_name(frame); */
-  var push;                   /* push(); */
+  var page_for_frame;           /* page_for_frame(frame); */
+  var page_for_frame_name;      /* page_for_frame_name(frame); */
+  var push;                     /* push(); */
+  var insert_page;              /* insert_page(page, [background], [cb_]); */
 
-  var frame_navigation_state; /* frame_navigation_state(frame, state); */
-  var frame_favicon_update;   /* frame_favicon_update(frame, favicons); */
+  var frame_navigation_state;   /* frame_navigation_state(frame, state); */
+  var frame_favicon_update;     /* frame_favicon_update(frame, favicons); */
+  var browser_frame_created;    /* browser_frame_created(frame, disp, origin); */
+  var browser_open_url;         /* browser_open_url(frame, disp, origin); */
 
-  var socket_select_page;     /* socket_select_page(name); */
+  var socket_select_page;       /* socket_select_page(name); */
 
-  var shortcut_new_page;      /* shortcut_new_page(); */
-  var shortcut_stack_toggle;  /* shortcut_stack_toggle(); */
-  var shortcut_stack_next;    /* shortcut_stack_next(); */
-  var shortcut_stack_prev;    /* shortcut_stack_prev(); */
-  var shortcut_stack_commit;  /* shortcut_stack_commit(); */
+  var shortcut_new_page;        /* shortcut_new_page(); */
+  var shortcut_stack_toggle;    /* shortcut_stack_toggle(); */
+  var shortcut_stack_next;      /* shortcut_stack_next(); */
+  var shortcut_stack_prev;      /* shortcut_stack_prev(); */
+  var shortcut_stack_move_next; /* shortcut_stack_move_next(); */
+  var shortcut_stack_move_prev; /* shortcut_stack_move_prev(); */
+  var shortcut_stack_close;     /* shortcut_stack_close(); */
+  var shortcut_stack_pin;       /* shortcut_stack_pin(); */
   
   //
   // ### _protected_
@@ -109,6 +117,10 @@ var stack = function(spec, my) {
                                 frame_navigation_state);
     my.session.exo_browser().on('frame_favicon_update', 
                                 frame_favicon_update);
+    my.session.exo_browser().on('frame_created', 
+                                browser_frame_created);
+    my.session.exo_browser().on('open_url', 
+                                browser_open_url);
 
     my.session.keyboard_shortcuts().on('new_page', 
                                        shortcut_new_page);
@@ -120,6 +132,14 @@ var stack = function(spec, my) {
                                        shortcut_stack_prev);
     my.session.keyboard_shortcuts().on('stack_commit', 
                                        shortcut_stack_commit);
+    my.session.keyboard_shortcuts().on('stack_move_next', 
+                                       shortcut_stack_move_next);
+    my.session.keyboard_shortcuts().on('stack_move_prev', 
+                                       shortcut_stack_move_prev);
+    my.session.keyboard_shortcuts().on('stack_close', 
+                                       shortcut_stack_close);
+    my.session.keyboard_shortcuts().on('stack_pin', 
+                                       shortcut_stack_pin);
   };
 
 
@@ -165,13 +185,50 @@ var stack = function(spec, my) {
       update.push({ 
         name: p.frame.name(), 
         state: p.state, 
+        pinned: p.pinned,
         active: i === my.active
       })
     });
-    my.socket.emit('pages', update);
-    if(my.pages.length > 0) {
-      that.emit('active_page', my.pages[0]);
+    if(my.socket) {
+      my.socket.emit('pages', update);
     }
+    if(my.pages.length > 0) {
+      that.emit('active_page', my.pages[my.active]);
+    }
+  };
+
+  // ### insert_page
+  //
+  // Insert a new page within the stack, respecting the passed disposition
+  // ```
+  // @page       {object} page objcet
+  // @background {boolean} shuld be inserted in the background
+  // @cb_        {function()} callback
+  // ```
+  insert_page = function(page, background, cb_) {
+    /* If we're pinned, we create the page at the end of the pinned pages. */
+    /* Otherwise, we create it above the current page if foreground and    */
+    /* underneath it if background.                                        */
+    var insert = -1;
+    if(my.pages[my.active] && my.pages[my.active].pinned) {
+      insert = my.pinned;
+    } 
+    else {
+      insert = !background ? my.active : my.active + 1;
+    }
+    my.pages.splice(insert, 0, page);
+    my.active = !background ? insert : my.active;
+
+    my.session.exo_browser().add_page(page.frame, function() {
+      if(!background) {
+        my.session.exo_browser().show_page(page.frame, function() {
+          if(cb_) return cb_();
+        });
+      }
+      else {
+        if(cb_) return cb_();
+      }
+    });
   };
   
 
@@ -231,6 +288,76 @@ var stack = function(spec, my) {
     }
   }; 
 
+  // ### browser_frame_created
+  //
+  // Received when a new frame was created. We'll handle the disposition 
+  // `new_background_tab` and `new_foreground_tab` and will ignore the other
+  // ones that should be handled by the session.
+  // ```
+  // @frame       {exo_frame} the newly created frame
+  // @disposition {string} the disposition for opening that frame
+  // @origin      {exo_frame} origin exo_frame
+  // ```
+  browser_frame_created = function(frame, disposition, origin) {
+    if(disposition !== 'new_foreground_tab' &&
+       disposition !== 'new_background_tab') {
+      return;
+    }
+
+    var p = {
+      frame: frame,
+      state: { 
+        entries: [],
+        can_go_back: false,
+        can_go_forward: false
+      },
+      box_value: null
+    };
+
+    insert_page(p, disposition === 'new_background_tab', function() {
+      setTimeout(function() {
+        p.frame.focus();
+      }, 100);
+      push();
+    });
+  };
+
+  // ### browser_open_url
+  //
+  // Event received when a new URL should be opened by the session. Depending on
+  // the disposition we'll ignore it (handled by the stack) or we'll create a
+  // new exo_browser to handle the detached popup
+  // ```
+  // @url         {string} the URL to open
+  // @disposition {string} the disposition for opening that frame
+  // @origin      {exo_frame} origin exo_frame
+  // ```
+  browser_open_url = function(url, disposition, origin) {
+    if(disposition !== 'new_foreground_tab' &&
+       disposition !== 'new_background_tab') {
+      return;
+    }
+
+    var p = {
+      frame: api.exo_frame({
+        url: url
+      }),
+      state: { 
+        entries: [],
+        can_go_back: false,
+        can_go_forward: false
+      },
+      box_value: null 
+    };
+
+    insert_page(p, disposition === 'new_background_tab', function() {
+      setTimeout(function() {
+        p.frame.focus();
+      }, 100);
+      push();
+    });
+  };
+
   /****************************************************************************/
   /*                          SOCKET EVENT HANDLERS                           */
   /****************************************************************************/
@@ -243,11 +370,20 @@ var stack = function(spec, my) {
   socket_select_page = function(name) {
     for(var i = 0; i < my.pages.length; i ++) {
       if(my.pages[i].frame.name() === name) {
-        var p = my.pages.splice(i, 1)[0];
-        my.pages.unshift(p);
-        my.active = 0;
-        my.session.exo_browser().show_page(p.frame);
-        push();
+
+        if(!my.pages[i].pinned) {
+          var p = my.pages.splice(i, 1)[0];
+          my.pages.splice(my.pinned, 0, p);
+          my.active = my.pinned;
+        }
+        else {
+          my.active = i;
+        }
+        my.session.exo_browser().show_page(my.pages[my.active].frame, 
+                                           function() {
+          my.pages[my.active].frame.focus();
+          push();
+        });
         break;
       }
     }
@@ -267,13 +403,16 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to toggle the stack visibility
   shortcut_stack_toggle = function() {
-    that.toggle();
+    my.visible = !my.visible;
+    that.toggle(my.visible);
   };
 
   // ### shortcut_stack_next
   //
-  // Keyboard shorcut to preview next page
+  // Keyboard shorcut to view next page
   shortcut_stack_next = function() {
+    if(!my.visible)
+      that.toggle(true);
     if(my.active < my.pages.length - 1) {
       my.active++;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
@@ -285,8 +424,10 @@ var stack = function(spec, my) {
 
   // ### shortcut_stack_prev
   //
-  // Keyboard shorcut to preview previous page
+  // Keyboard shorcut to view previous page
   shortcut_stack_prev = function() {
+    if(!my.visible)
+      that.toggle(true);
     if(my.active > 0) {
       my.active--;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
@@ -298,13 +439,85 @@ var stack = function(spec, my) {
 
   // ### shortcut_stack_commit
   //
-  // Keyboard shorcut to commit to currently visible page
+  // Keyboard shortcut to commit page change
   shortcut_stack_commit = function() {
-    var p = my.pages.splice(my.active, 1)[0];
-    my.pages.unshift(p);
-    my.active = 0;
+    if(!my.visible)
+      that.toggle(false);
+    if(!my.pages[my.active].pinned) {
+      var p = my.pages.splice(my.active, 1)[0];
+      my.pages.splice(my.pinned, 0, p);
+      my.active = my.pinned;
+      push();
+    }
+  };
+
+  // ### shortcut_stack_move_next
+  //
+  // Keyboard shorcut to move page to next slot. Works only for pinned pages.
+  shortcut_stack_move_next = function() {
+    if(my.pages[my.active].pinned &&
+       (my.pages[my.active + 1] &&
+        my.pages[my.active + 1].pinned)) {
+      var p = my.pages.splice(my.active, 1)[0];
+      my.active++;
+      my.pages.splice(my.active, 0, p);
+      push();
+    }
+  };
+
+  // ### shortcut_stack_move_prev
+  //
+  // Keyboard shorcut to move page to prev slot
+  shortcut_stack_move_prev = function() {
+    if(my.pages[my.active].pinned &&
+       my.active > 0) {
+      var p = my.pages.splice(my.active, 1)[0];
+      my.active--
+      my.pages.splice(my.active, 0, p);
+      push();
+    }
+  };
+
+  // ### shortcut_stack_close
+  //
+  // Keyboard shorcut to close current page
+  shortcut_stack_close = function() {
+    var p = my.pages.splice(my.active, 1)[0]
+    my.session.exo_browser().remove_page(p.frame, function() {
+      if(my.active === my.pages.length)
+        my.active--;
+      if(my.pages.length === 0) {
+        my.session.kill();
+      }
+      else {
+        my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+          my.pages[my.active].frame.focus();
+        });
+        push();
+      }
+    });
+  };
+
+  // ### shortcut_stack_pin
+  //
+  // Keyboard shorcut to pin the current page
+  shortcut_stack_pin = function() {
+    var p = my.pages.splice(my.active, 1)[0]
+    if(!p.pinned) {
+      p.pinned = true;
+      /* We set active to pinned then we increment pinned */
+      my.active = my.pinned++;
+      my.pages.splice(my.active, 0, p);
+    }
+    else {
+      p.pinned = false;
+      /* We decrement then we set active to pinned */
+      my.active = --my.pinned;
+      my.pages.splice(my.active, 0, p);
+    }
     push();
   };
+
 
   /****************************************************************************/
   /*                              PUBLIC METHODS                              */
@@ -330,27 +543,22 @@ var stack = function(spec, my) {
         can_go_back: false,
         can_go_forward: false
       },
-      box_value: url ? null : ''
+      box_value: null 
     };
 
-    my.pages.unshift(p);
-    my.active = 0;
-
-    my.session.exo_browser().add_page(p.frame, function() {
-      my.session.exo_browser().show_page(p.frame, function() {
-        if(!box_focus) {
-          setTimeout(function() {
-            p.frame.focus();
-          }, 100);
-        }
-        else {
-          setTimeout(function() {
-            my.session.box().focus();
-          }, 100);
-        }
-      });
+    insert_page(p, false, function() {
+      if(!box_focus) {
+        setTimeout(function() {
+          p.frame.focus();
+        }, 100);
+      }
+      else {
+        setTimeout(function() {
+          my.session.box().focus();
+        }, 100);
+      }
+      push();
     });
-    push();
   };
 
   // ### active_page
@@ -358,7 +566,7 @@ var stack = function(spec, my) {
   // Returns the current actrive page
   active_page = function() {
     if(my.pages.length > 0) {
-      return my.pages[0]
+      return my.pages[my.active]
     }
     return null;
   };

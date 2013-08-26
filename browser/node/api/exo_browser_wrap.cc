@@ -23,6 +23,124 @@
 
 using namespace v8;
 
+namespace {
+
+static Local<Object> 
+ObjectFromNavigationEntry(
+    content::NavigationEntry* entry,
+    bool visible = false)
+{
+  Local<Object> entry_o = Object::New();
+
+  entry_o->Set(String::New("url"), 
+               String::New(entry->GetURL().spec().c_str()));
+  entry_o->Set(String::New("virtual_url"), 
+               String::New(entry->GetVirtualURL().spec().c_str()));
+  entry_o->Set(String::New("title"), 
+               String::New(entry->GetTitle().c_str()));
+  /*
+  entry_o->Set(String::New("favicon"),
+               String::New(entry->GetFavicon().url.spec().c_str()));
+  */
+  entry_o->Set(String::New("visible"),
+               Boolean::New(visible));
+  entry_o->Set(String::New("timestamp"),
+               Number::New(
+                 (entry->GetTimestamp().ToInternalValue() / 1000)));
+  entry_o->Set(String::New("id"),
+               Number::New(entry->GetUniqueID()));
+
+  switch(entry->GetPageType()) {
+    case content::PAGE_TYPE_ERROR:
+      entry_o->Set(String::New("type"),
+                   String::New("error"));
+      break;
+    case content::PAGE_TYPE_INTERSTITIAL:
+      entry_o->Set(String::New("type"),
+                   String::New("interstitial"));
+      break;
+    default:
+      entry_o->Set(String::New("type"),
+                   String::New("normal"));
+      break;
+  }
+
+  Local<Object> ssl_o = Object::New();
+
+  switch(entry->GetSSL().security_style) {
+    case content::SECURITY_STYLE_UNAUTHENTICATED:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("unauthenticated"));
+      break;
+    case content::SECURITY_STYLE_AUTHENTICATION_BROKEN:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("broken"));
+      break;
+    case content::SECURITY_STYLE_AUTHENTICATED:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("authenticated"));
+      break;
+    default:
+      ssl_o->Set(String::New("security_type"),
+                 String::New("unknown"));
+  }
+
+  ssl_o->Set(String::New("cert_status"), 
+             Integer::New(entry->GetSSL().cert_status));
+  ssl_o->Set(String::New("content_status"), 
+             Integer::New(entry->GetSSL().content_status));
+
+  entry_o->Set(String::New("ssl"), ssl_o);
+
+  return entry_o;
+}
+
+static Local<String> 
+StringFromWindowOpenDisposition(
+    const WindowOpenDisposition disposition)
+{
+  Local<String> disposition_str;
+  switch(disposition) {
+    case SUPPRESS_OPEN:
+      disposition_str = String::New("suppress_open");
+      break;
+    case CURRENT_TAB:
+      disposition_str = String::New("current_tab");
+      break;
+    case SINGLETON_TAB:
+      disposition_str = String::New("singelton_tab");
+      break;
+    case NEW_FOREGROUND_TAB:
+      disposition_str = String::New("new_foreground_tab");
+      break;
+    case NEW_BACKGROUND_TAB:
+      disposition_str = String::New("new_background_tab");
+      break;
+    case NEW_POPUP:
+      disposition_str = String::New("new_popup");
+      break;
+    case NEW_WINDOW:
+      disposition_str = String::New("new_window");
+      break;
+    case SAVE_TO_DISK:
+      disposition_str = String::New("save_to_disk");
+      break;
+    case OFF_THE_RECORD:
+      disposition_str = String::New("off_the_record");
+      break;
+    case IGNORE_ACTION:
+      disposition_str = String::New("ignore_action");
+      break;
+    default:
+      disposition_str = String::New("unknown");
+  }
+  return disposition_str;
+}
+
+}
+
+
+
 namespace breach {
 
 Persistent<Function> ExoBrowserWrap::s_constructor;
@@ -584,6 +702,7 @@ ExoBrowserWrap::SetOpenURLCallback(
 void
 ExoBrowserWrap::DispatchOpenURL(
     const std::string& url,
+    const WindowOpenDisposition disposition,
     const std::string& from_frame)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -596,11 +715,14 @@ ExoBrowserWrap::DispatchOpenURL(
       Local<Function>::New(Isolate::GetCurrent(), open_url_cb_);
 
     Local<String> url_arg = String::New(url.c_str());
+    Local<String> disposition_arg = 
+      StringFromWindowOpenDisposition(disposition);
     Local<String> from_frame_arg = String::New(from_frame.c_str());
 
-    Local<Value> argv[2] = { url_arg,
+    Local<Value> argv[3] = { url_arg,
+                             disposition_arg,
                              from_frame_arg };
-    cb->Call(browser_o, 2, argv);
+    cb->Call(browser_o, 3, argv);
   }
 }
 
@@ -720,22 +842,89 @@ ExoBrowserWrap::SetFrameCreatedCallback(
 
 void
 ExoBrowserWrap::DispatchFrameCreated(
-    const ExoFrame* frame)
+    const std::string& src_frame,
+    const WindowOpenDisposition disposition,
+    content::WebContents* new_contents)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
+
+  if(!frame_created_cb_.IsEmpty()) {
+
+
+    Local<Function> c = 
+      Local<Function>::New(Isolate::GetCurrent(), ExoFrameWrap::s_constructor);
+    Local<Object> frame_o = c->NewInstance();
+
+    /* We keep a Peristent as the object will be returned asynchronously. */
+    Persistent<Object> *frame_p = new Persistent<Object>();
+    frame_p->Reset(Isolate::GetCurrent(), frame_o);
+
+    /* We will need to pass the ExoFrameWrap directly as we won't be able to */
+    /* UnWrap it on the UI thread. */
+    ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
+
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        /* TODO(spolu): Fix usage of (void*) */
+        base::Bind(&ExoBrowserWrap::FrameCreatedTask, this, 
+                   src_frame, disposition, new_contents, 
+                   (void*)frame_w, frame_p));
+  }
+}
+
+void 
+ExoBrowserWrap::FrameCreatedTask(
+    const std::string& src_frame,
+    const WindowOpenDisposition disposition,
+    content::WebContents* new_contents,
+    void* frame_w,
+    Persistent<Object>* frame_p)
+{
+  /* We generate a unique name for this new frame */
+  std::ostringstream oss;
+  static int pop_cnt = 0;
+  oss << src_frame << "-" << (++pop_cnt);
+
+  ((ExoFrameWrap*)frame_w)->frame_ = new ExoFrame(oss.str(),
+                                                  new_contents,
+                                                  ((ExoFrameWrap*)frame_w));
+  LOG(INFO) << "FrameCreatedTask: "
+            << " " <<  new_contents
+            << " " <<  new_contents->GetURL();
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::FrameCreatedFinish, this, 
+                 src_frame, disposition, frame_p));
+}
+
+void 
+ExoBrowserWrap::FrameCreatedFinish(
+    const std::string& src_frame,
+    const WindowOpenDisposition disposition,
+    Persistent<Object>* frame_p)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
 
-  if(!frame_created_cb_.IsEmpty()) {
-    Local<Function> cb = 
-      Local<Function>::New(Isolate::GetCurrent(), frame_created_cb_);
+  Local<Object> frame_o = Local<Object>::New(Isolate::GetCurrent(),
+                                             *frame_p);
 
-    Local<Object> frame_arg = frame->wrapper_->handle();
+  Local<Function> cb = 
+    Local<Function>::New(Isolate::GetCurrent(), frame_created_cb_);
 
-    Local<Value> argv[1] = { frame_arg };
-    cb->Call(browser_o, 1, argv);
-  }
+  Local<String> from_arg = String::New(src_frame.c_str());
+  Local<String> disposition_arg = StringFromWindowOpenDisposition(disposition);
+
+  Local<Value> argv[3] = { frame_o,
+                           disposition_arg,
+                           from_arg };
+  cb->Call(browser_o, 3, argv);
+
+  frame_p->Dispose();
+  delete frame_p;
 }
 
 void
@@ -790,81 +979,6 @@ ExoBrowserWrap::SetNavigationStateCallback(
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
   browser_w->navigation_state_cb_.Reset(Isolate::GetCurrent(), cb);
 }
-
-namespace {
-
-static Local<Object> 
-ObjectFromNavigationEntry(
-    content::NavigationEntry* entry,
-    bool visible = false)
-{
-  Local<Object> entry_o = Object::New();
-
-  entry_o->Set(String::New("url"), 
-               String::New(entry->GetURL().spec().c_str()));
-  entry_o->Set(String::New("virtual_url"), 
-               String::New(entry->GetVirtualURL().spec().c_str()));
-  entry_o->Set(String::New("title"), 
-               String::New(entry->GetTitle().c_str()));
-  /*
-  entry_o->Set(String::New("favicon"),
-               String::New(entry->GetFavicon().url.spec().c_str()));
-  */
-  entry_o->Set(String::New("visible"),
-               Boolean::New(visible));
-  entry_o->Set(String::New("timestamp"),
-               Number::New(
-                 (entry->GetTimestamp().ToInternalValue() / 1000)));
-  entry_o->Set(String::New("id"),
-               Number::New(entry->GetUniqueID()));
-
-  switch(entry->GetPageType()) {
-    case content::PAGE_TYPE_ERROR:
-      entry_o->Set(String::New("type"),
-                   String::New("error"));
-      break;
-    case content::PAGE_TYPE_INTERSTITIAL:
-      entry_o->Set(String::New("type"),
-                   String::New("interstitial"));
-      break;
-    default:
-      entry_o->Set(String::New("type"),
-                   String::New("normal"));
-      break;
-  }
-
-  Local<Object> ssl_o = Object::New();
-
-  switch(entry->GetSSL().security_style) {
-    case content::SECURITY_STYLE_UNAUTHENTICATED:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("unauthenticated"));
-      break;
-    case content::SECURITY_STYLE_AUTHENTICATION_BROKEN:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("broken"));
-      break;
-    case content::SECURITY_STYLE_AUTHENTICATED:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("authenticated"));
-      break;
-    default:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("unknown"));
-  }
-
-  ssl_o->Set(String::New("cert_status"), 
-             Integer::New(entry->GetSSL().cert_status));
-  ssl_o->Set(String::New("content_status"), 
-             Integer::New(entry->GetSSL().content_status));
-
-  entry_o->Set(String::New("ssl"), ssl_o);
-
-  return entry_o;
-}
-
-}
-
 
 void
 ExoBrowserWrap::DispatchNavigationState(
