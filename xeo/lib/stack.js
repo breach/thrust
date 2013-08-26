@@ -188,7 +188,9 @@ var stack = function(spec, my) {
         active: i === my.active
       })
     });
-    my.socket.emit('pages', update);
+    if(my.socket) {
+      my.socket.emit('pages', update);
+    }
     if(my.pages.length > 0) {
       that.emit('active_page', my.pages[my.active]);
     }
@@ -486,10 +488,18 @@ var stack = function(spec, my) {
   // Keyboard shorcut to pin the current page
   shortcut_stack_pin = function() {
     var p = my.pages.splice(my.active, 1)[0]
-    p.pinned = true;
-    /* We set active to pinned then we increment pinned */
-    my.active = my.pinned++;
-    my.pages.splice(my.active, 0, p);
+    if(!p.pinned) {
+      p.pinned = true;
+      /* We set active to pinned then we increment pinned */
+      my.active = my.pinned++;
+      my.pages.splice(my.active, 0, p);
+    }
+    else {
+      p.pinned = false;
+      /* We decrement then we set active to pinned */
+      my.active = --my.pinned;
+      my.pages.splice(my.active, 0, p);
+    }
     push();
   };
 
