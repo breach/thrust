@@ -27,11 +27,9 @@
   text-align: center;
   border-radius: 2px;
 
-  background-image: url('/box/img/arrow.png');
   background-size: cover;
 
   cursor: pointer;
-
   opacity: 0.3;
 }
 
@@ -43,12 +41,24 @@
   border: 1px solid hsl(228, 14%, 80%);
 }
 
-.box > a.button.back {
+.box > a.button.pushed:hover {
+  border: 1px solid hsl(228, 14%, 80%);
+  opacity: 1.0;
+}
+
+.box > a.button.stack {
   left: 3px;
+  background-image: url('/box/img/stack.png');
+}
+.box > a.button.back {
+  left: 32px;
+  background-image: url('/box/img/arrow.png');
 }
 .box > a.button.forward {
-  left: 32px;
+  left: 61px;
+  background-image: url('/box/img/arrow.png');
   -webkit-transform: scaleX(-1);
+  opacity: 0.3;
 }
 
 
@@ -57,7 +67,7 @@
   position: absolute;
   top: 3px;
   height: 25px;
-  left: 63px;
+  left: 92px;
   right: 3px;
 
   line-height: 20px;

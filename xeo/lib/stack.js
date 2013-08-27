@@ -402,9 +402,11 @@ var stack = function(spec, my) {
   // ### shortcut_stack_toggle
   //
   // Keyboard shorcut to toggle the stack visibility
-  shortcut_stack_toggle = function() {
-    my.visible = !my.visible;
-    that.toggle(my.visible);
+  // ```
+  // @visible {boolean} direction
+  // ```
+  shortcut_stack_toggle = function(visible) {
+    that.toggle(visible);
   };
 
   // ### shortcut_stack_next
@@ -412,7 +414,7 @@ var stack = function(spec, my) {
   // Keyboard shorcut to view next page
   shortcut_stack_next = function() {
     if(!my.visible)
-      that.toggle(true);
+      _super.toggle(true);
     if(my.active < my.pages.length - 1) {
       my.active++;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
@@ -427,7 +429,7 @@ var stack = function(spec, my) {
   // Keyboard shorcut to view previous page
   shortcut_stack_prev = function() {
     if(!my.visible)
-      that.toggle(true);
+      _super.toggle(true);
     if(my.active > 0) {
       my.active--;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
@@ -442,7 +444,7 @@ var stack = function(spec, my) {
   // Keyboard shortcut to commit page change
   shortcut_stack_commit = function() {
     if(!my.visible)
-      that.toggle(false);
+      _super.toggle(false);
     if(!my.pages[my.active].pinned) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned, 0, p);
@@ -579,6 +581,20 @@ var stack = function(spec, my) {
     return null;
   };
 
+  // ### toggle
+  //
+  // Overrides the _super toggle method
+  toggle = function(visible) {
+    if(typeof visible !== 'undefined') {
+      my.visible = visible;
+    }
+    else {
+      my.visible = !my.visible;
+    }
+    _super.toggle(my.visible);
+    that.emit('visible', my.visible);
+  };
+
   
 
   common.method(that, 'init', init, _super);
@@ -586,6 +602,7 @@ var stack = function(spec, my) {
   common.method(that, 'dimension', dimension, _super);
   common.method(that, 'new_page', new_page, _super);
   common.method(that, 'active_page', active_page, _super);
+  common.method(that, 'toggle', toggle, _super);
   
   return that;
 };

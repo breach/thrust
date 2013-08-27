@@ -105,11 +105,17 @@ var keyboard_shortcuts = function(spec, my) {
       that.emit('forward');
     }
 
-    if(event.type === 7 && (event.modifiers & (1 << 1)) &&
-       event.keycode === 77 && !is_last(event)) {
-      /* Ctrl - M ; No Repetition */
-      that.emit('stack_toggle');
+    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) &&
+       event.keycode === 72 && !is_last(event)) {
+      /* Ctrl - Shit - H ; Repetition OK */
+      that.emit('stack_toggle', false);
     }
+    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) && 
+       event.keycode === 76 && !is_last(event)) {
+      /* Ctrl - Shit - L ; Repetition OK */
+      that.emit('stack_toggle', true);
+    }
+
 
     if(event.type === 7 && (event.modifiers === (1 << 1)) &&
        event.keycode === 74) {
@@ -123,6 +129,7 @@ var keyboard_shortcuts = function(spec, my) {
       that.emit('stack_prev');
       my.can_commit = true;
     }
+
     if(event.type === 9 && (event.modifiers === (1 << 11)) &&
        event.keycode === 17) {
       /* Ctrl (Release); No Repetition */
@@ -139,17 +146,6 @@ var keyboard_shortcuts = function(spec, my) {
         my.can_commit = false;
         that.emit('stack_commit');
       }
-    }
-
-    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) &&
-       event.keycode === 74) {
-      /* Ctrl - Shit - J ; Repetition OK */
-      that.emit('stack_move_next');
-    }
-    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) && 
-       event.keycode === 75) {
-      /* Ctrl - Shit - K ; Repetition OK */
-      that.emit('stack_move_prev');
     }
 
     if(event.type === 7 && (event.modifiers === (1 << 1)) && 

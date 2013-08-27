@@ -15,22 +15,28 @@
 // `box` directive controller
 //
 angular.module('breach.directives').controller('BoxCtrl',
-  function($scope, $element, $window, _socket) {
+  function($scope, $element, $window, $timeout, _socket) {
+
+    var _input = jQuery($element).find('input');
+
     $scope.$watch('state', function(state) {
       if(state) {
         $scope.can_go_back = state.can_go_back;
         $scope.can_go_forward = state.can_go_forward;
-        $scope.value = state.value;
-        $scope.last = $scope.value; 
+        $scope.stack_visible = state.stack_visible;
+        if(!_input.is(':focus')) {
+          $scope.value = state.value;
+          $scope.last = $scope.value; 
+        }
       }
     });
 
 
     _socket.on('select_all', function() {
-      jQuery($element).find('input').focus().select();
+      _input.focus().select();
     });
     
-    jQuery($element).find('input').keydown(function() {
+    _input.keydown(function() {
       if($scope.value !== $scope.last) {
         _socket.emit('box_input', $scope.value);
         $scope.last = $scope.value;
@@ -53,6 +59,10 @@ angular.module('breach.directives').controller('BoxCtrl',
     };
     $scope.forward = function() {
       _socket.emit('box_forward');
+    };
+
+    $scope.stack_toggle = function() {
+      _socket.emit('stack_toggle');
     };
   });
 
