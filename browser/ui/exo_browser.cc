@@ -245,7 +245,7 @@ ExoBrowser::OpenURLFromTab(
   else {
     /* This is used when a newly created WebContents is not yet assigned to  */
     /* its fimal ExoFrame/ExoBrowser but needs a delegate to navigate to its */
-    /* targeted delegate. See ExoBrowser::AddNewContents.                    */
+    /* targeted delegate. See ExoBrowser::WebContentsCreated.                */
     source->GetController().LoadURL(
         params.url, params.referrer, params.transition, std::string());
   }
@@ -292,6 +292,14 @@ ExoBrowser::PreHandleKeyboardEvent(
 }
 
 void 
+ExoBrowser::HandleKeyboardEvent(
+    WebContents* source,
+    const NativeWebKeyboardEvent& event)
+{
+  //LOG(INFO) << "HandleKeyboardEvent " << event.windowsKeyCode;
+}
+
+void 
 ExoBrowser::NavigationStateChanged(
     const WebContents* source,
     unsigned changed_flags)
@@ -318,6 +326,14 @@ ExoBrowser::WebContentsCreated(
             << "\nsource_frame_id: " << source_frame_id
             << "\nnew_contents: " <<  new_contents;
   /* TODO(spolu): Call into API if necessary */
+
+  /* We set this ExoBrowser as temporary WebContentsDelegate the            */
+  /* OpenURLForTab method may need to be called for some WebContents, esp.  */
+  /* when clicking on a link with `target="_blank"` and `rel="norerferrer"` */
+  /* This delegate will get overriden when the new ExoFrame is later        */
+  /* asynchronously added to an ExoBrowser.                                 */ 
+  new_contents->SetDelegate(this);
+
 }
 
 
@@ -331,7 +347,6 @@ ExoBrowser::AddNewContents(
     bool* was_blocked) 
 {
 
-  /*
   LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
             << "\nuser_gesture: " << user_gesture
             << "\ndisposition: " << disposition
@@ -344,7 +359,6 @@ ExoBrowser::AddNewContents(
             << "\nView: " << new_contents->GetView()
             << "\nWaiting Response: " << new_contents->IsWaitingForResponse()
             << "\nInterstitial: " << new_contents->GetInterstitialPage();
-  */
 
   ExoFrame* src_frame = FrameForWebContents(source);
   DCHECK(src_frame != NULL);
@@ -356,14 +370,6 @@ ExoBrowser::AddNewContents(
 
     ExoFrame* new_frame = new ExoFrame(oss.str(),
                                        new_contents);
-
-    /* We set this ExoBrowser as temporary WebContentsDelegate the            */
-    /* OpenURLForTab method may need to be called for some WebContents, esp.  */
-    /* when clicking on a link with `target="_blank"` and `rel="norerferrer"` */
-    /* This delegate will get overriden when the new ExoFrame is later        */
-    /* asynchronously added to an ExoBrowser.                                 */ 
-    new_contents->SetDelegate(this);
-
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 

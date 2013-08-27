@@ -28,7 +28,8 @@ var box = function(spec, my) {
   my.state = {
     value: '',
     can_go_back: false,
-    can_go_forward: false
+    can_go_forward: false,
+    stack_visible: true
   };
 
   //
@@ -40,16 +41,19 @@ var box = function(spec, my) {
   //
   // ### _private_
   //
-  var push;                 /* push(); */
+  var push;                    /* push(); */
 
-  var stack_active_page;    /* stack_active_page(page); */
-  var socket_box_input;     /* socket_box_input(input); */
-  var socket_box_submit;    /* socket_box_submit(input); */
+  var stack_active_page;       /* stack_active_page(page); */
+  var stack_visible;           /* stack_visible(visible); */
 
-  var socket_box_back;      /* socket_box_back(); */
-  var socket_box_forward;   /* socket_box_forward(); */
+  var socket_box_input;        /* socket_box_input(input); */
+  var socket_box_submit;       /* socket_box_submit(input); */
 
-  var shortcut_go;          /* shortcut_go(); */
+  var socket_box_back;         /* socket_box_back(); */
+  var socket_box_forward;      /* socket_box_forward(); */
+  var socket_box_stack_toggle; /* socket_box_stack_toggle(); */
+
+  var shortcut_go;             /* shortcut_go(); */
   
   //
   // ### _protected_
@@ -89,6 +93,8 @@ var box = function(spec, my) {
 
     my.socket.on('box_back', socket_box_back);
     my.socket.on('box_forward', socket_box_forward);
+    my.socket.on('stack_toggle', socket_box_stack_toggle);
+
     push();
   };
 
@@ -103,6 +109,7 @@ var box = function(spec, my) {
     _super.init(cb_);
 
     my.session.stack().on('active_page', stack_active_page);
+    my.session.stack().on('visible', stack_visible);
 
     my.session.keyboard_shortcuts().on('go', shortcut_go);
     my.session.keyboard_shortcuts().on('back', shortcut_back);
@@ -148,6 +155,17 @@ var box = function(spec, my) {
     my.state.can_go_forward = page.state.can_go_forward;
     if(page.box_value)
       my.state.value = page.box_value;
+    push();
+  };
+
+  // ### stack_visible
+  //
+  // Received from the stack whenever the stack visibility is toggled
+  // ```
+  // @visible {boolean} whether the stack is visible
+  // ```
+  stack_visible = function(visible) {
+    my.state.stack_visible = visible;
     push();
   };
 
@@ -215,6 +233,13 @@ var box = function(spec, my) {
     if(page) {
       page.frame.go_back_or_forward(1);
     }
+  };
+
+  // ### socket_box_stack_toggle
+  //
+  // Received when the stack toggle button is clicked
+  socket_box_stack_toggle = function() {
+    my.session.stack().toggle();
   };
 
   /****************************************************************************/
