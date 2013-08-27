@@ -9,7 +9,6 @@
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "breach/browser/ui/browser.h"
 #include "breach/browser/ui/dialog/breach_javascript_dialog_manager.h"
 
 using namespace content;

@@ -181,9 +181,6 @@ ExoBrowser::ShowPage(
 {
   std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
   if(it != pages_.end()) {
-    LOG(INFO) << "ExoBrowser::ShowPage [" << this << "]: "
-              << "\nweb_contents: " << it->second->web_contents_
-              << "\nview: " << it->second->web_contents_->GetView();
     PlatformShowPage(it->second);
   }
   /* Otherwise, nothing to do */
@@ -233,14 +230,24 @@ ExoBrowser::OpenURLFromTab(
     const OpenURLParams& params) 
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
-  /* TODO(spolu): Use params.transition            */
-  /* TODO(spolu): Use params.referrer              */
   if(frame) {
+    /* Relevant header files:                              */
+    /*  ui/base/window_open_disposition.h                  */
+    /*  content/public/common/page_transition_types_list.h */
+
+    /* TODO(spolu): Use params.transition            */
+    /* TODO(spolu): Use params.referrer              */
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
                    params.url.spec(), params.disposition, frame->name()));
+  }
+  else {
+    /* This is used when a newly created WebContents is not yet assigned to  */
+    /* its fimal ExoFrame/ExoBrowser but needs a delegate to navigate to its */
+    /* targeted delegate. See ExoBrowser::AddNewContents.                    */
+    source->GetController().LoadURL(
+        params.url, params.referrer, params.transition, std::string());
   }
   return NULL;
 }
@@ -260,7 +267,6 @@ ExoBrowser::CloseContents(
     WebContents* source) 
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -276,7 +282,6 @@ ExoBrowser::PreHandleKeyboardEvent(
     bool* is_keyboard_shortcut)
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -292,7 +297,6 @@ ExoBrowser::NavigationStateChanged(
     unsigned changed_flags)
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -309,8 +313,10 @@ ExoBrowser::WebContentsCreated(
     WebContents* new_contents) 
 {
   LOG(INFO) << "WebContentsCreated: " << target_url 
-            << " " << frame_name
-            << " " <<  new_contents;
+            << "\nframe_name: " << frame_name
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nsource_frame_id: " << source_frame_id
+            << "\nnew_contents: " <<  new_contents;
   /* TODO(spolu): Call into API if necessary */
 }
 
@@ -324,18 +330,21 @@ ExoBrowser::AddNewContents(
     bool user_gesture,
     bool* was_blocked) 
 {
+
+  /*
   LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
-            << "user_gesture: " << user_gesture
-            << "disposition: " << disposition
-            << "\nsrc: " << source
-            << "\nsrc url: " << source->GetVisibleURL()
-            << "\nnew: " <<  new_contents
-            << "\nnew url: " <<  new_contents->GetVisibleURL()
+            << "\nuser_gesture: " << user_gesture
+            << "\ndisposition: " << disposition
+            << "\nsource: " << source
+            << "\nsource url: " << source->GetVisibleURL()
+            << "\nnew_contents: " <<  new_contents
+            << "\nnew_contents url: " <<  new_contents->GetVisibleURL()
             << "\nRenderProcessHost: " << new_contents->GetRenderProcessHost()
             << "\nRenderViewHost: " << new_contents->GetRenderViewHost() 
             << "\nView: " << new_contents->GetView()
             << "\nWaiting Response: " << new_contents->IsWaitingForResponse()
             << "\nInterstitial: " << new_contents->GetInterstitialPage();
+  */
 
   ExoFrame* src_frame = FrameForWebContents(source);
   DCHECK(src_frame != NULL);
@@ -345,14 +354,15 @@ ExoBrowser::AddNewContents(
     static int pop_cnt = 0;
     oss << src_frame->name() << "-" << (++pop_cnt);
 
-    LOG(INFO) << "Source ExoFrame: " << src_frame->name();
-    LOG(INFO) << "New ExoFrame: " << oss.str();
-
     ExoFrame* new_frame = new ExoFrame(oss.str(),
                                        new_contents);
-    this->AddPage(new_frame);
-    this->ShowPage(new_frame->name());
-    return;
+
+    /* We set this ExoBrowser as temporary WebContentsDelegate the            */
+    /* OpenURLForTab method may need to be called for some WebContents, esp.  */
+    /* when clicking on a link with `target="_blank"` and `rel="norerferrer"` */
+    /* This delegate will get overriden when the new ExoFrame is later        */
+    /* asynchronously added to an ExoBrowser.                                 */ 
+    new_contents->SetDelegate(this);
 
     NodeThread::Get()->PostTask(
         FROM_HERE,

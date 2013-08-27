@@ -83,6 +83,7 @@
         'browser/ui/exo_frame_gtk.cc',
         'browser/ui/breach_web_contents_view_delegate.h',
         'browser/ui/breach_web_contents_view_delegate_gtk.cc',
+        'browser/ui/breach_web_contents_view_delegate_mac.mm',
         'browser/breach_browser_application_mac.h',
         'browser/breach_browser_application_mac.mm',
         'browser/breach_browser_context.cc',

@@ -37,7 +37,7 @@ class BreachWebContentsViewDelegate : public content::WebContentsViewDelegate {
 #elif defined(OS_MACOSX)
   virtual NSObject<RenderWidgetHostViewMacDelegate>*
       CreateRenderWidgetHostViewDelegate(
-          RenderWidgetHost* render_widget_host) OVERRIDE;
+          content::RenderWidgetHost* render_widget_host) OVERRIDE;
   void ActionPerformed(int id);
 #elif defined(OS_WIN)
   virtual void StoreFocus() OVERRIDE;

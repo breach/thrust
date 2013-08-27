@@ -43,7 +43,7 @@ ObjectFromNavigationEntry(
                String::New(entry->GetFavicon().url.spec().c_str()));
   */
   entry_o->Set(String::New("visible"),
-               Boolean::New(visible));
+               v8::Boolean::New(visible));
   entry_o->Set(String::New("timestamp"),
                Number::New(
                  (entry->GetTimestamp().ToInternalValue() / 1000)));
@@ -882,18 +882,6 @@ ExoBrowserWrap::FrameCreatedTask(
   ((ExoFrameWrap*)frame_w)->frame_ = new_frame;
   ((ExoFrameWrap*)frame_w)->frame_->wrapper_ = (ExoFrameWrap*)frame_w;
 
-  LOG(INFO) << "FrameCreatedTask: "
-            << "\nnew: " <<  new_frame
-            << "\nnew url: " <<  new_frame->web_contents_->GetVisibleURL()
-            << "\nnew last committed url: " <<  new_frame->web_contents_->GetLastCommittedURL()
-            << "\nRenderProcessHost: " << new_frame->web_contents_->GetRenderProcessHost()
-            << "\nRenderViewHost: " << new_frame->web_contents_->GetRenderViewHost() 
-            << "\nView: " << new_frame->web_contents_->GetView()
-            << "\nWaiting Response: " << new_frame->web_contents_->IsWaitingForResponse()
-            << "\nBrowserContext: " << new_frame->web_contents_->GetBrowserContext()
-            << "\nInterstitial: " << new_frame->web_contents_->GetInterstitialPage();
-
-
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoBrowserWrap::FrameCreatedFinish, this, 
@@ -1009,10 +997,10 @@ ExoBrowserWrap::DispatchNavigationState(
     }
     state_arg->Set(String::New("entries"), entries);
     state_arg->Set(String::New("can_go_back"),
-                   Boolean::New(
+                   v8::Boolean::New(
                      frame->web_contents()->GetController().CanGoBack()));
     state_arg->Set(String::New("can_go_forward"),
-                   Boolean::New(
+                   v8::Boolean::New(
                      frame->web_contents()->GetController().CanGoForward()));
 
     Local<String> frame_arg = String::New((frame->name()).c_str());

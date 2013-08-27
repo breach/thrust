@@ -115,8 +115,6 @@ ExoBrowser::PlatformShowPage(
     if(visible_page_ != NULL) {
       gtk_container_remove(GTK_CONTAINER(pages_box_), visible_page_);
     }
-    LOG(INFO) << "PlatformSetPage [" << frame->name() << "]: " 
-              << content_view->GetNativeView();
     visible_page_ = content_view->GetNativeView();
     gtk_container_add(GTK_CONTAINER(pages_box_), visible_page_);
   }
@@ -129,7 +127,6 @@ ExoBrowser::PlatformSetControl(
     ExoFrame *frame)
 {
   WebContentsView* content_view = frame->web_contents_->GetView();
-  LOG(INFO) << "PlatformSetControl: " << type << " " << frame->name();
 
   switch(type) {
     case LEFT_CONTROL: 
@@ -160,9 +157,6 @@ ExoBrowser::PlatformSetControlDimension(
     CONTROL_TYPE type, 
     int size)
 {
-  LOG(INFO) << "PlatformSetControlDimension: " 
-            << type << " " << size;
-
   switch(type) {
     case LEFT_CONTROL: 
       gtk_widget_set_size_request(control_left_box_, size, 0);
@@ -189,7 +183,6 @@ ExoBrowser::PlatformUnsetControl(
     ExoFrame *frame)
 {
   WebContentsView* content_view = frame->web_contents_->GetView();
-  LOG(INFO) << "PlatformUnsetControl: " << type << " " << frame->name();
 
   switch(type) {
     case LEFT_CONTROL: 

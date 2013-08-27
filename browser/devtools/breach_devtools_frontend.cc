@@ -12,11 +12,11 @@
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/content_client.h"
 #include "breach/common/breach_switches.h"
-#include "breach/browser/ui/browser.h"
 #include "breach/browser/breach_browser_context.h"
 #include "breach/browser/breach_browser_main_parts.h"
 #include "breach/browser/breach_content_browser_client.h"
 #include "breach/browser/devtools/breach_devtools_delegate.h"
+#include "breach/browser/ui/exo_frame.h"
 #include "net/base/net_util.h"
 
 using namespace content;
@@ -51,6 +51,7 @@ GetDevToolsPathAsURL()
 BreachDevToolsFrontend* 
 BreachDevToolsFrontend::Show(
     WebContents* inspected_contents) {
+  /*
   Browser* browser = Browser::CreateNewWindow(
       BreachContentBrowserClient::Get()->browser_context(),
       //inspected_contents->GetBrowserContext(),
@@ -58,8 +59,11 @@ BreachDevToolsFrontend::Show(
       NULL,
       MSG_ROUTING_NONE,
       gfx::Size());
+      */
+  /* TODO(spolU): Implement */
+  ExoFrame *exo_frame = NULL;
   BreachDevToolsFrontend* devtools_frontend = new BreachDevToolsFrontend(
-      browser,
+      exo_frame,
       DevToolsAgentHost::GetOrCreateFor(
         inspected_contents->GetRenderViewHost()).get());
 
@@ -77,14 +81,16 @@ void BreachDevToolsFrontend::Focus() {
 }
 
 void BreachDevToolsFrontend::Close() {
-  browser_->Close();
+  /* TODO(spolu) Implemebt / Fix */
+  //exo_frame_->Kill();
 }
 
 BreachDevToolsFrontend::BreachDevToolsFrontend(
-    Browser* browser,
+    ExoFrame* exo_frame,
     DevToolsAgentHost* agent_host)
-  : WebContentsObserver(browser->web_contents()),
-    browser_(browser),
+/* TODO(spolu): Fix Implement */
+  //: WebContentsObserver(exo_frame->web_contents()),
+    : exo_frame_(exo_frame),
     agent_host_(agent_host) 
 {
   frontend_host_.reset(
@@ -117,7 +123,8 @@ BreachDevToolsFrontend::WebContentsDestroyed(
 void 
 BreachDevToolsFrontend::InspectedContentsClosing() 
 {
-  browser_->Close();
+  /* TODO(spolu) Implemebt / Fix */
+  //exo_frame_->Kill();
 }
 
 }  // namespace content
