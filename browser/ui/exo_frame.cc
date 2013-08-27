@@ -34,6 +34,8 @@ ExoFrame::ExoFrame(
     wrapper_(wrapper)
 {
   web_contents_.reset(web_contents);
+  WebContentsObserver::Observe(web_contents);
+  LOG(INFO) << "ExoFrame Constructor [" << web_contents << "]";
 }
 
 ExoFrame::ExoFrame(
@@ -54,6 +56,7 @@ void
 ExoFrame::SetParent(
     ExoBrowser* parent)
 {
+  LOG(INFO) << "ExoFrame SetParent [" << web_contents_ << "]: " << parent;
   parent_ = parent;
   web_contents_->SetDelegate(parent_);
 }
@@ -72,6 +75,7 @@ ExoFrame::~ExoFrame()
   /* reclaimed and that most of what is related to use has been destroyed  */
   /* already. Our associated web_contents, should be deleted with its      */
   /* scoped_ptr.                                                           */
+  LOG(INFO) << "ExoFrame Destroyed [" << web_contents_ << "]";
 }
 
 void
@@ -117,9 +121,11 @@ ExoFrame::DidUpdateFaviconURL(
     int32 page_id,
     const std::vector<FaviconURL>& candidates)
 {
-  NodeThread::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&ExoFrameWrap::DispatchFaviconUpdate, wrapper_, candidates));
+  if(wrapper_) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoFrameWrap::DispatchFaviconUpdate, wrapper_, candidates));
+  }
 }
 
 void 
@@ -131,7 +137,7 @@ ExoFrame::DidFailLoad(
     const string16& error_description,
     RenderViewHost* render_view_host)
 {
-  if(is_main_frame) {
+  if(is_main_frame && wrapper_) {
     std::string desc = UTF16ToUTF8(error_description);
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -147,7 +153,7 @@ ExoFrame::DidFinishLoad(
     bool is_main_frame,
     RenderViewHost* render_view_host)
 {
-  if(is_main_frame) {
+  if(is_main_frame && wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoFrameWrap::DispatchLoadFinish, wrapper_,
@@ -160,18 +166,22 @@ void
 ExoFrame::DidStartLoading(
     RenderViewHost* render_view_host)
 {
+  if(wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoFrameWrap::DispatchLoadingStart, wrapper_));
+  }
 }
 
 void 
 ExoFrame::DidStopLoading(
     RenderViewHost* render_view_host)
 {
+  if(wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoFrameWrap::DispatchLoadingStop, wrapper_));
+  }
 }
 
 

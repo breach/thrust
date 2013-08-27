@@ -127,7 +127,6 @@ ExoBrowser::PlatformSetControl(
     ExoFrame *frame)
 {
   WebContentsView* content_view = frame->web_contents_->GetView();
-  LOG(INFO) << "PlatformSetControl: " << type << " " << frame->name();
 
   switch(type) {
     case LEFT_CONTROL: 
@@ -158,9 +157,6 @@ ExoBrowser::PlatformSetControlDimension(
     CONTROL_TYPE type, 
     int size)
 {
-  LOG(INFO) << "PlatformSetControlDimension: " 
-            << type << " " << size;
-
   switch(type) {
     case LEFT_CONTROL: 
       gtk_widget_set_size_request(control_left_box_, size, 0);
@@ -187,7 +183,6 @@ ExoBrowser::PlatformUnsetControl(
     ExoFrame *frame)
 {
   WebContentsView* content_view = frame->web_contents_->GetView();
-  LOG(INFO) << "PlatformUnsetControl: " << type << " " << frame->name();
 
   switch(type) {
     case LEFT_CONTROL: 

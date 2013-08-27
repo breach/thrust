@@ -844,12 +844,11 @@ void
 ExoBrowserWrap::DispatchFrameCreated(
     const std::string& src_frame,
     const WindowOpenDisposition disposition,
-    content::WebContents* new_contents)
+    ExoFrame* new_frame)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
   if(!frame_created_cb_.IsEmpty()) {
-
 
     Local<Function> c = 
       Local<Function>::New(Isolate::GetCurrent(), ExoFrameWrap::s_constructor);
@@ -867,7 +866,7 @@ ExoBrowserWrap::DispatchFrameCreated(
         content::BrowserThread::UI, FROM_HERE,
         /* TODO(spolu): Fix usage of (void*) */
         base::Bind(&ExoBrowserWrap::FrameCreatedTask, this, 
-                   src_frame, disposition, new_contents, 
+                   src_frame, disposition, new_frame, 
                    (void*)frame_w, frame_p));
   }
 }
@@ -876,21 +875,13 @@ void
 ExoBrowserWrap::FrameCreatedTask(
     const std::string& src_frame,
     const WindowOpenDisposition disposition,
-    content::WebContents* new_contents,
+    ExoFrame* new_frame,
     void* frame_w,
     Persistent<Object>* frame_p)
 {
-  /* We generate a unique name for this new frame */
-  std::ostringstream oss;
-  static int pop_cnt = 0;
-  oss << src_frame << "-" << (++pop_cnt);
+  ((ExoFrameWrap*)frame_w)->frame_ = new_frame;
+  ((ExoFrameWrap*)frame_w)->frame_->wrapper_ = (ExoFrameWrap*)frame_w;
 
-  ((ExoFrameWrap*)frame_w)->frame_ = new ExoFrame(oss.str(),
-                                                  new_contents,
-                                                  ((ExoFrameWrap*)frame_w));
-  LOG(INFO) << "FrameCreatedTask: "
-            << " " <<  new_contents
-            << " " <<  new_contents->GetURL();
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoBrowserWrap::FrameCreatedFinish, this, 
