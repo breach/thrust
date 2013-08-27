@@ -1,8 +1,15 @@
-TODO(spolu): BUG: Fix target _blank (gmail) (scoped_ptr<> over thread switch)
++ SHOWSTOPPER ALPHA RELEASE EXP1:
 
+TODO(spolu): Stack Button
 TODO(spolu): Search in page
 TODO(spolu): Stack Search
-TODO(spolu): Inspector
-TODO(spolu): Flash
-TODO(spolu): Stack Button
+TODO(spolu): Popups!
+
++ OTHER
+
+TODO(spolu): Hover Controls
+TODO(spolu): Inspector ?
+TODO(spolu): Flash ?
+TOOD(spolu): Net (Cookies) API
+
 

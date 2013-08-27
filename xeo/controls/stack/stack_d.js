@@ -59,7 +59,7 @@ angular.module('breach.directives').directive('stack', function() {
     scope: {
       pages: '=pages',
     },
-    templateUrl: 'partials/stack_d.html',
+    templateUrl: 'stack_d.html',
     controller: 'StackCtrl'
   };
 });

@@ -449,6 +449,14 @@ var stack = function(spec, my) {
       my.active = my.pinned;
       push();
     }
+    else {
+      /* If we're pinned we implement the reverse stack order and put the */
+      /* page at the end of the pinned section.                           */
+      var p = my.pages.splice(my.active, 1)[0];
+      my.pages.splice(my.pinned - 1, 0, p);
+      my.active = my.pinned - 1;
+      push();
+    }
   };
 
   // ### shortcut_stack_move_next
@@ -484,8 +492,8 @@ var stack = function(spec, my) {
   shortcut_stack_close = function() {
     var p = my.pages.splice(my.active, 1)[0]
     my.session.exo_browser().remove_page(p.frame, function() {
-      if(my.active === my.pages.length)
-        my.active--;
+      if(p.pinned) my.pinned--;
+      if(my.active === my.pages.length) my.active--;
       if(my.pages.length === 0) {
         my.session.kill();
       }

@@ -72,7 +72,7 @@ angular.module('breach.directives').directive('box', function() {
     scope: {
       state: '=state',
     },
-    templateUrl: 'partials/box_d.html',
+    templateUrl: 'box_d.html',
     controller: 'BoxCtrl'
   };
 });
