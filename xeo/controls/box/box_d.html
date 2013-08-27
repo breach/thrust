@@ -1,4 +1,7 @@
 <div class="box">
+  <a class="button stack" 
+     ng-class="{active: stack_visible, pushed: !stack_visible}" 
+     ng-click="stack_toggle()"></a>
   <a class="button back" 
      ng-disabled="!can_go_back"
      ng-class="{active: can_go_back}" 
