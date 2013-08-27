@@ -9,6 +9,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
+#include "base/threading/sequenced_worker_pool.h"
 #include "base/threading/worker_pool.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
@@ -184,7 +185,10 @@ BreachURLRequestContextGetter::GetURLRequestContext()
     DCHECK(set_protocol);
     set_protocol = job_factory->SetProtocolHandler(
         chrome::kFileScheme,
-        new net::FileProtocolHandler);
+        new net::FileProtocolHandler(
+            content::BrowserThread::GetBlockingPool()->
+                GetTaskRunnerWithShutdownBehavior(
+                    base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
     DCHECK(set_protocol);
     storage_->set_job_factory(job_factory.release());
   }

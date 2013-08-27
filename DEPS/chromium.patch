@@ -1,5 +1,5 @@
 diff --git a/.gitignore b/.gitignore
-index 9735a27..2c89d57 100644
+index 34c63a9..512c8d2 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -55,6 +55,7 @@ v8.log
@@ -10,7 +10,7 @@ index 9735a27..2c89d57 100644
  /chrome/app/policy/chrome_settings_proto_compile.xml
  /chrome/app/policy/chrome_settings_proto_generated_compile.xml
  /chrome/app/policy/cloud_policy_backend_header_compile.xml
-@@ -238,6 +239,7 @@ v8.log
+@@ -237,6 +238,7 @@ v8.log
  /third_party/mt19937ar
  /third_party/mtpd/source/
  /third_party/nacl_sdk_binaries/
@@ -25,7 +25,7 @@ index 9735a27..2c89d57 100644
 +
 +
 diff --git a/build/common.gypi b/build/common.gypi
-index 0d20ba9..953f56a 100644
+index 9920192..63b74a9 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -9,6 +9,18 @@
@@ -47,7 +47,7 @@ index 0d20ba9..953f56a 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -2718,6 +2730,16 @@
+@@ -2756,6 +2768,16 @@
      }],
      ['os_posix==1 and OS!="mac" and OS!="ios"', {
        'target_defaults': {
@@ -64,7 +64,7 @@ index 0d20ba9..953f56a 100644
          # Enable -Werror by default, but put it in a variable so it can
          # be disabled in ~/.gyp/include.gypi on the valgrind builders.
          'variables': {
-@@ -3810,7 +3832,7 @@
+@@ -3849,7 +3871,7 @@
            'GCC_OBJC_CALL_CXX_CDTORS': 'YES',        # -fobjc-call-cxx-cdtors
            'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',      # -fvisibility=hidden
            'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
@@ -73,7 +73,7 @@ index 0d20ba9..953f56a 100644
            'GCC_VERSION': '4.2',
            'GCC_WARN_ABOUT_MISSING_NEWLINE': 'YES',  # -Wnewline-eof
            'USE_HEADERMAP': 'NO',
-@@ -4015,6 +4037,13 @@
+@@ -4054,6 +4076,13 @@
            ],
          },
          'target_conditions': [
