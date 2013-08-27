@@ -330,20 +330,44 @@ ExoBrowser::AddNewContents(
     bool user_gesture,
     bool* was_blocked) 
 {
+
+  /*
   LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
-            << " " <<  new_contents
-            << " " <<  new_contents->GetURL();
+            << "\nuser_gesture: " << user_gesture
+            << "\ndisposition: " << disposition
+            << "\nsource: " << source
+            << "\nsource url: " << source->GetVisibleURL()
+            << "\nnew_contents: " <<  new_contents
+            << "\nnew_contents url: " <<  new_contents->GetVisibleURL()
+            << "\nRenderProcessHost: " << new_contents->GetRenderProcessHost()
+            << "\nRenderViewHost: " << new_contents->GetRenderViewHost() 
+            << "\nView: " << new_contents->GetView()
+            << "\nWaiting Response: " << new_contents->IsWaitingForResponse()
+            << "\nInterstitial: " << new_contents->GetInterstitialPage();
+  */
+
   ExoFrame* src_frame = FrameForWebContents(source);
   DCHECK(src_frame != NULL);
   if(src_frame) {
+    /* We generate a unique name for this new frame */
+    std::ostringstream oss;
+    static int pop_cnt = 0;
+    oss << src_frame->name() << "-" << (++pop_cnt);
+
+    ExoFrame* new_frame = new ExoFrame(oss.str(),
+                                       new_contents);
+
     /* We set this ExoBrowser as temporary WebContentsDelegate the            */
     /* OpenURLForTab method may need to be called for some WebContents, esp.  */
     /* when clicking on a link with `target="_blank"` and `rel="norerferrer"` */
+    /* This delegate will get overriden when the new ExoFrame is later        */
+    /* asynchronously added to an ExoBrowser.                                 */ 
     new_contents->SetDelegate(this);
+
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
-                   src_frame->name(), disposition, new_contents));
+                   src_frame->name(), disposition, new_frame));
   }
 }
 
@@ -378,6 +402,7 @@ void
 ExoBrowser::RendererUnresponsive(
     WebContents* source) 
 {
+  LOG(INFO) << "RendererUnresponsive";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }
@@ -386,6 +411,7 @@ void
 ExoBrowser::WorkerCrashed(
     WebContents* source) 
 {
+  LOG(INFO) << "WorkerCrashed";
   /* TODO(spolu): find WebContents ExoFrame's name */
   /* TODO(spolu): Call into API */
 }

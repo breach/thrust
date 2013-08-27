@@ -644,6 +644,7 @@ var exo_browser = function(spec, my) {
         that.emit('frame_keyboard', my.frames[from], event);
       });
       my.internal._setNavigationStateCallback(function(from, state) {
+        //console.log(state);
         state.entries.forEach(function(e) {
           e.url = require('url').parse(e.virtual_url || '');
         });
