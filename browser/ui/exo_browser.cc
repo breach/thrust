@@ -230,14 +230,24 @@ ExoBrowser::OpenURLFromTab(
     const OpenURLParams& params) 
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
-  /* TODO(spolu): Use params.transition            */
-  /* TODO(spolu): Use params.referrer              */
   if(frame) {
+    /* Relevant header files:                              */
+    /*  ui/base/window_open_disposition.h                  */
+    /*  content/public/common/page_transition_types_list.h */
+
+    /* TODO(spolu): Use params.transition            */
+    /* TODO(spolu): Use params.referrer              */
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
                    params.url.spec(), params.disposition, frame->name()));
+  }
+  else {
+    /* This is used when a newly created WebContents is not yet assigned to  */
+    /* its fimal ExoFrame/ExoBrowser but needs a delegate to navigate to its */
+    /* targeted delegate. See ExoBrowser::AddNewContents.                    */
+    source->GetController().LoadURL(
+        params.url, params.referrer, params.transition, std::string());
   }
   return NULL;
 }
@@ -257,7 +267,6 @@ ExoBrowser::CloseContents(
     WebContents* source) 
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -273,7 +282,6 @@ ExoBrowser::PreHandleKeyboardEvent(
     bool* is_keyboard_shortcut)
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -289,7 +297,6 @@ ExoBrowser::NavigationStateChanged(
     unsigned changed_flags)
 {
   ExoFrame* frame = FrameForWebContents(source);
-  DCHECK(frame != NULL);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -329,6 +336,10 @@ ExoBrowser::AddNewContents(
   ExoFrame* src_frame = FrameForWebContents(source);
   DCHECK(src_frame != NULL);
   if(src_frame) {
+    /* We set this ExoBrowser as temporary WebContentsDelegate the            */
+    /* OpenURLForTab method may need to be called for some WebContents, esp.  */
+    /* when clicking on a link with `target="_blank"` and `rel="norerferrer"` */
+    new_contents->SetDelegate(this);
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
