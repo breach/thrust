@@ -11,4 +11,6 @@ TODO(spolu): Inspector ?
 TODO(spolu): Flash ?
 TODO(spolu): Net (Cookies) API
 
+web_contents()->GetRenderViewHost()->Find
+FindTabHelper
 

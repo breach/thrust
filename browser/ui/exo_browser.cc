@@ -292,6 +292,14 @@ ExoBrowser::PreHandleKeyboardEvent(
 }
 
 void 
+ExoBrowser::HandleKeyboardEvent(
+    WebContents* source,
+    const NativeWebKeyboardEvent& event)
+{
+  //LOG(INFO) << "HandleKeyboardEvent " << event.windowsKeyCode;
+}
+
+void 
 ExoBrowser::NavigationStateChanged(
     const WebContents* source,
     unsigned changed_flags)
