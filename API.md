@@ -68,6 +68,9 @@ exo_frame.type();
 exo_frame.loading();
 exo_frame.title();
 
+exo_frame.find(text, forward, case, next, [cb_]);
+exo_frame.find_stop(action, [cb_]);
+
 exo_frame.load_url(url, [cb_]);
 exo_frame.go_back_or_forward(offset, [cb_]);
 exo_frame.reload([cb_]);
@@ -111,6 +114,8 @@ f._goBackOrForward(offset, cb_);
 f._reload(cb_);
 f._stop(cb_);
 f._focus(cb_);
+f._find(rid, text, forward, sensitive, next, cb_)
+f._stopFinding(action, cb_);
 
 f._name(cb_);
 f._type(cb_);

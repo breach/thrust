@@ -113,6 +113,22 @@ ExoFrame::Focus()
   web_contents_->GetView()->Focus();
 }
 
+void
+ExoFrame::Find(
+    int request_id, 
+    const string16& search_text,
+    const WebKit::WebFindOptions& options)
+{
+  web_contents_->GetRenderViewHost()->Find(request_id, search_text, options);
+}
+
+void
+ExoFrame::StopFinding(
+    StopFindAction action)
+{
+  web_contents_->GetRenderViewHost()->StopFinding(action);
+}
+
 /******************************************************************************/
 /*                    WEBCONTENTSOBSERVER IMPLEMENTATION                      */
 /******************************************************************************/

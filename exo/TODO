@@ -11,5 +11,10 @@ TODO(spolu): Flash ?
 TODO(spolu): Net (Cookies) API
 
 web_contents()->GetRenderViewHost()->Find
+
+content/public/browser/render_view_host.h
+content/public/common/stop_find_action.h
+third_party/WebKit/public/web/WebFindOptions.h
+
 FindTabHelper
 

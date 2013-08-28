@@ -52,6 +52,9 @@ var exo_frame = function(spec, my) {
   my.loading = 0;
   my.title = '';
 
+  my.find_rid = 0;
+  my.find = {};
+
   //
   // #### _public_
   //
@@ -60,6 +63,8 @@ var exo_frame = function(spec, my) {
   var reload;              /* reload([cb_]); */
   var stop;                /* stop([cb_]); */ 
   var focus;               /* focus([cb_]); */
+  var find;                /* find(text, forward, case, next, [cb_]); */
+  var find_stop;           /* find_stop(action, [cb_]); */
 
   var kill;             /* release(); */
 
@@ -195,6 +200,49 @@ var exo_frame = function(spec, my) {
     });
   };
 
+  // ### find
+  //
+  // Find text in frame html
+  // ```
+  // @text      {string} the search test
+  // @forward   {boolean} search forward (backward otherwise)
+  // @sensitive {boolean} case sensitive (insensitive otherwise)
+  // @next      {boolean} followup request (first one otherwise)
+  // @cb_       {functio(err)}
+  // ```
+  find = function(text, forward, sensitive, next, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        var rid = next ? my.find[text] : ++my.find_rid;
+        my.find[text] = rid;
+        my.internal._find(rid, text, forward, sensitive, next, function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### find_stop
+  //
+  // Stop finding in frame html
+  // ```
+  // @action {string} the stop find action type ('clear'|'keep'|'activate')
+  find_stop = function(aciton, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._findStop(action, function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
   // ### kill
   //
   // Deletes the internal exo frame to let the object get GCed
@@ -279,6 +327,8 @@ var exo_frame = function(spec, my) {
   common.method(that, 'reload', reload, _super);
   common.method(that, 'stop', stop, _super);
   common.method(that, 'focus', focus, _super);
+  common.method(that, 'find', find, _super);
+  common.method(that, 'find_stop', find_stop, _super);
   common.method(that, 'kill', kill, _super);
 
   common.getter(that, 'url', my, 'url');
