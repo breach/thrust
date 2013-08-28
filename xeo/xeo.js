@@ -60,6 +60,8 @@ factory.log().out('Starting...');
   sessions[s.name()] = s;
   s.on('kill', function() {
     delete sessions[s.name()];
+    if(global.gc)
+      global.gc();
   });
 })();
 

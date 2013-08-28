@@ -493,6 +493,7 @@ var stack = function(spec, my) {
   shortcut_stack_close = function() {
     var p = my.pages.splice(my.active, 1)[0]
     my.session.exo_browser().remove_page(p.frame, function() {
+      p.frame.kill();
       if(p.pinned) my.pinned--;
       if(my.active === my.pages.length) my.active--;
       if(my.pages.length === 0) {

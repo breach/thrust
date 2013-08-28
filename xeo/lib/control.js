@@ -157,6 +157,7 @@ var control = function(spec, my) {
   // have already been killed and are waiting to get reclaimed.
   kill = function() {
     my.socket.disconnect();
+    my.frame.kill();
   };
 
   // ### handshake

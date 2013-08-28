@@ -61,6 +61,8 @@ var exo_frame = function(spec, my) {
   var stop;                /* stop([cb_]); */ 
   var focus;               /* focus([cb_]); */
 
+  var kill;             /* release(); */
+
   //
   // #### _private_
   //
@@ -81,6 +83,9 @@ var exo_frame = function(spec, my) {
   // @cb_ {function(err)}
   // ```
   pre = function(cb_) {
+    if(my.killed) {
+      return cb_(new Error('Frame was killed: ' + my.name));
+    }
     if(!my.ready) {
       that.on('ready', function() {
         return cb_();
@@ -190,6 +195,26 @@ var exo_frame = function(spec, my) {
     });
   };
 
+  // ### kill
+  //
+  // Deletes the internal exo frame to let the object get GCed
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  kill = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.killed = true;
+        my.ready = false;
+        delete my.internal;
+        that.removeAllListeners();
+      }
+    });
+  };
+
 
   // ### init
   //
@@ -254,6 +279,7 @@ var exo_frame = function(spec, my) {
   common.method(that, 'reload', reload, _super);
   common.method(that, 'stop', stop, _super);
   common.method(that, 'focus', focus, _super);
+  common.method(that, 'kill', kill, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');
@@ -373,7 +399,7 @@ var exo_browser = function(spec, my) {
   // ```
   pre = function(cb_) {
     if(my.killed)
-      return cb_(new Error('Browser has already been killed'));
+      return cb_(new Error('Browser already killed: ' + my.name));
     else if(!my.ready) {
       that.on('ready', function() {
         return cb_();
@@ -454,9 +480,9 @@ var exo_browser = function(spec, my) {
           var control = my.controls[type];
           control.set_parent(that);
           control.set_type(exports.NO_TYPE);
+          control.set_visible(false);
           my.controls[type] = null;
           my.control_dimensions[type] = 0;
-          my.controls[type].set_visible(false);
           delete my.frames[control.name()];
           if(cb_) return cb_(null, control);
         });
@@ -621,9 +647,22 @@ var exo_browser = function(spec, my) {
       my.internal._setKillCallback(function() {
         /* `Kill` has been called from here or somewhere else so let's make */
         /* sure we have eveything cleaned up */
+        for(var name in my.frames) {
+          if(my.frames.hasOwnProperty(name)) {
+            my.frames[name].kill();
+          }
+        }
+        my.controls[exports.TOP_CONTROL] = null;
+        my.controls[exports.BOTTOM_CONTROL] = null;
+        my.controls[exports.LEFT_CONTROL] = null;
+        my.controls[exports.RIGHT_CONTROL] = null;
+        my.frames = {};
+        my.pages = {};
+
         delete my.internal;
         my.killed = true;
         my.ready = false;
+        delete my.internal;
         delete exports._exo_browsers[my.name];
         that.emit('kill');
       });
@@ -631,6 +670,7 @@ var exo_browser = function(spec, my) {
         factory.log().out('frame_close: ' + from);
         if(my.frames[from]) {
           /* TODO(spolu): figure out if this event is useful */
+          /* Probably for programatic close of frame         */
         }
       });
       my.internal._setFrameCreatedCallback(function(_frame, disposition, from) {
