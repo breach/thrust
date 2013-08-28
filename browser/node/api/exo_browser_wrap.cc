@@ -163,6 +163,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(Position)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
       FunctionTemplate::New(Focus)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_maximize"),
+      FunctionTemplate::New(Maximize)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_addPage"),
       FunctionTemplate::New(AddPage)->GetFunction());
@@ -432,6 +434,36 @@ ExoBrowserWrap::FocusTask(
 {
   if(browser_ != NULL && !browser_->is_killed())
     browser_->Focus();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
+}
+
+
+void 
+ExoBrowserWrap::Maximize(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoBrowserWrap::MaximizeTask, browser_w, cb_p));
+}
+
+void
+ExoBrowserWrap::MaximizeTask(
+    Persistent<Function>* cb_p)
+{
+  if(browser_ != NULL && !browser_->is_killed())
+    browser_->Maximize();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -843,6 +875,7 @@ void
 ExoBrowserWrap::DispatchFrameCreated(
     const std::string& src_frame,
     const WindowOpenDisposition disposition,
+    const gfx::Rect& initial_pos,
     ExoFrame* new_frame)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -865,7 +898,7 @@ ExoBrowserWrap::DispatchFrameCreated(
         content::BrowserThread::UI, FROM_HERE,
         /* TODO(spolu): Fix usage of (void*) */
         base::Bind(&ExoBrowserWrap::FrameCreatedTask, this, 
-                   src_frame, disposition, new_frame, 
+                   src_frame, disposition, initial_pos, new_frame, 
                    (void*)frame_w, frame_p));
   }
 }
@@ -874,6 +907,7 @@ void
 ExoBrowserWrap::FrameCreatedTask(
     const std::string& src_frame,
     const WindowOpenDisposition disposition,
+    const gfx::Rect& initial_pos,
     ExoFrame* new_frame,
     void* frame_w,
     Persistent<Object>* frame_p)
@@ -884,13 +918,14 @@ ExoBrowserWrap::FrameCreatedTask(
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoBrowserWrap::FrameCreatedFinish, this, 
-                 src_frame, disposition, frame_p));
+                 src_frame, disposition, initial_pos, frame_p));
 }
 
 void 
 ExoBrowserWrap::FrameCreatedFinish(
     const std::string& src_frame,
     const WindowOpenDisposition disposition,
+    const gfx::Rect& initial_pos,
     Persistent<Object>* frame_p)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -908,10 +943,17 @@ ExoBrowserWrap::FrameCreatedFinish(
   Local<String> from_arg = String::New(src_frame.c_str());
   Local<String> disposition_arg = StringFromWindowOpenDisposition(disposition);
 
-  Local<Value> argv[3] = { frame_o,
+  Local<Array> initial_pos_arg = Array::New();
+  initial_pos_arg->Set(0, Integer::New(initial_pos.x()));
+  initial_pos_arg->Set(1, Integer::New(initial_pos.y()));
+  initial_pos_arg->Set(2, Integer::New(initial_pos.width()));
+  initial_pos_arg->Set(3, Integer::New(initial_pos.height()));
+
+  Local<Value> argv[4] = { frame_o,
                            disposition_arg,
+                           initial_pos_arg,
                            from_arg };
-  cb->Call(browser_o, 3, argv);
+  cb->Call(browser_o, 4, argv);
 
   frame_p->Dispose();
   delete frame_p;

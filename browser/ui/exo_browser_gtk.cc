@@ -64,8 +64,6 @@ ExoBrowser::PlatformCreateWindow(
 
   gtk_container_add(GTK_CONTAINER(window_), hbox_);
   gtk_window_resize(window_, width, height);
-  /* TODO(spolu): move to API */
-  gtk_window_maximize(window_);
 
   // Finally, show the window.
   gtk_widget_show_all(GTK_WIDGET(window_));
@@ -216,6 +214,12 @@ void
 ExoBrowser::PlatformFocus()
 {
   gtk_window_present(window_);
+}
+
+void
+ExoBrowser::PlatformMaximize()
+{
+  gtk_window_maximize(window_);
 }
 
 

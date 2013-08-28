@@ -8,6 +8,7 @@
 #include "v8/include/v8.h"
 #include "ui/gfx/size.h"
 #include "ui/gfx/point.h"
+#include "ui/gfx/rect.h"
 #include "breach/browser/node/api/object_wrap.h"
 #include "breach/browser/ui/exo_browser.h"
 
@@ -57,6 +58,10 @@ private:
 
   static void Focus(const v8::FunctionCallbackInfo<v8::Value>& args);
   void FocusTask(v8::Persistent<v8::Function>* cb_p);
+
+
+  static void Maximize(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void MaximizeTask(v8::Persistent<v8::Function>* cb_p);
 
 
   static void SetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -114,15 +119,18 @@ private:
       const v8::FunctionCallbackInfo<v8::Value>& args);
   void DispatchFrameCreated(const std::string& src_frame,
                             const WindowOpenDisposition disposition,
+                            const gfx::Rect& initial_pos,
                             ExoFrame* new_frame);
   /* TODO(spolu): Fix usage of (void*) */
   void FrameCreatedTask(const std::string& src_frame,
                         const WindowOpenDisposition disposition,
+                        const gfx::Rect& initial_pos,
                         ExoFrame* new_frame,
                         void* frame_w,
                         v8::Persistent<v8::Object>* frame_p);
   void FrameCreatedFinish(const std::string& src_frame,
                           const WindowOpenDisposition disposition,
+                          const gfx::Rect& initial_pos,
                           v8::Persistent<v8::Object>* frame_p);
 
   static void SetFrameKeyboardCallback(

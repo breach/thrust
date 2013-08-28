@@ -295,9 +295,10 @@ var stack = function(spec, my) {
   // ```
   // @frame       {exo_frame} the newly created frame
   // @disposition {string} the disposition for opening that frame
+  // @initial_pos {array} initial rect
   // @origin      {exo_frame} origin exo_frame
   // ```
-  browser_frame_created = function(frame, disposition, origin) {
+  browser_frame_created = function(frame, disposition, initial_pos, origin) {
     if(disposition !== 'new_foreground_tab' &&
        disposition !== 'new_background_tab') {
       return;

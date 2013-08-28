@@ -48,7 +48,7 @@ var session = function(spec, my) {
   //
   var init;          /* init(); */
 
-  var browser_frame_created; /* browser_frame_created(frame, disp, origin); */
+  var browser_frame_created; /* browser_frame_created(f, disp, post, origin); */
   var browser_open_url;      /* browser_open_url(url, disp, origin); */
   var browser_kill;          /* browser_kill(); */
 
@@ -65,6 +65,8 @@ var session = function(spec, my) {
     my.exo_browser = api.exo_browser({
       size: [1200, 768]
     });
+    my.exo_browser.maximize();
+    my.exo_browser.focus();
     my.name = my.exo_browser.name();
 
     my.keyboard_shortcuts = 
@@ -119,9 +121,10 @@ var session = function(spec, my) {
   // ```
   // @frame       {exo_frame} the newly created frame
   // @disposition {string} the disposition for opening that frame
+  // @initial_pos {array} initial rect
   // @origin      {exo_frame} origin exo_frame
   // ```
-  browser_frame_created = function(frame, disposition, from) {
+  browser_frame_created = function(frame, disposition, initial_pos, from) {
     if(disposition === 'new_window') {
       /* TODO(spolu): Handle new window. */
       console.log('new_window: ' + from);
@@ -131,7 +134,7 @@ var session = function(spec, my) {
       /* TODO(spolu): get the size of the popup from the API */
       /* TODO(spolu): make maximization optionnal */
       var popup = api.exo_browser({
-        size: [640, 480]
+        size: [initial_pos[2], initial_pos[3]]
       });
       popup.add_page(frame, function() {
         popup.show_page(frame);
@@ -140,6 +143,11 @@ var session = function(spec, my) {
       popup.on('kill', function() {
         common.remove(my.popups, popup);
         console.log(my.popups);
+        /* We call the gc if available (recommended) to make sure the      */
+        /* underlying exoframe (and its webcontents) gets deleted. So that */
+        /* the popup can get reopend.                                      */
+        if(global.gc)
+          global.gc();
       });
     }
 

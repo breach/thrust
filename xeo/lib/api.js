@@ -370,6 +370,7 @@ var exo_browser = function(spec, my) {
   //
   var kill;                  /* kill([cb_]); */
   var focus;                 /* focus([cb_]); */
+  var maximize;              /* maximize([cb_]); */
 
   var set_control;           /* set_control(type, frame, [cb_]); */
   var unset_control;         /* unset_control(type, [cb_]); */
@@ -409,27 +410,6 @@ var exo_browser = function(spec, my) {
       return cb_();
     }
   };
-
-  // ### focus
-  // 
-  // Attempts to focus on the browser window depending on what the native
-  // platform lets us do.
-  // ```
-  // @cb_ {function(err)} [optional]
-  // ```
-  focus = function(cb_) {
-    pre(function(err) {
-      if(err) {
-        if(cb_) return cb_(err);
-      }
-      else {
-        my.internal._focus(function() {
-          if(cb_) return cb_();
-        });
-      }
-    });
-  };
-
 
   // ### set_control
   //
@@ -626,6 +606,50 @@ var exo_browser = function(spec, my) {
     });
   };
 
+  
+  // ### focus
+  // 
+  // Attempts to focus on the browser window depending on what the native
+  // platform lets us do.
+  // ```
+  // @cb_ {function(err)} [optional]
+  // ```
+  focus = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._focus(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### maximize
+  // 
+  // Attempts to maximize the browser window depending on what the native 
+  // platform lets us do.
+  // ```
+  // @cb_ {function(err)} [optional]
+  // ```
+  maximize = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._maximize(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+
+
+
   // ### init
   //
   // Runs initialization procedure and adds itself to the internal registry.
@@ -673,12 +697,14 @@ var exo_browser = function(spec, my) {
           /* Probably for programatic close of frame         */
         }
       });
-      my.internal._setFrameCreatedCallback(function(_frame, disposition, from) {
+      my.internal._setFrameCreatedCallback(function(_frame, disposition, 
+                                                    initial_pos, from) {
         var origin = my.frames[from] || null;
         var frame = exo_frame({ internal: _frame });
         frame.on('ready', function() {
-          that.emit('frame_created', frame, disposition, origin);
-          console.log(frame.name() + ': ' + disposition + ' [' + origin.name() + ']');
+          that.emit('frame_created', frame, disposition, initial_pos, origin);
+          console.log(frame.name() + ': ' + disposition + 
+                      ' ' + initial_pos + ' [' + origin.name() + ']');
         });
       });
       my.internal._setFrameKeyboardCallback(function(from, event) {
@@ -720,6 +746,7 @@ var exo_browser = function(spec, my) {
   common.method(that, 'show_page', show_page, _super);
 
   common.method(that, 'focus', focus, _super);
+  common.method(that, 'maximize', maximize, _super);
 
   return that;
 };

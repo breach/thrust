@@ -374,7 +374,7 @@ ExoBrowser::AddNewContents(
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
-                   src_frame->name(), disposition, new_frame));
+                   src_frame->name(), disposition, initial_pos, new_frame));
   }
 }
 
