@@ -239,9 +239,11 @@ gboolean
 ExoBrowser::OnWindowDestroyed(
     GtkWidget* window) 
 {
+  LOG(INFO) << "WINDOW DESTROYED";
   /* We call Kill which will dispatch an event to the API as we don't expect */
-  /* any other behavior here                                                 */
-  Kill();
+  /* any other behavior here. If the ExoBrowser has not been already killed. */
+  if(!is_killed_)
+    Kill();
   return FALSE;  // Don't stop this message.
 }
 

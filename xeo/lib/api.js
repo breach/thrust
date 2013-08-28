@@ -619,13 +619,13 @@ var exo_browser = function(spec, my) {
         that.emit('resize', size);
       });
       my.internal._setKillCallback(function() {
-        console.log('RECEIVED KILL');
         /* `Kill` has been called from here or somewhere else so let's make */
         /* sure we have eveything cleaned up */
         delete my.internal;
         my.killed = true;
         my.ready = false;
         delete exports._exo_browsers[my.name];
+        that.emit('kill');
       });
       my.internal._setFrameCloseCallback(function(from) {
         factory.log().out('frame_close: ' + from);

@@ -44,6 +44,7 @@ var control = function(spec, my) {
   // #### _public_
   // 
   var init;         /* init(cb_); */
+  var kill;         /* kill(); */
   var handshake;    /* handshake(socket); */
 
   var show;         /* show(); */
@@ -150,6 +151,14 @@ var control = function(spec, my) {
     my.init_cb_ = cb_;
   };
 
+  // ### kill
+  //
+  // Called when everything should be cleanedup. All underlying native objects
+  // have already been killed and are waiting to get reclaimed.
+  kill = function() {
+    my.socket.disconnect();
+  };
+
   // ### handshake
   //
   // Receives the socket.io socket on handshake
@@ -169,6 +178,7 @@ var control = function(spec, my) {
   };
 
   common.method(that, 'init', init, _super);
+  common.method(that, 'kill', kill, _super);
   common.method(that, 'handshake', handshake, _super);
 
   common.method(that, 'show', show, _super);

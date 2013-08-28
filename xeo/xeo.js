@@ -58,5 +58,8 @@ factory.log().out('Starting...');
     base_url: 'http://127.0.0.1:8383' 
   })
   sessions[s.name()] = s;
+  s.on('kill', function() {
+    delete sessions[s.name()];
+  });
 })();
 

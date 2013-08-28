@@ -75,7 +75,7 @@ ExoFrame::~ExoFrame()
   /* reclaimed and that most of what is related to use has been destroyed  */
   /* already. Our associated web_contents, should be deleted with its      */
   /* scoped_ptr.                                                           */
-  LOG(INFO) << "ExoFrame Destroyed [" << web_contents_ << "]";
+  LOG(INFO) << "ExoFrame Destructor [" << web_contents_ << "]";
 }
 
 void

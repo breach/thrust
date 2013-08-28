@@ -299,7 +299,7 @@ ExoBrowserWrap::DeleteTask(
     ExoBrowser* browser)
 {
   LOG(INFO) << "ExoBrowserWrap DeleteTask";
-  if(!browser->is_killed())
+  if(browser != NULL && !browser->is_killed())
     browser->Kill();
   delete browser;
 }
@@ -333,7 +333,7 @@ void
 ExoBrowserWrap::KillTask(
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed())
+  if(browser_ != NULL && !browser_->is_killed())
     browser_->Kill();
 
   NodeThread::Get()->PostTask(
@@ -366,7 +366,7 @@ ExoBrowserWrap::SizeTask(
     gfx::Size* size,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed())
+  if(browser_ != NULL && !browser_->is_killed())
     (*size) = browser_->size();
 
   NodeThread::Get()->PostTask(
@@ -400,7 +400,7 @@ ExoBrowserWrap::PositionTask(
     gfx::Point* position,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed())
+  if(browser_ != NULL && !browser_->is_killed())
     (*position) = browser_->position();
 
   NodeThread::Get()->PostTask(
@@ -430,7 +430,8 @@ void
 ExoBrowserWrap::FocusTask(
     Persistent<Function>* cb_p)
 {
-  browser_->Focus();
+  if(browser_ != NULL && !browser_->is_killed())
+    browser_->Focus();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -473,9 +474,8 @@ ExoBrowserWrap::SetControlTask(
     void* frame_w,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed()) {
+  if(browser_ != NULL && !browser_->is_killed())
     browser_->SetControl(type, ((ExoFrameWrap*)frame_w)->frame_);
-  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -511,9 +511,8 @@ ExoBrowserWrap::UnsetControlTask(
     ExoBrowser::CONTROL_TYPE type,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed()) {
+  if(browser_ != NULL && !browser_->is_killed())
     browser_->UnsetControl(type);
-  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -553,9 +552,8 @@ ExoBrowserWrap::SetControlDimensionTask(
     int size,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed()) {
+  if(browser_ != NULL && !browser_->is_killed())
     browser_->SetControlDimension(type, size);
-  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -595,9 +593,8 @@ ExoBrowserWrap::AddPageTask(
     void* frame_w,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed()) {
+  if(browser_ != NULL && !browser_->is_killed())
     browser_->AddPage(((ExoFrameWrap*)frame_w)->frame_);
-  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -634,9 +631,8 @@ ExoBrowserWrap::RemovePageTask(
     const std::string& name,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed()) {
+  if(browser_ != NULL && !browser_->is_killed())
     browser_->RemovePage(name);
-  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -673,9 +669,8 @@ ExoBrowserWrap::ShowPageTask(
     const std::string& name,
     Persistent<Function>* cb_p)
 {
-  if(!browser_->is_killed()) {
+  if(browser_ != NULL && !browser_->is_killed())
     browser_->ShowPage(name);
-  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -783,6 +778,10 @@ ExoBrowserWrap::DispatchKill()
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
+  /* As well as dispatching the event, we delete the browser_ object right */
+  /* away and set it to NULL                                               */
+  delete browser_;
+  browser_ = NULL;
 
   if(!kill_cb_.IsEmpty()) {
     Local<Function> cb = 

@@ -51,6 +51,7 @@ ExoBrowser::ExoBrowser(
 
 ExoBrowser::~ExoBrowser() 
 {
+  LOG(INFO) << "ExoBrowser Destructor";
   PlatformCleanUp();
 
   for (size_t i = 0; i < s_instances.size(); ++i) {
@@ -210,6 +211,7 @@ ExoBrowser::RemoveFrame(
 void
 ExoBrowser::Kill()
 {
+  is_killed_ = true;
   while(pages_.begin() != pages_.end()) {
     RemovePage((pages_.begin()->second)->name());
   }
@@ -217,7 +219,6 @@ ExoBrowser::Kill()
     UnsetControl(controls_.begin()->first);
   }
   PlatformKill();
-  is_killed_ = true;
 
   NodeThread::Get()->PostTask(
       FROM_HERE,

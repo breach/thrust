@@ -165,7 +165,7 @@ ExoFrameWrap::DeleteTask(
     ExoFrame* frame)
 {
   LOG(INFO) << "ExoFrameWrap DeleteTask";
-  if(frame->parent() != NULL) {
+  if(frame != NULL && frame->parent() != NULL) {
     DCHECK(!frame->parent()->is_killed());
     frame->parent()->RemoveFrame(frame->name());
   }
@@ -204,7 +204,8 @@ ExoFrameWrap::LoadURLTask(
     const std::string& url,
     Persistent<Function>* cb_p)
 {
-  frame_->LoadURL(GURL(url));
+  if(frame_ != NULL)
+    frame_->LoadURL(GURL(url));
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -238,7 +239,8 @@ ExoFrameWrap::GoBackOrForwardTask(
     int offset,
     Persistent<Function>* cb_p)
 {
-  frame_->GoBackOrForward(offset);
+  if(frame_ != NULL)
+    frame_->GoBackOrForward(offset);
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -268,7 +270,8 @@ void
 ExoFrameWrap::ReloadTask(
     Persistent<Function>* cb_p)
 {
-  frame_->Reload();
+  if(frame_ != NULL)
+    frame_->Reload();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -297,7 +300,8 @@ void
 ExoFrameWrap::StopTask(
     Persistent<Function>* cb_p)
 {
-  frame_->Stop();
+  if(frame_ != NULL)
+    frame_->Stop();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -327,7 +331,8 @@ void
 ExoFrameWrap::FocusTask(
     Persistent<Function>* cb_p)
 {
-  frame_->Focus();
+  if(frame_ != NULL)
+    frame_->Focus();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -360,7 +365,8 @@ ExoFrameWrap::NameTask(
     std::string* name,
     Persistent<Function>* cb_p)
 {
-  (*name) = frame_->name();
+  if(frame_ != NULL)
+    (*name) = frame_->name();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -393,7 +399,8 @@ ExoFrameWrap::TypeTask(
     int* type,
     Persistent<Function>* cb_p)
 {
-  (*type) = (int)frame_->type();
+  if(frame_ != NULL)
+    (*type) = (int)frame_->type();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,

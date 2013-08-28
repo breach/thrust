@@ -9,6 +9,7 @@
  * 2013-08-12 spolu   Creation
  */
 
+var events = require('events');
 var common = require('./common.js');
 var factory = common.factory;
 var api = require('./api.js');
@@ -47,13 +48,14 @@ var session = function(spec, my) {
   //
   var init;          /* init(); */
 
-  var browser_frame_created; /* frame_created(frame, disp, origin); */
-  var browser_open_url;      /* open_url(url, disp, origin); */
+  var browser_frame_created; /* browser_frame_created(frame, disp, origin); */
+  var browser_open_url;      /* browser_open_url(url, disp, origin); */
+  var browser_kill;          /* browser_kill(); */
 
   //
   // #### _that_
   //
-  var that = {};
+  var that = new events.EventEmitter();
 
 
   // ### init
@@ -72,6 +74,7 @@ var session = function(spec, my) {
 
     my.exo_browser.on('frame_created', browser_frame_created);
     my.exo_browser.on('open_url', browser_open_url);
+    my.exo_browser.on('kill', browser_kill);
 
     my.loading_frame = api.exo_frame({
       name: my.name + '_loading',
@@ -163,6 +166,17 @@ var session = function(spec, my) {
     /*TODO(spolu): Handle other dispsition not handled by the stack. */
   };
 
+  // ### browser_kill
+  //
+  // Event received when the underlying exobrowser is killed (no more frames)
+  // or window closed. We should clean up everything so that all objects get
+  // reclaimed by the GC.
+  browser_kill = function() {
+    my.stack.kill();
+    my.box.kill();
+    that.emit('kill');
+  };
+
   /****************************************************************************/
   /*                              PUBLIC METHODS                              */
   /****************************************************************************/
@@ -189,6 +203,8 @@ var session = function(spec, my) {
   //
   // Kills this session as well as the underlying exo_browser
   kill = function() {
+    /* This will trigger the chain of kill events so we don't need to do much */
+    /* more here.                                                             */
     my.exo_browser.kill();
   };
 
