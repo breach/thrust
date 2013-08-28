@@ -619,6 +619,7 @@ var exo_browser = function(spec, my) {
         that.emit('resize', size);
       });
       my.internal._setKillCallback(function() {
+        console.log('RECEIVED KILL');
         /* `Kill` has been called from here or somewhere else so let's make */
         /* sure we have eveything cleaned up */
         delete my.internal;

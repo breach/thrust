@@ -94,12 +94,12 @@ var keyboard_shortcuts = function(spec, my) {
       that.emit('go');
     }
 
-    if(event.type === 7 && (event.modifiers & (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
        event.keycode === 72 && !is_last(event)) {
       /* Ctrl - H ; No Repetition */
       that.emit('back');
     }
-    if(event.type === 7 && (event.modifiers & (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
        event.keycode === 76 && !is_last(event)) {
       /* Ctrl - L ; No Repetition */
       that.emit('forward');

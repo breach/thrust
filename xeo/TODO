@@ -1,8 +1,10 @@
 + SHOWSTOPPER ALPHA RELEASE EXP1:
 
+TODO(spolu): Popup: add maximize argument to _createExoBrowser
+TODO(spolu): Popup: pass more info from the new webcontents
+TODO(spolu): Popup
 TODO(spolu): Search in page
 TODO(spolu): Stack Search
-TODO(spolu): Popups!
 
 + OTHER
 

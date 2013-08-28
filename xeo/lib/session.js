@@ -28,6 +28,7 @@ var session = function(spec, my) {
   my.base_url = spec.base_url;
   my.name = 'no_session';
   my.exo_browser = null;
+  my.popups = [];
 
   my.loading_frame = null;
 
@@ -120,11 +121,26 @@ var session = function(spec, my) {
   browser_frame_created = function(frame, disposition, from) {
     if(disposition === 'new_window') {
       /* TODO(spolu): Handle new window. */
+      console.log('new_window: ' + from);
     }
+
     if(disposition === 'new_popup') {
-      /* TODO(spolu): Handle new popup. */
+      /* TODO(spolu): get the size of the popup from the API */
+      /* TODO(spolu): make maximization optionnal */
+      var popup = api.exo_browser({
+        size: [640, 480]
+      });
+      popup.add_page(frame, function() {
+        popup.show_page(frame);
+      });
+      my.popups.push(popup);
+      popup.on('kill', function() {
+        common.remove(my.popups, popup);
+        console.log(my.popups);
+      });
     }
-    /*TODO(spolu): Handle other dispsition not handled by the stack. */
+
+    /*TODO(spolu): Handle other disposition not handled by the stack. */
   };
 
   // ### browser_open_url
