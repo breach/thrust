@@ -10,8 +10,11 @@
      ng-disabled="!can_go_forward"
      ng-class="{active: can_go_forward}"
      ng-click="forward()"></a>
-  <form ng-submit="submit()">
+  <form ng-submit="submit($event)">
     <input type="text"
            ng-model="value" autofocus></input>
   </form>
+  <div class="label" ng-show="label">
+    {{label}}
+  </div>
 </div>

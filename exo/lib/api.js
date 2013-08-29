@@ -230,13 +230,13 @@ var exo_frame = function(spec, my) {
   // Stop finding in frame html
   // ```
   // @action {string} the stop find action type ('clear'|'keep'|'activate')
-  find_stop = function(aciton, cb_) {
+  find_stop = function(action, cb_) {
     pre(function(err) {
       if(err) {
         if(cb_) return cb_(err);
       }
       else {
-        my.internal._findStop(action, function() {
+        my.internal._stopFinding(action, function() {
           if(cb_) return cb_();
         });
       }

@@ -120,6 +120,8 @@ ExoFrame::Find(
     const WebKit::WebFindOptions& options)
 {
   web_contents_->GetRenderViewHost()->Find(request_id, search_text, options);
+  /* TODO(spolu): Eventually implement WebContentsDelegate (exo_browser.h) */
+  /* FindReply to get info about the find action.                          */
 }
 
 void

@@ -25,11 +25,15 @@ var box = function(spec, my) {
   my = my || {};
   spec = spec || {};
 
+  my.MODE_NORMAL = 1 << 0;
+  my.MODE_FIND_IN_PAGE = 1 << 1;
+
   my.state = {
     value: '',
     can_go_back: false,
     can_go_forward: false,
-    stack_visible: true
+    stack_visible: true,
+    mode: my.MODE_NORMAL
   };
 
   //
@@ -47,13 +51,19 @@ var box = function(spec, my) {
   var stack_visible;           /* stack_visible(visible); */
 
   var socket_box_input;        /* socket_box_input(input); */
-  var socket_box_submit;       /* socket_box_submit(input); */
+  var socket_box_input_submit; /* socket_box_input_submit(input); */
+  var socket_box_input_out;    /* socket_box_input_out(); */
 
   var socket_box_back;         /* socket_box_back(); */
   var socket_box_forward;      /* socket_box_forward(); */
   var socket_box_stack_toggle; /* socket_box_stack_toggle(); */
 
   var shortcut_go;             /* shortcut_go(); */
+  var shortcut_back;           /* shortcut_back(); */
+  var shortcut_forward;        /* shortcut_forward(); */
+  var shortcut_reload;         /* shortcut_reload(); */
+  var shortcut_find_in_page;   /* shortcut_find_in_page(); */
+
   
   //
   // ### _protected_
@@ -89,7 +99,8 @@ var box = function(spec, my) {
     _super.handshake(socket);
 
     my.socket.on('box_input', socket_box_input);
-    my.socket.on('box_submit', socket_box_submit);
+    my.socket.on('box_input_submit', socket_box_input_submit);
+    my.socket.on('box_input_out', socket_box_input_out);
 
     my.socket.on('box_back', socket_box_back);
     my.socket.on('box_forward', socket_box_forward);
@@ -114,6 +125,8 @@ var box = function(spec, my) {
     my.session.keyboard_shortcuts().on('go', shortcut_go);
     my.session.keyboard_shortcuts().on('back', shortcut_back);
     my.session.keyboard_shortcuts().on('forward', shortcut_forward);
+    my.session.keyboard_shortcuts().on('reload', shortcut_reload);
+    my.session.keyboard_shortcuts().on('find_in_page', shortcut_find_in_page);
   };
 
   /****************************************************************************/
@@ -129,6 +142,30 @@ var box = function(spec, my) {
     }
   };
 
+  // ### computed_value
+  //
+  // Computes the value that the box should have given the current state
+  computed_value = function() {
+    var page = my.session.stack().active_page();
+    var value = '';
+    if(page) {
+      page.state.entries.forEach(function(n) {
+        if(n.visible) {
+          var home_url_r = /^http:\/\/127\.0\.0\.1\:[0-9]+\/home\.html$/;
+          if(home_url_r.test(n.url.href)) {
+            value = '';
+          }
+          else {
+            value = n.url.href;
+          }
+        }
+      });
+      if(page.box_value)
+        value = page.box_value;
+    }
+    return value;
+  };
+
   /****************************************************************************/
   /*                             STACK EVENTS                                 */
   /****************************************************************************/
@@ -140,21 +177,11 @@ var box = function(spec, my) {
   // @page {object} the current active page
   // ```
   stack_active_page = function(page) {
-    page.state.entries.forEach(function(n) {
-      if(n.visible) {
-        var home_url_r = /^http:\/\/127\.0\.0\.1\:[0-9]+\/home\.html$/;
-        if(home_url_r.test(n.url.href)) {
-          my.state.value = '';
-        }
-        else {
-          my.state.value = n.url.href;
-        }
-      }
-    });
     my.state.can_go_back = page.state.can_go_back;
     my.state.can_go_forward = page.state.can_go_forward;
-    if(page.box_value)
-      my.state.value = page.box_value;
+    my.state.mode = my.MODE_NORMAL;
+    my.state.value = computed_value();
+    page.frame.find_stop('clear');
     push();
   };
 
@@ -180,11 +207,23 @@ var box = function(spec, my) {
   // ```
   socket_box_input = function(input) {
     var page = my.session.stack().active_page();
-    if(page)
-      page.box_value = input;
+    if(page) {
+      switch(my.state.mode) {
+        case my.MODE_FIND_IN_PAGE: {
+          page.frame.find(input, true, false, false);
+          my.state.value = input;
+          break;
+        }
+        case my.MODE_NORMAL:
+        default: {
+          page.box_value = input;
+          break;
+        }
+      }
+    }
   };
   
-  // ### socket_box_submit
+  // ### socket_box_input_submit
   //
   // Received whenever the box input is submitted by the user. We operate an 
   // heuristic here, if we detect that it is an url, we sanitize it and navigate
@@ -192,25 +231,66 @@ var box = function(spec, my) {
   //
   // Otherwise, we perform a google search
   // ```
-  // @input {string} the box input string
+  // @data {object} with `input` and `is_ctrl`
   // ```
-  socket_box_submit = function(input) {
+  socket_box_input_submit = function(data) {
+    /* TODO(spolu): Handle modifier on input event. */
     var page = my.session.stack().active_page();
     if(page) {
-      var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
-      var ip_r = /^(http(s{0,1})\:\/\/){0,1}[0-9]{1,3}(\.[0-9]{1,3}){3}/
-      var http_r = /^http(s{0,1})\:\/\//;
-      if(url_r.test(input) || ip_r.test(input)) {
-        if(!http_r.test(input)) {
-          input = 'http://' + input;
+      switch(my.state.mode) {
+        case my.MODE_FIND_IN_PAGE: {
+          if(!data.is_ctrl) {
+            page.frame.find(my.state.value, true, false, true);
+          }
+          else {
+            page.frame.find_stop('activate');
+          }
+          break;
         }
-        page.frame.load_url(input);
+        case my.MODE_NORMAL:
+        default: {
+          var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
+          var ip_r = /^(http(s{0,1})\:\/\/){0,1}[0-9]{1,3}(\.[0-9]{1,3}){3}/
+          var http_r = /^http(s{0,1})\:\/\//;
+          if(url_r.test(data.value) || ip_r.test(data.value)) {
+            if(!http_r.test(data.value)) {
+              data.value = 'http://' + data.value;
+            }
+            page.frame.load_url(data.value);
+          }
+          else {
+            var search_url = 'https://www.google.com/search?' +
+            'q=' + escape(data.value) + '&' +
+              'ie=UTF-8';
+            page.frame.load_url(search_url);
+          }
+          break;
+        }
       }
-      else {
-        var search_url = 'https://www.google.com/search?' +
-                            'q=' + escape(input) + '&' +
-                            'ie=UTF-8';
-        page.frame.load_url(search_url);
+    }
+  };
+
+  // ### socket_box_input_out
+  //
+  // Event triggered when the focus of the input box has been lost.
+  socket_box_input_out = function() {
+    var page = my.session.stack().active_page();
+    if(page) {
+      switch(my.state.mode) {
+        case my.MODE_FIND_IN_PAGE: {
+          my.state.mode = my.MODE_NORMAL;
+          my.state.value = computed_value();
+          page.frame.focus(function() {
+            /* TODO(spolu): Activate follows the link! need to comme up with */
+            /* a keyboard shortcut */
+            page.frame.find_stop('clear');
+          });
+          push();
+          break;
+        }
+        default: {
+          break;
+        }
       }
     }
   };
@@ -272,6 +352,34 @@ var box = function(spec, my) {
     if(page) {
       page.frame.go_back_or_forward(1);
     }
+  };
+
+  // ### shortcut_reload
+  //
+  // Keyboard shortuct to reload the page
+  shortcut_reload = function() {
+    var page = my.session.stack().active_page();
+    if(page) {
+      page.frame.reload();
+    }
+  };
+
+  // ### shortcut_find_in_page
+  //
+  // Keyboard shortcut to find in page
+  shortcut_find_in_page = function() {
+    var page = my.session.stack().active_page();
+    if(page) {
+      page.frame.find_stop('clear');
+    }
+    my.state.mode = my.MODE_FIND_IN_PAGE;
+    my.state.value = '';
+    that.focus(function() {
+      push();
+      if(my.socket) {
+        my.socket.emit('select_all');
+      }
+    });
   };
 
 

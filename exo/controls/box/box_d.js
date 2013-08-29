@@ -17,6 +17,9 @@
 angular.module('breach.directives').controller('BoxCtrl',
   function($scope, $element, $window, $timeout, _socket) {
 
+    var MODE_NORMAL = 1 << 0;
+    var MODE_FIND_IN_PAGE = 1 << 1;
+
     var _input = jQuery($element).find('input');
 
     $scope.$watch('state', function(state) {
@@ -24,9 +27,21 @@ angular.module('breach.directives').controller('BoxCtrl',
         $scope.can_go_back = state.can_go_back;
         $scope.can_go_forward = state.can_go_forward;
         $scope.stack_visible = state.stack_visible;
-        if(!_input.is(':focus')) {
+        $scope.mode = state.mode;
+        if($scope.mode === MODE_FIND_IN_PAGE || !_input.is(':focus')) {
           $scope.value = state.value;
           $scope.last = $scope.value; 
+        }
+        switch($scope.mode) {
+          case MODE_FIND_IN_PAGE: {
+            $scope.label = 'in page';
+            break;
+          }
+          case MODE_NORMAL: 
+          default: {
+            $scope.label = null;
+            break;
+          }
         }
       }
     });
@@ -35,23 +50,56 @@ angular.module('breach.directives').controller('BoxCtrl',
     _socket.on('select_all', function() {
       _input.focus().select();
     });
-    
-    _input.keydown(function() {
-      if($scope.value !== $scope.last) {
-        _socket.emit('box_input', $scope.value);
-        $scope.last = $scope.value;
+
+    $scope.$watch('value', function(value) {
+      switch($scope.mode) {
+        case MODE_FIND_IN_PAGE: 
+        case MODE_NORMAL: 
+        default: {
+          if($scope.value !== $scope.last) {
+            _socket.emit('box_input', $scope.value);
+            $scope.last = $scope.value;
+          }
+          break;
+        }
       }
     });
 
-    /* TODO(spolu): Fix, CallStack Exceeded. Duh? */
-    /*
-    jQuery($element).find('input').focusout(function() {
-      $(this).blur();
+    _input.keydown(function(evt) {
+      switch($scope.mode) {
+        case MODE_FIND_IN_PAGE: {
+          if(evt.keyCode === 27) {
+            _input.blur();
+          }
+          break;
+        }
+      }
     });
-    */
+    _input.focusout(function() {
+      switch($scope.mode) {
+        case MODE_FIND_IN_PAGE: {
+          _socket.emit('box_input_out');
+          break;
+        }
+      }
+    });
     
+    _input.keydown(function(e) {
+      if($scope.mode === MODE_FIND_IN_PAGE && _input.is(':focus')) {
+        if(e.which === 13 && e.ctrlKey) {
+          _socket.emit('box_input_submit', { 
+            value: $scope.value, 
+            is_ctrl: true
+          });
+        }
+      }
+    });
+
     $scope.submit = function() {
-      _socket.emit('box_submit', $scope.value);
+      _socket.emit('box_input_submit', { 
+        value: $scope.value, 
+        is_ctrl: false
+      });
     };
 
     $scope.back = function() {

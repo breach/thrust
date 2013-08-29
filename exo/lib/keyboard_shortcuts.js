@@ -82,13 +82,13 @@ var keyboard_shortcuts = function(spec, my) {
   my.session.exo_browser().on('frame_keyboard', function(frame, event) {
     console.log(JSON.stringify(event));
 
-    if(event.type === 7 && (event.modifiers & (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
        event.keycode === 84 && !is_last(event)) {
       /* Ctrl - T ; No Repetition */
       that.emit('new_page');
     }
 
-    if(event.type === 7 && (event.modifiers & (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
        event.keycode === 71 && !is_last(event)) {
       /* Ctrl - G ; No Repetition */
       that.emit('go');
@@ -160,6 +160,16 @@ var keyboard_shortcuts = function(spec, my) {
       that.emit('stack_pin');
     }
       
+    if(event.type === 7 && (event.modifiers === (1 << 1)) && 
+       event.keycode === 70 && !is_last(event)) {
+      /* Ctrl - F ; No Repetition */
+      that.emit('find_in_page');
+    }
+    if(event.type === 7 && (event.modifiers === (1 << 1)) && 
+       event.keycode === 82 && !is_last(event)) {
+      /* Ctrl - R ; No Repetition */
+      that.emit('reload');
+    }
 
     my.last = event;
 
