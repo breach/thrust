@@ -30,7 +30,7 @@ exo_browser#frame_load_fail(frame, url, error_code, error_desc)
 exo_browser#frame_load_finish(frame, url)
 exo_browser#frame_loading_start(frame)
 exo_browser#frame_loading_stop(frame)
-exo_browser#frame_created(frame, dispostion, from)
+exo_browser#frame_created(frame, dispostion, initial_pos, from)
 
 
 exo_browser.frame(name);
@@ -46,6 +46,9 @@ exo_browser.set_control_dimension(type, size, [cb_]);
 exo_browser.add_page(frame, [cb_]);
 exo_browser.remove_page(frame, [cb_]);
 exo_browser.show_page(frame, [cb_]);
+
+exo_browser.focus([cb_]);
+exo_browser.maximize([cb_]);
 
 
 var f = _breach.exo_frame({
@@ -64,6 +67,9 @@ exo_frame.parent();
 exo_frame.type();
 exo_frame.loading();
 exo_frame.title();
+
+exo_frame.find(text, forward, case, next, [cb_]);
+exo_frame.find_stop(action, [cb_]);
 
 exo_frame.load_url(url, [cb_]);
 exo_frame.go_back_or_forward(offset, [cb_]);
@@ -84,6 +90,7 @@ _breach._createExoBrowser({
 b._size(cb_);
 b._position(cb_);
 b._focus(cb_);
+b._maximize(cb_);
 
 b._setOpenURLCallback(cb_);
 b._setResizeCallback(cb_);
@@ -107,6 +114,8 @@ f._goBackOrForward(offset, cb_);
 f._reload(cb_);
 f._stop(cb_);
 f._focus(cb_);
+f._find(rid, text, forward, sensitive, next, cb_)
+f._stopFinding(action, cb_);
 
 f._name(cb_);
 f._type(cb_);

@@ -222,6 +222,11 @@ public:
   // Focuses the ExoBrowser window
   void Focus() { PlatformFocus(); }
 
+  // ### Maximize
+  // 
+  // Maximize the ExoBrowser window
+  void Maximize() { PlatformMaximize(); }
+
 
   // ### Kill
   // 
@@ -352,6 +357,11 @@ private:
   //
   // Focuses the ExoBrowser window
   void PlatformFocus();
+
+  // ### PlatformMaximize
+  //
+  // Maximizes the ExoBrowser window
+  void PlatformMaximize();
 
 
   // ### PlatformAddPage

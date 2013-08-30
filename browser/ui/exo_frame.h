@@ -12,6 +12,7 @@
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
+#include "content/public/common/stop_find_action.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/size.h"
 #include "ui/gfx/point.h"
@@ -33,6 +34,10 @@ namespace content {
 class BrowserContext;
 class SiteInstance;
 class WebContents;
+} 
+
+namespace WebKit {
+struct WebFindOptions;
 }
 
 namespace breach {
@@ -95,6 +100,15 @@ public:
   // ### Focus
   // Focuses the ExoFrame
   void Focus();
+
+  // ### Find
+  // Searches for a string in the frame. We stay close to the Content API for 
+  // now
+  void Find(int request_id, const string16& search_text,
+            const WebKit::WebFindOptions& options);
+  // ### StopFinding
+  // Stop the finding of a string
+  void StopFinding(content::StopFindAction action);
 
   // ### type
   // Returns the frame type

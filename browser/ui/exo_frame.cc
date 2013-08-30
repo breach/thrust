@@ -75,7 +75,7 @@ ExoFrame::~ExoFrame()
   /* reclaimed and that most of what is related to use has been destroyed  */
   /* already. Our associated web_contents, should be deleted with its      */
   /* scoped_ptr.                                                           */
-  LOG(INFO) << "ExoFrame Destroyed [" << web_contents_ << "]";
+  LOG(INFO) << "ExoFrame Destructor [" << web_contents_ << "]";
 }
 
 void
@@ -111,6 +111,24 @@ void
 ExoFrame::Focus()
 {
   web_contents_->GetView()->Focus();
+}
+
+void
+ExoFrame::Find(
+    int request_id, 
+    const string16& search_text,
+    const WebKit::WebFindOptions& options)
+{
+  web_contents_->GetRenderViewHost()->Find(request_id, search_text, options);
+  /* TODO(spolu): Eventually implement WebContentsDelegate (exo_browser.h) */
+  /* FindReply to get info about the find action.                          */
+}
+
+void
+ExoFrame::StopFinding(
+    StopFindAction action)
+{
+  web_contents_->GetRenderViewHost()->StopFinding(action);
 }
 
 /******************************************************************************/

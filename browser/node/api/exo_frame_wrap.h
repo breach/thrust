@@ -6,6 +6,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
+#include "content/public/common/stop_find_action.h"
 #include "breach/browser/node/api/object_wrap.h"
 #include "breach/browser/node/api/exo_browser_wrap.h"
 #include "breach/browser/node/node_thread.h"
@@ -63,6 +64,15 @@ private:
 
   static void Focus(const v8::FunctionCallbackInfo<v8::Value>& args);
   void FocusTask(v8::Persistent<v8::Function>* cb_p);
+
+  static void Find(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void FindTask(int request_id, const std::string& search_text,
+                bool forward, bool matchCase, bool findNext,
+                v8::Persistent<v8::Function>* cb_p);
+
+  static void StopFinding(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void StopFindingTask(content::StopFindAction action,
+                       v8::Persistent<v8::Function>* cb_p);
 
 
   static void Name(const v8::FunctionCallbackInfo<v8::Value>& args);
