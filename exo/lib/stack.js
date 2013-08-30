@@ -31,6 +31,8 @@ var stack = function(spec, my) {
   my.active = 0;
   my.visible = true;
   my.favicons = {}
+  my.filter = null;
+  my.last_active_page = null;
 
   //
   // ### _public_
@@ -41,11 +43,16 @@ var stack = function(spec, my) {
   var new_page;     /* new_page([url]); */
   var active_page;  /* active_page(); */
 
+  var filter_start; /* filter_start(re); */
+  var filter_stop;  /* filter_stop(); */
+
   //
   // ### _private_
   //
   var page_for_frame;           /* page_for_frame(frame); */
   var page_for_frame_name;      /* page_for_frame_name(frame); */
+  var filter_page;              /* filter_page(page, [re]); */
+  var clear_filter;             /* clear_filter(); */
   var push;                     /* push(); */
   var insert_page;              /* insert_page(page, [background], [cb_]); */
 
@@ -60,15 +67,14 @@ var stack = function(spec, my) {
   var shortcut_stack_toggle;    /* shortcut_stack_toggle(); */
   var shortcut_stack_next;      /* shortcut_stack_next(); */
   var shortcut_stack_prev;      /* shortcut_stack_prev(); */
-  var shortcut_stack_move_next; /* shortcut_stack_move_next(); */
-  var shortcut_stack_move_prev; /* shortcut_stack_move_prev(); */
   var shortcut_stack_close;     /* shortcut_stack_close(); */
   var shortcut_stack_pin;       /* shortcut_stack_pin(); */
   
   //
   // ### _protected_
   //
-  var dimension;  /* dimension(); */
+  var dimension;    /* dimension(); */
+  var toggle;       /* toggle(visible); */
 
   //
   // #### _that_
@@ -88,6 +94,21 @@ var stack = function(spec, my) {
   dimension = function() {
     return 250;
   };
+
+  // ### toggle
+  //
+  // Overrides the _super toggle method
+  toggle = function(visible) {
+    if(typeof visible !== 'undefined') {
+      my.visible = visible;
+    }
+    else {
+      my.visible = !my.visible;
+    }
+    _super.toggle(my.visible);
+    that.emit('visible', my.visible);
+  };
+
 
   // ### handshake
   //
@@ -132,10 +153,6 @@ var stack = function(spec, my) {
                                        shortcut_stack_prev);
     my.session.keyboard_shortcuts().on('stack_commit', 
                                        shortcut_stack_commit);
-    my.session.keyboard_shortcuts().on('stack_move_next', 
-                                       shortcut_stack_move_next);
-    my.session.keyboard_shortcuts().on('stack_move_prev', 
-                                       shortcut_stack_move_prev);
     my.session.keyboard_shortcuts().on('stack_close', 
                                        shortcut_stack_close);
     my.session.keyboard_shortcuts().on('stack_pin', 
@@ -175,24 +192,57 @@ var stack = function(spec, my) {
     return null;
   };
 
+  // ### filter_page
+  //
+  // Returns true or false if a page pass the current filter or the specified
+  // one if specified
+  // ```
+  // @page {object} a page
+  // @re   {RegExp} a regular expression
+  filter_page = function(page, re) {
+    re = re || my.filter;
+    var add = re ? false : true;
+    if(re && page.state.entries.length > 0) {
+      var n = page.state.entries[page.state.entries.length - 1];
+      add = add || re.test(n.url.href);
+      add = add || re.test(n.title);
+      console.log('FILTER PAGE: ' + n.title + ' ' + add);
+    }
+    return add;
+  };
+
+  // ### clear_filter
+  //
+  // Clears the filter and emits an event to notify whoever is interestd (box).
+  // This private method does not push as caller probably already does it.
+  clear_filter = function() {
+    my.filter = null;
+    that.emit('clear_filter');
+  };
+
   // ### push
   //
   // Pushes the entries to the control ui for update
   push = function() {
     var update = [];
     my.pages.forEach(function(p, i) {
-      update.push({ 
-        name: p.frame.name(), 
-        state: p.state, 
-        pinned: p.pinned,
-        active: i === my.active
-      })
+      if(filter_page(p)) {
+        update.push({ 
+          name: p.frame.name(), 
+          state: p.state, 
+          pinned: p.pinned,
+          active: i === my.active
+        })
+      }
     });
     if(my.socket) {
       my.socket.emit('pages', update);
     }
     if(my.pages.length > 0) {
-      that.emit('active_page', my.pages[my.active]);
+      if(my.last_active_page !== my.pages[my.active] && !my.filter) {
+        that.emit('active_page', my.pages[my.active]);
+        my.last_active_page = my.pages[my.active];
+      }
     }
   };
 
@@ -248,12 +298,20 @@ var stack = function(spec, my) {
       /* We clear the box_value for this page only if the state visible entry */
       /* `id` has changed (we navigated somewhere)                            */
       var new_id = null, old_id = null;
-      p.state.entries.forEach(function(n) { if(n.visible) old_id = n.id; });
-      state.entries.forEach(function(n) { if(n.visible) new_id = n.id; });
-      if(new_id !== old_id && new_id !== null) {
-        p.box_value = null;
-      }
-
+      var new_href = null, old_href = null;
+      p.state.entries.forEach(function(n) { 
+        if(n.visible) {
+          old_id = n.id; 
+          old_href = n.url.href;
+        }
+      });
+      state.entries.forEach(function(n) { 
+        if(n.visible) {
+          new_id = n.id; 
+          new_href = n.url.href;
+        }
+      });
+      
       p.state = state;
       p.state.entries.forEach(function(n) {
         if(my.favicons[n.id]) {
@@ -261,6 +319,14 @@ var stack = function(spec, my) {
         }
       });
       push();
+
+      if(new_id !== old_id && new_id !== null) {
+        p.box_value = null;
+        that.emit('box_value', true);
+      }
+      else if(new_href !== old_href && new_href != null) {
+        that.emit('box_value', false);
+      }
     }
   };
 
@@ -315,11 +381,9 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, disposition === 'new_background_tab', function() {
-      setTimeout(function() {
-        p.frame.focus();
-      }, 100);
-      push();
+      p.frame.focus();
     });
+    push();
   };
 
   // ### browser_open_url
@@ -351,11 +415,9 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, disposition === 'new_background_tab', function() {
-      setTimeout(function() {
-        p.frame.focus();
-      }, 100);
-      push();
+      p.frame.focus();
     });
+    push();
   };
 
   /****************************************************************************/
@@ -379,10 +441,10 @@ var stack = function(spec, my) {
         else {
           my.active = i;
         }
+        push();
         my.session.exo_browser().show_page(my.pages[my.active].frame, 
                                            function() {
           my.pages[my.active].frame.focus();
-          push();
         });
         break;
       }
@@ -396,6 +458,7 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to create a new page
   shortcut_new_page = function() {
+    clear_filter();
     that.new_page();
   };
 
@@ -413,6 +476,7 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to view next page
   shortcut_stack_next = function() {
+    /* TODO(spolu): Take filter into account */
     if(!my.visible)
       _super.toggle(true);
     if(my.active < my.pages.length - 1) {
@@ -428,6 +492,7 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to view previous page
   shortcut_stack_prev = function() {
+    /* TODO(spolu): Take filter into account */
     if(!my.visible)
       _super.toggle(true);
     if(my.active > 0) {
@@ -445,10 +510,14 @@ var stack = function(spec, my) {
   shortcut_stack_commit = function() {
     if(!my.visible)
       _super.toggle(false);
+    clear_filter();
     if(!my.pages[my.active].pinned) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned, 0, p);
       my.active = my.pinned;
+      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+        my.pages[my.active].frame.focus();
+      });
       push();
     }
     else {
@@ -457,33 +526,9 @@ var stack = function(spec, my) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned - 1, 0, p);
       my.active = my.pinned - 1;
-      push();
-    }
-  };
-
-  // ### shortcut_stack_move_next
-  //
-  // Keyboard shorcut to move page to next slot. Works only for pinned pages.
-  shortcut_stack_move_next = function() {
-    if(my.pages[my.active].pinned &&
-       (my.pages[my.active + 1] &&
-        my.pages[my.active + 1].pinned)) {
-      var p = my.pages.splice(my.active, 1)[0];
-      my.active++;
-      my.pages.splice(my.active, 0, p);
-      push();
-    }
-  };
-
-  // ### shortcut_stack_move_prev
-  //
-  // Keyboard shorcut to move page to prev slot
-  shortcut_stack_move_prev = function() {
-    if(my.pages[my.active].pinned &&
-       my.active > 0) {
-      var p = my.pages.splice(my.active, 1)[0];
-      my.active--
-      my.pages.splice(my.active, 0, p);
+      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+        my.pages[my.active].frame.focus();
+      });
       push();
     }
   };
@@ -501,7 +546,8 @@ var stack = function(spec, my) {
         my.session.kill();
       }
       else {
-        my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+        my.session.exo_browser().show_page(my.pages[my.active].frame, 
+                                           function() {
           my.pages[my.active].frame.focus();
         });
         push();
@@ -559,17 +605,15 @@ var stack = function(spec, my) {
 
     insert_page(p, false, function() {
       if(!box_focus) {
-        setTimeout(function() {
-          p.frame.focus();
-        }, 100);
+        p.frame.focus();
       }
       else {
         setTimeout(function() {
           my.session.box().focus();
-        }, 100);
+        }, 200);
       }
-      push();
     });
+    push();
   };
 
   // ### active_page
@@ -582,18 +626,34 @@ var stack = function(spec, my) {
     return null;
   };
 
-  // ### toggle
+  // ### filter_start
   //
-  // Overrides the _super toggle method
-  toggle = function(visible) {
-    if(typeof visible !== 'undefined') {
-      my.visible = visible;
+  // Start a filer phase (Stack is shown and pages are filtered by the regexp
+  // passed on their title or url)
+  filter_start = function(re) {
+    var at_least_one = false;
+    my.pages.forEach(function(p, i) {
+      at_least_one = at_least_one || filter_page(p, re);
+    });
+    my.filter = re;
+    if(at_least_one && !my.visible) {
+      _super.toggle(true);
     }
-    else {
-      my.visible = !my.visible;
+    if(!at_least_one && !my.visible) {
+      _super.toggle(false);
+      my.filter = null;
     }
-    _super.toggle(my.visible);
-    that.emit('visible', my.visible);
+    push();
+  };
+
+  // ### filter_stop
+  //
+  // Stops the filter phase (Stack is restored to its state with no filter)
+  filter_stop = function() {
+    my.filter = null;
+    if(!my.visible)
+      _super.toggle(false);
+    push();
   };
 
   
@@ -601,9 +661,13 @@ var stack = function(spec, my) {
   common.method(that, 'init', init, _super);
   common.method(that, 'handshake', handshake, _super);
   common.method(that, 'dimension', dimension, _super);
+  common.method(that, 'toggle', toggle, _super);
+
   common.method(that, 'new_page', new_page, _super);
   common.method(that, 'active_page', active_page, _super);
-  common.method(that, 'toggle', toggle, _super);
+
+  common.method(that, 'filter_start', filter_start, _super);
+  common.method(that, 'filter_stop', filter_stop, _super);
   
   return that;
 };

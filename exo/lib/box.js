@@ -49,6 +49,8 @@ var box = function(spec, my) {
 
   var stack_active_page;       /* stack_active_page(page); */
   var stack_visible;           /* stack_visible(visible); */
+  var stack_clear_filter;      /* stack_clear_filter(); */
+  var stack_box_value;         /* stack_box_value(); */
 
   var socket_box_input;        /* socket_box_input(input); */
   var socket_box_input_submit; /* socket_box_input_submit(input); */
@@ -121,6 +123,8 @@ var box = function(spec, my) {
 
     my.session.stack().on('active_page', stack_active_page);
     my.session.stack().on('visible', stack_visible);
+    my.session.stack().on('clear_filter', stack_clear_filter);
+    my.session.stack().on('box_value', stack_box_value);
 
     my.session.keyboard_shortcuts().on('go', shortcut_go);
     my.session.keyboard_shortcuts().on('back', shortcut_back);
@@ -172,7 +176,7 @@ var box = function(spec, my) {
   // ### stack_active_page
   //
   // Received from the stack whenever the active page is updated as it can
-  // potentially impact the url to display
+  // potentially impact the url to display. Sent if page has changed.
   // ```
   // @page {object} the current active page
   // ```
@@ -196,6 +200,31 @@ var box = function(spec, my) {
     push();
   };
 
+  // ### stack_clear_filter
+  //
+  // Received when the the filter has been cleared by the stack
+  stack_clear_filter = function() {
+    my.box_value = null;
+    my.state.value = computed_value();
+    push();
+  };
+
+  // ### stack_box_value
+  //
+  // Received when the box_value was cleared or the url has changed
+  // ```
+  // @cleared {boolean} whether the box_value was cleared or not
+  // ```
+  stack_box_value = function(cleared) {
+    my.state.value = computed_value();
+    console.log('NEW_BOX_VALUE: ' + my.state.value);
+    if(cleared) {
+      my.state.mode = my.MODE_NORMAL;
+      my.state.value = computed_value();
+    }
+    push();
+  };
+
   /****************************************************************************/
   /*                          SOCKET EVENT HANDLERS                           */
   /****************************************************************************/
@@ -211,13 +240,12 @@ var box = function(spec, my) {
       switch(my.state.mode) {
         case my.MODE_FIND_IN_PAGE: {
           page.frame.find(input, true, false, false);
-          my.state.value = input;
+          my.box_value = input;
           break;
         }
         case my.MODE_NORMAL:
         default: {
-          page.box_value = input;
-          break;
+          my.box_value = input;
         }
       }
     }
@@ -234,16 +262,18 @@ var box = function(spec, my) {
   // @data {object} with `input` and `is_ctrl`
   // ```
   socket_box_input_submit = function(data) {
-    /* TODO(spolu): Handle modifier on input event. */
     var page = my.session.stack().active_page();
     if(page) {
       switch(my.state.mode) {
         case my.MODE_FIND_IN_PAGE: {
           if(!data.is_ctrl) {
-            page.frame.find(my.state.value, true, false, true);
+            page.frame.find(my.box_value, true, false, true);
           }
           else {
             page.frame.find_stop('activate');
+            my.state.mode = my.MODE_NORMAL;
+            my.box_value = null;
+            my.state.value = computed_value();
           }
           break;
         }
@@ -264,6 +294,9 @@ var box = function(spec, my) {
               'ie=UTF-8';
             page.frame.load_url(search_url);
           }
+          my.state.mode = my.MODE_NORMAL;
+          my.state.value = computed_value();
+          push();
           break;
         }
       }
@@ -279,16 +312,17 @@ var box = function(spec, my) {
       switch(my.state.mode) {
         case my.MODE_FIND_IN_PAGE: {
           my.state.mode = my.MODE_NORMAL;
+          my.box_value = null;
           my.state.value = computed_value();
-          page.frame.focus(function() {
-            /* TODO(spolu): Activate follows the link! need to comme up with */
-            /* a keyboard shortcut */
-            page.frame.find_stop('clear');
-          });
+          page.frame.find_stop('clear');
           push();
           break;
         }
         default: {
+          my.state.mode = my.MODE_NORMAL;
+          my.box_value = null;
+          my.state.value = computed_value();
+          push();
           break;
         }
       }
@@ -373,7 +407,7 @@ var box = function(spec, my) {
       page.frame.find_stop('clear');
     }
     my.state.mode = my.MODE_FIND_IN_PAGE;
-    my.state.value = '';
+    my.state.box_value = '';
     that.focus(function() {
       push();
       if(my.socket) {

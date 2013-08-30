@@ -1,20 +1,24 @@
 + SHOWSTOPPER ALPHA RELEASE EXP1:
 
-TODO(spolu): Search in page
-TODO(spolu): Stack Search
+TODO(spolu): Scriptable box concept
+TODO(spolu): Stack Search through ?
+TODO(spolu): Find in page through /
+TODO(spolu): :exit
+
+TODO(spolu): Add --expose-gc to node flags
+TODO(spolu): Net (Cookies) API
 
 + OTHER
 
+TODO(spolu): If needed, Stack Search content
+TODO(spolu): Scriptable Box
 TODO(spolu): Hover Controls
 TODO(spolu): Inspector ?
 TODO(spolu): Flash ?
-TODO(spolu): Net (Cookies) API
+TODO(spolu): Proper profiles
+TODO(spolu): Sessions
 
-web_contents()->GetRenderViewHost()->Find
 
-content/public/browser/render_view_host.h
-content/public/common/stop_find_action.h
-third_party/WebKit/public/web/WebFindOptions.h
+// STACK SEARCH
 
-FindTabHelper
-
+- add filtering to next/prev event

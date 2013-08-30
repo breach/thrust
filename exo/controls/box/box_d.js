@@ -28,10 +28,8 @@ angular.module('breach.directives').controller('BoxCtrl',
         $scope.can_go_forward = state.can_go_forward;
         $scope.stack_visible = state.stack_visible;
         $scope.mode = state.mode;
-        if($scope.mode === MODE_FIND_IN_PAGE || !_input.is(':focus')) {
-          $scope.value = state.value;
-          $scope.last = $scope.value; 
-        }
+        $scope.value = state.value;
+        $scope.last = $scope.value; 
         switch($scope.mode) {
           case MODE_FIND_IN_PAGE: {
             $scope.label = 'in page';
@@ -69,6 +67,13 @@ angular.module('breach.directives').controller('BoxCtrl',
       switch($scope.mode) {
         case MODE_FIND_IN_PAGE: {
           if(evt.keyCode === 27) {
+            _input.blur();
+          }
+          break;
+        }
+        case MODE_NORMAL: {
+          if(evt.keyCode === 27) {
+            _socket.emit('box_input_out');
             _input.blur();
           }
           break;
