@@ -32,7 +32,7 @@ ExoBrowser::PlatformCreateWindow(
     int height)
 {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-  gtk_window_set_title(window_, "Xeo");
+  gtk_window_set_title(window_, "Exo");
 
   hbox_ = gtk_hbox_new(FALSE, 0);
   vbox_ = gtk_vbox_new(FALSE, 0);
@@ -64,8 +64,6 @@ ExoBrowser::PlatformCreateWindow(
 
   gtk_container_add(GTK_CONTAINER(window_), hbox_);
   gtk_window_resize(window_, width, height);
-  /* TODO(spolu): move to API */
-  gtk_window_maximize(window_);
 
   // Finally, show the window.
   gtk_widget_show_all(GTK_WIDGET(window_));
@@ -218,6 +216,12 @@ ExoBrowser::PlatformFocus()
   gtk_window_present(window_);
 }
 
+void
+ExoBrowser::PlatformMaximize()
+{
+  gtk_window_maximize(window_);
+}
+
 
 gfx::Size
 ExoBrowser::PlatformSize()
@@ -239,9 +243,11 @@ gboolean
 ExoBrowser::OnWindowDestroyed(
     GtkWidget* window) 
 {
+  LOG(INFO) << "WINDOW DESTROYED";
   /* We call Kill which will dispatch an event to the API as we don't expect */
-  /* any other behavior here                                                 */
-  Kill();
+  /* any other behavior here. If the ExoBrowser has not been already killed. */
+  if(!is_killed_)
+    Kill();
   return FALSE;  // Don't stop this message.
 }
 

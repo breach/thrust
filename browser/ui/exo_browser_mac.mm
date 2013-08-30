@@ -432,6 +432,13 @@ ExoBrowser::PlatformFocus()
   [window_ makeKeyAndOrderFront:nil];
 }
 
+void
+ExoBrowser::PlatformMaximize()
+{
+  /* TODO(spolu): Implement */
+}
+
+
 
 gfx::Size
 ExoBrowser::PlatformSize()

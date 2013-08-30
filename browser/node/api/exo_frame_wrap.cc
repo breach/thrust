@@ -5,12 +5,14 @@
 
 #include "breach/browser/node/api/exo_frame_wrap.h"
 
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/favicon_url.h"
 #include "breach/browser/ui/exo_browser.h"
 #include "breach/browser/ui/exo_frame.h"
 #include "breach/browser/node/api/exo_browser_wrap.h"
 #include "breach/browser/node/node_thread.h"
+#include "third_party/WebKit/public/web/WebFindOptions.h"
 
 using namespace v8;
 
@@ -37,6 +39,10 @@ ExoFrameWrap::Init(
       FunctionTemplate::New(Stop)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
       FunctionTemplate::New(Focus)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_find"),
+      FunctionTemplate::New(Find)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_stopFinding"),
+      FunctionTemplate::New(StopFinding)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_name"),
       FunctionTemplate::New(Name)->GetFunction());
@@ -165,7 +171,7 @@ ExoFrameWrap::DeleteTask(
     ExoFrame* frame)
 {
   LOG(INFO) << "ExoFrameWrap DeleteTask";
-  if(frame->parent() != NULL) {
+  if(frame != NULL && frame->parent() != NULL) {
     DCHECK(!frame->parent()->is_killed());
     frame->parent()->RemoveFrame(frame->name());
   }
@@ -204,7 +210,8 @@ ExoFrameWrap::LoadURLTask(
     const std::string& url,
     Persistent<Function>* cb_p)
 {
-  frame_->LoadURL(GURL(url));
+  if(frame_ != NULL)
+    frame_->LoadURL(GURL(url));
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -238,7 +245,8 @@ ExoFrameWrap::GoBackOrForwardTask(
     int offset,
     Persistent<Function>* cb_p)
 {
-  frame_->GoBackOrForward(offset);
+  if(frame_ != NULL)
+    frame_->GoBackOrForward(offset);
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -268,7 +276,8 @@ void
 ExoFrameWrap::ReloadTask(
     Persistent<Function>* cb_p)
 {
-  frame_->Reload();
+  if(frame_ != NULL)
+    frame_->Reload();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -297,7 +306,8 @@ void
 ExoFrameWrap::StopTask(
     Persistent<Function>* cb_p)
 {
-  frame_->Stop();
+  if(frame_ != NULL)
+    frame_->Stop();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -327,12 +337,118 @@ void
 ExoFrameWrap::FocusTask(
     Persistent<Function>* cb_p)
 {
-  frame_->Focus();
+  if(frame_ != NULL)
+    frame_->Focus();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
 }
+
+
+void 
+ExoFrameWrap::Find(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: request_id */
+  int request_id = (Local<Integer>::Cast(args[0]))->Value();
+
+  /* args[1]: search_text */
+  std::string search_text = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[1])));
+
+  /* args[2]: forward */
+  bool forward = args[2]->BooleanValue();
+
+  /* args[3]: matchCase */
+  bool matchCase = args[3]->BooleanValue();
+
+  /* args[4]: findNext */
+  bool findNext = args[4]->BooleanValue();
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[5]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::FindTask, frame_w, 
+                 request_id, search_text, forward, matchCase, findNext, cb_p));
+}
+
+
+void
+ExoFrameWrap::FindTask(
+    int request_id, const std::string& search_text,
+    bool forward, bool matchCase, bool findNext,
+    Persistent<Function>* cb_p)
+{
+  WebKit::WebFindOptions options;
+  options.forward = forward;
+  options.matchCase = matchCase;
+  options.findNext = findNext;
+
+  string16 text = UTF8ToUTF16(search_text);
+
+  if(frame_ != NULL)
+    frame_->Find(request_id, text, options);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+
+void 
+ExoFrameWrap::StopFinding(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[1]: action */
+  std::string action_str = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[0])));
+
+  content::StopFindAction action = content::STOP_FIND_ACTION_CLEAR_SELECTION;
+  if(action_str.compare("clear") == 0) {
+    action = content::STOP_FIND_ACTION_CLEAR_SELECTION;
+  }
+  if(action_str.compare("keep") == 0) {
+    action = content::STOP_FIND_ACTION_KEEP_SELECTION;
+  }
+  if(action_str.compare("activate") == 0) {
+    action = content::STOP_FIND_ACTION_ACTIVATE_SELECTION;
+  }
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::StopFindingTask, frame_w, action, cb_p));
+}
+
+
+void
+ExoFrameWrap::StopFindingTask(
+    content::StopFindAction action,
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->StopFinding(action);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
 
 
 void 
@@ -360,7 +476,8 @@ ExoFrameWrap::NameTask(
     std::string* name,
     Persistent<Function>* cb_p)
 {
-  (*name) = frame_->name();
+  if(frame_ != NULL)
+    (*name) = frame_->name();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -393,7 +510,8 @@ ExoFrameWrap::TypeTask(
     int* type,
     Persistent<Function>* cb_p)
 {
-  (*type) = (int)frame_->type();
+  if(frame_ != NULL)
+    (*type) = (int)frame_->type();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
