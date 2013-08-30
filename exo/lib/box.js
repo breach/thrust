@@ -253,6 +253,10 @@ var box = function(spec, my) {
         case my.MODE_SEARCH_TABS: {
           my.session.stack().filter_start(new RegExp(input.substr(1), 'i'));
           my.box_value = input;
+          if(input.length === 0) {
+            my.state.mode = my.MODE_NORMAL;
+            my.session.stack().filter_stop();
+          }
           break;
         }
         case my.MODE_COMMAND:
