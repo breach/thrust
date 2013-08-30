@@ -1,17 +1,16 @@
 + SHOWSTOPPER ALPHA RELEASE EXP1:
 
-TODO(spolu): Scriptable box concept
-TODO(spolu): Stack Search through ?
-TODO(spolu): Find in page through /
+TODO(spolu): Stack Search through /
 TODO(spolu): :exit
 
-TODO(spolu): Add --expose-gc to node flags
 TODO(spolu): Net (Cookies) API
+TODO(spolu): Add --expose-gc to node flags?
 
 + OTHER
 
 TODO(spolu): If needed, Stack Search content
-TODO(spolu): Scriptable Box
+TODO(spolu): Find in page through / and stack search ?
+TODO(spolu): Scriptable Box user I/F
 TODO(spolu): Hover Controls
 TODO(spolu): Inspector ?
 TODO(spolu): Flash ?
@@ -22,3 +21,4 @@ TODO(spolu): Sessions
 // STACK SEARCH
 
 - add filtering to next/prev event
+- add show first result

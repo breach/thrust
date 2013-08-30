@@ -322,10 +322,10 @@ var stack = function(spec, my) {
 
       if(new_id !== old_id && new_id !== null) {
         p.box_value = null;
-        that.emit('box_value', true);
+        that.emit('navigation_state', true);
       }
       else if(new_href !== old_href && new_href != null) {
-        that.emit('box_value', false);
+        that.emit('navigation_state', false);
       }
     }
   };
@@ -631,17 +631,9 @@ var stack = function(spec, my) {
   // Start a filer phase (Stack is shown and pages are filtered by the regexp
   // passed on their title or url)
   filter_start = function(re) {
-    var at_least_one = false;
-    my.pages.forEach(function(p, i) {
-      at_least_one = at_least_one || filter_page(p, re);
-    });
     my.filter = re;
-    if(at_least_one && !my.visible) {
+    if(!my.visible) {
       _super.toggle(true);
-    }
-    if(!at_least_one && !my.visible) {
-      _super.toggle(false);
-      my.filter = null;
     }
     push();
   };
@@ -649,7 +641,11 @@ var stack = function(spec, my) {
   // ### filter_stop
   //
   // Stops the filter phase (Stack is restored to its state with no filter)
-  filter_stop = function() {
+  // ```
+  // @navigate {boolean} navigate to the first filtered result if it exists
+  // ```
+  filter_stop = function(navigate) {
+    /* TODO(spolu): navigate to first result */
     my.filter = null;
     if(!my.visible)
       _super.toggle(false);

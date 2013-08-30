@@ -27,6 +27,8 @@ var box = function(spec, my) {
 
   my.MODE_NORMAL = 1 << 0;
   my.MODE_FIND_IN_PAGE = 1 << 1;
+  my.MODE_SEARCH_TABS = 1 << 2;
+  my.MODE_COMMAND = 1 << 3;
 
   my.state = {
     value: '',
@@ -50,7 +52,7 @@ var box = function(spec, my) {
   var stack_active_page;       /* stack_active_page(page); */
   var stack_visible;           /* stack_visible(visible); */
   var stack_clear_filter;      /* stack_clear_filter(); */
-  var stack_box_value;         /* stack_box_value(); */
+  var stack_navigation_state;  /* stack_navigation_state(); */
 
   var socket_box_input;        /* socket_box_input(input); */
   var socket_box_input_submit; /* socket_box_input_submit(input); */
@@ -124,7 +126,7 @@ var box = function(spec, my) {
     my.session.stack().on('active_page', stack_active_page);
     my.session.stack().on('visible', stack_visible);
     my.session.stack().on('clear_filter', stack_clear_filter);
-    my.session.stack().on('box_value', stack_box_value);
+    my.session.stack().on('navigation_state', stack_navigation_state);
 
     my.session.keyboard_shortcuts().on('go', shortcut_go);
     my.session.keyboard_shortcuts().on('back', shortcut_back);
@@ -206,21 +208,26 @@ var box = function(spec, my) {
   stack_clear_filter = function() {
     my.box_value = null;
     my.state.value = computed_value();
+    my.state.mode = my.MODE_NORMAL;
     push();
   };
 
-  // ### stack_box_value
+  // ### stack_navigation_state
   //
-  // Received when the box_value was cleared or the url has changed
+  // Received when the navigation_state was updated (url change, box_value
+  // cleared, new page entry)
   // ```
-  // @cleared {boolean} whether the box_value was cleared or not
+  // @clear {boolean} whether the box should be cleared
   // ```
-  stack_box_value = function(cleared) {
+  stack_navigation_state = function(clear) {
     my.state.value = computed_value();
-    console.log('NEW_BOX_VALUE: ' + my.state.value);
-    if(cleared) {
+    if(clear) {
       my.state.mode = my.MODE_NORMAL;
-      my.state.value = computed_value();
+    }
+    var page = my.session.stack().active_page();
+    if(page) {
+      my.state.can_go_back = page.state.can_go_back;
+      my.state.can_go_forward = page.state.can_go_forward;
     }
     push();
   };
@@ -243,9 +250,22 @@ var box = function(spec, my) {
           my.box_value = input;
           break;
         }
+        case my.MODE_SEARCH_TABS: {
+          my.session.stack().filter_start(new RegExp(input.substr(1), 'i'));
+          my.box_value = input;
+          break;
+        }
+        case my.MODE_COMMAND:
         case my.MODE_NORMAL:
         default: {
           my.box_value = input;
+          if(input.length === 1 && input[0] === '/') {
+            my.state.mode = my.MODE_SEARCH_TABS;
+            my.session.stack().filter_start(new RegExp());
+          }
+          if(input.length === 1 && input[0] === ':') {
+            my.state.mode = my.MODE_COMMAND;
+          }
         }
       }
     }
@@ -275,6 +295,23 @@ var box = function(spec, my) {
             my.box_value = null;
             my.state.value = computed_value();
           }
+          break;
+        }
+        case my.MODE_SEARCH_TABS: {
+          my.session.stack().filter_stop(true);
+          my.box_value = null;
+          my.state.value = computed_value();
+          my.state.mode = my.MODE_NORMAL;
+          push();
+          break;
+        }
+        case my.MODE_COMMAND: {
+          /* TODO(spolu) execute command */
+          console.log('EXECUTE: ' + my.box_value.substr(1));
+          my.box_value = null;
+          my.state.value = computed_value();
+          my.state.mode = my.MODE_NORMAL;
+          push();
           break;
         }
         case my.MODE_NORMAL:
@@ -318,6 +355,8 @@ var box = function(spec, my) {
           push();
           break;
         }
+        case my.MODE_SEARCH_TABS:
+        case my.MODE_NORMAL:
         default: {
           my.state.mode = my.MODE_NORMAL;
           my.box_value = null;
