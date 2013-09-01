@@ -81,49 +81,55 @@ var keyboard_shortcuts = function(spec, my) {
   // ```
   my.session.exo_browser().on('frame_keyboard', function(frame, event) {
     console.log(JSON.stringify(event));
+    var modifer = (1 << 1); /* ctrl */
+    var modifier_key = 17;
+    if(process.platform === 'darwin') {
+      modifier = (1 << 3); /* command */
+      modifier_key = 91;
+    }
 
-    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === modifier) &&
        event.keycode === 84 && !is_last(event)) {
       /* Ctrl - T ; No Repetition */
       that.emit('new_page');
     }
 
-    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === modifier) &&
        event.keycode === 71 && !is_last(event)) {
       /* Ctrl - G ; No Repetition */
       that.emit('go');
     }
 
-    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === modifier) &&
        event.keycode === 72 && !is_last(event)) {
       /* Ctrl - H ; No Repetition */
       that.emit('back');
     }
-    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === modifier) &&
        event.keycode === 76 && !is_last(event)) {
       /* Ctrl - L ; No Repetition */
       that.emit('forward');
     }
 
-    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === (1 << 0 | modifier)) &&
        event.keycode === 72 && !is_last(event)) {
       /* Ctrl - Shit - H ; Repetition OK */
       that.emit('stack_toggle', false);
     }
-    if(event.type === 7 && (event.modifiers === (1 << 0 | 1 << 1)) && 
+    if(event.type === 7 && (event.modifiers === (1 << 0 | modifier)) && 
        event.keycode === 76 && !is_last(event)) {
       /* Ctrl - Shit - L ; Repetition OK */
       that.emit('stack_toggle', true);
     }
 
 
-    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === modifier) &&
        event.keycode === 74) {
       /* Ctrl - J ; Repetition OK */
       that.emit('stack_next');
       my.can_commit = true;
     }
-    if(event.type === 7 && (event.modifiers === (1 << 1)) &&
+    if(event.type === 7 && (event.modifiers === modifier) &&
        event.keycode === 75) {
       /* Ctrl - K ; Repetition OK */
       that.emit('stack_prev');
@@ -131,7 +137,7 @@ var keyboard_shortcuts = function(spec, my) {
     }
 
     if(event.type === 9 && (event.modifiers === (1 << 11)) &&
-       event.keycode === 17) {
+       event.keycode === modifier_key) {
       /* Ctrl (Release); No Repetition */
       if(my.can_commit) {
         my.can_commit = false;
@@ -139,7 +145,7 @@ var keyboard_shortcuts = function(spec, my) {
       }
     }
     /* CapsLock as a Ctrl case */
-    if(event.type === 9 && (event.modifiers === (1 << 1)) &&
+    if(event.type === 9 && (event.modifiers === modifier) &&
        event.keycode === 20) {
       /* Ctrl (Release); No Repetition */
       if(my.can_commit) {
@@ -148,24 +154,24 @@ var keyboard_shortcuts = function(spec, my) {
       }
     }
 
-    if(event.type === 7 && (event.modifiers === (1 << 1)) && 
+    if(event.type === 7 && (event.modifiers === modifier) && 
        event.keycode === 87 && !is_last(event)) {
       /* Ctrl - W ; No Repetition */
       that.emit('stack_close');
     }
 
-    if(event.type === 7 && (event.modifiers === (1 << 1)) && 
+    if(event.type === 7 && (event.modifiers === modifier) && 
        event.keycode === 80 && !is_last(event)) {
       /* Ctrl - W ; No Repetition */
       that.emit('stack_pin');
     }
       
-    if(event.type === 7 && (event.modifiers === (1 << 1)) && 
+    if(event.type === 7 && (event.modifiers === modifier) && 
        event.keycode === 70 && !is_last(event)) {
       /* Ctrl - F ; No Repetition */
       that.emit('find_in_page');
     }
-    if(event.type === 7 && (event.modifiers === (1 << 1)) && 
+    if(event.type === 7 && (event.modifiers === modifier) && 
        event.keycode === 82 && !is_last(event)) {
       /* Ctrl - R ; No Repetition */
       that.emit('reload');
