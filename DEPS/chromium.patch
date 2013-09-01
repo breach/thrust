@@ -25,7 +25,7 @@ index 34c63a9..512c8d2 100644
 +
 +
 diff --git a/build/common.gypi b/build/common.gypi
-index 9920192..63b74a9 100644
+index a13bc6f..f85fe15 100644
 --- a/build/common.gypi
 +++ b/build/common.gypi
 @@ -9,6 +9,18 @@
@@ -47,7 +47,7 @@ index 9920192..63b74a9 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -2756,6 +2768,16 @@
+@@ -2748,6 +2760,16 @@
      }],
      ['os_posix==1 and OS!="mac" and OS!="ios"', {
        'target_defaults': {
@@ -64,7 +64,7 @@ index 9920192..63b74a9 100644
          # Enable -Werror by default, but put it in a variable so it can
          # be disabled in ~/.gyp/include.gypi on the valgrind builders.
          'variables': {
-@@ -3849,7 +3871,7 @@
+@@ -3841,7 +3863,7 @@
            'GCC_OBJC_CALL_CXX_CDTORS': 'YES',        # -fobjc-call-cxx-cdtors
            'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',      # -fvisibility=hidden
            'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
@@ -73,7 +73,7 @@ index 9920192..63b74a9 100644
            'GCC_VERSION': '4.2',
            'GCC_WARN_ABOUT_MISSING_NEWLINE': 'YES',  # -Wnewline-eof
            'USE_HEADERMAP': 'NO',
-@@ -4054,6 +4076,13 @@
+@@ -4046,6 +4068,13 @@
            ],
          },
          'target_conditions': [
