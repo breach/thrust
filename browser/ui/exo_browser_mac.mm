@@ -435,7 +435,7 @@ ExoBrowser::PlatformFocus()
 void
 ExoBrowser::PlatformMaximize()
 {
-  /* TODO(spolu): Implement */
+  [window_ zoom:nil];
 }
 
 
