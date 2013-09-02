@@ -608,16 +608,13 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, false, function() {
-      my.session.exo_browser().on('frame_loading_stop', function(frame) {
-        if(frame === p.frame) {
-          if(!box_focus) {
-            p.frame.focus();
-          }
-          else {
-            my.session.box().focus();
-          }
-        }
-      });
+      /* TODO(spolu): focus on page loading if box_focus with `once` handler */
+      if(!box_focus) {
+        p.frame.focus();
+      }
+      else {
+        my.session.box().focus();
+      }
     });
     push();
   };
