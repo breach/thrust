@@ -1,5 +1,5 @@
-Breach ExoBrowser JS API Specification
-======================================
+ExoBrowser JS API Specification
+===============================
 
 The API is enterely async as actual commands are run on the `BrowserThread::UI`
 so that the nodeJS thread do not block on possible lenghty UI operations.
