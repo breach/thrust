@@ -81,7 +81,7 @@ var keyboard_shortcuts = function(spec, my) {
   // ```
   my.session.exo_browser().on('frame_keyboard', function(frame, event) {
     console.log(JSON.stringify(event));
-    var modifer = (1 << 1); /* ctrl */
+    var modifier = (1 << 1); /* ctrl */
     var modifier_key = 17;
     if(process.platform === 'darwin') {
       modifier = (1 << 3); /* command */

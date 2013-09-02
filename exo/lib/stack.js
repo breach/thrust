@@ -7,6 +7,7 @@
  *
  * @log:
  * 2013-08-12 spolu   Creation
+ * 2013-09-02 spou    Fix #45 Focus on new Tab
  */
 
 var common = require('./common.js');
@@ -251,7 +252,7 @@ var stack = function(spec, my) {
   // Insert a new page within the stack, respecting the passed disposition
   // ```
   // @page       {object} page objcet
-  // @background {boolean} shuld be inserted in the background
+  // @background {boolean} should be inserted in the background
   // @cb_        {function()} callback
   // ```
   insert_page = function(page, background, cb_) {
@@ -381,6 +382,7 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, disposition === 'new_background_tab', function() {
+      /* TODO(spolu): Better focus see `new_page` */
       p.frame.focus();
     });
     push();
@@ -415,6 +417,7 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, disposition === 'new_background_tab', function() {
+      /* TODO(spolu): Better focus see `new_page` */
       p.frame.focus();
     });
     push();
@@ -542,6 +545,7 @@ var stack = function(spec, my) {
       p.frame.kill();
       if(p.pinned) my.pinned--;
       if(my.active === my.pages.length) my.active--;
+      if(global.gc) global.gc();
       if(my.pages.length === 0) {
         my.session.kill();
       }
@@ -604,14 +608,16 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, false, function() {
-      if(!box_focus) {
-        p.frame.focus();
-      }
-      else {
-        setTimeout(function() {
-          my.session.box().focus();
-        }, 200);
-      }
+      my.session.exo_browser().on('frame_loading_stop', function(frame) {
+        if(frame === p.frame) {
+          if(!box_focus) {
+            p.frame.focus();
+          }
+          else {
+            my.session.box().focus();
+          }
+        }
+      });
     });
     push();
   };
