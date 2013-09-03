@@ -3,6 +3,7 @@
 {
   'variables': {
     'breach_product_name': 'Breach',
+    'breach_client_code': 'exo',
     'breach_version': '0.0.0.1',
     'ua_version': '28.0.1500.95',
   },
@@ -160,13 +161,13 @@
             },
           },
           'msvs_disabled_warnings': [ 4800 ],
-        }],  # OS=="win"
+        }], # OS=="win"
         ['OS=="linux"', {
           'dependencies': [
             '<(DEPTH)/build/linux/system.gyp:fontconfig',
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
           ],
-        }],  # OS=='linux'
+        }], # OS=='linux'
         ['(os_posix==1 and use_aura==1 and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
@@ -349,6 +350,16 @@
             '<(DEPTH)/build/linux/system.gyp:gtk',
           ],
         }],  # toolkit_uses_gtk
+        ['OS=="linux"', {
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': [
+                '<(breach_client_code)'
+              ],
+            },
+          ],
+        }], # OS=="linux"
         ['OS=="mac"', {
           'product_name': '<(breach_product_name)',
           'dependencies!': [
@@ -363,6 +374,12 @@
               'destination': '<(PRODUCT_DIR)/<(breach_product_name).app/Contents/Frameworks',
               'files': [
                 '<(PRODUCT_DIR)/<(breach_product_name) Helper.app',
+              ],
+            }, 
+            {
+              'destination': '<(PRODUCT_DIR)/<(breach_product_name).app/Contents/Resources',
+              'files': [
+                '<(breach_client_code)'
               ],
             },
           ],

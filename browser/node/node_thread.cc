@@ -7,6 +7,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
 #include "third_party/node/src/node_internals.h"
+#include "base/file_util.h"
 #include "base/command_line.h"
 #include "base/time/time.h"
 
@@ -36,6 +37,28 @@ uv_dummy_cb(
   /* Nothin to Do: This callback is used to yeield the thread to the original */
   /* message loop when locked in the `uv_run_loop` call.                      */
 }
+
+base::FilePath GetSelfPath() {
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+
+  base::FilePath path;
+
+  size_t size = 2*PATH_MAX;
+  char* execPath = new char[size];
+  if (uv_exepath(execPath, &size) == 0) {
+    path = base::FilePath::FromUTF8Unsafe(std::string(execPath, size));
+  } else {
+    path = base::FilePath(command_line->GetProgram());
+  }
+
+#if defined(OS_MACOSX)
+  // Find if we have node-webkit.app/Resources/app.nw.
+  path = path.DirName().DirName().Append("Resources").Append("Content");
+#endif
+
+  return path;
+}
+
 
 }
 
@@ -77,6 +100,8 @@ NodeThread::Run(
   /* TODO(spolu): fork execution depending on kBreachRawInit */
   /* If not set, launch the default version of the Browser.  */
   /* If set, pass argc/argv to Node                          */
+
+  LOG(INFO) << "SELF PATH: " << GetSelfPath().AsUTF8Unsafe();
 
   /* Extract argc, argv to pass it directly to Node */
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
