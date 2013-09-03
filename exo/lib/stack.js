@@ -382,7 +382,6 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, disposition === 'new_background_tab', function() {
-      /* TODO(spolu): Better focus see `new_page` */
       p.frame.focus();
     });
     push();
@@ -400,7 +399,13 @@ var stack = function(spec, my) {
   // ```
   browser_open_url = function(url, disposition, origin) {
     if(disposition !== 'new_foreground_tab' &&
-       disposition !== 'new_background_tab') {
+       disposition !== 'new_background_tab' &&
+       disposition !== 'current_tab') {
+      return;
+    }
+
+    if(disposition === 'current_tab') {
+      that.active_page().frame.load_url(url);
       return;
     }
 
@@ -417,7 +422,6 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, disposition === 'new_background_tab', function() {
-      /* TODO(spolu): Better focus see `new_page` */
       p.frame.focus();
     });
     push();
@@ -608,13 +612,21 @@ var stack = function(spec, my) {
     };
 
     insert_page(p, false, function() {
-      /* TODO(spolu): focus on page loading if box_focus with `once` handler */
-      if(!box_focus) {
-        p.frame.focus();
-      }
-      else {
-        my.session.box().focus();
-      }
+      var loading_hdlr = function(frame) {
+        if(frame === p.frame) {
+          if(!box_focus) {
+            p.frame.focus();
+          }
+          else {
+            my.session.box().focus();
+          }
+        }
+        else {
+          my.session.exo_browser().once('frame_loading_stop', 
+                                        loading_hdlr);
+        }
+      };
+      loading_hdlr(null);
     });
     push();
   };

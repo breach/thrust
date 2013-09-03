@@ -165,6 +165,7 @@ var session = function(spec, my) {
   // @origin      {exo_frame} origin exo_frame
   // ```
   browser_open_url = function(url, disposition, origin) {
+    console.log('OPEN_URL: ' + url + ' [' + disposition + ']');
     if(disposition === 'new_window') {
       /* TODO(spolu): Handle new window. */
     }
