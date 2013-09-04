@@ -1,15 +1,15 @@
 Exo
 ====
 
-[The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/breach/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
+[The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
 
 ### Getting the Source Code & Building Exo
 
-[Building & Updating Exo](https://github.com/spolu/breach/wiki/Building-&-Updating-Exo)
+[Building Exo](https://github.com/spolu/exo/wiki/Building-Exo)
 
 ### Hacking
 
-[ExoBrowser JS API Specification](https://github.com/spolu/breach/blob/master/API.md)
+[ExoBrowser JS API Specification](https://github.com/spolu/exo/blob/master/API.md)
 
 ### Get in Touch
 
