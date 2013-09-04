@@ -371,6 +371,9 @@ var box = function(spec, my) {
         }
       }
     }
+    /* Finally we refocus the page as the focus should not be on the box */
+    /* anymore.                                                          */
+    page.frame.focus();
   };
 
   // ### socket_box_back

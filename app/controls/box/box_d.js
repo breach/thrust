@@ -67,14 +67,13 @@ angular.module('breach.directives').controller('BoxCtrl',
       switch($scope.mode) {
         case MODE_FIND_IN_PAGE: {
           if(evt.keyCode === 27) {
-            _input.blur();
+            _socket.emit('box_input_out');
           }
           break;
         }
         case MODE_NORMAL: {
           if(evt.keyCode === 27) {
             _socket.emit('box_input_out');
-            _input.blur();
           }
           break;
         }
