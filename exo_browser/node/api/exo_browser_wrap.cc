@@ -18,7 +18,7 @@
 
 #include "exo/exo_browser/browser/ui/exo_browser.h"
 #include "exo/exo_browser/browser/ui/exo_frame.h"
-#include "exo/exo_browser/browser/node/api/exo_frame_wrap.h"
+#include "exo/exo_browser/node/api/exo_frame_wrap.h"
 #include "exo/exo_browser/node/node_thread.h"
 
 using namespace v8;

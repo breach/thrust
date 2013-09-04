@@ -12,7 +12,7 @@ class WebContentsViewDelegate;
 
 namespace exo_browser {
 
-content::WebContentsViewDelegate* CreateBreachWebContentsViewDelegate(
+content::WebContentsViewDelegate* CreateExoBrowserWebContentsViewDelegate(
     content::WebContents* web_contents);
 
 } // namespace exo_browser

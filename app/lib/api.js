@@ -1,5 +1,5 @@
 /*
- * Breach: api.js
+ * Exo: api.js
  * 
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *
@@ -14,7 +14,7 @@ var common = require('./common.js');
 var events = require('events');
 var async = require('async');
 
-var _breach = apiDispatcher.requireBreach();
+var _exo_browser = apiDispatcher.requireExoBrowser();
 var factory = common.factory;
 
 exports.NOTYPE_FRAME = 0;
@@ -308,7 +308,7 @@ var exo_frame = function(spec, my) {
       });
     }
     else {
-      _breach._createExoFrame({
+      _exo_browser._createExoFrame({
         name: my.name,
         url: my.url
       }, function(f) {
@@ -704,7 +704,7 @@ var exo_browser = function(spec, my) {
   //
   // Runs initialization procedure and adds itself to the internal registry.
   init = function() {
-    _breach._createExoBrowser({
+    _exo_browser._createExoBrowser({
       size: my.size
     }, function(b) {
       my.internal = b;

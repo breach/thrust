@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/devtools/devtools_delegate.h"
+#include "exo/exo_browser/devtools/devtools_delegate.h"
 
 #include <vector>
 
