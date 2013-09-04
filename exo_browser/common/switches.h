@@ -10,7 +10,7 @@
 namespace switches {
 
 extern const char kExoBrowserDataPath[];
-extern const char kExoBrowserRawInit[];
+extern const char kExoBrowserRaw[];
 
 extern const char kAllowExternalPages[];
 extern const char kEnableAccelerated2DCanvas[];
