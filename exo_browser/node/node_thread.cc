@@ -6,8 +6,10 @@
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
 #include "third_party/node/src/node_internals.h"
+#include "base/file_util.h"
 #include "base/command_line.h"
 #include "base/time/time.h"
+#include "exo/exo_browser/common/switches.h"
 #include "exo/exo_browser/node/api/api_bindings.h"
 
 using v8::Isolate;
@@ -36,6 +38,24 @@ uv_dummy_cb(
   /* Nothin to Do: This callback is used to yeield the thread to the original */
   /* message loop when locked in the `uv_run_loop` call.                      */
 }
+
+base::FilePath GetSelfPath() {
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+
+  base::FilePath path;
+
+  size_t size = 2 * PATH_MAX;
+  char* execPath = new char[size];
+  if (uv_exepath(execPath, &size) == 0) {
+    path = base::FilePath::FromUTF8Unsafe(std::string(execPath, size));
+  } else {
+    path = base::FilePath(command_line->GetProgram());
+  }
+
+
+  return path;
+}
+
 
 }
 
@@ -74,18 +94,45 @@ void
 NodeThread::Run(
     base::MessageLoop* message_loop) 
 {
-  /* TODO(spolu): fork execution depending on kExoBrowserRawInit */
-  /* If not set, launch the default version of the Browser.      */
+  /* TODO(spolu): fork execution depending on kExoBrowserRaw */
+  /* If not set, launch the default version of the Browser.  */
   /* If set, pass argc/argv to Node                          */
-
-  /* Extract argc, argv to pass it directly to Node */
+  int argc;
+  char **argv;
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
-  int argc = command_line->argv().size();
-  char **argv = (char**)malloc(argc * sizeof(char*));
-  for(int i = 0; i < argc; i ++) {
-    unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
-    argv[i] = (char*) malloc(len * sizeof(char));
-    memcpy(argv[i], command_line->argv()[i].c_str(), len);
+
+  if(!command_line->HasSwitch(switches::kExoBrowserRaw)) {
+    base::FilePath path = GetSelfPath().DirName();
+#if defined(OS_MACOSX)
+    /* TODO(spolu): correct base path */
+    self_path = path.DirName().DirName().Append("Resources").Append("Content");
+#endif
+    /* Build Exo's arguments */
+    std::string app_path = path.AsUTF8Unsafe() + "/app/exo.js";
+    argc = 3;
+    argv = (char**)malloc(argc * sizeof(char*));
+    /* argv[0] */
+    unsigned len = strlen(command_line->argv()[0].c_str()) + 1;
+    argv[0] = (char*) malloc(len * sizeof(char));
+    memcpy(argv[0], command_line->argv()[0].c_str(), len);
+    /* app_path */
+    len = strlen(app_path.c_str()) + 1;
+    argv[1] = (char*) malloc(len * sizeof(char));
+    memcpy(argv[1], app_path.c_str(), len);
+    /* expose-gc */
+    len = strlen("--expose-gc") + 1;
+    argv[2] = (char*) malloc(len * sizeof(char));
+    memcpy(argv[2], "--expose-gc", len);
+  }
+  else {
+    /* Extract argc, argv to pass it directly to Node */
+    argc = command_line->argv().size();
+    argv = (char**)malloc(argc * sizeof(char*));
+    for(int i = 0; i < argc; i ++) {
+      unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
+      argv[i] = (char*) malloc(len * sizeof(char));
+      memcpy(argv[i], command_line->argv()[i].c_str(), len);
+    }
   }
 
   node::InitSetup(argc, argv);
