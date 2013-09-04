@@ -1,18 +1,17 @@
-Breach
-======
+Exo
+====
 
-All you need to know about Breach:
-[The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/breach/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
+[The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
 
-### Getting the Source Code & Building Breach
+### Getting the Source Code & Building Exo
 
-[Building & Updating Breach](https://github.com/spolu/breach/wiki/Building-&-Updating-Breach)
+[Building Exo](https://github.com/spolu/exo/wiki/Building-Exo)
 
-### Hacking Breach
+### Hacking
 
-[Breach ExoBrowser JS API Specification](https://github.com/spolu/breach/blob/master/API.md)
+[ExoBrowser JS API Specification](https://github.com/spolu/exo/blob/master/API.md)
 
 ### Get in Touch
 
-- Mailing list: [breach-dev@googlegroups.com](https://groups.google.com/forum/#!forum/breach-dev)
-- IRC Channel: #breach on Freenode
+- Mailing list: [exobrowser-dev@googlegroups.com](https://groups.google.com/forum/#!forum/exobrowser-dev)
+- IRC Channel: #exobrowser on Freenode

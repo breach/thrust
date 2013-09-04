@@ -88,14 +88,14 @@ index a13bc6f..f85fe15 100644
              'postbuilds': [
                {
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
-index 0e6b848..b9db370 100644
+index 0e6b848..8a2cec5 100644
 --- a/tools/gritsettings/resource_ids
 +++ b/tools/gritsettings/resource_ids
 @@ -218,4 +218,9 @@
      "includes": [30500],
    },
    # Resource ids starting at 31000 are reserved for projects built on Chromium.
-+  "breach/breach_resources.grd": {
++  "exo/exo_browser_resources.grd": {
 +    "includes": [32000],
 +    "structures": [32100],
 +    "messages": [32200],
