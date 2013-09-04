@@ -298,6 +298,7 @@ var box = function(spec, my) {
             my.state.mode = my.MODE_NORMAL;
             my.box_value = null;
             my.state.value = computed_value();
+            push();
           }
           break;
         }
