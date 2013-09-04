@@ -12,7 +12,7 @@ No DevTools ATM
 #### API v0.alpha:
 
 ```
-var b = _breach.exo_browser({
+var b = api.exo_browser({
   size: [123, 23]
 });
 
@@ -51,7 +51,7 @@ exo_browser.focus([cb_]);
 exo_browser.maximize([cb_]);
 
 
-var f = _breach.exo_frame({
+var f = api.exo_frame({
   name: '',
   url: '',
 });
@@ -83,7 +83,7 @@ exo_frame.focus([cb_]);
 
 ```
 /* EXOBROWSER */
-_breach._createExoBrowser({
+_exo_browser._createExoBrowser({
   size: [123, 23]
 }, cb_);
 
@@ -104,7 +104,7 @@ b._setNavigationStateCallback(cb_);
 b.kill(cb_);
 
 /* EXOFRAME */
-_breach._createExoFrame({
+_exo_browser._createExoFrame({
   name: '',
   url: '',
 }, cb_);
