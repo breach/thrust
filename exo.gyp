@@ -4,6 +4,7 @@
   'variables': {
     'exo_browser_product_name': 'ExoBrowser',
     'exo_product_name': 'Exo',
+    'exo_app_code': 'app/',
     'exo_browser_version': '0.0.1.1',
     'ua_version': '28.0.1500.95',
   },
@@ -355,7 +356,7 @@
             {
               'destination': '<(PRODUCT_DIR)',
               'files': [
-                '<(breach_client_code)'
+                '<(exo_app_code)'
               ],
             },
           ],
@@ -377,9 +378,9 @@
               ],
             }, 
             {
-              'destination': '<(PRODUCT_DIR)/<(breach_product_name).app/Contents/Resources',
+              'destination': '<(PRODUCT_DIR)/<(exo_product_name).app/Contents/Resources',
               'files': [
-                '<(breach_client_code)'
+                '<(exo_app_code)'
               ],
             },
           ],
