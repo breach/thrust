@@ -16,6 +16,7 @@
       'defines': [
         'EXO_BROWSER_VERSION="<(exo_browser_version)"',
         'UA_VERSION="<(ua_version)"',
+        'EXO_APP_CODE="<(exo_app_code)"',
       ],
       'variables': {
         'chromium_code': 1,
