@@ -85,8 +85,7 @@ var control = function(spec, my) {
   //
   // Hides the stack
   hide = function() {
-    my.session.exo_browser().set_control_dimension(api.LEFT_CONTROL, 
-                                                   0);
+    my.session.exo_browser().set_control_dimension(my.control_type, 0);
   };
 
   // ### focus

@@ -6,8 +6,8 @@
     <div class="favicon" 
          style="background-image: url({{page.favicon}});"></div>
     <div class="content">
-       <div class="title">{{page.title|truncate:27}}</div>
+       <div class="title">{{page.title|truncate:40}}</div>
      </div>
-    <div class="pin"></div>
+    <div class="pin" ng-click="toggle_pin(page)"></div>
   </div>
 </div>

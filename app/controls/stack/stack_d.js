@@ -41,6 +41,10 @@ angular.module('breach.directives').controller('StackCtrl',
       if(!page.active)
         _socket.emit('select_page', page.name);
     };
+
+    $scope.toggle_pin = function(page) {
+      _socket.emit('toggle_pin', page.name);
+    };
   });
 
 //

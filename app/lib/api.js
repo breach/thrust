@@ -66,7 +66,7 @@ var exo_frame = function(spec, my) {
   var find;                /* find(text, forward, case, next, [cb_]); */
   var find_stop;           /* find_stop(action, [cb_]); */
 
-  var kill;             /* release(); */
+  var kill;                /* kill(); */
 
   //
   // #### _private_
@@ -741,11 +741,7 @@ var exo_browser = function(spec, my) {
         that.emit('kill');
       });
       my.internal._setFrameCloseCallback(function(from) {
-        factory.log().out('frame_close: ' + from);
-        if(my.frames[from]) {
-          /* TODO(spolu): figure out if this event is useful */
-          /* Probably for programatic close of frame         */
-        }
+        that.emit('frame_close', my.frames[from]);
       });
       my.internal._setFrameCreatedCallback(function(_frame, disposition, 
                                                     initial_pos, from) {

@@ -49,6 +49,7 @@ var session = function(spec, my) {
   var init;          /* init(); */
 
   var browser_frame_created; /* browser_frame_created(f, disp, post, origin); */
+  var browser_frame_close;   /* browser_frame_close(f); */
   var browser_open_url;      /* browser_open_url(url, disp, origin); */
   var browser_kill;          /* browser_kill(); */
 
@@ -75,6 +76,7 @@ var session = function(spec, my) {
     });
 
     my.exo_browser.on('frame_created', browser_frame_created);
+    my.exo_browser.on('frame_close', browser_frame_close);
     my.exo_browser.on('open_url', browser_open_url);
     my.exo_browser.on('kill', browser_kill);
 
@@ -142,16 +144,31 @@ var session = function(spec, my) {
       my.popups.push(popup);
       popup.on('kill', function() {
         common.remove(my.popups, popup);
-        console.log(my.popups);
         /* We call the gc if available (recommended) to make sure the      */
         /* underlying exoframe (and its webcontents) gets deleted. So that */
         /* the popup can get reopend.                                      */
         if(global.gc)
           global.gc();
       });
+      popup.on('frame_close', function() {
+        /* There can be only one */
+        popup.kill();
+      });
     }
 
     /*TODO(spolu): Handle other disposition not handled by the stack. */
+  };
+
+  // ### browser_frame_close
+  //
+  // Event dispatched when a frame should be closed (generally triggered
+  // programmatically)
+  // ```
+  // @frame  {exo_frame} the frame to close
+  // ```
+  browser_frame_close = function(frame) {
+    /* TODO(spolu): Is this possible? */
+    console.log('FRAME_CLOSE [session]: ' + frame.name());
   };
 
   // ### browser_open_url
