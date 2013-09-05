@@ -59,11 +59,11 @@ See [Exp.2: Synchronized Sessions](https://github.com/spolu/exo/wiki/Exp.2:-Sync
 
 ### Getting the Source Code & Building Exo
 
-[Building Exo](https://github.com/spolu/exo/wiki/Building-Exo)
+See [Building Exo](https://github.com/spolu/exo/wiki/Building-Exo)
 
 ### Hacking
 
-[ExoBrowser JS API Specification](https://github.com/spolu/exo/blob/master/API.md)
+See [ExoBrowser JS API Specification](https://github.com/spolu/exo/blob/master/API.md)
 
 ### Get in Touch
 
