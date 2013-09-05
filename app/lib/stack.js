@@ -7,7 +7,7 @@
  *
  * @log:
  * 2013-08-12 spolu   Creation
- * 2013-09-02 spou    Fix #45 Focus on new Tab
+ * 2013-09-02 spolu   Fix #45 Focus on new Tab
  */
 
 var common = require('./common.js');
@@ -94,7 +94,7 @@ var stack = function(spec, my) {
   //  
   // Returns the desired canonical dimension
   dimension = function() {
-    return 280;
+    return 250;
   };
 
   // ### toggle
@@ -441,13 +441,14 @@ var stack = function(spec, my) {
   socket_select_page = function(name) {
     for(var i = 0; i < my.pages.length; i ++) {
       if(my.pages[i].frame.name() === name) {
-        if(!my.pages[i].pinned) {
-          var p = my.pages.splice(i, 1)[0];
+        var p = my.pages.splice(i, 1)[0];
+        if(!p.pinned) {
           my.pages.splice(my.pinned, 0, p);
           my.active = my.pinned;
         }
         else {
-          my.active = i;
+          my.pages.splice(my.pinned - 1, 0, p);
+          my.active = my.pinned - 1;
         }
         push();
         my.session.exo_browser().show_page(my.pages[my.active].frame, 
@@ -555,10 +556,6 @@ var stack = function(spec, my) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned, 0, p);
       my.active = my.pinned;
-      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
-        my.pages[my.active].frame.focus();
-      });
-      push();
     }
     else {
       /* If we're pinned we implement the reverse stack order and put the */
@@ -566,11 +563,11 @@ var stack = function(spec, my) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned - 1, 0, p);
       my.active = my.pinned - 1;
-      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
-        my.pages[my.active].frame.focus();
-      });
-      push();
     }
+    my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+      my.pages[my.active].frame.focus();
+    });
+    push();
   };
 
   // ### shortcut_stack_close
@@ -693,10 +690,29 @@ var stack = function(spec, my) {
   // @navigate {boolean} navigate to the first filtered result if it exists
   // ```
   filter_stop = function(navigate) {
-    /* TODO(spolu): navigate to first result */
-    my.filter = null;
     if(!my.visible)
       _super.toggle(false);
+
+    if(navigate) {
+      for(var i = 0; i < my.pages.length; i ++) {
+        if(filter_page(my.pages[i])) {
+          var p = my.pages.splice(i, 1)[0];
+          if(!p.pinned) {
+            my.pages.splice(my.pinned, 0, p);
+            my.active = my.pinned;
+          }
+          else {
+            my.pages.splice(my.pinned - 1, 0, p);
+            my.active = my.pinned - 1;
+          }
+          break;
+        }
+      }
+    }
+    my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+      my.pages[my.active].frame.focus();
+    });
+    my.filter = null;
     push();
   };
 

@@ -7,6 +7,7 @@
  *
  * @log:
  * 2013-08-12 spolu   Creation
+ * 2013-09-05 spolu   Fix #56
  */
 
 var events = require('events');
