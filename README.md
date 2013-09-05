@@ -8,7 +8,7 @@ Exo is a new Browser and more importantly a new Experimentation Platform to buil
 - **Usable** Disruptive but only if it's easy to use and easy to learn
 - **Hackable** Empower users with the ability to easily change or extend the behaviour of their browser
 
-Exo is scriptable, it is based on the ExoBrowser API (Chromium Content API + Simple View Model exposed in Javascript) and is entirely written in Javsascript.
+Exo is scriptable, it is based on the ExoBrowser API (Chromium Content API + Simple View Model exposed in Javascript) and is entirely written in Javascript.
 
 See [The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
 
