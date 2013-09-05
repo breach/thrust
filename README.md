@@ -1,24 +1,27 @@
 Exo
 ====
 
-See [The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
 
-We set out to build a new Browser and more importantly a new Experimentation Platform to build a better Browser for today's Web.
+Exo is a new Browser and more importantly a new Experimentation Platform to build a better Browser for today's Web.
 
 - **Free** Open-source, and most importantly freed from any assumptions we have about web browsing
 - **Usable** Disruptive but only if it's easy to use and easy to learn
 - **Hackable** Empower users with the ability to easily change or extend the behaviour of their browser
 
+Exo is scriptable, it is based on the ExoBrowser API (Chromium Content API + Simple View Model exposed in Javascript) and is entirely written in Javsascript.
+
+See [The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
+
 Before releasing a fully-fledged browser, our goal is to run a set of experiments to explore specific concepts we find particularly interesting: 
 
-- *Experiment 1*: [Stacked Navigation](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser/#stacked-navigation)
-- *Experiment 2*: [Synchronized Sessions](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser/#synchronized-sessions)
+- *Experiment 1*: Stacked Navigation
+- *Experiment 2*: Synchronized Sessions
 
-Each experiments will be released as a specialized browser, whose feature set is focused on the related experiment. To make this possible, we realized early on that we needed a proper testbed to try out concepts, iterate and validate them easily. Using platform-specific UI frameworks and C++ code was probably not going to cut it. So we came up with the concept of the **Scriptable Browser**. We call it the *ExoBrowser*. 
+Each experiments will be released as a specialized browser, whose feature set is focused on the related experiment. 
 
 #### ExoBrowser Architecture
 
-```txt
+```
 [Chromium Architecture]
   
   (Platform)        #   (Browser Implementation)
@@ -66,3 +69,4 @@ See [Exp.2: Synchronized Sessions](https://github.com/spolu/exo/wiki/Exp.2:-Sync
 
 - Mailing list: [exobrowser-dev@googlegroups.com](https://groups.google.com/forum/#!forum/exobrowser-dev)
 - IRC Channel: #exobrowser on Freenode
+- Twitter: @ExoBrowser
