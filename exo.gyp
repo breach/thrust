@@ -446,7 +446,7 @@
         {
           'target_name': 'exo_browser_framework',
           'type': 'shared_library',
-          'product_name': '<(exo_browser_product_name) Framework',
+          'product_name': '<(exo_product_name) Framework',
           'mac_bundle': 1,
           'mac_bundle_resources': [
             #'app/English.lproj/HttpAuth.xib',
@@ -477,7 +477,7 @@
           'target_name': 'exo_browser_helper_app',
           'type': 'executable',
           'variables': { 'enable_wexit_time_destructors': 1, },
-          'product_name': '<(exo_browser_product_name) Helper',
+          'product_name': '<(exo_product_name) Helper',
           'mac_bundle': 1,
           'dependencies': [
             'exo_browser_framework',
@@ -511,8 +511,8 @@
               'action': [
                 'install_name_tool',
                 '-change',
-                '/Library/Frameworks/<(exo_browser_product_name) Framework.framework/Versions/A/<(exo_browser_product_name) Framework',
-                '@executable_path/../../../../Frameworks/<(exo_browser_product_name) Framework.framework/<(exo_browser_product_name) Framework',
+                '/Library/Frameworks/<(exo_product_name) Framework.framework/Versions/A/<(exo_product_name) Framework',
+                '@executable_path/../../../../Frameworks/<(exo_product_name) Framework.framework/<(exo_product_name) Framework',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
