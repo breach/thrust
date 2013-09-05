@@ -69,4 +69,5 @@ See [ExoBrowser JS API Specification](https://github.com/spolu/exo/blob/master/A
 
 - Mailing list: [exobrowser-dev@googlegroups.com](https://groups.google.com/forum/#!forum/exobrowser-dev)
 - IRC Channel: #exobrowser on Freenode
-- Twitter: @ExoBrowser
+- Twitter: [@ExoBrowser](https://twitter.com/ExoBrowser)
+
