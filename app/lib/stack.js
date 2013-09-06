@@ -544,7 +544,7 @@ var stack = function(spec, my) {
         break;
       }
     }
-    if(my.active >= 0) {
+    if(i >= 0) {
       my.active = i;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
         my.pages[my.active].frame.focus();
