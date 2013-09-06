@@ -9,7 +9,7 @@ namespace switches {
 // Makes ExoBrowser use the given path for its data directory.
 const char kExoBrowserDataPath[] = "data-path";
 // Prevents the launch of Exo and runs the ExoBrowser in "raw" mode
-const char kExoBrowserRaw[] = "exo-browser";
+const char kExoBrowserRaw[] = "raw";
 
 // Allow access to external pages during layout tests.
 const char kAllowExternalPages[] = "allow-external-pages";

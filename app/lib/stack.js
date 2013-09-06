@@ -7,7 +7,7 @@
  *
  * @log:
  * 2013-08-12 spolu   Creation
- * 2013-09-02 spou    Fix #45 Focus on new Tab
+ * 2013-09-02 spolu   Fix #45 Focus on new Tab
  */
 
 var common = require('./common.js');
@@ -63,6 +63,7 @@ var stack = function(spec, my) {
   var browser_open_url;         /* browser_open_url(frame, disp, origin); */
 
   var socket_select_page;       /* socket_select_page(name); */
+  var socket_toggle_pin;        /* socket_toggle_pin(name); */
 
   var shortcut_new_page;        /* shortcut_new_page(); */
   var shortcut_stack_toggle;    /* shortcut_stack_toggle(); */
@@ -121,6 +122,7 @@ var stack = function(spec, my) {
     _super.handshake(socket);
 
     my.socket.on('select_page', socket_select_page);
+    my.socket.on('toggle_pin', socket_toggle_pin);
 
     new_page();
   };
@@ -340,7 +342,7 @@ var stack = function(spec, my) {
   // @favicons {array} array of candidates favicon urls
   // ```
   frame_favicon_update = function(frame, favicons) {
-    /* TODO(spolu): for now we take the frist one always. Add the type into */
+    /* TODO(spolu): for now we take the first one always. Add the type into */
     /* the API so that a better logic can be implemented here.              */
     var p = page_for_frame(frame);
     if(favicons.length > 0 && p) {
@@ -439,14 +441,46 @@ var stack = function(spec, my) {
   socket_select_page = function(name) {
     for(var i = 0; i < my.pages.length; i ++) {
       if(my.pages[i].frame.name() === name) {
-
-        if(!my.pages[i].pinned) {
-          var p = my.pages.splice(i, 1)[0];
+        var p = my.pages.splice(i, 1)[0];
+        if(!p.pinned) {
           my.pages.splice(my.pinned, 0, p);
           my.active = my.pinned;
         }
         else {
-          my.active = i;
+          my.pages.splice(my.pinned - 1, 0, p);
+          my.active = my.pinned - 1;
+        }
+        push();
+        my.session.exo_browser().show_page(my.pages[my.active].frame, 
+                                           function() {
+          my.pages[my.active].frame.focus();
+        });
+        break;
+      }
+    }
+  };
+
+  // ### socket_toggle_pin
+  //
+  // Received when an page pinned state need to be toggled
+  // ```
+  // @name {string} the frame name of the page
+  // ```
+  socket_toggle_pin = function(name) {
+    for(var i = 0; i < my.pages.length; i ++) {
+      if(my.pages[i].frame.name() === name) {
+        var p = my.pages.splice(i, 1)[0]
+        if(!p.pinned) {
+          p.pinned = true;
+          /* We set active to pinned then we increment pinned */
+          my.active = my.pinned++;
+          my.pages.splice(my.active, 0, p);
+        }
+        else {
+          p.pinned = false;
+          /* We decrement then we set active to pinned */
+          my.active = --my.pinned;
+          my.pages.splice(my.active, 0, p);
         }
         push();
         my.session.exo_browser().show_page(my.pages[my.active].frame, 
@@ -483,11 +517,15 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to view next page
   shortcut_stack_next = function() {
-    /* TODO(spolu): Take filter into account */
     if(!my.visible)
       _super.toggle(true);
-    if(my.active < my.pages.length - 1) {
-      my.active++;
+    for(var i = my.active + 1; i < my.pages.length; i ++) {
+      if(filter_page(my.pages[i])) {
+        break;
+      }
+    }
+    if(i < my.pages.length) {
+      my.active = i;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
         my.pages[my.active].frame.focus();
       });
@@ -499,11 +537,15 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to view previous page
   shortcut_stack_prev = function() {
-    /* TODO(spolu): Take filter into account */
     if(!my.visible)
       _super.toggle(true);
-    if(my.active > 0) {
-      my.active--;
+    for(var i = my.active - 1; i >= 0; i--) {
+      if(filter_page(my.pages[i])) {
+        break;
+      }
+    }
+    if(my.active >= 0) {
+      my.active = i;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
         my.pages[my.active].frame.focus();
       });
@@ -522,10 +564,6 @@ var stack = function(spec, my) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned, 0, p);
       my.active = my.pinned;
-      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
-        my.pages[my.active].frame.focus();
-      });
-      push();
     }
     else {
       /* If we're pinned we implement the reverse stack order and put the */
@@ -533,11 +571,11 @@ var stack = function(spec, my) {
       var p = my.pages.splice(my.active, 1)[0];
       my.pages.splice(my.pinned - 1, 0, p);
       my.active = my.pinned - 1;
-      my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
-        my.pages[my.active].frame.focus();
-      });
-      push();
     }
+    my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+      my.pages[my.active].frame.focus();
+    });
+    push();
   };
 
   // ### shortcut_stack_close
@@ -660,10 +698,29 @@ var stack = function(spec, my) {
   // @navigate {boolean} navigate to the first filtered result if it exists
   // ```
   filter_stop = function(navigate) {
-    /* TODO(spolu): navigate to first result */
-    my.filter = null;
     if(!my.visible)
       _super.toggle(false);
+
+    if(navigate) {
+      for(var i = 0; i < my.pages.length; i ++) {
+        if(filter_page(my.pages[i])) {
+          var p = my.pages.splice(i, 1)[0];
+          if(!p.pinned) {
+            my.pages.splice(my.pinned, 0, p);
+            my.active = my.pinned;
+          }
+          else {
+            my.pages.splice(my.pinned - 1, 0, p);
+            my.active = my.pinned - 1;
+          }
+          break;
+        }
+      }
+    }
+    my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
+      my.pages[my.active].frame.focus();
+    });
+    my.filter = null;
     push();
   };
 
