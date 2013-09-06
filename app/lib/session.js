@@ -104,7 +104,7 @@ var session = function(spec, my) {
         my.box.init(cb_);
       },
     }, function(err) {
-      my.stack.toggle(false);
+      my.stack.toggle(true);
       my.box.show();
 
       my.exo_browser.focus(function() {
