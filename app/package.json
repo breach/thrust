@@ -1,6 +1,7 @@
 {
   "name": "Exo",
   "version": "0.0.1",
+  "main": "./exo.js",
   "dependencies": {
     "async": "0.2.x",
     "express": "3.0.x",

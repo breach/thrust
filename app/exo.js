@@ -7,6 +7,7 @@
  *
  * @log:
  * 2013-08-11 spolu   Creation
+ * 2013-09-06 spolu   Exp1 process.exit on session kill
  */
 var express = require('express');
 var http = require('http');
@@ -61,6 +62,9 @@ factory.log().out('Starting...');
   s.on('kill', function() {
     delete sessions[s.name()];
     if(global.gc) global.gc();
+    /* TODO(spolu): For now as we have only one session, let's kill the */
+    /* process once we get here.                                        */
+    process.exit(0);
   });
 })();
 
