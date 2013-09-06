@@ -8,6 +8,7 @@
  * @log:
  * 2013-08-12 spolu   Creation
  * 2013-09-02 spolu   Fix #45 Focus on new Tab
+ * 2013-09-06 spolu   Fix #60 Recover page
  */
 
 var common = require('./common.js');
@@ -28,6 +29,7 @@ var stack = function(spec, my) {
   /*    state,       */
   /*    box_value }] */
   my.pages = [];
+  my.recover = [];
   my.pinned = 0;
   my.active = 0;
   my.visible = true;
@@ -71,6 +73,7 @@ var stack = function(spec, my) {
   var shortcut_stack_prev;      /* shortcut_stack_prev(); */
   var shortcut_stack_close;     /* shortcut_stack_close(); */
   var shortcut_stack_pin;       /* shortcut_stack_pin(); */
+  var shortcut_recover_page;    /* shortcut_recover_page(); */
   
   //
   // ### _protected_
@@ -160,6 +163,8 @@ var stack = function(spec, my) {
                                        shortcut_stack_close);
     my.session.keyboard_shortcuts().on('stack_pin', 
                                        shortcut_stack_pin);
+    my.session.keyboard_shortcuts().on('recover_page', 
+                                       shortcut_recover_page);
   };
 
   /****************************************************************************/
@@ -499,7 +504,6 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to create a new page
   shortcut_new_page = function() {
-    clear_filter();
     that.new_page();
   };
 
@@ -583,6 +587,10 @@ var stack = function(spec, my) {
   // Keyboard shorcut to close current page
   shortcut_stack_close = function() {
     var p = my.pages.splice(my.active, 1)[0]
+    
+    /* Push the current url to the set of recoverable URLs. */
+    my.recover.push(p.state.entries[p.state.entries.length - 1].url.href);
+
     my.session.exo_browser().remove_page(p.frame, function() {
       p.frame.kill();
       if(p.pinned) my.pinned--;
@@ -621,6 +629,17 @@ var stack = function(spec, my) {
     push();
   };
 
+  // ### shortcut_recover_page
+  //
+  // Keyboard shortcut to recover a closed page
+  shortcut_recover_page = function() {
+    /* TODO(spolu): For now we just recover the URL and not the history. */
+    if(my.recover.length) {
+      var url = my.recover.pop();
+      that.new_page(url);
+    }
+  };
+
 
   /****************************************************************************/
   /*                              PUBLIC METHODS                              */
@@ -634,6 +653,7 @@ var stack = function(spec, my) {
   // ```
   //
   new_page = function(url) {
+    clear_filter();
     var box_focus = !url ? true : false;
     url = url || (my.session.base_url() + '/home.html');
 
