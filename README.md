@@ -53,6 +53,9 @@ See [Exp.1: Stacked Navigation](https://github.com/spolu/exo/wiki/Exp.1:-Stacked
 
 ![Stacked Navigation Screenshot](https://f.cloud.github.com/assets/15067/1078722/b7909be6-1531-11e3-837b-1764eab48739.png)
 
+Quick Intro to the Experiment: [[slides]](http://slid.es/stanislaspolu/exo-exp1)
+
+
 #### Exp.2: Synchronized Sessions
 
 See [Exp.2: Synchronized Sessions](https://github.com/spolu/exo/wiki/Exp.2:-Synchronized-Sessions)
