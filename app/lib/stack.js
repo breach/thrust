@@ -342,7 +342,7 @@ var stack = function(spec, my) {
   // @favicons {array} array of candidates favicon urls
   // ```
   frame_favicon_update = function(frame, favicons) {
-    /* TODO(spolu): for now we take the frist one always. Add the type into */
+    /* TODO(spolu): for now we take the first one always. Add the type into */
     /* the API so that a better logic can be implemented here.              */
     var p = page_for_frame(frame);
     if(favicons.length > 0 && p) {
@@ -517,11 +517,15 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to view next page
   shortcut_stack_next = function() {
-    /* TODO(spolu): Take filter into account */
     if(!my.visible)
       _super.toggle(true);
-    if(my.active < my.pages.length - 1) {
-      my.active++;
+    for(var i = my.active + 1; i < my.pages.length; i ++) {
+      if(filter_page(my.pages[i])) {
+        break;
+      }
+    }
+    if(i < my.pages.length) {
+      my.active = i;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
         my.pages[my.active].frame.focus();
       });
@@ -533,11 +537,15 @@ var stack = function(spec, my) {
   //
   // Keyboard shorcut to view previous page
   shortcut_stack_prev = function() {
-    /* TODO(spolu): Take filter into account */
     if(!my.visible)
       _super.toggle(true);
-    if(my.active > 0) {
-      my.active--;
+    for(var i = my.active - 1; i >= 0; i--) {
+      if(filter_page(my.pages[i])) {
+        break;
+      }
+    }
+    if(my.active >= 0) {
+      my.active = i;
       my.session.exo_browser().show_page(my.pages[my.active].frame, function() {
         my.pages[my.active].frame.focus();
       });
