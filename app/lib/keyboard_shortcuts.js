@@ -7,6 +7,7 @@
  *
  * @log:
  * 2013-08-22 spolu   Creation
+ * 2013-09-06 spolu   Fix #60 Added "recover-page"
  */
 var common = require('./common.js');
 var factory = common.factory;
@@ -80,7 +81,7 @@ var keyboard_shortcuts = function(spec, my) {
   // @event {object} keyboard event
   // ```
   my.session.exo_browser().on('frame_keyboard', function(frame, event) {
-    console.log(JSON.stringify(event));
+    //console.log(JSON.stringify(event));
     var modifier = (1 << 1); /* ctrl */
     var modifier_key = 17;
     if(process.platform === 'darwin') {
@@ -92,6 +93,11 @@ var keyboard_shortcuts = function(spec, my) {
        event.keycode === 84 && !is_last(event)) {
       /* Ctrl - T ; No Repetition */
       that.emit('new_page');
+    }
+    if(event.type === 7 && (event.modifiers === (1 << 0 | modifier)) &&
+       event.keycode === 84 && !is_last(event)) {
+      /* Ctrl - Shift - T ; No Repetition */
+      that.emit('recover_page');
     }
 
     if(event.type === 7 && (event.modifiers === modifier) &&
@@ -178,25 +184,6 @@ var keyboard_shortcuts = function(spec, my) {
     }
 
     my.last = event;
-
-    /*
-    if(event.type === 9 &&
-       event.modifiers === 2 &&
-         event.keycode === 71) {
-      toggle_stack(true);
-    my.stack.focus();
-    }
-    if(event.type === 9 &&
-       event.modifiers === 2 &&
-         event.keycode === 72) {
-      toggle_stack(false);
-    }
-    if(event.type === 9 &&
-       event.modifiers === 2 &&
-         event.keycode === 84) {
-      my.stack.new_page();
-    }
-   */
   });
 
   return that;
