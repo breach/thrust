@@ -105,10 +105,11 @@ NodeThread::Run(
     base::FilePath path = GetSelfPath().DirName();
 #if defined(OS_MACOSX)
     /* TODO(spolu): correct base path */
-    self_path = path.DirName().DirName().Append("Resources").Append("Content");
+    path = path.DirName().Append("Resources");
 #endif
     /* Build Exo's arguments */
     std::string app_path = path.AsUTF8Unsafe() + "/app/exo.js";
+    LOG(INFO) << app_path;
     argc = 3;
     argv = (char**)malloc(argc * sizeof(char*));
     /* argv[0] */

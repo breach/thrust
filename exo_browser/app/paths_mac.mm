@@ -39,17 +39,17 @@ base::FilePath GetFrameworksPath() {
 
 void OverrideFrameworkBundlePath() {
   base::FilePath helper_path =
-      GetFrameworksPath().Append("ExoBrowser Framework.framework");
+      GetFrameworksPath().Append("Exo Framework.framework");
 
   base::mac::SetOverrideFrameworkBundlePath(helper_path);
 }
 
 void OverrideChildProcessPath() {
   base::FilePath helper_path =
-      GetFrameworksPath().Append("ExoBrowser Helper.app")
-                                            .Append("Contents")
-                                            .Append("MacOS")
-                                            .Append("ExoBrowser Helper");
+      GetFrameworksPath().Append("Exo Helper.app")
+                                        .Append("Contents")
+                                        .Append("MacOS")
+                                        .Append("Exo Helper");
 
   PathService::Override(content::CHILD_PROCESS_EXE, helper_path);
 }
