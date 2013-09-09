@@ -10,10 +10,10 @@
   <release seq="1">
     <includes>
       <include name="IDR_EXO_BROWSER_DEVTOOLS_DISCOVERY_PAGE" 
-               file="exo_browser/resources/devtools_discovery_page.html" 
+               file="src/resources/devtools_discovery_page.html" 
                type="BINDATA" />
       <include name="IDR_EXO_BROWSER_API_BINDINGS_JS" 
-               file="exo_browser/node/api/api_bindings.js" 
+               file="src/node/api/api_bindings.js" 
                type="BINDATA" />
     </includes>
   </release>
