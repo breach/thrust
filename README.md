@@ -61,7 +61,7 @@ See [Exp.2: Synchronized Sessions](https://github.com/spolu/exo_browser/wiki/Exp
 
 ### Getting the Source Code & Building the ExoBrowser
 
-See [Building Exo](https://github.com/spolu/exo_browser/wiki/Building-the-ExoBrowser)
+See [Building the ExoBrowser](https://github.com/spolu/exo_browser/wiki/Building-the-ExoBrowser)
 
 ### Hacking with the ExoBrowser
 
