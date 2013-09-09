@@ -1,15 +1,15 @@
 diff --git a/.gitignore b/.gitignore
-index 34c63a9..512c8d2 100644
+index 34c63a9..7631161 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -55,6 +55,7 @@ v8.log
- /c
- /ceee/internal/
- /base/base_unittests_run.xml
-+/breach
- /chrome/app/policy/chrome_settings_proto_compile.xml
- /chrome/app/policy/chrome_settings_proto_generated_compile.xml
- /chrome/app/policy/cloud_policy_backend_header_compile.xml
+@@ -124,6 +124,7 @@ v8.log
+ /content/test/data/plugin/
+ /data
+ /delegate_execute
++/exo_browser
+ /google_apis/internal
+ /googleurl
+ /gpu/gles2_conform_test
 @@ -237,6 +238,7 @@ v8.log
  /third_party/mt19937ar
  /third_party/mtpd/source/
@@ -88,14 +88,14 @@ index a13bc6f..f85fe15 100644
              'postbuilds': [
                {
 diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
-index 0e6b848..8a2cec5 100644
+index 0e6b848..a74fc24 100644
 --- a/tools/gritsettings/resource_ids
 +++ b/tools/gritsettings/resource_ids
 @@ -218,4 +218,9 @@
      "includes": [30500],
    },
    # Resource ids starting at 31000 are reserved for projects built on Chromium.
-+  "exo/exo_browser_resources.grd": {
++  "exo_browser/exo_browser_resources.grd": {
 +    "includes": [32000],
 +    "structures": [32100],
 +    "messages": [32200],
