@@ -1,25 +1,24 @@
-Exo
-====
+ExoBrowser
+==========
 
-
-Exo is a new Browser and more importantly a new Experimentation Platform to build a better Browser for today's Web.
+The ExoBrowser is a scriptable platform designed to ease the experimentation with new concepts for the Web Browser.
 
 - **Free** Open-source, and most importantly freed from any assumptions we have about web browsing
 - **Usable** Disruptive but only if it's easy to use and easy to learn
 - **Hackable** Empower users with the ability to easily change or extend the behaviour of their browser
 
-Exo is scriptable, it is based on the ExoBrowser API (Chromium Content API + Simple View Model exposed in Javascript) and is entirely written in Javascript.
+The ExoBrowser exposes its API (parts of the Chromium Content API + a Simple View Model) in Javascript and enables the implementation of a fully functional browser entirely out of it (as a Javascript/HTML/CSS app)
 
-See [The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/exo/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
+See [The Experimentation Platform to Build a Next Generation Browser](https://github.com/spolu/exo_browser/wiki/The-Experimentation-Platform-to-Build-a-Next-generation-Web-Browser)
 
-Before releasing a fully-fledged browser, our goal is to run a set of experiments to explore specific concepts we find particularly interesting: 
+We're currently focused on running a set of experiments on top of the ExoBrowser to explore new concepts:
 
 - *Experiment 1*: Stacked Navigation
 - *Experiment 2*: Synchronized Sessions
 
 Each experiments will be released as a specialized browser, whose feature set is focused on the related experiment. 
 
-#### ExoBrowser Architecture
+#### The ExoBrowser Architecture
 
 ```
 [Chromium Architecture]
@@ -49,24 +48,24 @@ Each experiments will be released as a specialized browser, whose feature set is
 
 #### Exp.1: Stacked Navigation
 
-See [Exp.1: Stacked Navigation](https://github.com/spolu/exo/wiki/Exp.1:-Stacked-Navigation)
+See [Exp.1: Stacked Navigation](https://github.com/spolu/exo_browser/wiki/Exp.1:-Stacked-Navigation)
 
 ![Stacked Navigation Screenshot](https://f.cloud.github.com/assets/15067/1078722/b7909be6-1531-11e3-837b-1764eab48739.png)
 
-Quick Intro to the Experiment: [[slides]](http://slid.es/stanislaspolu/exo-exp1)
+Quick Intro to the Experiment: [[slides]](http://slid.es/stanislaspolu/exo_browser-exp1)
 
 
 #### Exp.2: Synchronized Sessions
 
-See [Exp.2: Synchronized Sessions](https://github.com/spolu/exo/wiki/Exp.2:-Synchronized-Sessions)
+See [Exp.2: Synchronized Sessions](https://github.com/spolu/exo_browser/wiki/Exp.2:-Synchronized-Sessions)
 
-### Getting the Source Code & Building Exo
+### Getting the Source Code & Building the ExoBrowser
 
-See [Building Exo](https://github.com/spolu/exo/wiki/Building-Exo)
+See [Building Exo](https://github.com/spolu/exo_browser/wiki/Building-the-ExoBrowser)
 
-### Hacking
+### Hacking with the ExoBrowser
 
-See [ExoBrowser JS API Specification](https://github.com/spolu/exo/blob/master/API.md)
+See [ExoBrowser JS API Specification](https://github.com/spolu/exo_browser/blob/master/API.md)
 
 ### Get in Touch
 
