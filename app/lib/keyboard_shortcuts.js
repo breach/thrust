@@ -1,5 +1,5 @@
 /*
- * Breach: keyboard_shortcuts.js
+ * ExoBrowser: keyboard_shortcuts.js
  *
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *

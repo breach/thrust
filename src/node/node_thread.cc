@@ -101,13 +101,38 @@ NodeThread::Run(
   char **argv;
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
 
-  if(!command_line->HasSwitch(switches::kExoBrowserRaw)) {
-    base::FilePath path = GetSelfPath().DirName();
+  base::FilePath path = GetSelfPath().DirName();
 #if defined(OS_MACOSX)
-    /* TODO(spolu): correct base path */
-    path = path.DirName().Append("Resources");
+  /* TODO(spolu): correct base path */
+  path = path.DirName().Append("Resources");
 #endif
-    /* Build Exo's arguments */
+
+  if(command_line->HasSwitch(switches::kExoBrowserDumpApp)) {
+    /* Build Default 'app/dump.js' arguments */
+    std::string dump_path = path.AsUTF8Unsafe() + "/app/dump.js";
+    argc = 2;
+    argv = (char**)malloc(argc * sizeof(char*));
+    /* argv[0] */
+    unsigned len = strlen(command_line->argv()[0].c_str()) + 1;
+    argv[0] = (char*) malloc(len * sizeof(char));
+    memcpy(argv[0], command_line->argv()[0].c_str(), len);
+    /* dump_path */
+    len = strlen(dump_path.c_str()) + 1;
+    argv[1] = (char*) malloc(len * sizeof(char));
+    memcpy(argv[1], dump_path.c_str(), len);
+  }
+  else if(command_line->HasSwitch(switches::kExoBrowserRaw)) {
+    /* Extract argc, argv to pass it directly to Node */
+    argc = command_line->argv().size();
+    argv = (char**)malloc(argc * sizeof(char*));
+    for(int i = 0; i < argc; i ++) {
+      unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
+      argv[i] = (char*) malloc(len * sizeof(char));
+      memcpy(argv[i], command_line->argv()[i].c_str(), len);
+    }
+  }
+  else {
+    /* Build Default 'app/' arguments */
     std::string app_path = path.AsUTF8Unsafe() + "/app";
     //LOG(INFO) << app_path;
     argc = 3;
@@ -124,16 +149,6 @@ NodeThread::Run(
     len = strlen("--expose-gc") + 1;
     argv[2] = (char*) malloc(len * sizeof(char));
     memcpy(argv[2], "--expose-gc", len);
-  }
-  else {
-    /* Extract argc, argv to pass it directly to Node */
-    argc = command_line->argv().size();
-    argv = (char**)malloc(argc * sizeof(char*));
-    for(int i = 0; i < argc; i ++) {
-      unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
-      argv[i] = (char*) malloc(len * sizeof(char));
-      memcpy(argv[i], command_line->argv()[i].c_str(), len);
-    }
   }
 
   node::InitSetup(argc, argv);
