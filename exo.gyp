@@ -2,10 +2,9 @@
 
 {
   'variables': {
-    'exo_browser_product_name': 'ExoBrowser',
     'exo_product_name': 'Exo',
     'exo_app_code': 'app/',
-    'exo_browser_version': '0.0.1.1',
+    'exo_browser_version': '0.1.0.0',
     'ua_version': '28.0.1500.95',
   },
   'targets': [
