@@ -1,1 +1,103 @@
-c2f950943600932bdc56db1bde88161dca3e70a3
+diff --git a/.gitignore b/.gitignore
+index 34c63a9..7631161 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -124,6 +124,7 @@ v8.log
+ /content/test/data/plugin/
+ /data
+ /delegate_execute
++/exo_browser
+ /google_apis/internal
+ /googleurl
+ /gpu/gles2_conform_test
+@@ -237,6 +238,7 @@ v8.log
+ /third_party/mt19937ar
+ /third_party/mtpd/source/
+ /third_party/nacl_sdk_binaries/
++/third_party/node/
+ /third_party/nss
+ /third_party/openmax_dl/
+ /third_party/openssl
+@@ -324,3 +326,5 @@ v8.log
+ /xcodebuild
+ cscope.*
+ Session.vim
++
++
+diff --git a/build/common.gypi b/build/common.gypi
+index a13bc6f..f85fe15 100644
+--- a/build/common.gypi
++++ b/build/common.gypi
+@@ -9,6 +9,18 @@
+   # Variables expected to be overriden on the GYP command line (-D) or by
+   # ~/.gyp/include.gypi.
+   'variables': {
++
++    # begin node variables
++    'node_shared_v8': 'true',
++    'shared_v8_include_dir': '<(DEPTH)/v8/include',
++    'node_shared_zlib': 'true',
++    'shared_zlib_include_dir': '<(DEPTH)/third_party/zlib',
++    'node_tag': '',
++    'v8_postmortem_support': 'false',
++    'python': '/usr/bin/python',
++    'library%': 'static_library',    # allow override to 'shared_library' for DLL/.so builds
++    # end node variables
++
+     # Putting a variables dict inside another variables dict looks kind of
+     # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
+     # variables within the outer variables dict here.  This is necessary
+@@ -2748,6 +2760,16 @@
+     }],
+     ['os_posix==1 and OS!="mac" and OS!="ios"', {
+       'target_defaults': {
++        'target_conditions': [
++          ['_target_name=="v8" or _target_name=="v8_snapshot" or _target_name=="v8_base" or _target_name=="uv" or _target_name=="node" or _target_name=="openssl" or _target_name=="zlib"', {
++            'cflags!': [
++              '-fvisibility=hidden',
++              '-fdata-sections',
++              '-ffunction-sections',
++            ],
++            'cflags_cc!': ['-fvisibility-inlines-hidden'],
++          }],
++        ],
+         # Enable -Werror by default, but put it in a variable so it can
+         # be disabled in ~/.gyp/include.gypi on the valgrind builders.
+         'variables': {
+@@ -3841,7 +3863,7 @@
+           'GCC_OBJC_CALL_CXX_CDTORS': 'YES',        # -fobjc-call-cxx-cdtors
+           'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',      # -fvisibility=hidden
+           'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
+-          'GCC_TREAT_WARNINGS_AS_ERRORS': 'YES',    # -Werror
++          'GCC_TREAT_WARNINGS_AS_ERRORS': 'NO',    # -Werror
+           'GCC_VERSION': '4.2',
+           'GCC_WARN_ABOUT_MISSING_NEWLINE': 'YES',  # -Wnewline-eof
+           'USE_HEADERMAP': 'NO',
+@@ -4046,6 +4068,13 @@
+           ],
+         },
+         'target_conditions': [
++          ['_target_name=="v8" or _target_name=="v8_snapshot" or _target_name=="v8_base" or _target_name=="uv" or _target_name=="node" or _target_name=="openssl" or _target_name=="zlib"', {
++            'xcode_settings': {
++              'DEAD_CODE_STRIPPING': 'NO',  # -Wl,-dead_strip
++              'GCC_INLINES_ARE_PRIVATE_EXTERN': 'NO',
++              'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
++            },
++          }],
+           ['_type=="executable"', {
+             'postbuilds': [
+               {
+diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
+index 0e6b848..a74fc24 100644
+--- a/tools/gritsettings/resource_ids
++++ b/tools/gritsettings/resource_ids
+@@ -218,4 +218,9 @@
+     "includes": [30500],
+   },
+   # Resource ids starting at 31000 are reserved for projects built on Chromium.
++  "exo_browser/exo_browser_resources.grd": {
++    "includes": [32000],
++    "structures": [32100],
++    "messages": [32200],
++  },
+ }

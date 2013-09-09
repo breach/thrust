@@ -1,5 +1,5 @@
 /*
- * Breach: control.js
+ * ExoBrowser: control.js
  *
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *

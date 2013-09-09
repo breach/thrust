@@ -1,5 +1,5 @@
 /*
- * Breach: box_d.js
+ * ExoBrowser: box_d.js
  *
  * Copyright (c) Stanislas Polu 2013. All rights reserved.
  *

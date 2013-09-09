@@ -1,5 +1,5 @@
 /*
- * Breach: stack.js
+ * ExoBrowser: stack.js
  *
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *
