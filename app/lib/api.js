@@ -1,5 +1,5 @@
 /*
- * Exo: api.js
+ * ExoBrowser: api.js
  * 
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *

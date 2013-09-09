@@ -1,5 +1,5 @@
 /*
- * Breach: filters_d.js
+ * ExoBrowser: filters_d.js
  *
  * Copyright (c) Stanislas Polu 2013. All rights reserved.
  *

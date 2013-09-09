@@ -8,16 +8,9 @@ namespace switches {
 
 // Makes ExoBrowser use the given path for its data directory.
 const char kExoBrowserDataPath[] = "data-path";
-// Prevents the launch of Exo and runs the ExoBrowser in "raw" mode
+// Prevents the launch of the default 'app/' and runs the in "raw" mode
 const char kExoBrowserRaw[] = "raw";
-
-// Allow access to external pages during layout tests.
-const char kAllowExternalPages[] = "allow-external-pages";
-
-// Enable accelerated 2D canvas.
-const char kEnableAccelerated2DCanvas[] = "enable-accelerated-2d-canvas";
-
-// Encode binary layout test results (images, audio) using base64.
-const char kEncodeBinary[] = "encode-binary";
+// Dumps the default 'app/' in the current working directory 
+const char kExoBrowserDumpApp[] = "dump-app";
 
 }  // namespace switches
