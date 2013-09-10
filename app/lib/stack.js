@@ -589,7 +589,9 @@ var stack = function(spec, my) {
     var p = my.pages.splice(my.active, 1)[0]
     
     /* Push the current url to the set of recoverable URLs. */
-    my.recover.push(p.state.entries[p.state.entries.length - 1].url.href);
+    if(p.state.entries[p.state.entries.length - 1].url) {
+      my.recover.push(p.state.entries[p.state.entries.length - 1].url.href);
+    }
 
     my.session.exo_browser().remove_page(p.frame, function() {
       p.frame.kill();
