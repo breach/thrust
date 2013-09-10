@@ -21,13 +21,5 @@ ExoFrame::PlatformSize()
   return gfx::Size(size.width, size.height);
 }
 
-void
-ExoFrame::PlatformFocus()
-{
-  WebContentsView* content_view = web_contents_->GetView();
-  gtk_widget_set_can_focus(content_view->GetNativeView(), true);
-  gtk_widget_grab_focus(content_view->GetNativeView());
-}
-
 } // namespace exo_browser
 

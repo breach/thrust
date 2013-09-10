@@ -194,10 +194,6 @@ private:
   // Retrieves the size of the WebContents view
   gfx::Size PlatformSize();
 
-  // ### PlatformFocus
-  // Attempts to focus this widget within its window
-  void PlatformFocus();
-
   /****************************************************************************/
   /*                  NOTIFICATION OBSERVER IMPLEMENTATION                    */
   /****************************************************************************/
