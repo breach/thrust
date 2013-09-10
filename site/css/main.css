@@ -3,7 +3,6 @@
 /* Common
 /*
 /*****************************************************************************/
-
 /* Global Reset */
 * {
   margin: 0;
@@ -17,21 +16,43 @@ body {
   font: 13.34px Helvetica, Arial, sans-serif;
   font-size: small;
   text-align: center;
+  color: #222;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-size: 100%; }
+  font-size: 100%; 
+}
+
+h1, h2, h3 { 
+  margin-top: 2em;
+  color: #000;
+}
+
+strong {
+  color: #222;
+}
 
 h1 { margin-bottom: 1em; }
 p { margin: 1em 0; }
 
-a         { color: #00a; }
-a:hover   { color: #000; }
+a { 
+  font-weight: bold; 
+  color: hsl(200, 70%, 50%); 
+  text-decoration: none;
+}
+a:hover { 
+  color: hsl(200, 70%, 30%); 
+}
 a:visited { color: #a0a; }
+
+ul { 
+  margin-top: 1em;
+  padding-left: 20px;
+}
 
 /*****************************************************************************/
 /*
-/* Home
+/* Blog
 /*
 /*****************************************************************************/
 ul.posts {
@@ -51,16 +72,39 @@ ul.posts span {
 
 /*****************************************************************************/
 /*
+/* Download
+/*
+/*****************************************************************************/
+ul.downloads {
+  list-style-type: none;
+  margin-bottom: 2em;
+}
+
+ul.downloads li {
+  line-height: 1.75em;
+}
+
+ul.downloads span {
+  color: #aaa;
+  font-family: Monaco, "Courier New", monospace;
+  font-size: 80%;
+}
+
+/*****************************************************************************/
+/*
 /* Site
 /*
 /*****************************************************************************/
-
 .site {
   font-size: 115%;
   text-align: justify;
   width: 42em;
   margin: 3em auto 2em;
   line-height: 1.5em;
+}
+
+.site img {
+  width: 100%;
 }
 
 .site .header a {
@@ -86,9 +130,14 @@ ul.posts span {
   margin-left: 1em;
 }
 
+.site .header a.extra.downloads {
+  color: hsl(200, 70%, 30%); 
+}
+
 .site .header a.extra:hover {
   color: #000;
 }
+
 
 .site .meta {
   color: #aaa;
@@ -126,7 +175,6 @@ ul.posts span {
 /* Pre
 /*
 /*****************************************************************************/
-
 pre {
   border: 1px solid #ddd;
   background-color: #eef;
@@ -159,9 +207,7 @@ pre.terminal code {
 /* Posts
 /*
 /*****************************************************************************/
-
 /* standard */
-
 .post ul, .post ol {
   margin-left: 1.35em;
 }

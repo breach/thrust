@@ -1,3 +1,4 @@
 name: ExoBrowser
 markdown: redcarpet
 pygments: true
+baseurl: /exo_browser
