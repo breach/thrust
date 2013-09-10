@@ -161,7 +161,7 @@ var keyboard_shortcuts = function(spec, my) {
     }
 
     if(event.type === 7 && (event.modifiers === modifier) && 
-       event.keycode === 87 && !is_last(event)) {
+       event.keycode === 87) {
       /* Ctrl - W ; No Repetition */
       that.emit('stack_close');
     }

@@ -90,16 +90,19 @@ angular.module('breach.directives').controller('BoxCtrl',
     
     _input.keydown(function(e) {
       if($scope.mode === MODE_FIND_IN_PAGE && _input.is(':focus')) {
-        if(e.which === 13 && e.ctrlKey) {
+        if(e.which === 13 && (e.ctrlKey || e.metaKey)) {
           _socket.emit('box_input_submit', { 
             value: $scope.value, 
             is_ctrl: true
           });
+          e.preventDefault();
+          e.stopPropagation();
         }
       }
     });
 
     $scope.submit = function() {
+      console.log('submit');
       _socket.emit('box_input_submit', { 
         value: $scope.value, 
         is_ctrl: false
