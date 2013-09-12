@@ -1,6 +1,8 @@
 ExoBrowser
 ==========
 
+**Latest Relase**:[v0.1.exp1](https://github.com/spolu/exo_browser/wiki/Release:-ExoBrowser:Exp.1)
+
 The ExoBrowser is a scriptable platform designed to ease the experimentation with new concepts for the Web Browser.
 
 - **Free** Open-source, and Free
