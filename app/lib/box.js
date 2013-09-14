@@ -323,8 +323,13 @@ var box = function(spec, my) {
         default: {
           var url_r = /^(http(s{0,1})\:\/\/){0,1}[a-z0-9\-\.]+(\.[a-z0-9]{2,4})+/;
           var ip_r = /^(http(s{0,1})\:\/\/){0,1}[0-9]{1,3}(\.[0-9]{1,3}){3}/
+          var localhost_r = /^(http(s{0,1})\:\/\/){0,1}localhost+/
+          var host_r = /^http(s{0,1})\:\/\/[a-z0-9\-\.]+/
           var http_r = /^http(s{0,1})\:\/\//;
-          if(url_r.test(data.value) || ip_r.test(data.value)) {
+          if(url_r.test(data.value) || 
+             ip_r.test(data.value) || 
+             localhost_r.test(data.value) || 
+             host_r.test(data.value)) {
             if(!http_r.test(data.value)) {
               data.value = 'http://' + data.value;
             }
