@@ -128,7 +128,6 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
     storage_->set_http_auth_handler_factory(
         net::HttpAuthHandlerFactory::CreateDefault(host_resolver.get()));
-
     storage_->set_http_server_properties(
         scoped_ptr<net::HttpServerProperties>(
             new net::HttpServerPropertiesImpl()));
@@ -185,10 +184,7 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     DCHECK(set_protocol);
     set_protocol = job_factory->SetProtocolHandler(
         chrome::kFileScheme,
-        new net::FileProtocolHandler(
-            content::BrowserThread::GetBlockingPool()->
-                GetTaskRunnerWithShutdownBehavior(
-                    base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
+        new net::FileProtocolHandler);
     DCHECK(set_protocol);
     storage_->set_job_factory(job_factory.release());
   }

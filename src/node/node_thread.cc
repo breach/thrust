@@ -5,7 +5,6 @@
 
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
-#include "third_party/node/src/node_internals.h"
 #include "base/file_util.h"
 #include "base/command_line.h"
 #include "base/time/time.h"
@@ -23,6 +22,7 @@ using v8::Value;
 using v8::Script;
 using v8::String;
 using v8::RegisterExtension;
+using node::Environment;
 
 using namespace content;
 
@@ -123,12 +123,14 @@ NodeThread::Run(
   }
   else if(command_line->HasSwitch(switches::kExoBrowserRaw)) {
     /* Extract argc, argv to pass it directly to Node */
-    argc = command_line->argv().size();
+    argc = command_line->argv().size() - 1;
     argv = (char**)malloc(argc * sizeof(char*));
-    for(int i = 0; i < argc; i ++) {
-      unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
-      argv[i] = (char*) malloc(len * sizeof(char));
-      memcpy(argv[i], command_line->argv()[i].c_str(), len);
+    for(int i = 0; i < argc + 1; i ++) { 
+      if(command_line->argv()[i] != "--raw") {
+        unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
+        argv[i] = (char*) malloc(len * sizeof(char));
+        memcpy(argv[i], command_line->argv()[i].c_str(), len);
+      }
     }
   }
   else {
@@ -151,34 +153,41 @@ NodeThread::Run(
     memcpy(argv[2], "--expose-gc", len);
   }
 
-  node::InitSetup(argc, argv);
+  // Hack around with the argv pointer. Used for process.title = "blah".
+  argv = uv_setup_args(argc, argv);
+
+  // This needs to run *before* V8::Initialize().  The const_cast is not
+  // optional, in case you're wondering.
+  int exec_argc;
+  const char** exec_argv;
+  node::Init(&argc, const_cast<const char**>(argv), &exec_argc, &exec_argv);
+
+  node::SetupIsolate();
   Isolate* node_isolate = Isolate::GetCurrent();
 
   V8::Initialize();
   {
     Locker locker(node_isolate);
-    HandleScope handle_scope(node_isolate);
 
     api_bindings_.reset(new ApiBindings());
     RegisterExtension(api_bindings_.get());
     const char* names[] = { "api_bindings.js" };
-    v8::ExtensionConfiguration extensions(1, names);  
+    v8::ExtensionConfiguration extensions(1, names);
+    
+    Environment* env =
+        node::CreateEnvironment(node_isolate, 
+                                argc, argv, 
+                                exec_argc, exec_argv,
+                                &extensions);
 
-    /* Create the one and only Context. */
-    context_ = Context::New(node_isolate, &extensions);
-    Context::Scope context_scope(context_);
-
-    node::SetupBindingCache();
-    process_ = node::SetupProcessObject(argc, argv);
-
-    /* Create all the objects, load modules, do everything. */
-    /* so your next reading stop should be node::Load()!    */
-    node::Load(process_);
+    Context::Scope context_scope(EnvironmentContext(env));
+    HandleScope handle_scope(EnvironmentIsolate(env));
 
     Thread::Run(message_loop);
 
-    node::EmitExit(process_);
-    node::RunAtExit();
+    node::EmitExit(env);
+    node::RunAtExit(env);
+    env = NULL;
   }
 
   /* Cleanup */

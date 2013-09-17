@@ -52,6 +52,7 @@
         '<(DEPTH)'
         '<(DEPTH)/third_party/node/src',
         '<(DEPTH)/third_party/node/deps/uv/include',
+        '<(DEPTH)/third_party/node/deps/cares/include',
       ],
       'sources': [
         'src/app/paths_mac.h',

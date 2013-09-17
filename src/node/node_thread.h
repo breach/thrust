@@ -5,6 +5,7 @@
 #define EXO_BROWSER_NODE_NODE_THREAD_H_
 
 #include "base/threading/thread.h"
+#include "third_party/node/deps/uv/include/uv.h"
 #include "v8/include/v8.h"
 #include "third_party/node/src/node.h"
 
