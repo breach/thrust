@@ -56,6 +56,43 @@ base::FilePath GetSelfPath() {
   return path;
 }
 
+static void* args_mem;
+
+static char ** 
+VectorToArgv(std::vector<std::string> &vector)
+{
+  char** new_argv;
+  size_t size;
+  char* s;
+  int i;
+  int argc = vector.size();
+
+  /* Calculate how much memory we need for the argv strings. */
+  size = 0;
+  for (i = 0; i < argc; i++)
+    size += strlen(vector[i].c_str()) + 1;
+
+  /* Add space for the argv pointers. */
+  size += (argc + 1) * sizeof(char*);
+
+  new_argv = (char **)malloc(size);
+  if (new_argv == NULL)
+    return NULL;
+  args_mem = new_argv;
+
+  /* Copy over the strings and set up the pointer table. */
+  s = (char*) &new_argv[argc + 1];
+  for (i = 0; i < argc; i++) {
+    size = strlen(vector[i].c_str()) + 1;
+    memcpy(s, vector[i].c_str(), size);
+    new_argv[i] = s;
+    s += size;
+  }
+  new_argv[i] = NULL;
+
+  return new_argv;
+}
+
 
 }
 
@@ -97,8 +134,6 @@ NodeThread::Run(
   /* TODO(spolu): fork execution depending on kExoBrowserRaw */
   /* If not set, launch the default version of the Browser.  */
   /* If set, pass argc/argv to Node                          */
-  int argc;
-  char **argv;
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
 
   base::FilePath path = GetSelfPath().DirName();
@@ -107,54 +142,37 @@ NodeThread::Run(
   path = path.DirName().Append("Resources");
 #endif
 
+  std::vector<std::string> args_vector;
+  int argc;
+  char **argv;
+
   if(command_line->HasSwitch(switches::kExoBrowserDumpApp)) {
     /* Build Default 'app/dump.js' arguments */
     std::string dump_path = path.AsUTF8Unsafe() + "/app/dump.js";
     argc = 2;
-    argv = (char**)malloc(argc * sizeof(char*));
-    /* argv[0] */
-    unsigned len = strlen(command_line->argv()[0].c_str()) + 1;
-    argv[0] = (char*) malloc(len * sizeof(char));
-    memcpy(argv[0], command_line->argv()[0].c_str(), len);
-    /* dump_path */
-    len = strlen(dump_path.c_str()) + 1;
-    argv[1] = (char*) malloc(len * sizeof(char));
-    memcpy(argv[1], dump_path.c_str(), len);
+    args_vector.push_back(command_line->argv()[0]);
+    args_vector.push_back(dump_path);
   }
   else if(command_line->HasSwitch(switches::kExoBrowserRaw)) {
     /* Extract argc, argv to pass it directly to Node */
     argc = command_line->argv().size() - 1;
-    argv = (char**)malloc(argc * sizeof(char*));
     for(int i = 0; i < argc + 1; i ++) { 
       if(command_line->argv()[i] != "--raw") {
-        unsigned len = strlen(command_line->argv()[i].c_str()) + 1;
-        argv[i] = (char*) malloc(len * sizeof(char));
-        memcpy(argv[i], command_line->argv()[i].c_str(), len);
+        args_vector.push_back(command_line->argv()[i]);
       }
     }
   }
   else {
     /* Build Default 'app/' arguments */
     std::string app_path = path.AsUTF8Unsafe() + "/app";
-    //LOG(INFO) << app_path;
     argc = 3;
-    argv = (char**)malloc(argc * sizeof(char*));
-    /* argv[0] */
-    unsigned len = strlen(command_line->argv()[0].c_str()) + 1;
-    argv[0] = (char*) malloc(len * sizeof(char));
-    memcpy(argv[0], command_line->argv()[0].c_str(), len);
-    /* app_path */
-    len = strlen(app_path.c_str()) + 1;
-    argv[1] = (char*) malloc(len * sizeof(char));
-    memcpy(argv[1], app_path.c_str(), len);
-    /* expose-gc */
-    len = strlen("--expose-gc") + 1;
-    argv[2] = (char*) malloc(len * sizeof(char));
-    memcpy(argv[2], "--expose-gc", len);
+    args_vector.push_back(command_line->argv()[0]);
+    args_vector.push_back(app_path);
+    args_vector.push_back("--expose_gc");
   }
 
   // Hack around with the argv pointer. Used for process.title = "blah".
-  argv = uv_setup_args(argc, argv);
+  argv = uv_setup_args(argc, VectorToArgv(args_vector));
 
   // This needs to run *before* V8::Initialize().  The const_cast is not
   // optional, in case you're wondering.
@@ -191,8 +209,7 @@ NodeThread::Run(
   }
 
   /* Cleanup */
-  for(int i = 0; i < argc; i++) { free(argv[i]); }
-  free(argv);
+  free(args_mem);
 }
 
 void
