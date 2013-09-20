@@ -179,7 +179,9 @@
             '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
           ],
         }],  # OS=="android"
-        ['(os_posix==1 and use_aura==1 and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
+        # TODO(spolu) removed use_aura condition as link does not work on linux
+        # otherwise (content_shell works thanks to content_tests)
+        ['(os_posix==1 and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
             '../base/allocator/allocator.gyp:allocator',
