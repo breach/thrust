@@ -41,24 +41,14 @@
   border: 1px solid hsl(228, 14%, 80%);
 }
 
-.box > a.button.pushed:hover {
-  border: 1px solid hsl(228, 14%, 80%);
-  opacity: 1.0;
-}
-
-.box > a.button.stack {
-  left: 3px;
-  background-image: url('/box/img/stack.png');
-}
 .box > a.button.back {
-  left: 32px;
+  left: 5px;
   background-image: url('/box/img/arrow.png');
 }
 .box > a.button.forward {
-  left: 61px;
+  left: 35px;
   background-image: url('/box/img/arrow.png');
   -webkit-transform: scaleX(-1);
-  opacity: 0.3;
 }
 
 
@@ -67,7 +57,7 @@
   position: absolute;
   top: 3px;
   height: 25px;
-  left: 92px;
+  left: 66px;
   right: 3px;
 
   line-height: 20px;
