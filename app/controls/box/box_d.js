@@ -115,10 +115,6 @@ angular.module('breach.directives').controller('BoxCtrl',
     $scope.forward = function() {
       _socket.emit('box_forward');
     };
-
-    $scope.stack_toggle = function() {
-      _socket.emit('stack_toggle');
-    };
   });
 
 //
