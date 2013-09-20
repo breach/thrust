@@ -24,7 +24,6 @@ enum {
   ExoBrowserContextMenuItemCopyTag,
   ExoBrowserContextMenuItemPasteTag,
   ExoBrowserContextMenuItemDeleteTag,
-  ExoBrowserContextMenuItemOpenLinkTag,
   ExoBrowserContextMenuItemBackTag,
   ExoBrowserContextMenuItemForwardTag,
   ExoBrowserContextMenuItemReloadTag,
@@ -139,17 +138,6 @@ ExoBrowserWebContentsViewDelegate::ShowContextMenu(
     [menu addItem:separator];
   }
 
-  if (has_link) {
-    MakeContextMenuItem(@"Open Link in New Tab",
-                        ExoBrowserContextMenuItemOpenLinkTag,
-                        menu,
-                        YES,
-                        delegate);
-
-    NSMenuItem* separator = [NSMenuItem separatorItem];
-    [menu addItem:separator];
-  }
-
   if (params_.is_editable) {
     BOOL cut_menu_enabled =
         (params_.edit_flags & WebContextMenuData::CanCut) ? YES : NO;
@@ -240,19 +228,6 @@ ExoBrowserWebContentsViewDelegate::ActionPerformed(
     case ExoBrowserContextMenuItemDeleteTag:
       web_contents_->GetRenderViewHost()->Delete();
       break;
-    case ExoBrowserContextMenuItemOpenLinkTag: {
-      /* TODO(spolu): Handle */
-      /*
-      ShellBrowserContext* browser_context =
-          ShellContentBrowserClient::Get()->browser_context();
-      Shell::CreateNewWindow(browser_context,
-                             params_.link_url,
-                             NULL,
-                             MSG_ROUTING_NONE,
-                             gfx::Size()); 
-      */
-      break;
-    }
     case ExoBrowserContextMenuItemBackTag:
       web_contents_->GetController().GoToOffset(-1);
       web_contents_->GetView()->Focus();

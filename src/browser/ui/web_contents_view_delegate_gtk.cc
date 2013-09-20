@@ -83,18 +83,6 @@ ExoBrowserWebContentsViewDelegate::ShowContextMenu(
     gtk_menu_append(GTK_MENU(menu), navigate_separator);
   }
 
-  if (has_link) {
-    GtkWidget* open_menu = gtk_menu_item_new_with_label("Open Link in New Tab");
-    gtk_menu_append(GTK_MENU(menu), open_menu);
-    g_signal_connect(open_menu,
-                     "activate",
-                     G_CALLBACK(OnOpenURLMenuActivatedThunk),
-                     this);
-
-    GtkWidget* link_separator = gtk_separator_menu_item_new();
-    gtk_menu_append(GTK_MENU(menu), link_separator);
-  }
-
   if (params_.is_editable) {
     GtkWidget* cut_menu = gtk_menu_item_new_with_label("Cut");
     gtk_menu_append(GTK_MENU(menu), cut_menu);
@@ -224,22 +212,6 @@ ExoBrowserWebContentsViewDelegate::OnReloadMenuActivated(
 {
   web_contents_->GetController().Reload(false);
   web_contents_->GetView()->Focus();
-}
-
-void 
-ExoBrowserWebContentsViewDelegate::OnOpenURLMenuActivated(
-    GtkWidget* widget) 
-{
-  /* TODO(spolu): Handle */
-  /*
-  ShellBrowserContext* browser_context =
-      ShellContentBrowserClient::Get()->browser_context();
-  Shell::CreateNewWindow(browser_context,
-                         params_.link_url,
-                         NULL,
-                         MSG_ROUTING_NONE,
-                         gfx::Size());
-  */
 }
 
 void 

@@ -65,8 +65,6 @@ class ExoBrowserWebContentsViewDelegate :
   CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
                        OnReloadMenuActivated);
   CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnOpenURLMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
                        OnCutMenuActivated);
   CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
                        OnCopyMenuActivated);
