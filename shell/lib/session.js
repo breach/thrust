@@ -13,7 +13,7 @@
 var events = require('events');
 var common = require('./common.js');
 var factory = common.factory;
-var api = require('./api.js');
+var api = require('exo_browser');
 var async = require('async');
 
 
