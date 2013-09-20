@@ -17,6 +17,7 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/common/renderer_preferences.h"
+#include "content/public/browser/favicon_status.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
 #include "exo_browser/src/browser/content_browser_client.h"
@@ -305,10 +306,63 @@ ExoBrowser::NavigationStateChanged(
     unsigned changed_flags)
 {
   ExoFrame* frame = FrameForWebContents(source);
+
+  std::vector<ExoBrowserWrap::NavigationEntry> entries;
+
+  for(int i = 0; 
+      i < frame->web_contents()->GetController().GetEntryCount(); 
+      i++) {
+    content::NavigationEntry *entry =
+      frame->web_contents_->GetController().GetEntryAtIndex(i);
+
+    ExoBrowserWrap::NavigationEntry e;
+
+    e.url_ = entry->GetURL().spec();
+    e.virtual_url_ = entry->GetVirtualURL().spec();
+    e.title_ = UTF16ToUTF8(entry->GetTitle());
+    /* TODO(spolu): entry->GetFavicon().url.spec() */
+    e.visible_ = 
+      (entry == frame->web_contents()->GetController().GetVisibleEntry());
+    e.timestamp_ = entry->GetTimestamp().ToInternalValue() / 1000;
+    e.id_ = entry->GetUniqueID();
+
+    switch(entry->GetPageType()) {
+      case content::PAGE_TYPE_ERROR:
+        e.type_ = "error";
+        break;
+      case content::PAGE_TYPE_INTERSTITIAL:
+        e.type_ = "interstitial";
+        break;
+      default:
+        e.type_ = "normal";
+        break;
+    }
+    switch(entry->GetSSL().security_style) {
+      case content::SECURITY_STYLE_UNAUTHENTICATED:
+        e.ssl_security_type_ = "unauthenticated";
+        break;
+      case content::SECURITY_STYLE_AUTHENTICATION_BROKEN:
+        e.ssl_security_type_ = "broken";
+        break;
+      case content::SECURITY_STYLE_AUTHENTICATED:
+        e.ssl_security_type_ = "authenticated";
+        break;
+      default:
+        e.ssl_security_type_ = "unknown";
+    }
+    e.ssl_cert_status_ = entry->GetSSL().cert_status;
+    e.ssl_content_status_ = entry->GetSSL().content_status;
+
+    entries.push_back(e);
+  }
+  bool can_go_back = frame->web_contents()->GetController().CanGoBack();
+  bool can_go_forward = frame->web_contents()->GetController().CanGoForward();
+
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchNavigationState, wrapper_, frame));
+        base::Bind(&ExoBrowserWrap::DispatchNavigationState, wrapper_, 
+                   frame->name(), entries, can_go_back, can_go_forward));
   }
 }
 

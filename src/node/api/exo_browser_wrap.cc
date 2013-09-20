@@ -27,68 +27,38 @@ namespace {
 
 static Local<Object> 
 ObjectFromNavigationEntry(
-    content::NavigationEntry* entry,
-    bool visible = false)
+    const exo_browser::ExoBrowserWrap::NavigationEntry& entry)
 {
   Local<Object> entry_o = Object::New();
 
   entry_o->Set(String::New("url"), 
-               String::New(entry->GetURL().spec().c_str()));
+               String::New(entry.url_.c_str()));
   entry_o->Set(String::New("virtual_url"), 
-               String::New(entry->GetVirtualURL().spec().c_str()));
+               String::New(entry.virtual_url_.c_str()));
   entry_o->Set(String::New("title"), 
-               String::New(entry->GetTitle().c_str()));
-  /*
+               String::New(entry.title_.c_str()));
+  /* TODO(spolu):
   entry_o->Set(String::New("favicon"),
-               String::New(entry->GetFavicon().url.spec().c_str()));
+               String::New(entry.favicon_));
   */
   entry_o->Set(String::New("visible"),
-               v8::Boolean::New(visible));
+               v8::Boolean::New(entry.visible_));
   entry_o->Set(String::New("timestamp"),
-               Number::New(
-                 (entry->GetTimestamp().ToInternalValue() / 1000)));
+               Number::New(entry.timestamp_));
   entry_o->Set(String::New("id"),
-               Number::New(entry->GetUniqueID()));
+               Number::New(entry.id_));
 
-  switch(entry->GetPageType()) {
-    case content::PAGE_TYPE_ERROR:
-      entry_o->Set(String::New("type"),
-                   String::New("error"));
-      break;
-    case content::PAGE_TYPE_INTERSTITIAL:
-      entry_o->Set(String::New("type"),
-                   String::New("interstitial"));
-      break;
-    default:
-      entry_o->Set(String::New("type"),
-                   String::New("normal"));
-      break;
-  }
+  entry_o->Set(String::New("type"),
+               String::New(entry.type_.c_str()));
 
   Local<Object> ssl_o = Object::New();
 
-  switch(entry->GetSSL().security_style) {
-    case content::SECURITY_STYLE_UNAUTHENTICATED:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("unauthenticated"));
-      break;
-    case content::SECURITY_STYLE_AUTHENTICATION_BROKEN:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("broken"));
-      break;
-    case content::SECURITY_STYLE_AUTHENTICATED:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("authenticated"));
-      break;
-    default:
-      ssl_o->Set(String::New("security_type"),
-                 String::New("unknown"));
-  }
-
+  ssl_o->Set(String::New("security_type"),
+             String::New(entry.ssl_security_type_.c_str()));
   ssl_o->Set(String::New("cert_status"), 
-             Integer::New(entry->GetSSL().cert_status));
+             Integer::New(entry.ssl_cert_status_));
   ssl_o->Set(String::New("content_status"), 
-             Integer::New(entry->GetSSL().content_status));
+             Integer::New(entry.ssl_content_status_));
 
   entry_o->Set(String::New("ssl"), ssl_o);
 
@@ -1014,7 +984,10 @@ ExoBrowserWrap::SetNavigationStateCallback(
 
 void
 ExoBrowserWrap::DispatchNavigationState(
-    const ExoFrame* frame)
+    const std::string& frame,
+    const std::vector<NavigationEntry>& entries,
+    bool can_go_back,
+    bool can_go_forward)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
@@ -1024,27 +997,18 @@ ExoBrowserWrap::DispatchNavigationState(
   if(!navigation_state_cb_.IsEmpty()) {
     Local<Object> state_arg = Object::New();
     
-    Local<Array> entries = Array::New();
-    for(int i = 0; 
-        i < frame->web_contents()->GetController().GetEntryCount(); 
-        i++) {
-      content::NavigationEntry *entry =
-        frame->web_contents_->GetController().GetEntryAtIndex(i);
-      bool visible = false;
-      if(entry == frame->web_contents()->GetController().GetVisibleEntry()) {
-        visible = true;
-      }
-      entries->Set(Integer::New(i), ObjectFromNavigationEntry(entry, visible));
+    Local<Array> entries_a = Array::New();
+    for(unsigned int i = 0; i < entries.size(); i++) {
+      entries_a->Set(Integer::New(i), 
+                     ObjectFromNavigationEntry(entries[i]));
     }
-    state_arg->Set(String::New("entries"), entries);
+    state_arg->Set(String::New("entries"), entries_a);
     state_arg->Set(String::New("can_go_back"),
-                   v8::Boolean::New(
-                     frame->web_contents()->GetController().CanGoBack()));
+                   v8::Boolean::New(can_go_back));
     state_arg->Set(String::New("can_go_forward"),
-                   v8::Boolean::New(
-                     frame->web_contents()->GetController().CanGoForward()));
+                   v8::Boolean::New(can_go_forward));
 
-    Local<String> frame_arg = String::New((frame->name()).c_str());
+    Local<String> frame_arg = String::New(frame.c_str());
 
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), navigation_state_cb_);

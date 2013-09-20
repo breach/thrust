@@ -18,9 +18,27 @@ class ObjectWrap;
 
 namespace exo_browser {
 
+
 class ExoBrowserWrap : public ObjectWrap {
 public:
   static void Init(v8::Handle<v8::Object> exports);
+
+  // ### NavigationEntry
+  // Structure used to pass navigation entry state to the Wrapper
+  struct NavigationEntry {
+    std::string url_;
+    std::string virtual_url_;
+    std::string title_;
+
+    bool        visible_;
+    int64       timestamp_;
+
+    int         id_;
+    std::string type_;
+    std::string ssl_security_type_;
+    uint32      ssl_cert_status_;
+    int         ssl_content_status_;
+  };
 
 private:
   ExoBrowserWrap();
@@ -140,7 +158,11 @@ private:
 
   static void SetNavigationStateCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchNavigationState(const ExoFrame* frame);
+  void DispatchNavigationState(const std::string& frame,
+                               const std::vector<NavigationEntry>& entries,
+                               bool can_go_back,
+                               bool can_go_forward);
+                               
 
   /****************************************************************************/
   /*                               MEMBERS                                    */
