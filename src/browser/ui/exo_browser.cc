@@ -306,6 +306,7 @@ ExoBrowser::NavigationStateChanged(
     unsigned changed_flags)
 {
   ExoFrame* frame = FrameForWebContents(source);
+  if(!frame) return;
 
   std::vector<ExoBrowserWrap::NavigationEntry> entries;
 
