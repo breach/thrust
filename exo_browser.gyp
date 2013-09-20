@@ -22,7 +22,7 @@
       },
       'dependencies': [
         'exo_browser_resources',
-        '<(DEPTH)/content/content.gyp:content_app',
+        '<(DEPTH)/content/content.gyp:content_app_both',
         '<(DEPTH)/content/content.gyp:content_browser',
         '<(DEPTH)/content/content.gyp:content_common',
         '<(DEPTH)/content/content.gyp:content_gpu',
@@ -39,14 +39,12 @@
         '<(DEPTH)/net/net.gyp:net',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/skia/skia.gyp:skia',
-        '<(DEPTH)/third_party/WebKit/public/blink.gyp:blink',
-        '<(DEPTH)/third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit_test_support',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/url/url.gyp:url_lib',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_resources',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
+        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         '<(DEPTH)/third_party/node/node.gyp:node_base'
       ],
       'include_dirs': [
@@ -152,7 +150,7 @@
             '<(SHARED_INTERMEDIATE_DIR)/webkit',
           ],
           'dependencies': [
-            '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
+            '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',
           ],
           'configurations': {
             'Debug_Base': {
@@ -240,8 +238,15 @@
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
         '<(DEPTH)/ui/ui.gyp:ui_resources',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_resources',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_strings',
+        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
+        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',
+      ],
+      'conditions': [
+        ['OS!="android" and OS!="ios"', {
+          'dependencies': [
+            '<(DEPTH)/content/browser/tracing/tracing_resources.gyp:tracing_resources',
+          ],
+        }],
       ],
       'variables': {
         'repack_path': '<(DEPTH)/tools/grit/grit/format/repack.py',
@@ -259,7 +264,7 @@
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/webui_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings/ui_strings_en-US.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/blink_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
             ],

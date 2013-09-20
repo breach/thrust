@@ -1,46 +1,6 @@
-Index: tools/gritsettings/resource_ids
-===================================================================
---- tools/gritsettings/resource_ids	(revision 223446)
-+++ tools/gritsettings/resource_ids	(working copy)
-@@ -222,4 +222,9 @@
-     "messages": [30000],
-   },
-   # Resource ids starting at 31000 are reserved for projects built on Chromium.
-+  "exo_browser/exo_browser_resources.grd": {
-+    "includes": [32000],
-+    "structures": [32100],
-+    "messages": [32200],
-+  },
- }
-Index: .gitignore
-===================================================================
---- .gitignore	(revision 223446)
-+++ .gitignore	(working copy)
-@@ -122,6 +122,7 @@
- /content/test/data/plugin/
- /data
- /delegate_execute
-+/exo_browser
- /google_apis/internal
- /googleurl
- /gpu/gles2_conform_test
-@@ -232,6 +233,7 @@
- /third_party/mt19937ar
- /third_party/mtpd/source/
- /third_party/nacl_sdk_binaries/
-+/third_party/node/
- /third_party/nss
- /third_party/openmax_dl/
- /third_party/openssl
-@@ -319,3 +321,5 @@
- /xcodebuild
- cscope.*
- Session.vim
-+
-+
 Index: build/common.gypi
 ===================================================================
---- build/common.gypi	(revision 223446)
+--- build/common.gypi	(revision 223943)
 +++ build/common.gypi	(working copy)
 @@ -9,6 +9,18 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
@@ -61,7 +21,7 @@ Index: build/common.gypi
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -2693,6 +2705,16 @@
+@@ -2748,6 +2760,16 @@
      }],
      ['os_posix==1 and OS!="mac" and OS!="ios"', {
        'target_defaults': {
@@ -78,7 +38,7 @@ Index: build/common.gypi
          # Enable -Werror by default, but put it in a variable so it can
          # be disabled in ~/.gyp/include.gypi on the valgrind builders.
          'variables': {
-@@ -3754,7 +3776,7 @@
+@@ -3827,7 +3849,7 @@
            'GCC_OBJC_CALL_CXX_CDTORS': 'YES',        # -fobjc-call-cxx-cdtors
            'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',      # -fvisibility=hidden
            'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
@@ -87,7 +47,7 @@ Index: build/common.gypi
            'GCC_VERSION': '4.2',
            'GCC_WARN_ABOUT_MISSING_NEWLINE': 'YES',  # -Wnewline-eof
            'USE_HEADERMAP': 'NO',
-@@ -3953,6 +3975,13 @@
+@@ -4032,6 +4054,13 @@
            ],
          },
          'target_conditions': [
@@ -101,3 +61,43 @@ Index: build/common.gypi
            ['_type=="executable"', {
              'postbuilds': [
                {
+Index: .gitignore
+===================================================================
+--- .gitignore	(revision 223943)
++++ .gitignore	(working copy)
+@@ -124,6 +124,7 @@
+ /content/test/data/plugin/
+ /data
+ /delegate_execute
++/exo_browser
+ /google_apis/internal
+ /googleurl
+ /gpu/gles2_conform_test
+@@ -238,6 +239,7 @@
+ /third_party/mt19937ar
+ /third_party/mtpd/source/
+ /third_party/nacl_sdk_binaries/
++/third_party/node/
+ /third_party/nss
+ /third_party/openmax_dl/
+ /third_party/openssl
+@@ -325,3 +327,5 @@
+ /xcodebuild
+ cscope.*
+ Session.vim
++
++
+Index: tools/gritsettings/resource_ids
+===================================================================
+--- tools/gritsettings/resource_ids	(revision 223943)
++++ tools/gritsettings/resource_ids	(working copy)
+@@ -218,4 +218,9 @@
+     "includes": [30500],
+   },
+   # Resource ids starting at 31000 are reserved for projects built on Chromium.
++  "exo_browser/exo_browser_resources.grd": {
++    "includes": [32000],
++    "structures": [32100],
++    "messages": [32200],
++  },
+ }
