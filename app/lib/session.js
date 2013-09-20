@@ -137,7 +137,7 @@ var session = function(spec, my) {
       /* TODO(spolu): get the size of the popup from the API */
       /* TODO(spolu): make maximization optionnal */
       var popup = api.exo_browser({
-        size: [initial_pos[2], initial_pos[3]]
+        size: [initial_pos[2] || 400, initial_pos[3] || 300]
       });
       popup.add_page(frame, function() {
         popup.show_page(frame);
