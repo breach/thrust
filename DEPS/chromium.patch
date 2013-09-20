@@ -1,33 +1,7 @@
-diff --git a/.gitignore b/.gitignore
-index c387610..6bf7ee2 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -124,6 +124,7 @@ v8.log
- /content/test/data/plugin/
- /data
- /delegate_execute
-+/exo_browser
- /google_apis/internal
- /googleurl
- /gpu/gles2_conform_test
-@@ -238,6 +239,7 @@ v8.log
- /third_party/mt19937ar
- /third_party/mtpd/source/
- /third_party/nacl_sdk_binaries/
-+/third_party/node/
- /third_party/nss
- /third_party/openmax_dl/
- /third_party/openssl
-@@ -325,3 +327,5 @@ v8.log
- /xcodebuild
- cscope.*
- Session.vim
-+
-+
-diff --git a/build/common.gypi b/build/common.gypi
-index df25eb4..7b3cf1f 100644
---- a/build/common.gypi
-+++ b/build/common.gypi
+Index: build/common.gypi
+===================================================================
+--- build/common.gypi	(revision 223943)
++++ build/common.gypi	(working copy)
 @@ -9,6 +9,18 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
    # ~/.gyp/include.gypi.
@@ -47,7 +21,7 @@ index df25eb4..7b3cf1f 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -2737,6 +2749,16 @@
+@@ -2748,6 +2760,16 @@
      }],
      ['os_posix==1 and OS!="mac" and OS!="ios"', {
        'target_defaults': {
@@ -64,7 +38,7 @@ index df25eb4..7b3cf1f 100644
          # Enable -Werror by default, but put it in a variable so it can
          # be disabled in ~/.gyp/include.gypi on the valgrind builders.
          'variables': {
-@@ -3829,7 +3851,7 @@
+@@ -3827,7 +3849,7 @@
            'GCC_OBJC_CALL_CXX_CDTORS': 'YES',        # -fobjc-call-cxx-cdtors
            'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',      # -fvisibility=hidden
            'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
@@ -73,7 +47,7 @@ index df25eb4..7b3cf1f 100644
            'GCC_VERSION': '4.2',
            'GCC_WARN_ABOUT_MISSING_NEWLINE': 'YES',  # -Wnewline-eof
            'USE_HEADERMAP': 'NO',
-@@ -4034,6 +4056,13 @@
+@@ -4032,6 +4054,13 @@
            ],
          },
          'target_conditions': [
@@ -87,10 +61,36 @@ index df25eb4..7b3cf1f 100644
            ['_type=="executable"', {
              'postbuilds': [
                {
-diff --git a/tools/gritsettings/resource_ids b/tools/gritsettings/resource_ids
-index 0e6b848..a74fc24 100644
---- a/tools/gritsettings/resource_ids
-+++ b/tools/gritsettings/resource_ids
+Index: .gitignore
+===================================================================
+--- .gitignore	(revision 223943)
++++ .gitignore	(working copy)
+@@ -124,6 +124,7 @@
+ /content/test/data/plugin/
+ /data
+ /delegate_execute
++/exo_browser
+ /google_apis/internal
+ /googleurl
+ /gpu/gles2_conform_test
+@@ -238,6 +239,7 @@
+ /third_party/mt19937ar
+ /third_party/mtpd/source/
+ /third_party/nacl_sdk_binaries/
++/third_party/node/
+ /third_party/nss
+ /third_party/openmax_dl/
+ /third_party/openssl
+@@ -325,3 +327,5 @@
+ /xcodebuild
+ cscope.*
+ Session.vim
++
++
+Index: tools/gritsettings/resource_ids
+===================================================================
+--- tools/gritsettings/resource_ids	(revision 223943)
++++ tools/gritsettings/resource_ids	(working copy)
 @@ -218,4 +218,9 @@
      "includes": [30500],
    },

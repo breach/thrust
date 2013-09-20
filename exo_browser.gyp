@@ -4,8 +4,15 @@
   'variables': {
     'exo_browser_product_name': 'ExoBrowser',
     'exo_browser_app_code': 'app/',
-    'exo_browser_version': '0.1.0.0',
-    'ua_version': '28.0.1500.95',
+    'exo_browser_version': '0.2.1599.50',
+    'ua_version': '20.0.1599.50',
+    'conditions': [
+      ['OS=="linux"', {
+       'use_custom_freetype%': 1,
+      }, {
+       'use_custom_freetype%': 0,
+      }],
+    ],
   },
   'targets': [
     {
@@ -39,13 +46,12 @@
         '<(DEPTH)/net/net.gyp:net',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/skia/skia.gyp:skia',
-        '<(DEPTH)/third_party/WebKit/public/blink_test_runner.gyp:blink_test_runner',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/url/url.gyp:url_lib',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
+        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         '<(DEPTH)/third_party/node/node.gyp:node_base'
       ],
       'include_dirs': [
@@ -138,20 +144,12 @@
             '<(DEPTH)/base/allocator/allocator.gyp:allocator',
           ],
         }],
-        ['toolkit_uses_gtk == 1', {
-          'dependencies': [
-            # For FT_Init_FreeType and friends.
-            '<(DEPTH)/build/linux/system.gyp:freetype2',
-            '<(DEPTH)/build/linux/system.gyp:gtk',
-            '<(DEPTH)/build/linux/system.gyp:gtkprint',
-          ],
-        }],
         ['OS=="win"', {
           'resource_include_dirs': [
             '<(SHARED_INTERMEDIATE_DIR)/webkit',
           ],
           'dependencies': [
-            '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',   
+            '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',
           ],
           'configurations': {
             'Debug_Base': {
@@ -162,18 +160,31 @@
               },
             },
           },
-          'msvs_disabled_warnings': [ 4800 ],
-        }], # OS=="win"
+          # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
+          'msvs_disabled_warnings': [ 4267, ],
+        }],  # OS=="win"
         ['OS=="linux"', {
           'dependencies': [
-            '<(DEPTH)/build/linux/system.gyp:fontconfig',
-            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+            '../build/linux/system.gyp:fontconfig',
           ],
-        }], # OS=='linux'
-        ['(os_posix==1 and use_aura==1 and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
+        }],
+        ['OS=="android"', {
+          'dependencies': [
+            'exo_browser_jni_headers',
+          ],
+        }, {  # else: OS!="android"
+          'dependencies': [
+            # This dependency is for running DRT against the exo_browser, and
+            # this combination is not yet supported on Android.
+            '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
+          ],
+        }],  # OS=="android"
+        # TODO(spolu) removed use_aura condition as link does not work on linux
+        # otherwise (content_shell works thanks to content_tests)
+        ['(os_posix==1 and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
-            '<(DEPTH)/base/allocator/allocator.gyp:allocator',
+            '../base/allocator/allocator.gyp:allocator',
           ],
         }],
         ['use_aura==1', {
@@ -186,10 +197,26 @@
             '<(DEPTH)/ui/ui.gyp:ui_resources',
           ],
           'sources/': [
-            ['exclude', 'browser/ui/browser_gtk.cc'],
-            ['exclude', 'browser/ui/browser_win.cc'],
+            ['exclude', 'src/browser/ui/exo_browser_gtk.cc'],
+            ['exclude', 'src/browser/ui/exo_frame_gtk.cc'],
           ],
         }],  # use_aura==1
+        ['use_ash==1', {
+          'dependencies': [
+            '../ash/ash.gyp:ash',
+           ],
+        }],
+        ['use_custom_freetype==1', {
+          'dependencies': [
+             '../third_party/freetype2/freetype2.gyp:freetype2',
+          ],
+        }],
+        ['enable_plugins==0', {
+          'sources/': [
+            ['exclude', 'shell/shell_plugin_service_filter.cc'],
+            ['exclude', 'shell/shell_plugin_service_filter.h'],
+          ],
+        }]
       ],
     },
     {
@@ -258,6 +285,7 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/content/browser/tracing/tracing_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/exo_browser/exo_browser_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings/app_locale_settings_en-US.pak',
@@ -274,11 +302,19 @@
             '<(repack_path)',
             '<@(pak_inputs)',
           ],
-          'outputs': [
-            '<(PRODUCT_DIR)/exo_browser.pak',
-          ],
           'action': ['python', '<(repack_path)', '<@(_outputs)',
                      '<@(pak_inputs)'],
+          'conditions': [
+            ['OS!="android"', {
+              'outputs': [
+                '<(PRODUCT_DIR)/exo_browser.pak',
+              ],
+            }, {
+              'outputs': [
+                '<(PRODUCT_DIR)/exo_browser/assets/exo_browser.pak',
+              ],
+            }],
+          ],
         },
       ],
     },
@@ -293,11 +329,14 @@
       'dependencies': [
         'exo_browser_lib',
         'exo_browser_pak',
+        '<(DEPTH)/third_party/mesa/mesa.gyp:osmesa',
+        '<(DEPTH)/tools/imagediff/image_diff.gyp:image_diff',
       ],
       'include_dirs': [
         '<(DEPTH)',
       ],
       'sources': [
+        #TODO(spolu): Move when implementing win
         '<(DEPTH)/content/app/startup_helper_win.cc',
         'src/app/exo_browser_main.cc',
       ],
@@ -319,7 +358,9 @@
           'SubSystem': '2',  # Set /SUBSYSTEM:WINDOWS
         },
         'VCManifestTool': {
-          'AdditionalManifestFiles': 'src/app/exo.exe.manifest',
+          'AdditionalManifestFiles': [
+            'src/app/exo_browser.exe.manifest',
+          ],
         },
       },
       'conditions': [
@@ -330,7 +371,7 @@
         }],
         ['OS=="win"', {
           'sources': [
-            'src/app/shell.rc',
+            'src/app/exo_browser.rc',
           ],
           'configurations': {
             'Debug_Base': {
@@ -437,6 +478,23 @@
             },
           ],
         }],  # OS=="mac"
+        ['OS=="android"', {
+          'dependencies!': [
+            '<(DEPTH)/tools/imagediff/image_diff.gyp:image_diff',
+          ],
+        }],  # OS=="android"
+        ['OS=="android" and android_webview_build==0', {
+          'dependencies': [
+            '<(DEPTH)/tools/imagediff/image_diff.gyp:image_diff#host',
+          ],
+        }],  # OS=="android" and android_webview_build==0
+      ],
+    },
+    {
+      'target_name': 'exo_browser_builder',
+      'type': 'none',
+      'dependencies': [
+        'exo_browser',
       ],
     },
   ],
@@ -471,6 +529,23 @@
                 '<(PRODUCT_DIR)/ffmpegsumo.so',
               ],
             },
+          ],
+          'conditions': [
+            ['enable_webrtc==1', {
+              'variables': {
+                'libpeer_target_type%': 'static_library',
+              },
+              'conditions': [
+                ['libpeer_target_type!="static_library"', {
+                  'copies': [{
+                   'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
+                   'files': [
+                      '<(PRODUCT_DIR)/libpeerconnection.so',
+                    ],
+                  }],
+                }],
+              ],
+            }],
           ],
         },  # target exo_browser_framework
         {
