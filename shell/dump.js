@@ -6,6 +6,7 @@
  * @author: spolu
  *
  * @log:
+ * 2013-09-23 spolu   Fix to work for shell
  * 2013-09-09 spolu   Creation
  */
 var common = require('./lib/common.js');
@@ -14,11 +15,11 @@ var fs = require('fs');
 var ncp = require('ncp');
 
 var src = __dirname;
-var dst = process.cwd() + '/app';
+var dst = process.cwd() + '/shell';
 
-/* We simply copy the app directory (this file directory) inside the current */
-/* working directory.                                                        */
-console.log('Copying default \'app/\' inside \'' + dst + '\'...');
+/* We simply copy the shell directory (this file directory) inside the */
+/* current working directory.                                          */
+console.log('Copying \'shell/\' inside \'' + dst + '\'...');
 
 ncp.limit = 4;
 

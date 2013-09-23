@@ -3,7 +3,7 @@
 {
   'variables': {
     'exo_browser_product_name': 'ExoBrowser',
-    'exo_browser_app_code': 'app/',
+    'exo_browser_shell_code': 'shell/',
     'exo_browser_version': '0.2.1599.50',
     'ua_version': '20.0.1599.50',
     'conditions': [
@@ -22,7 +22,7 @@
       'defines': [
         'EXO_BROWSER_VERSION="<(exo_browser_version)"',
         'UA_VERSION="<(ua_version)"',
-        'EXO_BROWSER_APP_CODE="<(exo_browser_app_code)"',
+        'EXO_BROWSER_SHELL_CODE="<(exo_browser_shell_code)"',
       ],
       'variables': {
         'chromium_code': 1,
@@ -398,7 +398,7 @@
             {
               'destination': '<(PRODUCT_DIR)',
               'files': [
-                '<(exo_browser_app_code)'
+                '<(exo_browser_shell_code)'
               ],
             },
           ],
@@ -422,7 +422,7 @@
             {
               'destination': '<(PRODUCT_DIR)/<(exo_browser_product_name).app/Contents/Resources',
               'files': [
-                '<(exo_browser_app_code)'
+                '<(exo_browser_shell_code)'
               ],
             },
           ],
