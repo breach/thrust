@@ -16,7 +16,7 @@
 // @length {number} max length [optional, default: 10]
 // @end    {string} end string [optional, default: '...']
 // ```
-angular.module('breach.filters').
+angular.module('exo_browser.filters').
   filter('truncate', function() {
   return function (text, length, end) {
     if (isNaN(length))

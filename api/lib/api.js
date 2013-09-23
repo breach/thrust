@@ -2,10 +2,12 @@
  * ExoBrowser: api.js
  * 
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
+ * (see LICENSE file)
  *
  * @author: spolu
  *
  * @log:
+ * 2013-09-20 spolu   Move to `api/`
  * 2013-08-12 spolu   Add name to browser
  * 2013-08-11 spolu   Creation
  */
@@ -15,7 +17,6 @@ var events = require('events');
 var async = require('async');
 
 var _exo_browser = apiDispatcher.requireExoBrowser();
-var factory = common.factory;
 
 exports.NOTYPE_FRAME = 0;
 exports.CONTROL_FRAME = 1;

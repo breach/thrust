@@ -1,5 +1,5 @@
 /*
- * Nitrogram: session_s.js
+ * ExoBrowser: session_s.js
  *
  * (c) Copyright Stanislas Polu 2013. All rights reserved.
  *
@@ -11,7 +11,7 @@
 
 'use strict';
 
-angular.module('breach.services').
+angular.module('exo_browser.services').
   factory('_session', function($location, _socket) {
 
   var session = $location.search().session;
