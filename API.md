@@ -9,7 +9,7 @@ JS counterparts Wrappers.
 
 No DevTools ATM
 
-#### API v0.alpha:
+#### API v0.3-beta:
 
 ```
 var b = api.exo_browser({
@@ -79,12 +79,31 @@ exo_frame.focus([cb_]);
 ```
 
 
-#### Internal API v0.alpha:
+#### Internal API v0.3-beta:
 
 ```
+/*********************************************************************/
+/* EXOSESSION */
+/*********************************************************************/
+_exo_browser._createExoSession({
+  storage_in_memory: false
+}, cb_);
+
+s._setGetCookieHandler(cb_);
+s._setGetAllCookieHandler(cb_);
+/* ... */
+
+s._addLinkVisited(link, cb_);
+s._removeLinkVisited(link, cb_);
+s._removeAllLinkVisited(cb_);
+
+
+/*********************************************************************/
 /* EXOBROWSER */
+/*********************************************************************/
 _exo_browser._createExoBrowser({
-  size: [123, 23]
+  size: [123, 23],
+  session: s
 }, cb_);
 
 b._size(cb_);
@@ -103,7 +122,9 @@ b._setNavigationStateCallback(cb_);
 
 b.kill(cb_);
 
+/*********************************************************************/
 /* EXOFRAME */
+/*********************************************************************/
 _exo_browser._createExoFrame({
   name: '',
   url: '',

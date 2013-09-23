@@ -1,6 +1,6 @@
 {
   "name": "exo_browser_shell",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "./index.js",
   "dependencies": {
     "async": "0.2.x",

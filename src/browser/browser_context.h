@@ -27,7 +27,7 @@ class ExoBrowserDownloadManagerDelegate;
 class ExoBrowserContext : public content::BrowserContext {
  public:
   ExoBrowserContext(bool off_the_record, 
-                           net::NetLog* net_log);
+                    net::NetLog* net_log);
   virtual ~ExoBrowserContext();
 
   // BrowserContext implementation.
