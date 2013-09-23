@@ -8,12 +8,13 @@
  * @log:
  * 2013-08-12 spolu   Creation
  * 2013-09-05 spolu   Fix #56
+ * 2013-09-23 spolu   Simplification for Shell
  */
 
 var events = require('events');
 var common = require('./common.js');
 var factory = common.factory;
-var api = require('./api.js');
+var api = require('exo_browser');
 var async = require('async');
 
 
@@ -32,11 +33,9 @@ var session = function(spec, my) {
   my.exo_browser = null;
   my.popups = [];
 
-  my.loading_frame = null;
+  my.frame = null;
 
-  my.stack = null;
   my.box = null;
-  my.keyboard_shortcuts = null;
 
   //
   // #### _public_
@@ -71,40 +70,28 @@ var session = function(spec, my) {
     my.exo_browser.focus();
     my.name = my.exo_browser.name();
 
-    my.keyboard_shortcuts = 
-      require('./keyboard_shortcuts.js').keyboard_shortcuts({
-      session: that
-    });
-
     my.exo_browser.on('frame_created', browser_frame_created);
     my.exo_browser.on('frame_close', browser_frame_close);
     my.exo_browser.on('open_url', browser_open_url);
     my.exo_browser.on('kill', browser_kill);
 
-    my.loading_frame = api.exo_frame({
-      name: my.name + '_loading',
-      url: my.base_url + '/loading.html'
+    my.frame = api.exo_frame({
+      name: my.name,
+      url: my.base_url + '/home.html'
     });
-    my.exo_browser.add_page(my.loading_frame, function() {
-      my.exo_browser.show_page(my.loading_frame);
+    my.exo_browser.add_page(my.frame, function() {
+      my.exo_browser.show_page(my.frame);
     });
 
-    my.stack = require('./stack.js').stack({
-      session: that
-    });
     my.box = require('./box.js').box({
       session: that
     });
 
     async.parallel({
-      stack: function(cb_) {
-        my.stack.init(cb_);
-      },
       box: function(cb_) {
         my.box.init(cb_);
       },
     }, function(err) {
-      my.stack.toggle(false);
       my.box.show();
 
       my.exo_browser.focus(function() {
@@ -199,7 +186,6 @@ var session = function(spec, my) {
   // or window closed. We should clean up everything so that all objects get
   // reclaimed by the GC.
   browser_kill = function() {
-    my.stack.kill();
     my.box.kill();
     that.emit('kill');
   };
@@ -219,8 +205,6 @@ var session = function(spec, my) {
     var name_r = /^(br-[0-9]+)_(stack|box)$/;
     var name_m = name_r.exec(name);
     if(name_m) {
-      if(name_m[2] === 'stack')
-        my.stack.handshake(socket);
       if(name_m[2] === 'box')
         my.box.handshake(socket);
     }
@@ -243,10 +227,8 @@ var session = function(spec, my) {
   common.getter(that, 'exo_browser', my, 'exo_browser');
   common.getter(that, 'base_url', my, 'base_url');
 
-  common.getter(that, 'stack', my, 'stack');
   common.getter(that, 'box', my, 'box');
-  common.getter(that, 'keyboard_shortcuts', my, 'keyboard_shortcuts');
-
+  common.getter(that, 'frame', my, 'frame');
   common.getter(that, 'base_url', my, 'base_url');
 
   init();

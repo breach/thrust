@@ -1,0 +1,14 @@
+{
+  "name": "exo_browser",
+  "version": "0.2.0",
+  "description": "ExoBrowser JS API",
+  "dependencies": {
+    "async": "0.2.x"
+  },
+  "author": { "name": "Stanislas Polu",
+              "email": "polu.stanislas@gmail.com",
+	      "url": "http://github.com/spolu" },
+  "repository" :    { "type" :  "git",
+                      "url" :   "http://github.com/spolu/exo_browser.git" },
+  "main": "./lib/api.js"
+}
