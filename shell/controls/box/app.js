@@ -14,9 +14,9 @@
 //
 // ## App Module
 //
-angular.module('breach', ['breach.services', 
-                          'breach.directives', 
-                          'breach.filters']);
+angular.module('exo_browser', ['exo_browser.services', 
+                               'exo_browser.directives', 
+                               'exo_browser.filters']);
 
 //
 // ###  BoxTopCtrl
@@ -33,7 +33,7 @@ function BoxTopCtrl($scope, $location, $rootScope, $window, $timeout,
   });
 }
 
-angular.module('breach.directives', []);
-angular.module('breach.filters', []);
-angular.module('breach.services', []);
+angular.module('exo_browser.directives', []);
+angular.module('exo_browser.filters', []);
+angular.module('exo_browser.services', []);
 
