@@ -1,12 +1,9 @@
 // Copyright (c) 2013 Stanislas Polu.
-// Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/browser_context.h"
+#include "exo_browser/src/browser/session/exo_session.h"
 
-#include "base/bind.h"
 #include "base/command_line.h"
-#include "base/environment.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -20,24 +17,19 @@
 #include "exo_browser/src/net/url_request_context_getter.h"
 #include "exo_browser/src/browser/download_manager_delegate.h"
 
-#if defined(OS_WIN)
-#include "base/base_paths_win.h"
-#elif defined(OS_LINUX)
-#include "base/nix/xdg_util.h"
-#elif defined(OS_MACOSX)
-#include "base/base_paths_mac.h"
-#endif
-
 using namespace content;
 
 namespace exo_browser {
 
-class ExoBrowserContext::ExoBrowserResourceContext : 
-  public content::ResourceContext {
+/******************************************************************************/
+/*                             RESOURCE CONTEXT                               */
+/******************************************************************************/
+
+class ExoSession::ResourceContext : public content::ResourceContext {
  public:
-  ExoBrowserResourceContext() 
+  ResourceContext() 
     : getter_(NULL) {}
-  virtual ~ExoBrowserResourceContext() {}
+  virtual ~ResourceContext() {}
 
   // ResourceContext implementation:
   virtual net::HostResolver* GetHostResolver() OVERRIDE {
@@ -63,34 +55,20 @@ class ExoBrowserContext::ExoBrowserResourceContext :
  private:
   ExoBrowserURLRequestContextGetter* getter_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserResourceContext);
+  DISALLOW_COPY_AND_ASSIGN(ExoSession::ResourceContext);
 };
 
+/******************************************************************************/
+/*                               EXO SESSION                                  */
+/******************************************************************************/
 
-
-ExoBrowserContext::ExoBrowserContext(
+ExoSession::ExoSession(
     bool off_the_record,
-    net::NetLog* net_log)
+    std::string& path)
 : off_the_record_(off_the_record),
-  net_log_(net_log),
   ignore_certificate_errors_(false),
-  resource_context_(new ExoBrowserResourceContext) 
+  resource_context_(new ExoSession::ResourceContext) 
 {
-  InitWhileIOAllowed();
-}
-
-ExoBrowserContext::~ExoBrowserContext() 
-{
-  if (resource_context_) {
-    BrowserThread::DeleteSoon(
-      BrowserThread::IO, FROM_HERE, resource_context_.release());
-  }
-}
-
-void 
-ExoBrowserContext::InitWhileIOAllowed() 
-{
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kIgnoreCertificateErrors)) {
     ignore_certificate_errors_ = true;
   }
@@ -98,58 +76,39 @@ ExoBrowserContext::InitWhileIOAllowed()
     path_ = cmd_line->GetSwitchValuePath(switches::kExoBrowserDataPath);
     return;
   }
-#if defined(OS_WIN)
-  CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &path_));
-  path_ = path_.Append(std::wstring(L"exo_browser"));
-#elif defined(OS_LINUX)
-  scoped_ptr<base::Environment> env(base::Environment::Create());
-  base::FilePath config_dir(
-      base::nix::GetXDGDirectory(env.get(),
-                                 base::nix::kXdgConfigHomeEnvVar,
-                                 base::nix::kDotConfigDir));
-  path_ = config_dir.Append("exo_browser");
-#elif defined(OS_MACOSX)
-  CHECK(PathService::Get(base::DIR_APP_DATA, &path_));
-  path_ = path_.Append("ExoBrowser");
-#else
-  NOTIMPLEMENTED();
-#endif
+  else {
+    /* TODO(spolu): Set Path */
+  }
 
-  if (!base::PathExists(path_))
+  /* As this can be overrided by the CommandLine, let's make sure it exists. */
+  if(!base::PathExists(path_))
     file_util::CreateDirectory(path_);
 }
 
 base::FilePath 
-ExoBrowserContext::GetPath() const 
+ExoSession::GetPath() const 
 {
   return path_;
 }
 
 bool 
-ExoBrowserContext::IsOffTheRecord() const 
+ExoSession::IsOffTheRecord() const 
 {
   return off_the_record_;
 }
 
-content::DownloadManagerDelegate* 
-ExoBrowserContext::GetDownloadManagerDelegate()  
-{
-  DownloadManager* manager = BrowserContext::GetDownloadManager(this);
-  if (!download_manager_delegate_.get()) {
-    download_manager_delegate_ = new ExoBrowserDownloadManagerDelegate();
-    download_manager_delegate_->SetDownloadManager(manager);
-  }
-  return download_manager_delegate_.get();
-}
 
 net::URLRequestContextGetter* 
-ExoBrowserContext::GetRequestContext()
+ExoSession::GetRequestContext()
 {
+  /* TODO(spolu): We should not use GetDefaultStoragePartition, but this is */
+  /*              apparently the simplest way waiting for                   */
+  /*              http://crbug.com/159193 to land on release branches       */
   return GetDefaultStoragePartition(this)->GetURLRequestContext();
 }
 
 net::URLRequestContextGetter* 
-ExoBrowserContext::CreateRequestContext(
+ExoSession::CreateRequestContext(
     ProtocolHandlerMap* protocol_handlers) 
 {
   DCHECK(!url_request_getter_.get());
@@ -159,33 +118,33 @@ ExoBrowserContext::CreateRequestContext(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
-      net_log_);
+      ExoBrowserContentBrowserClient::Get()->browser_main_parts()->net_log());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
 
 net::URLRequestContextGetter*
-ExoBrowserContext::GetRequestContextForRenderProcess(
+ExoSession::GetRequestContextForRenderProcess(
     int renderer_child_id)  
 {
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
-ExoBrowserContext::GetMediaRequestContext()
+ExoSession::GetMediaRequestContext()
 {
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
-ExoBrowserContext::GetMediaRequestContextForRenderProcess(
+ExoSession::GetMediaRequestContextForRenderProcess(
     int renderer_child_id)
 {
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
-ExoBrowserContext::GetMediaRequestContextForStoragePartition(
+ExoSession::GetMediaRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory)
 {
@@ -194,22 +153,32 @@ ExoBrowserContext::GetMediaRequestContextForStoragePartition(
 }
 
 net::URLRequestContextGetter*
-ExoBrowserContext::CreateRequestContextForStoragePartition(
+ExoSession::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers) 
 {
+  /* TODO(spolu): Add Support URLRequestContextGetter per StoragePartition. */
+  /*              This might be made easier once http://crbug.com/159193    */
+  /*              has landed in a release branch.                           */
   return NULL;
 }
 
-content::ResourceContext* 
-ExoBrowserContext::GetResourceContext()
+
+
+content::DownloadManagerDelegate* 
+ExoSession::GetDownloadManagerDelegate()  
 {
-  return resource_context_.get();
+  if (!download_manager_delegate_.get()) {
+    DownloadManager* manager = BrowserContext::GetDownloadManager(this);
+    download_manager_delegate_ = new ExoBrowserDownloadManagerDelegate();
+    download_manager_delegate_->SetDownloadManager(manager);
+  }
+  return download_manager_delegate_.get();
 }
 
 void 
-ExoBrowserContext::RequestMIDISysExPermission(
+ExoSession::RequestMIDISysExPermission(
     int render_process_id,
     int render_view_id,
     const GURL& requesting_frame,
@@ -219,15 +188,21 @@ ExoBrowserContext::RequestMIDISysExPermission(
 }
 
 quota::SpecialStoragePolicy* 
-ExoBrowserContext::GetSpecialStoragePolicy() 
+ExoSession::GetSpecialStoragePolicy() 
 {
   return NULL;
 }
 
 GeolocationPermissionContext*
-ExoBrowserContext::GetGeolocationPermissionContext()  
+ExoSession::GetGeolocationPermissionContext()  
 {
   return NULL;
+}
+
+content::ResourceContext* 
+ExoSession::GetResourceContext()
+{
+  return resource_context_.get();
 }
 
 }  // namespace exo_browser

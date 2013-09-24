@@ -22,10 +22,8 @@
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/common/url_constants.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
-#include "exo_browser/src/browser/browser_context.h"
 #include "exo_browser/src/browser/resource_dispatcher_host_delegate.h"
 #include "exo_browser/src/devtools/devtools_delegate.h"
-#include "exo_browser/src/geolocation/access_token_store.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/ui/web_contents_view_delegate_creator.h"
 
@@ -106,24 +104,6 @@ ExoBrowserContentBrowserClient::BrowserURLHandlerCreated(
 {
 }
 
-ExoBrowserContext* 
-ExoBrowserContentBrowserClient::browser_context() 
-{
-  return browser_main_parts_->browser_context();
-}
-
-ExoBrowserContext*
-ExoBrowserContentBrowserClient::off_the_record_browser_context() 
-{
-  return browser_main_parts_->off_the_record_browser_context();
-}
-
-AccessTokenStore* 
-ExoBrowserContentBrowserClient::CreateAccessTokenStore() 
-{
-  return new ExoBrowserAccessTokenStore(browser_context());
-}
-
 void 
 ExoBrowserContentBrowserClient::OverrideWebkitPrefs(
     RenderViewHost* render_view_host,
@@ -175,6 +155,7 @@ ExoBrowserContext*
 ExoBrowserContentBrowserClient::ExoBrowserContextForBrowserContext(
     BrowserContext* content_browser_context) 
 {
+  /* TODO(spolu): (Un)Register ExoSessions on Wrapper Creation and Deletion */
   if (content_browser_context == browser_context())
     return browser_context();
   DCHECK_EQ(content_browser_context, off_the_record_browser_context());

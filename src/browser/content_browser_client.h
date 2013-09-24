@@ -42,7 +42,8 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 
-  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  /* TODO(spolu): Reintroduce AccessTokenStore */
+  //virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
 
   virtual std::string GetDefaultDownloadName() OVERRIDE;
 
@@ -66,9 +67,6 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
 
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
-
-  ExoBrowserContext* browser_context();
-  ExoBrowserContext* off_the_record_browser_context();
 
   ExoBrowserResourceDispatcherHostDelegate* 
   resource_dispatcher_host_delegate() {

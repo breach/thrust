@@ -49,19 +49,12 @@ class ExoBrowserMainParts : public content::BrowserMainParts {
     return devtools_delegate_.get();
   }
 
-  ExoBrowserContext* browser_context() {
-    return browser_context_.get(); 
+  net::NetLog* net_log() { 
+    return net_log_.get(); 
   }
-  ExoBrowserContext* off_the_record_browser_context() {
-    return off_the_record_browser_context_.get();
-  }
-
-  net::NetLog* net_log() { return net_log_.get(); }
 
  private:
   scoped_ptr<net::NetLog> net_log_;
-  scoped_ptr<ExoBrowserContext> browser_context_;
-  scoped_ptr<ExoBrowserContext> off_the_record_browser_context_;
 
   // For running content_browsertests.
   const content::MainFunctionParams& parameters_;

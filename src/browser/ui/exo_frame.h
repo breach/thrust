@@ -217,6 +217,8 @@ private:
   friend class ExoBrowser;
   friend class ExoFrameWrap;
   friend class ExoBrowserWrap;
+
+  DISALLOW_COPY_AND_ASSIGN(ExoFrame);
 };
 
 } // namespace exo_browser
