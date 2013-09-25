@@ -86,9 +86,11 @@ exo_frame.focus([cb_]);
 /* EXOSESSION */
 /*********************************************************************/
 _exo_browser._createExoSession({
-  storage_in_memory: false
+  path: '~/.config/smthg',
+  off_the_record: false
 }, cb_);
 
+// TBD
 s._setGetCookieHandler(cb_);
 s._setGetAllCookieHandler(cb_);
 /* ... */

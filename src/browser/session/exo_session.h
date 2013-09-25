@@ -11,6 +11,14 @@
 #include "content/public/browser/content_browser_client.h"
 #include "net/url_request/url_request_job_factory.h"
 
+namespace exo_browser {
+
+class ExoSessionWrap;
+class DownloadManagerDelegate;
+class ResourceContext;
+class ExoBrowserURLRequestContextGetter;
+class ExoBrowserDownloadManagerDelegate;
+
 // ### ExoSession
 //
 // The ExoSession is BrowserContext passed to an ExoBrowser to be used with all
@@ -39,11 +47,15 @@
 // PostTask on the NodeJS thread to communicate with its wrapper.
 class ExoSession : public content::BrowserContext {
 public:
-  ExoSession(bool off_the_record,
-             std::string& path);
+  /****************************************************************************/
+  /*                           PUBLIC INTERFACE                               */
+  /****************************************************************************/
+  // ### ~ExoSession
   virtual ~ExoSession();
 
-  // BrowserContext implementation
+  /****************************************************************************/
+  /*                     BROWSER CONTEXT IMPLEMENTATION                       */
+  /****************************************************************************/
   virtual base::FilePath GetPath() const OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
 
@@ -71,6 +83,9 @@ public:
 
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
 
+  /****************************************************************************/
+  /*                     REQUEST CONTEXT GETTER HELPERS                       */
+  /****************************************************************************/
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
@@ -79,18 +94,34 @@ public:
       content::ProtocolHandlerMap* protocol_handlers);
 
 private:
+  class ExoResourceContext;
 
+  /****************************************************************************/
+  /*                           PRIVATE INTERFACE                              */
+  /****************************************************************************/
+  // ### ExoSession
+  ExoSession(bool off_the_record,
+             std::string& path,
+             ExoSessionWrap* wrapper = NULL);
+
+  /****************************************************************************/
+  /*                               MEMBERS                                    */
+  /****************************************************************************/
   bool                                             off_the_record_;
   bool                                             ignore_certificate_errors_;
   base::FilePath                                   path_;
 
-  scoped_ptr<ExoBrowserResourceContext>            resource_context_;
+  scoped_ptr<ExoResourceContext>                   resource_context_;
   scoped_refptr<ExoBrowserURLRequestContextGetter> url_request_getter_;
   scoped_refptr<ExoBrowserDownloadManagerDelegate> download_manager_delegate_;
+
+  ExoSessionWrap*                                  wrapper_;
 
   friend class ExoSessionWrap;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSession);
-}
+};
+
+} // namespace exo_browser
 
 #endif // EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_H_

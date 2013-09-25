@@ -16,6 +16,9 @@
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/net/url_request_context_getter.h"
 #include "exo_browser/src/browser/download_manager_delegate.h"
+#include "exo_browser/src/browser/browser_main_parts.h"
+#include "exo_browser/src/browser/content_browser_client.h"
+#include "exo_browser/src/node/api/exo_session_wrap.h"
 
 using namespace content;
 
@@ -25,11 +28,11 @@ namespace exo_browser {
 /*                             RESOURCE CONTEXT                               */
 /******************************************************************************/
 
-class ExoSession::ResourceContext : public content::ResourceContext {
+class ExoSession::ExoResourceContext : public content::ResourceContext {
  public:
-  ResourceContext() 
+  ExoResourceContext() 
     : getter_(NULL) {}
-  virtual ~ResourceContext() {}
+  virtual ~ExoResourceContext() {}
 
   // ResourceContext implementation:
   virtual net::HostResolver* GetHostResolver() OVERRIDE {
@@ -55,7 +58,7 @@ class ExoSession::ResourceContext : public content::ResourceContext {
  private:
   ExoBrowserURLRequestContextGetter* getter_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoSession::ResourceContext);
+  DISALLOW_COPY_AND_ASSIGN(ExoResourceContext);
 };
 
 /******************************************************************************/
@@ -64,11 +67,14 @@ class ExoSession::ResourceContext : public content::ResourceContext {
 
 ExoSession::ExoSession(
     bool off_the_record,
-    std::string& path)
+    std::string& path,
+    ExoSessionWrap* wrapper)
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
-  resource_context_(new ExoSession::ResourceContext) 
+  resource_context_(new ExoResourceContext),
+  wrapper_(wrapper)
 {
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kIgnoreCertificateErrors)) {
     ignore_certificate_errors_ = true;
   }
@@ -80,9 +86,26 @@ ExoSession::ExoSession(
     /* TODO(spolu): Set Path */
   }
 
+  /* TODO(spolu): Register ourselves in ExoContentBrowserClient */
+
   /* As this can be overrided by the CommandLine, let's make sure it exists. */
   if(!base::PathExists(path_))
     file_util::CreateDirectory(path_);
+}
+
+
+ExoSession::~ExoSession()
+{
+  /* The ResourceContext is created on the UI thread but live son the IO */
+  /* thread, so it must be deleted there.                                */
+  if(resource_context_) {
+    BrowserThread::DeleteSoon(
+        BrowserThread::IO, FROM_HERE, resource_context_.release());
+  }
+  /* TODO(spolu): UnRegister ourselves in ExoContentBrowserClient */
+
+  /* If we're here that means that ou JS wrapper has been reclaimed */
+  LOG(INFO) << "ExoSesion Destructor";
 }
 
 base::FilePath 

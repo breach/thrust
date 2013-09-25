@@ -18,7 +18,6 @@ class ObjectWrap;
 
 namespace exo_browser {
 
-
 class ExoBrowserWrap : public ObjectWrap {
 public:
   static void Init(v8::Handle<v8::Object> exports);

@@ -214,7 +214,7 @@ ExoBrowserWrap::CreateExoBrowser(
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(browser_o);
 
-  /* args[0]: spec = { name, url } */
+  /* args[0]: spec = { size } */
   Local<Object> spec = Local<Object>::Cast(args[0]);
   Local<Array> in = Local<Array>::Cast(spec->Get(String::New("size")));
   gfx::Size size(in->Get(Integer::New(0))->ToNumber()->Value(),

@@ -6,6 +6,7 @@
 #include "grit/exo_browser_resources.h"
 #include "base/strings/string_piece.h"
 
+#include "exo_browser/src/node/api/exo_session_wrap.h"
 #include "exo_browser/src/node/api/exo_browser_wrap.h"
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
 
@@ -113,15 +114,10 @@ ApiBindings::RequireExoBrowser(
   Local<Object> ExoBrowserExports = Object::New();
   args.This()->Set(ExoBrowserSymbol, ExoBrowserExports);
 
-  /* TODO(spolu): Install API */
+  ExoSessionWrap::Init(ExoBrowserExports);
   ExoBrowserWrap::Init(ExoBrowserExports);
   ExoFrameWrap::Init(ExoBrowserExports);
   
-  /*
-  RequireFromResource(args.This(),
-      ExoBrowserExports, String::New("base.js"), IDR_EXO_BROWSER_API_BASE_JS);
-  */
-
   args.GetReturnValue().Set(ExoBrowserExports);
 }
 

@@ -26,6 +26,7 @@
 #include "exo_browser/src/devtools/devtools_delegate.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/ui/web_contents_view_delegate_creator.h"
+#include "exo_browser/src/browser/session/exo_session.h"
 
 
 using namespace content;
@@ -110,21 +111,6 @@ ExoBrowserContentBrowserClient::OverrideWebkitPrefs(
     const GURL& url,
     WebPreferences* prefs) 
 {
-  /* TODO(spolu): check */
-  // Disable web security.
-  //prefs->dom_paste_enabled = true;
-  //prefs->javascript_can_access_clipboard = true;
-  //prefs->web_security_enabled = true;
-  //prefs->allow_file_access_from_file_urls = true;
-
-  // Open experimental features.
-  prefs->css_sticky_position_enabled = true;
-  prefs->css_shaders_enabled = true;
-  prefs->css_variables_enabled = true;
-
-  // Disable plugins and cache by default.
-  prefs->plugins_enabled = false;
-  prefs->java_enabled = false;
 }
 
 net::URLRequestContextGetter* 
@@ -132,9 +118,9 @@ ExoBrowserContentBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
     ProtocolHandlerMap* protocol_handlers) 
 {
-  ExoBrowserContext* browser_context =
-      ExoBrowserContextForBrowserContext(content_browser_context);
-  return browser_context->CreateRequestContext(protocol_handlers);
+  ExoSession* session =
+      ExoSessionForBrowserContext(content_browser_context);
+  return session->CreateRequestContext(protocol_handlers);
 }
 
 net::URLRequestContextGetter*
@@ -144,23 +130,12 @@ ExoBrowserContentBrowserClient::CreateRequestContextForStoragePartition(
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers) 
 {
-  ExoBrowserContext* browser_context =
-    ExoBrowserContextForBrowserContext(content_browser_context);
-  return browser_context->CreateRequestContextForStoragePartition(
+  ExoSession* session =
+      ExoSessionForBrowserContext(content_browser_context);
+  return session->CreateRequestContextForStoragePartition(
       partition_path, in_memory, protocol_handlers);
 }
 
-
-ExoBrowserContext*
-ExoBrowserContentBrowserClient::ExoBrowserContextForBrowserContext(
-    BrowserContext* content_browser_context) 
-{
-  /* TODO(spolu): (Un)Register ExoSessions on Wrapper Creation and Deletion */
-  if (content_browser_context == browser_context())
-    return browser_context();
-  DCHECK_EQ(content_browser_context, off_the_record_browser_context());
-  return off_the_record_browser_context();
-}
 
 bool 
 ExoBrowserContentBrowserClient::IsHandledURL(
@@ -192,5 +167,42 @@ ExoBrowserContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) 
 {
 }
+
+void 
+ExoBrowserContentBrowserClient::RegisterExoSession(
+    ExoSession* session)
+{
+  LOG(INFO) << "Register Session";
+  sessions_.push_back(session);
+}
+
+void 
+ExoBrowserContentBrowserClient::UnRegisterExoSession(
+    ExoSession* session)
+{
+  std::vector<ExoSession*>::iterator it;
+  for(it = sessions_.begin(); it != sessions_.end(); it++) {
+    if(*it == session)
+      break;
+  }
+  if(it != sessions_.end()) {
+    LOG(INFO) << "UnRegister Session";
+    sessions_.erase(it);
+  }
+}
+
+ExoSession*
+ExoBrowserContentBrowserClient::ExoSessionForBrowserContext(
+    BrowserContext* browser_context) 
+{
+  std::vector<ExoSession*>::iterator it;
+  for(it = sessions_.begin(); it != sessions_.end(); it++) {
+    if(*it == browser_context) {
+      return *it;
+    }
+  }
+  return NULL;
+}
+
 
 } // namespace exo_browser

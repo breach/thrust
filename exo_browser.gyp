@@ -126,6 +126,8 @@
         'src/node/api/api_bindings.cc',
         'src/node/api/object_wrap.h',
         'src/node/api/object_wrap.cc',
+        'src/node/api/exo_session_wrap.h',
+        'src/node/api/exo_session_wrap.cc',
         'src/node/api/exo_browser_wrap.h',
         'src/node/api/exo_browser_wrap.cc',
         'src/node/api/exo_frame_wrap.h',

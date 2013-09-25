@@ -92,8 +92,7 @@ ExoBrowserMainParts::PreMainMessageLoopRun()
   ExoBrowser::Initialize();
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
 
-  devtools_delegate_.reset(
-      new ExoBrowserDevToolsDelegate(browser_context_.get()));
+  devtools_delegate_.reset(new ExoBrowserDevToolsDelegate());
 
   if(parameters_.ui_task) {
     parameters_.ui_task->Run();
@@ -111,8 +110,7 @@ void ExoBrowserMainParts::PostMainMessageLoopRun()
 {
   if (devtools_delegate_)
     devtools_delegate_->Stop();
-  browser_context_.reset();
-  off_the_record_browser_context_.reset();
+  /* TODO(spolu): Cleanup Remaining ExoSession? */
 }
 
 }  // namespace
