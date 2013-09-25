@@ -66,8 +66,8 @@ class ExoSession::ExoResourceContext : public content::ResourceContext {
 /******************************************************************************/
 
 ExoSession::ExoSession(
-    bool off_the_record,
-    std::string& path,
+    const bool off_the_record,
+    const std::string& path,
     ExoSessionWrap* wrapper)
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
@@ -83,10 +83,10 @@ ExoSession::ExoSession(
     return;
   }
   else {
-    /* TODO(spolu): Set Path */
+    path_ = base::FilePath(path);
   }
 
-  /* TODO(spolu): Register ourselves in ExoContentBrowserClient */
+  ExoBrowserContentBrowserClient::Get()->RegisterExoSession(this);
 
   /* As this can be overrided by the CommandLine, let's make sure it exists. */
   if(!base::PathExists(path_))
@@ -102,7 +102,7 @@ ExoSession::~ExoSession()
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
-  /* TODO(spolu): UnRegister ourselves in ExoContentBrowserClient */
+  ExoBrowserContentBrowserClient::Get()->UnRegisterExoSession(this);
 
   /* If we're here that means that ou JS wrapper has been reclaimed */
   LOG(INFO) << "ExoSesion Destructor";

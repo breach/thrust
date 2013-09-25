@@ -8,7 +8,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
 
-#include "exo_browser/src/browser/ui/exo_session.h"
+#include "exo_browser/src/browser/session/exo_session.h"
 #include "exo_browser/src/browser/ui/exo_browser.h"
 #include "exo_browser/src/browser/ui/exo_frame.h"
 #include "exo_browser/src/node/node_thread.h"
@@ -23,12 +23,11 @@ void
 ExoSessionWrap::Init(
     Handle<Object> exports) 
 {
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
   tpl->SetClassName(String::NewSymbol("_ExoSession"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   /* Prototype */
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_kill"),
-      FunctionTemplate::New(Kill)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -62,7 +61,7 @@ ExoSessionWrap::New(
 }
 
 void 
-ExoBrowserWrap::CreateExoSession(
+ExoSessionWrap::CreateExoSession(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -100,16 +99,16 @@ void
 ExoSessionWrap::CreateTask(
     const bool off_the_record,
     const std::string& path,
-    Persistent<Object>* frame_p,
+    Persistent<Object>* session_p,
     Persistent<Function>* cb_p)
 {
-  frame_ = new ExoSession(off_the_record,
-                          path,
-                          this);
+  session_ = new ExoSession(off_the_record,
+                            path,
+                            this);
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
-      base::Bind(&ExoFrameWrap::CreateCallback, this, session_p, cb_p));
+      base::Bind(&ExoSessionWrap::CreateCallback, this, session_p, cb_p));
 }
 
 void

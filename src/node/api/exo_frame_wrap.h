@@ -36,8 +36,10 @@ private:
 
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
+  /* TODO(spolu): Fix usage of (void*) */
   void CreateTask(const std::string& name,
                   const std::string& url,
+                  void* session_w,
                   v8::Persistent<v8::Object>* browser_p,
                   v8::Persistent<v8::Function>* cb_p);
   void CreateCallback(v8::Persistent<v8::Object>* frame_p,

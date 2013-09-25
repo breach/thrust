@@ -12,6 +12,11 @@ No DevTools ATM
 #### API v0.3-beta:
 
 ```
+var s = api.exo_session({
+  path: '',
+  off_the_record: false
+});
+
 var b = api.exo_browser({
   size: [123, 23]
 });
@@ -54,6 +59,7 @@ exo_browser.maximize([cb_]);
 var f = api.exo_frame({
   name: '',
   url: '',
+  session: s
 });
 
 exo_frame.ready();
@@ -105,7 +111,6 @@ s._removeAllLinkVisited(cb_);
 /*********************************************************************/
 _exo_browser._createExoBrowser({
   size: [123, 23],
-  session: s
 }, cb_);
 
 b._size(cb_);
@@ -130,6 +135,7 @@ b.kill(cb_);
 _exo_browser._createExoFrame({
   name: '',
   url: '',
+  session: s,
 }, cb_);
 
 f._loadURL(url, cb_);

@@ -100,8 +100,8 @@ private:
   /*                           PRIVATE INTERFACE                              */
   /****************************************************************************/
   // ### ExoSession
-  ExoSession(bool off_the_record,
-             std::string& path,
+  ExoSession(const bool off_the_record,
+             const std::string& path,
              ExoSessionWrap* wrapper = NULL);
 
   /****************************************************************************/

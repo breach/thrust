@@ -33,6 +33,7 @@ ExoFrame::ExoFrame(
   type_(NOTYPE_FRAME),
   wrapper_(wrapper)
 {
+  /* TODO(spolu): Check ExoSession herited from source WebContents */
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
   LOG(INFO) << "ExoFrame Constructor [" << web_contents << "]";
@@ -40,13 +41,13 @@ ExoFrame::ExoFrame(
 
 ExoFrame::ExoFrame(
     const std::string& name,
+    ExoSession* session,
     ExoFrameWrap* wrapper)
 : name_(name),
   type_(NOTYPE_FRAME),
   wrapper_(wrapper)
 {
-  WebContents::CreateParams create_params(
-      (BrowserContext*)ExoBrowserContentBrowserClient::Get()->browser_context());
+  WebContents::CreateParams create_params((BrowserContext*)session);
   WebContents* web_contents = WebContents::Create(create_params);
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);

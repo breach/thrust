@@ -14,6 +14,8 @@ class ObjectWrap;
 
 namespace exo_browser {
 
+class ExoSession;
+
 class ExoSessionWrap : public ObjectWrap {
 public:
   static void Init(v8::Handle<v8::Object> exports);
@@ -53,11 +55,12 @@ private:
   /****************************************************************************/
   /*                                MEMBERS                                   */
   /****************************************************************************/
-  ExoSession*                  session_;
+  ExoSession*                          session_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 
   friend class base::RefCountedThreadSafe<ExoSessionWrap>;
+  friend class ExoFrameWrap;
   friend class ExoSession;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSessionWrap);
