@@ -78,19 +78,9 @@ ExoSession::ExoSession(
   if (cmd_line->HasSwitch(switches::kIgnoreCertificateErrors)) {
     ignore_certificate_errors_ = true;
   }
-  if (cmd_line->HasSwitch(switches::kExoBrowserDataPath)) {
-    path_ = cmd_line->GetSwitchValuePath(switches::kExoBrowserDataPath);
-    return;
-  }
-  else {
-    path_ = base::FilePath(path);
-  }
+  path_ = base::FilePath(path);
 
   ExoBrowserContentBrowserClient::Get()->RegisterExoSession(this);
-
-  /* As this can be overrided by the CommandLine, let's make sure it exists. */
-  if(!base::PathExists(path_))
-    file_util::CreateDirectory(path_);
 }
 
 

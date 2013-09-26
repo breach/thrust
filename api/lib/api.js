@@ -7,6 +7,7 @@
  * @author: spolu
  *
  * @log:
+ * 2013-09-26 spolu   ExoSession support
  * 2013-09-20 spolu   Move to `api/`
  * 2013-08-12 spolu   Add name to browser
  * 2013-08-11 spolu   Creation
@@ -18,6 +19,135 @@ var async = require('async');
 
 var _exo_browser = apiDispatcher.requireExoBrowser();
 
+
+// ## exo_session
+//
+// Wrapper around the internal API representation of an ExoSession.
+//
+// An ExoSession represents all the context required by the browser to display
+// a web papge. Two ExoFrames displayed with separate ExoSessions are perfectly
+// independent (unless they share local HTML5 Storage)
+//
+// The `path` arguments is expected
+// TODO(spolu): default paths?
+// ```
+// @spec { [path], [off_the_record] }
+// ```
+var exo_session = function(spec, my) {
+  var _super = {};
+  my = my || {};
+  spec = spec || {};
+
+  my.internal = null;
+  my.ready = false;
+  my.killed = false;
+  
+  my.off_the_record = 
+    (typeof spec.off_the_record === 'undefined') ? true : spec.off_the_record;
+  /* TODO(spolu): Provide default path facility. */
+  my.path = spec.path || '~/.exo_browser';
+
+  //
+  // #### _public_
+  //
+  var kill;                /* kill(); */
+
+  //
+  // #### _protected_
+  //
+  var pre;                 /* pre(cb_); */
+
+  //
+  // #### _private_
+  //
+  var init;                /* init(); */
+
+  //
+  // #### _that_
+  //
+  var that = new events.EventEmitter();
+
+  // ### pre
+  //
+  // Takes care of the syncronization. If the session is not yet ready it will
+  // wait on the `ready` event.
+  // ```
+  // @cb_ {function(err)}
+  // ```
+  pre = function(cb_) {
+    if(my.killed) {
+      return cb_(new Error('Session was killed: ' + my.name));
+    }
+    if(!my.ready) {
+      that.on('ready', function() {
+        return cb_();
+      });
+    }
+    else {
+      return cb_();
+    }
+  };
+
+  // ### kill
+  //
+  // Deletes the internal exo session to let the object get GCed
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  kill = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.killed = true;
+        my.ready = false;
+        delete my.internal;
+        that.removeAllListeners();
+      }
+    });
+  };
+
+  // ### init
+  //
+  // Runs initialization procedure.
+  init = function() {
+    var finish = function() {
+      my.ready = true;
+      that.emit('ready');
+    };
+
+    if(my.internal) {
+      return finish();
+    }
+    else {
+      _exo_browser._createExoSession({
+        path: my.path,
+        off_the_record: my.off_the_record
+      }, function(s) {
+        my.internal = s;
+        return finish();
+      });
+    }
+  };
+
+
+  init();
+
+  common.method(that, 'kill', kill, _super);
+  common.method(that, 'pre', pre, _super);
+
+  /* Should only be called by exo_frame. */
+  common.getter(that, 'internal', my, 'internal');
+
+  return that;
+};
+
+exports.exo_session = exo_session;
+exports._default_session = exo_session({});
+
+
+
 exports.NOTYPE_FRAME = 0;
 exports.CONTROL_FRAME = 1;
 exports.PAGE_FRAME = 2;
@@ -26,7 +156,7 @@ exports.frame_count = 0;
 
 // ## exo_frame
 //
-// Wrapper around the internal API representation of an ExoFrame. It alos serves
+// Wrapper around the internal API representation of an ExoFrame. It also serves
 // as a proxy on the internal state of the ExoFrame.
 //
 // ExoFrames are named objects. Their names are expected to be uniques. If no
@@ -35,7 +165,7 @@ exports.frame_count = 0;
 //
 // The `url` argument is expected.
 // ```
-// @spec { url, [name] | internal }
+// @spec { url, [name], [session] | internal }
 // ```
 var exo_frame = function(spec, my) {
   var _super = {};
@@ -43,11 +173,14 @@ var exo_frame = function(spec, my) {
   spec = spec || {};
 
   my.internal = spec.internal || null;
+  my.ready = false;
+  my.killed = false;
 
   my.url = spec.url || '';
   my.name = spec.name || ('fr-' + (exports.frame_count++));
+  my.session = spec.session || exports._default_session;
+
   my.visible = false;
-  my.ready = false;
   my.parent = null;
   my.type = exports.NOTYPE_FRAME;
   my.loading = 0;
@@ -70,10 +203,14 @@ var exo_frame = function(spec, my) {
   var kill;                /* kill(); */
 
   //
+  // #### _protected_
+  //
+  var pre;                 /* pre(cb_); */
+
+  //
   // #### _private_
   //
-  var init;     /* init(); */
-  var pre;      /* pre(cb_); */
+  var init;                /* init(); */
 
   //
   // #### _that_
@@ -309,12 +446,23 @@ var exo_frame = function(spec, my) {
       });
     }
     else {
-      _exo_browser._createExoFrame({
-        name: my.name,
-        url: my.url
-      }, function(f) {
-        my.internal = f;
-        return finish();
+      my.session.pre(function(err) {
+        if(err) {
+          /* We can't do much more than throwing the error as there is no   */
+          /* handler to pass it to. This means we've used a killed session, */
+          /* things must have gone bad.                                     */
+          throw err;
+        }
+        else {
+          _exo_browser._createExoFrame({
+            name: my.name,
+            url: my.url,
+            session: my.session.internal()
+          }, function(f) {
+            my.internal = f;
+            return finish();
+          });
+        }
       });
     }
   };
@@ -322,7 +470,9 @@ var exo_frame = function(spec, my) {
 
   init();
 
+  common.method(that, 'kill', kill, _super);
   common.method(that, 'pre', pre, _super);
+
   common.method(that, 'load_url', load_url, _super);
   common.method(that, 'go_back_or_forward', go_back_or_forward, _super);
   common.method(that, 'reload', reload, _super);
@@ -330,7 +480,6 @@ var exo_frame = function(spec, my) {
   common.method(that, 'focus', focus, _super);
   common.method(that, 'find', find, _super);
   common.method(that, 'find_stop', find_stop, _super);
-  common.method(that, 'kill', kill, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');
@@ -352,12 +501,11 @@ var exo_frame = function(spec, my) {
   common.setter(that, 'type', my, 'type');
   common.setter(that, 'title', my, 'title');
 
-  common.method(that, 'pre', pre, _super);
-
   return that;
 };
 
 exports.exo_frame = exo_frame;
+
 
 
 exports._exo_browsers = {};

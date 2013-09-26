@@ -28,6 +28,8 @@ ExoSessionWrap::Init(
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   /* Prototype */
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_off_the_record"),
+      FunctionTemplate::New(OffTheRecord)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -139,6 +141,46 @@ ExoSessionWrap::DeleteTask(
   LOG(INFO) << "ExoSessionWrap DeleteTask";
   delete session;
 }
+
+
+/******************************************************************************/
+/*                              WRAPPERS, TASKS                               */
+/******************************************************************************/
+
+void 
+ExoSessionWrap::OffTheRecord(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  bool* off_the_record = new bool;
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoSessionWrap::OffTheRecordTask, 
+                 session_w, off_the_record, cb_p));
+}
+
+
+void
+ExoSessionWrap::OffTheRecordTask(
+    bool* off_the_record,
+    Persistent<Function>* cb_p)
+{
+  if(session_ != NULL)
+    (*off_the_record) = session_->IsOffTheRecord();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoSessionWrap::BooleanCallback, this, cb_p, off_the_record));
+}
+
 
 } // namespace exo_browser
 
