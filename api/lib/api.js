@@ -31,7 +31,7 @@ var _exo_browser = apiDispatcher.requireExoBrowser();
 // The `path` arguments is expected
 // TODO(spolu): default paths?
 // ```
-// @spec { [path], [off_the_record], [cookies_handlers] }
+// @spec { [path], [off_the_record], [cookie_handlers] }
 // ```
 var exo_session = function(spec, my) {
   var _super = {};
@@ -47,13 +47,14 @@ var exo_session = function(spec, my) {
   /* TODO(spolu): Provide default path facility. */
   my.path = spec.path || '~/.exo_browser';
 
-  my.cookies_handlers = {
-    add: null,                     /* add(c); */
-    remove: null,                  /* remove(c); */
-    update_access_time: null,      /* update_access_time(c); */
-    load_all: null,                /* load_all(cb_(cookies)) */
-    load_for_key: null,            /* load_for_key(key, cb_(cookies)); */
-    force_keep_session_state: null /* force_keep_session_state(); */
+  my.cookie_handlers = {
+    load_all: null,                 /* load_all(cb_(cookies)) */
+    load_for_key: null,             /* load_for_key(key, cb_(cookies)); */
+    flush: null,                    /* flush(cb_()); */
+    add: null,                      /* add(c); */
+    remove: null,                   /* remove(c); */
+    update_access_time: null,       /* update_access_time(c); */
+    force_keep_session_state: null  /* force_keep_session_state(); */
   };
 
 
@@ -61,7 +62,7 @@ var exo_session = function(spec, my) {
   // #### _public_
   //
   var kill;                  /* kill(); */
-  var set_cookies_handlers;  /* set_cookies_handlers({});
+  var set_cookie_handlers;   /* set_cookie_handlers({}); */
 
   //
   // #### _protected_
@@ -119,18 +120,19 @@ var exo_session = function(spec, my) {
     });
   };
 
-  // ### set_cookies_handlers
+  // ### set_cookie_handlers
   //
   // ```
   // @handlers {object} dictionary of handlers
   // ```
-  set_cookies_handlers = function(handlers) {
-    my.cookies_handlers = {
+  set_cookie_handlers = function(handlers) {
+    my.cookie_handlers = {
+      load_all: handlers.load_all || null,
+      load_for_key: handlers.load_for_key || null,
+      flush: handlers.flush || null,
       add: handlers.add || null,
       remove: handlers.remove || null,
       update_access_time: handlers.update_acccess_time || null,
-      load_all: handlers.load_all || null,
-      load_for_key: handlers.load_for_key || null,
       force_keep_session_state: handlers.force_keep_session_state || null
     };
   };
@@ -141,8 +143,8 @@ var exo_session = function(spec, my) {
   init = function() {
     var finish = function() {
       my.internal._setCookiesLoadHandler(function(rid, cb_) {
-        if(my.cookies_handlers.load_all) {
-          my.cookies_handlers.load_all(function(cookies) {
+        if(my.cookie_handlers.load_all) {
+          my.cookie_handlers.load_all(function(cookies) {
             return (cb_.bind(my.internal, rid, cookies))();
           });
         }
@@ -150,24 +152,25 @@ var exo_session = function(spec, my) {
           return (cb_.bind(my.internal, rid, []))();
         }
       });
+
       my.internal._setCookiesAddCallback(function(cc) {
-        if(my.cookies_handlers.add) {
-          my.cookies_handlers.add(cc);
+        if(my.cookie_handlers.add) {
+          my.cookie_handlers.add(cc);
         }
       });
       my.internal._setCookiesDeleteCallback(function(cc) {
-        if(my.cookies_handlers.remove) {
-          my.cookies_handlers.remove(cc);
+        if(my.cookie_handlers.remove) {
+          my.cookie_handlers.remove(cc);
         }
       });
       my.internal._setCookiesUpdateAccessTimeCallback(function(cc) {
-        if(my.cookies_handlers.update_access_time) {
-          my.cookies_handlers.update_access_time(cc);
+        if(my.cookie_handlers.update_access_time) {
+          my.cookie_handlers.update_access_time(cc);
         }
       });
       my.internal._setCookiesForceKeepSessionStateCallback(function(cc) {
-        if(my.cookies_handlers.force_keep_session_state) {
-          my.cookies_handlers.force_keep_session_state();
+        if(my.cookie_handlers.force_keep_session_state) {
+          my.cookie_handlers.force_keep_session_state();
         }
       });
 
@@ -175,7 +178,7 @@ var exo_session = function(spec, my) {
       that.emit('ready');
     };
 
-    set_cookies_handlers(spec.cookies_handlers || {});
+    set_cookie_handlers(spec.cookie_handlers || {});
 
     if(my.internal) {
       return finish();
@@ -197,7 +200,8 @@ var exo_session = function(spec, my) {
   common.method(that, 'kill', kill, _super);
   common.method(that, 'pre', pre, _super);
 
-  common.method(that, 'set_cookies_handlers', set_cookies_handlers, _super);
+  common.method(that, 'set_cookie_handlers', set_cookie_handlers, _super);
+  common.method(that, 'sanitize_cookie', sanitize_cookie, _super);
 
   /* Should only be called by exo_frame. */
   common.getter(that, 'internal', my, 'internal');

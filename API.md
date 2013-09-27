@@ -15,7 +15,19 @@ No DevTools ATM
 var s = api.exo_session({
   path: '',
   off_the_record: false
+  cookie_handlers: { ... }
 });
+
+s.set_cookie_handlers({
+  load_all: null,                 /* load_all(cb_(cookies)) */
+  load_for_key: null,             /* load_for_key(key, cb_(cookies)); */
+  flush: null,                    /* flush(cb_()); */
+  add: null,                      /* add(c); */
+  remove: null,                   /* remove(c); */
+  update_access_time: null,       /* update_access_time(c); */
+  force_keep_session_state: null  /* force_keep_session_state(); */
+});
+
 
 var b = api.exo_browser({
   size: [123, 23]
@@ -96,14 +108,19 @@ _exo_browser._createExoSession({
   off_the_record: false
 }, cb_);
 
-// TBD
-s._setGetCookieHandler(cb_);
-s._setGetAllCookieHandler(cb_);
-/* ... */
+s._setCookiesLoadHandler(rid, cb_);
+s._setCookiesLoadForKeyHandler(rid, cb_);
+s._setCookiesFlushHandler(rid, cb_);
 
-s._addLinkVisited(link, cb_);
-s._removeLinkVisited(link, cb_);
-s._removeAllLinkVisited(cb_);
+s._setCookiesAddCallback(cookie);
+s._setCookiesDeleteCallback(cookie);
+s._setCookiesUpdateAccessTimeCallback(cookie);
+s._setCookiesForceKeepSessionStateCallback(cookie);
+
+/* TBD */
+s._addVisitedLink(link, cb_);
+s._removeVisitedLink(link, cb_);
+s._removeAllVisitedLink(cb_);
 
 
 /*********************************************************************/
