@@ -31,7 +31,7 @@ var _exo_browser = apiDispatcher.requireExoBrowser();
 // The `path` arguments is expected
 // TODO(spolu): default paths?
 // ```
-// @spec { [path], [off_the_record] }
+// @spec { [path], [off_the_record], [cookies_handlers] }
 // ```
 var exo_session = function(spec, my) {
   var _super = {};
@@ -47,10 +47,21 @@ var exo_session = function(spec, my) {
   /* TODO(spolu): Provide default path facility. */
   my.path = spec.path || '~/.exo_browser';
 
+  my.cookies_handlers = {
+    add: null,                     /* add(c); */
+    remove: null,                  /* remove(c); */
+    update_access_time: null,      /* update_access_time(c); */
+    load_all: null,                /* load_all(cb_(cookies)) */
+    load_for_key: null,            /* load_for_key(key, cb_(cookies)); */
+    force_keep_session_state: null /* force_keep_session_state(); */
+  };
+
+
   //
   // #### _public_
   //
-  var kill;                /* kill(); */
+  var kill;                  /* kill(); */
+  var set_cookies_handlers;  /* set_cookies_handlers({});
 
   //
   // #### _protected_
@@ -108,14 +119,63 @@ var exo_session = function(spec, my) {
     });
   };
 
+  // ### set_cookies_handlers
+  //
+  // ```
+  // @handlers {object} dictionary of handlers
+  // ```
+  set_cookies_handlers = function(handlers) {
+    my.cookies_handlers = {
+      add: handlers.add || null,
+      remove: handlers.remove || null,
+      update_access_time: handlers.update_acccess_time || null,
+      load_all: handlers.load_all || null,
+      load_for_key: handlers.load_for_key || null,
+      force_keep_session_state: handlers.force_keep_session_state || null
+    };
+  };
+
   // ### init
   //
   // Runs initialization procedure.
   init = function() {
     var finish = function() {
+      my.internal._setCookiesLoadHandler(function(rid, cb_) {
+        if(my.cookies_handlers.load_all) {
+          my.cookies_handlers.load_all(function(cookies) {
+            return (cb_.bind(my.internal, rid, cookies))();
+          });
+        }
+        else {
+          return (cb_.bind(my.internal, rid, []))();
+        }
+      });
+      my.internal._setCookiesAddCallback(function(cc) {
+        if(my.cookies_handlers.add) {
+          my.cookies_handlers.add(cc);
+        }
+      });
+      my.internal._setCookiesDeleteCallback(function(cc) {
+        if(my.cookies_handlers.remove) {
+          my.cookies_handlers.remove(cc);
+        }
+      });
+      my.internal._setCookiesUpdateAccessTimeCallback(function(cc) {
+        if(my.cookies_handlers.update_access_time) {
+          my.cookies_handlers.update_access_time(cc);
+        }
+      });
+      my.internal._setCookiesForceKeepSessionStateCallback(function(cc) {
+        if(my.cookies_handlers.force_keep_session_state) {
+          my.cookies_handlers.force_keep_session_state();
+        }
+      });
+
       my.ready = true;
       that.emit('ready');
     };
+
+    set_cookies_handlers(spec.cookies_handlers || {});
 
     if(my.internal) {
       return finish();
@@ -136,6 +196,8 @@ var exo_session = function(spec, my) {
 
   common.method(that, 'kill', kill, _super);
   common.method(that, 'pre', pre, _super);
+
+  common.method(that, 'set_cookies_handlers', set_cookies_handlers, _super);
 
   /* Should only be called by exo_frame. */
   common.getter(that, 'internal', my, 'internal');
@@ -450,7 +512,8 @@ var exo_frame = function(spec, my) {
         if(err) {
           /* We can't do much more than throwing the error as there is no   */
           /* handler to pass it to. This means we've used a killed session, */
-          /* things must have gone bad.                                     */
+          /* things must have gone bad and throwing an error is a way to    */
+          /* express that.                                                  */
           throw err;
         }
         else {

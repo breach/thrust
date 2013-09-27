@@ -38,6 +38,7 @@
 #include "content/public/common/url_constants.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/net/network_delegate.h"
+#include "exo_browser/src/browser/session/exo_session.h"
 
 using namespace content;
 
@@ -61,13 +62,15 @@ void InstallProtocolHandlers(net::URLRequestJobFactoryImpl* job_factory,
 }  // namespace
 
 ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
+    ExoSession* parent,
     bool ignore_certificate_errors,
     const base::FilePath& base_path,
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     ProtocolHandlerMap* protocol_handlers,
     net::NetLog* net_log)
-    : ignore_certificate_errors_(ignore_certificate_errors),
+    : parent_(parent),
+      ignore_certificate_errors_(ignore_certificate_errors),
       base_path_(base_path),
       io_loop_(io_loop),
       file_loop_(file_loop),
@@ -103,7 +106,14 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
         new net::URLRequestContextStorage(url_request_context_.get()));
 
     /* TODO(spolu): net cookies */
-    storage_->set_cookie_store(new net::CookieMonster(NULL, NULL));
+    if(parent_) {
+      storage_->set_cookie_store(
+          new net::CookieMonster(parent_->GetCookieStore(), NULL));
+    }
+    else {
+      storage_->set_cookie_store(
+          new net::CookieMonster(NULL, NULL));
+    }
 
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
         new net::DefaultServerBoundCertStore(NULL),

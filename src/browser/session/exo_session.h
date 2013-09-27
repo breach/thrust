@@ -7,9 +7,10 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
+#include "net/url_request/url_request_job_factory.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
-#include "net/url_request/url_request_job_factory.h"
+#include "exo_browser/src/browser/session/exo_session_cookie_store.h"
 
 namespace exo_browser {
 
@@ -93,6 +94,8 @@ public:
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers);
 
+  ExoSessionCookieStore* GetCookieStore();
+
 private:
   class ExoResourceContext;
 
@@ -114,10 +117,12 @@ private:
   scoped_ptr<ExoResourceContext>                   resource_context_;
   scoped_refptr<ExoBrowserURLRequestContextGetter> url_request_getter_;
   scoped_refptr<ExoBrowserDownloadManagerDelegate> download_manager_delegate_;
+  scoped_refptr<ExoSessionCookieStore>             cookie_store_;
 
   ExoSessionWrap*                                  wrapper_;
 
   friend class ExoSessionWrap;
+  friend class ExoSessionCookieStore;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSession);
 };

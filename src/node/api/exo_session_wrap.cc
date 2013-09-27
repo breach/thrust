@@ -15,6 +15,45 @@
 
 using namespace v8;
 
+namespace {
+
+static Local<Object>
+ObjectFromCanonicalCookie(
+    const net::CanonicalCookie& cc)
+{
+  Local<Object> cookie_o = Object::New();
+
+  cookie_o->Set(String::New("source"),
+                String::New(cc.Source().c_str()));
+  cookie_o->Set(String::New("name"),
+                String::New(cc.Name().c_str()));
+  cookie_o->Set(String::New("value"),
+                String::New(cc.Value().c_str()));
+  cookie_o->Set(String::New("domain"),
+                String::New(cc.Domain().c_str()));
+  cookie_o->Set(String::New("path"),
+                String::New(cc.Path().c_str()));
+
+  cookie_o->Set(String::New("creation"),
+                Number::New(cc.CreationDate().ToInternalValue() / 1000));
+  cookie_o->Set(String::New("expiry"),
+                Number::New(cc.ExpiryDate().ToInternalValue() / 1000));
+  cookie_o->Set(String::New("last_access"),
+                Number::New(cc.LastAccessDate().ToInternalValue() / 1000));
+
+  cookie_o->Set(String::New("secure"),
+                Boolean::New(cc.IsSecure()));
+  cookie_o->Set(String::New("http_only"),
+                Boolean::New(cc.IsHttpOnly()));
+
+  cookie_o->Set(String::New("priority"),
+                Number::New(cc.Priority()));
+
+  return cookie_o;
+}
+
+}
+
 namespace exo_browser {
 
 Persistent<Function> ExoSessionWrap::s_constructor;
@@ -31,6 +70,21 @@ ExoSessionWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_off_the_record"),
       FunctionTemplate::New(OffTheRecord)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setCookiesAddCallback"),
+      FunctionTemplate::New(SetCookiesAddCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setCookiesDeleteCallback"),
+      FunctionTemplate::New(SetCookiesDeleteCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewSymbol("_setCookiesUpdateAccessTimeCallback"),
+      FunctionTemplate::New(SetCookiesUpdateAccessTimeCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewSymbol("_setCookiesForceKeepSessionStateCallback"),
+      FunctionTemplate::New(
+        SetCookiesForceKeepSessionStateCallback)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setCookiesLoadHandler"),
+      FunctionTemplate::New(SetCookiesLoadHandler)->GetFunction());
+
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
   exports->Set(String::NewSymbol("_createExoSession"),
@@ -38,6 +92,7 @@ ExoSessionWrap::Init(
 }
 
 ExoSessionWrap::ExoSessionWrap()
+: cookies_load_rid_(0)
 {
 }
 
@@ -179,6 +234,205 @@ ExoSessionWrap::OffTheRecordTask(
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoSessionWrap::BooleanCallback, this, cb_p, off_the_record));
+}
+/******************************************************************************/
+/*                                DISPATCHERS                                */
+/******************************************************************************/
+void 
+ExoSessionWrap::SetCookiesAddCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+  session_w->cookies_add_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void 
+ExoSessionWrap::DispatchCookiesAdd(
+    const net::CanonicalCookie& cc)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  Local<Object> session_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!cookies_add_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), cookies_add_cb_);
+
+    Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+
+    Local<v8::Value> argv[1] = { cc_arg };
+    cb->Call(session_o, 1, argv);
+  }
+}
+
+void 
+ExoSessionWrap::SetCookiesDeleteCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+  session_w->cookies_delete_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void 
+ExoSessionWrap::DispatchCookiesDelete(
+    const net::CanonicalCookie& cc)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  Local<Object> session_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!cookies_delete_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), cookies_delete_cb_);
+
+    Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+
+    Local<v8::Value> argv[1] = { cc_arg };
+    cb->Call(session_o, 1, argv);
+  }
+}
+
+void 
+ExoSessionWrap::SetCookiesUpdateAccessTimeCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+  session_w->cookies_update_access_time_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void 
+ExoSessionWrap::DispatchCookiesUpdateAccessTime(
+    const net::CanonicalCookie& cc)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  Local<Object> session_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!cookies_update_access_time_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), 
+                           cookies_update_access_time_cb_);
+
+    Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+
+    Local<v8::Value> argv[1] = { cc_arg };
+    cb->Call(session_o, 1, argv);
+  }
+}
+
+void 
+ExoSessionWrap::SetCookiesForceKeepSessionStateCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+  session_w->cookies_force_keep_session_state_cb_.Reset(
+      Isolate::GetCurrent(), cb);
+}
+
+void 
+ExoSessionWrap::DispatchCookiesForceKeepSessionState()
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  Local<Object> session_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!cookies_force_keep_session_state_cb_.IsEmpty()) {
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), 
+                           cookies_force_keep_session_state_cb_);
+
+    cb->Call(session_o, 0, NULL);
+  }
+}
+
+/******************************************************************************/
+/*                                 HANDLERS                                   */
+/******************************************************************************/
+void
+ExoSessionWrap::SetCookiesLoadHandler(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: hdlr */
+  Local<Function> hdlr = Local<Function>::Cast(args[0]);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+  session_w->cookies_load_hdlr_.Reset(Isolate::GetCurrent(), hdlr);
+}
+
+void
+ExoSessionWrap::CookiesLoadCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  ExoSessionWrap* session_w = 
+    ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+
+  /* args[0]: rid */
+  int rid = (Local<Integer>::Cast(args[0]))->Value();
+  LoadedCallback cb = session_w->cookies_load_reqs_[rid];
+
+  LOG(INFO) << "CookiesLoad: " << rid;
+  std::vector<net::CanonicalCookie*> cookies;
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
+      base::Bind(cb, cookies));
+}
+
+void
+ExoSessionWrap::CallCookiesLoad(
+    const LoadedCallback& cb)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> session_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!cookies_load_hdlr_.IsEmpty()) {
+    Local<Function> hdlr = 
+      Local<Function>::New(Isolate::GetCurrent(), cookies_load_hdlr_);
+
+    int rid = cookies_load_rid_++;
+    cookies_load_reqs_[rid] = cb;
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(CookiesLoadCallback);
+
+    Local<Function> cb_arg = tpl->GetFunction();
+    Local<Integer> rid_arg = Integer::New(rid);
+
+    Local<v8::Value> argv[2] = { rid_arg,
+                                 cb_arg };
+    hdlr->Call(session_o, 2, argv);
+  }
 }
 
 

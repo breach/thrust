@@ -28,9 +28,12 @@ class URLRequestContextStorage;
 
 namespace exo_browser {
 
+class ExoSession;
+
 class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
   ExoBrowserURLRequestContextGetter(
+      ExoSession* parent,
       bool ignore_certificate_errors,
       const base::FilePath& base_path,
       base::MessageLoop* io_loop,
@@ -49,17 +52,20 @@ class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
   virtual ~ExoBrowserURLRequestContextGetter();
 
  private:
-  bool ignore_certificate_errors_;
-  base::FilePath base_path_;
-  base::MessageLoop* io_loop_;
-  base::MessageLoop* file_loop_;
-  net::NetLog* net_log_;
+  ExoSession*         parent_;
+  bool                ignore_certificate_errors_;
+  base::FilePath      base_path_;
+  base::MessageLoop*  io_loop_;
+  base::MessageLoop*  file_loop_;
+  net::NetLog*        net_log_;
 
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
   scoped_ptr<net::NetworkDelegate> network_delegate_;
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   content::ProtocolHandlerMap protocol_handlers_;
+
+  friend class ExoSession;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserURLRequestContextGetter);
 };

@@ -94,6 +94,8 @@
         'src/browser/resource_dispatcher_host_delegate.h',
         'src/browser/session/exo_session.h',
         'src/browser/session/exo_session.cc',
+        'src/browser/session/exo_session_cookie_store.h',
+        'src/browser/session/exo_session_cookie_store.cc',
         'src/browser/ui/exo_browser.h',
         'src/browser/ui/exo_browser.cc',
         'src/browser/ui/exo_browser_gtk.cc',

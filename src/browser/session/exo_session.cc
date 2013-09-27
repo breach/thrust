@@ -72,6 +72,7 @@ ExoSession::ExoSession(
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
   resource_context_(new ExoResourceContext),
+  cookie_store_(new ExoSessionCookieStore(this)),
   wrapper_(wrapper)
 {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -93,6 +94,11 @@ ExoSession::~ExoSession()
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
   ExoBrowserContentBrowserClient::Get()->UnRegisterExoSession(this);
+  /* We remove ourselves from the CookieStore as it may oulive us but we dont */
+  /* want it to call into the API anymore.                                    */
+  cookie_store_->parent_ = NULL;
+  if(url_request_getter_.get())
+    url_request_getter_.get()->parent_ = NULL;
 
   /* If we're here that means that ou JS wrapper has been reclaimed */
   LOG(INFO) << "ExoSesion Destructor";
@@ -126,6 +132,7 @@ ExoSession::CreateRequestContext(
 {
   DCHECK(!url_request_getter_.get());
   url_request_getter_ = new ExoBrowserURLRequestContextGetter(
+      this,
       ignore_certificate_errors_,
       GetPath(),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
@@ -216,6 +223,12 @@ content::ResourceContext*
 ExoSession::GetResourceContext()
 {
   return resource_context_.get();
+}
+
+ExoSessionCookieStore*
+ExoSession::GetCookieStore()
+{
+  return cookie_store_.get();
 }
 
 }  // namespace exo_browser
