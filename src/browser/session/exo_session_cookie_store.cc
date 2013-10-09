@@ -26,6 +26,7 @@ void
 ExoSessionCookieStore::Load(
     const LoadedCallback& loaded_callback)
 {
+  LOG(INFO) << "Load";
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -41,9 +42,13 @@ ExoSessionCookieStore::LoadCookiesForKey(
     const LoadedCallback& loaded_callback)
 {
   LOG(INFO) << "LoadCookiesForKey: '" << key << "'";
-  std::vector<net::CanonicalCookie*> cookies;
-  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-      base::Bind(loaded_callback, cookies));
+  if(parent_ && parent_->wrapper_) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoSessionWrap::CallCookiesLoadForKey, 
+                   parent_->wrapper_, key, loaded_callback));
+
+  }
 }
 
 void 
@@ -51,7 +56,13 @@ ExoSessionCookieStore::Flush(
     const base::Closure& callback)
 {
   LOG(INFO) << "Flush";
-  callback.Run();
+  if(parent_ && parent_->wrapper_) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoSessionWrap::CallCookiesFlush, 
+                   parent_->wrapper_, callback));
+
+  }
 }
 
 

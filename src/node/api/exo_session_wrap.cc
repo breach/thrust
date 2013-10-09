@@ -5,6 +5,8 @@
 
 #include "exo_browser/src/node/api/exo_session_wrap.h"
 
+#include "base/time/time.h"
+
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
 
@@ -52,6 +54,38 @@ ObjectFromCanonicalCookie(
   return cookie_o;
 }
 
+net::CanonicalCookie*
+CanonicalCookieFromObject(
+    const Local<Object>& cookie_o)
+{
+  net::CanonicalCookie* cc = net::CanonicalCookie::Create(
+      GURL(*String::Utf8Value(
+          cookie_o->Get(String::New("source"))->ToString())),
+      std::string(
+        *String::Utf8Value(cookie_o->Get(String::New("name"))->ToString())),
+      std::string(
+        *String::Utf8Value(cookie_o->Get(String::New("value"))->ToString())),
+      std::string(
+        *String::Utf8Value(cookie_o->Get(String::New("domain"))->ToString())),
+      std::string(
+        *String::Utf8Value(cookie_o->Get(String::New("path"))->ToString())),
+      base::Time::FromInternalValue(
+        cookie_o->Get(String::New("creation"))->ToNumber()->Value()),
+      base::Time::FromInternalValue(
+        cookie_o->Get(String::New("expiry"))->ToNumber()->Value()),
+      cookie_o->Get(String::New("secure"))->ToBoolean()->Value(),
+      cookie_o->Get(String::New("http_only"))->ToBoolean()->Value(),
+      (net::CookiePriority)cookie_o->Get(String::New("priority"))->ToInteger()->Value());
+
+  if(cc != NULL) {
+    cc->SetLastAccessDate(
+        base::Time::FromInternalValue(
+          cookie_o->Get(String::New("last_access"))->ToNumber()->Value()));
+  }
+
+  return cc;
+}
+
 }
 
 namespace exo_browser {
@@ -82,8 +116,11 @@ ExoSessionWrap::Init(
       FunctionTemplate::New(
         SetCookiesForceKeepSessionStateCallback)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setCookiesLoadHandler"),
-      FunctionTemplate::New(SetCookiesLoadHandler)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewSymbol("_setCookiesLoadForKeyHandler"),
+      FunctionTemplate::New(SetCookiesLoadForKeyHandler)->GetFunction());
+  tpl->PrototypeTemplate()->Set( String::NewSymbol("_setCookiesFlushHandler"),
+      FunctionTemplate::New(SetCookiesFlushHandler)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -377,7 +414,7 @@ ExoSessionWrap::DispatchCookiesForceKeepSessionState()
 /*                                 HANDLERS                                   */
 /******************************************************************************/
 void
-ExoSessionWrap::SetCookiesLoadHandler(
+ExoSessionWrap::SetCookiesLoadForKeyHandler(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -390,7 +427,7 @@ ExoSessionWrap::SetCookiesLoadHandler(
 }
 
 void
-ExoSessionWrap::CookiesLoadCallback(
+ExoSessionWrap::CookiesLoadForKeyCallback(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -401,12 +438,57 @@ ExoSessionWrap::CookiesLoadCallback(
   /* args[0]: rid */
   int rid = (Local<Integer>::Cast(args[0]))->Value();
   LoadedCallback cb = session_w->cookies_load_reqs_[rid];
+  
+  LOG(INFO) << "CookiesLoadForKeyCallback" << " [" << rid << "]";
 
-  LOG(INFO) << "CookiesLoad: " << rid;
-  std::vector<net::CanonicalCookie*> cookies;
+  /* args[1]: cookies */
+  std::vector<net::CanonicalCookie*> ccs;
+  Local<Array> cookies = Local<Array>::Cast(args[1]);
+  for(unsigned int i = 0; i < cookies->Length(); i ++) {
+    net::CanonicalCookie *cc = 
+        CanonicalCookieFromObject(
+            Local<Object>::Cast(cookies->Get(Integer::New(i))));
+    if(cc != NULL)
+      ccs.push_back(cc);
+  }
+
+  LOG(INFO) << "RETURNED: " << ccs.size();
+
   content::BrowserThread::PostTask(
       content::BrowserThread::IO, FROM_HERE,
-      base::Bind(cb, cookies));
+      base::Bind(cb, ccs));
+}
+
+void
+ExoSessionWrap::CallCookiesLoadForKey(
+    const std::string& key,
+    const LoadedCallback& cb)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> session_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!cookies_load_hdlr_.IsEmpty()) {
+    Local<Function> hdlr = 
+      Local<Function>::New(Isolate::GetCurrent(), cookies_load_hdlr_);
+
+    int rid = cookies_load_rid_++;
+    cookies_load_reqs_[rid] = cb;
+    Local<FunctionTemplate> tpl = 
+      FunctionTemplate::New(CookiesLoadForKeyCallback);
+
+    LOG(INFO) << "CookiesLoadForKey: " << key << " [" << rid << "]";
+
+    Local<String> key_arg = String::New(key.c_str());
+    Local<Integer> rid_arg = Integer::New(rid);
+    Local<Function> cb_arg = tpl->GetFunction();
+
+    Local<v8::Value> argv[3] = { key_arg,
+                                 rid_arg,
+                                 cb_arg };
+    hdlr->Call(session_o, 3, argv);
+  }
 }
 
 void
@@ -424,10 +506,75 @@ ExoSessionWrap::CallCookiesLoad(
 
     int rid = cookies_load_rid_++;
     cookies_load_reqs_[rid] = cb;
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(CookiesLoadCallback);
+    Local<FunctionTemplate> tpl = 
+      FunctionTemplate::New(CookiesLoadForKeyCallback);
 
-    Local<Function> cb_arg = tpl->GetFunction();
+    LOG(INFO) << "CookiesLoad [" << rid << "]";
+
+    Local<v8::Value> key_arg = Null();
     Local<Integer> rid_arg = Integer::New(rid);
+    Local<Function> cb_arg = tpl->GetFunction();
+
+    Local<v8::Value> argv[3] = { key_arg,
+                                 rid_arg,
+                                 cb_arg };
+    hdlr->Call(session_o, 3, argv);
+  }
+}
+
+void 
+ExoSessionWrap::SetCookiesFlushHandler(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: hdlr */
+  Local<Function> hdlr = Local<Function>::Cast(args[0]);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+  session_w->cookies_flush_hdlr_.Reset(Isolate::GetCurrent(), hdlr);
+}
+
+void 
+ExoSessionWrap::CookiesFlushCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  ExoSessionWrap* session_w = 
+    ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+
+  /* args[0]: rid */
+  int rid = (Local<Integer>::Cast(args[0]))->Value();
+  base::Closure cb = session_w->cookies_flush_reqs_[rid];
+
+  LOG(INFO) << "CookiesFlushCallback" << " [" << rid << "]";
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE, cb);
+}
+
+void 
+ExoSessionWrap::CallCookiesFlush(
+    const base::Closure& cb)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> session_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!cookies_flush_hdlr_.IsEmpty()) {
+    Local<Function> hdlr = 
+      Local<Function>::New(Isolate::GetCurrent(), cookies_flush_hdlr_);
+
+    int rid = cookies_flush_rid_++;
+    cookies_flush_reqs_[rid] = cb;
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(CookiesFlushCallback);
+
+    LOG(INFO) << "CookiesFlush" << " [" << rid << "]";
+
+    Local<Integer> rid_arg = Integer::New(rid);
+    Local<Function> cb_arg = tpl->GetFunction();
 
     Local<v8::Value> argv[2] = { rid_arg,
                                  cb_arg };

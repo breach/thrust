@@ -44,7 +44,8 @@ exports.data_path = function(app_name) {
       if (!data_path) { 
         throw new Error("Couldn't find the base application data path"); 
       }
-      data_path = path.join(data_path, 'Library', 'Application Support', app_name);
+      data_path = path.join(data_path, 
+                            'Library', 'Application Support', app_name);
       break;
     }
     case 'linux': {
@@ -172,7 +173,6 @@ var exo_session = function(spec, my) {
   // ```
   set_cookie_handlers = function(handlers) {
     my.cookie_handlers = {
-      load_all: handlers.load_all || null,
       load_for_key: handlers.load_for_key || null,
       flush: handlers.flush || null,
       add: handlers.add || null,
@@ -187,14 +187,24 @@ var exo_session = function(spec, my) {
   // Runs initialization procedure.
   init = function() {
     var finish = function() {
-      my.internal._setCookiesLoadHandler(function(rid, cb_) {
-        if(my.cookie_handlers.load_all) {
-          my.cookie_handlers.load_all(function(cookies) {
+      my.internal._setCookiesLoadForKeyHandler(function(key, rid, cb_) {
+        if(my.cookie_handlers.load_for_key) {
+          my.cookie_handlers.load_for_key(key, function(cookies) {
             return (cb_.bind(my.internal, rid, cookies))();
           });
         }
         else {
           return (cb_.bind(my.internal, rid, []))();
+        }
+      });
+      my.internal._setCookiesFlushHandler(function(rid, cb_) {
+        if(my.cookie_handlers.flush) {
+          my.cookie_handlers.flush(function() {
+            return (cb_.bind(my.internal, rid))();
+          });
+        }
+        else {
+          return (cb_.bind(my.internal, rid))();
         }
       });
 

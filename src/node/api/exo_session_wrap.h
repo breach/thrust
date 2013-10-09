@@ -55,11 +55,19 @@ private:
   typedef net::CookieMonster::PersistentCookieStore::LoadedCallback
     LoadedCallback;
 
-  static void SetCookiesLoadHandler(
+  static void SetCookiesLoadForKeyHandler(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void CookiesLoadCallback(
+  static void CookiesLoadForKeyCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CallCookiesLoadForKey(const std::string& key, const LoadedCallback& cb);
   void CallCookiesLoad(const LoadedCallback& cb);
+
+
+  static void SetCookiesFlushHandler(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void CookiesFlushCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CallCookiesFlush(const base::Closure& cb);
 
 
   /****************************************************************************/
@@ -89,6 +97,10 @@ private:
   int                           cookies_load_rid_;
   std::map<int, LoadedCallback> cookies_load_reqs_;
   v8::Persistent<v8::Function>  cookies_load_hdlr_;
+  
+  int                           cookies_flush_rid_;
+  std::map<int, base::Closure>  cookies_flush_reqs_;
+  v8::Persistent<v8::Function>  cookies_flush_hdlr_;
 
   v8::Persistent<v8::Function>  cookies_add_cb_;
   v8::Persistent<v8::Function>  cookies_delete_cb_;
