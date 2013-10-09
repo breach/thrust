@@ -6,9 +6,10 @@
     "email": "polu.stanislas@gmail.com",
     "url": "http://github.com/spolu" 
   },
-  "version": "0.3.0",
+  "version": "0.3.1",
   "dependencies": {
-    "async": "0.2.x"
+    "async": "0.2.x",
+    "mkdirp": "0.3.x"
   },
   "repository" : { 
     "type" :  "git",

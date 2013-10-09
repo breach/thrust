@@ -16,8 +16,53 @@
 var common = require('./common.js');
 var events = require('events');
 var async = require('async');
+var path = require('path');
+var mkdirp = require('mkdirp');
 
 var _exo_browser = apiDispatcher.requireExoBrowser();
+
+// ### data_path
+//
+// Computes a default path for storing app data for the current platform
+// ```
+// @app_name {string} the app name to use
+// ```
+exports.data_path = function(app_name) {
+  var data_path;
+  switch (process.platform) {
+    case 'win32':
+    case 'win64': {
+      data_path = process.env.LOCALAPPDATA || process.env.APPDATA;
+      if (!data_path) { 
+        throw new Error("Couldn't find the base application data path"); 
+      }
+      data_path = path.join(data_path, app_name);
+    }
+    break;
+    case 'darwin': {
+      data_path = process.env.HOME;
+      if (!data_path) { 
+        throw new Error("Couldn't find the base application data path"); 
+      }
+      data_path = path.join(data_path, 'Library', 'Application Support', app_name);
+      break;
+    }
+    case 'linux': {
+      data_path = process.env.HOME;
+      if (!data_path) { 
+        throw new Error("Couldn't find the base application data path"); 
+      }
+      data_path = path.join(data_path, '.config', app_name);
+      break;
+    }
+    default: {
+      throw new Error("Can't compute application data path for platform: " + 
+                      process.platform);
+      break;
+    }
+  }
+  return data_path;
+};
 
 
 // ## exo_session
@@ -45,7 +90,7 @@ var exo_session = function(spec, my) {
   my.off_the_record = 
     (typeof spec.off_the_record === 'undefined') ? true : spec.off_the_record;
   /* TODO(spolu): Provide default path facility. */
-  my.path = spec.path || '~/.exo_browser';
+  my.path = spec.path || exports.data_path('exo_browser_api');
 
   my.cookie_handlers = {
     load_all: null,                 /* load_all(cb_(cookies)) */
@@ -180,18 +225,28 @@ var exo_session = function(spec, my) {
 
     set_cookie_handlers(spec.cookie_handlers || {});
 
-    if(my.internal) {
-      return finish();
-    }
-    else {
-      _exo_browser._createExoSession({
-        path: my.path,
-        off_the_record: my.off_the_record
-      }, function(s) {
-        my.internal = s;
-        return finish();
-      });
-    }
+    mkdirp(my.path, function(err) {
+      if(err) {
+        /* We can't do much more than throwing the error as there is no       */
+        /* handler to pass it to. It would be a bad idea to start the browser */
+        /* without a proper data directory setup.                             */
+        throw err;
+      }
+      else {
+        if(my.internal) {
+          return finish();
+        }
+        else {
+          _exo_browser._createExoSession({
+            path: my.path,
+            off_the_record: my.off_the_record
+          }, function(s) {
+            my.internal = s;
+            return finish();
+          });
+        }
+      }
+    });
   };
 
 
@@ -201,7 +256,6 @@ var exo_session = function(spec, my) {
   common.method(that, 'pre', pre, _super);
 
   common.method(that, 'set_cookie_handlers', set_cookie_handlers, _super);
-  common.method(that, 'sanitize_cookie', sanitize_cookie, _super);
 
   /* Should only be called by exo_frame. */
   common.getter(that, 'internal', my, 'internal');
@@ -210,7 +264,12 @@ var exo_session = function(spec, my) {
 };
 
 exports.exo_session = exo_session;
-exports._default_session = exo_session({});
+exports.default_session = function() {
+  if(!exports._default_session) {
+    exports._default_session = exo_session({});
+  }
+  return exports._default_session;
+};
 
 
 
@@ -244,7 +303,7 @@ var exo_frame = function(spec, my) {
 
   my.url = spec.url || '';
   my.name = spec.name || ('fr-' + (exports.frame_count++));
-  my.session = spec.session || exports._default_session;
+  my.session = spec.session || exports.default_session();
 
   my.visible = false;
   my.parent = null;
@@ -965,15 +1024,12 @@ var exo_browser = function(spec, my) {
         var frame = exo_frame({ internal: _frame });
         frame.on('ready', function() {
           that.emit('frame_created', frame, disposition, initial_pos, origin);
-          console.log(frame.name() + ': ' + disposition + 
-                      ' ' + initial_pos + ' [' + origin.name() + ']');
         });
       });
       my.internal._setFrameKeyboardCallback(function(from, event) {
         that.emit('frame_keyboard', my.frames[from], event);
       });
       my.internal._setNavigationStateCallback(function(from, state) {
-        //console.log(state);
         state.entries.forEach(function(e) {
           e.url = require('url').parse(e.virtual_url || '');
         });
