@@ -73,6 +73,7 @@ ExoSession::ExoSession(
   ignore_certificate_errors_(false),
   resource_context_(new ExoResourceContext),
   cookie_store_(new ExoSessionCookieStore(this)),
+  visitedlink_store_(new ExoSessionVisitedLinkStore(this)),
   wrapper_(wrapper)
 {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -81,6 +82,9 @@ ExoSession::ExoSession(
   }
   path_ = base::FilePath(path);
 
+  bool result = visitedlink_store_->Init();
+  LOG(INFO) << "VisitedLink Init: " << result;
+  
   ExoBrowserContentBrowserClient::Get()->RegisterExoSession(this);
 }
 
@@ -229,6 +233,12 @@ ExoSessionCookieStore*
 ExoSession::GetCookieStore()
 {
   return cookie_store_.get();
+}
+
+ExoSessionVisitedLinkStore*
+ExoSession::GetVisitedLinkStore()
+{
+  return visitedlink_store_.get();
 }
 
 }  // namespace exo_browser

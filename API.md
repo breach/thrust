@@ -18,15 +18,17 @@ var s = api.exo_session({
   cookie_handlers: { ... }
 });
 
-s.set_cookie_handlers({
-  load_all: null,                 /* load_all(cb_(cookies)) */
+exo_session.set_cookie_handlers({
   load_for_key: null,             /* load_for_key(key, cb_(cookies)); */
   flush: null,                    /* flush(cb_()); */
-  add: null,                      /* add(c); */
-  remove: null,                   /* remove(c); */
-  update_access_time: null,       /* update_access_time(c); */
+  add: null,                      /* add(cc); */
+  remove: null,                   /* remove(cc); */
+  update_access_time: null,       /* update_access_time(cc); */
   force_keep_session_state: null  /* force_keep_session_state(); */
 });
+
+exo_session.add_visited_link(url, [cb_]);
+exo_session.clear_visited_links([cb_]);
 
 
 var b = api.exo_browser({
@@ -48,7 +50,6 @@ exo_browser#frame_load_finish(frame, url)
 exo_browser#frame_loading_start(frame)
 exo_browser#frame_loading_stop(frame)
 exo_browser#frame_created(frame, dispostion, initial_pos, from)
-
 
 exo_browser.frame(name);
 
@@ -108,8 +109,7 @@ _exo_browser._createExoSession({
   off_the_record: false
 }, cb_);
 
-s._setCookiesLoadHandler(rid, cb_);
-s._setCookiesLoadForKeyHandler(rid, cb_);
+s._setCookiesLoadForKeyHandler(key, rid, cb_);
 s._setCookiesFlushHandler(rid, cb_);
 
 s._setCookiesAddCallback(cookie);
@@ -117,10 +117,8 @@ s._setCookiesDeleteCallback(cookie);
 s._setCookiesUpdateAccessTimeCallback(cookie);
 s._setCookiesForceKeepSessionStateCallback(cookie);
 
-/* TBD */
 s._addVisitedLink(link, cb_);
-s._removeVisitedLink(link, cb_);
-s._removeAllVisitedLink(cb_);
+s._clearVisitedLinks(cb_);
 
 
 /*********************************************************************/

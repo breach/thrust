@@ -52,6 +52,9 @@
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
         '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
         '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
+        '<(DEPTH)/components/components.gyp:visitedlink_browser',
+        '<(DEPTH)/components/components.gyp:visitedlink_common',
+        '<(DEPTH)/components/components.gyp:visitedlink_renderer',
         '<(DEPTH)/third_party/node/node.gyp:node_base'
       ],
       'include_dirs': [
@@ -96,6 +99,8 @@
         'src/browser/session/exo_session.cc',
         'src/browser/session/exo_session_cookie_store.h',
         'src/browser/session/exo_session_cookie_store.cc',
+        'src/browser/session/exo_session_visitedlink_store.h',
+        'src/browser/session/exo_session_visitedlink_store.cc',
         'src/browser/ui/exo_browser.h',
         'src/browser/ui/exo_browser.cc',
         'src/browser/ui/exo_browser_gtk.cc',

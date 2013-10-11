@@ -142,8 +142,14 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
         scoped_ptr<net::HttpServerProperties>(
             new net::HttpServerPropertiesImpl()));
 
-    base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
-    net::HttpCache::DefaultBackend* main_backend =
+
+    net::HttpCache::BackendFactory* main_backend = NULL;
+    if(parent_->IsOffTheRecord()) {
+      main_backend = net::HttpCache::DefaultBackend::InMemory(0);
+    }
+    else {
+      base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
+      main_backend =
         new net::HttpCache::DefaultBackend(
             net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
@@ -151,6 +157,7 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
             0,
             BrowserThread::GetMessageLoopProxyForThread(BrowserThread::CACHE)
                 .get());
+    }
 
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.cert_verifier =

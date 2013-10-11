@@ -72,7 +72,8 @@ var session = function(spec, my) {
     my.name = my.exo_browser.name();
 
     my.exo_session = api.exo_session({
-      path: api.data_path('exo_browser_shell')
+      path: api.data_path('exo_browser_shell'),
+      off_the_record: false
     });
 
     my.exo_browser.on('frame_created', browser_frame_created);
@@ -91,6 +92,11 @@ var session = function(spec, my) {
 
     my.box = require('./box.js').box({
       session: that
+    });
+
+    my.exo_browser.on('frame_navigation_state', function(frame, state) {
+      var href = state.entries[state.entries.length - 1].url.href;
+      my.exo_session.add_visited_link(href);
     });
 
     async.parallel({

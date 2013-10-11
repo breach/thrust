@@ -75,7 +75,6 @@ exports.data_path = function(app_name) {
 // independent (unless they share local HTML5 Storage)
 //
 // The `path` arguments is expected
-// TODO(spolu): default paths?
 // ```
 // @spec { [path], [off_the_record], [cookie_handlers] }
 // ```
@@ -89,8 +88,7 @@ var exo_session = function(spec, my) {
   my.killed = false;
   
   my.off_the_record = 
-    (typeof spec.off_the_record === 'undefined') ? true : spec.off_the_record;
-  /* TODO(spolu): Provide default path facility. */
+    (typeof spec.off_the_record === 'boolean') ? spec.off_the_record : true;
   my.path = spec.path || exports.data_path('exo_browser_api');
 
   my.cookie_handlers = {
@@ -109,6 +107,8 @@ var exo_session = function(spec, my) {
   //
   var kill;                  /* kill(); */
   var set_cookie_handlers;   /* set_cookie_handlers({}); */
+  var add_visited_link;      /* add_visited_link(url); */
+  var clear_visited_links;   /* clear_visited_links(); */
 
   //
   // #### _protected_
@@ -182,6 +182,46 @@ var exo_session = function(spec, my) {
     };
   };
 
+  // ### add_visited_link
+  //
+  // Adds an URL to the list of visited links (stored on disk if not of the 
+  // record)
+  // ```
+  // @url {string} the url to load
+  // @cb_ {function(err)} [optional]
+  // ```
+  add_visited_link = function(url, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._addVisitedLink(url, function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### clear_visited_links
+  //
+  // Clears all visited links and destroy the file system storage if it exists.
+  // ```
+  // @cb_ {function(err)} [optional]
+  // ```
+  clear_visited_links = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._clearVisitedLinks(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
   // ### init
   //
   // Runs initialization procedure.
@@ -235,28 +275,37 @@ var exo_session = function(spec, my) {
 
     set_cookie_handlers(spec.cookie_handlers || {});
 
-    mkdirp(my.path, function(err) {
-      if(err) {
-        /* We can't do much more than throwing the error as there is no       */
-        /* handler to pass it to. It would be a bad idea to start the browser */
-        /* without a proper data directory setup.                             */
-        throw err;
+    var create = function() {
+      if(my.internal) {
+        return finish();
       }
       else {
-        if(my.internal) {
+        _exo_browser._createExoSession({
+          path: my.path,
+          off_the_record: my.off_the_record
+        }, function(s) {
+          my.internal = s;
           return finish();
+        });
+      }
+    };
+
+    if(!my.off_the_record) {
+      mkdirp(my.path, function(err) {
+        if(err) {
+          /* We can't do much more than throwing the error as there is no       */
+          /* handler to pass it to. It would be a bad idea to start the browser */
+          /* without a proper data directory setup.                             */
+          throw err;
         }
         else {
-          _exo_browser._createExoSession({
-            path: my.path,
-            off_the_record: my.off_the_record
-          }, function(s) {
-            my.internal = s;
-            return finish();
-          });
+          create();
         }
-      }
-    });
+      });
+    }
+    else {
+      create();
+    }
   };
 
 
@@ -266,6 +315,8 @@ var exo_session = function(spec, my) {
   common.method(that, 'pre', pre, _super);
 
   common.method(that, 'set_cookie_handlers', set_cookie_handlers, _super);
+  common.method(that, 'add_visited_link', add_visited_link, _super);
+  common.method(that, 'clear_visited_links', clear_visited_links, _super);
 
   /* Should only be called by exo_frame. */
   common.getter(that, 'internal', my, 'internal');
@@ -380,6 +431,7 @@ var exo_frame = function(spec, my) {
   // ```
   // @url {string} the url to load
   // @cb_ {function(err)} [optional]
+  // ```
   load_url = function(url, cb_) {
     pre(function(err) {
       if(err) {

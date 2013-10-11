@@ -11,6 +11,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
 #include "exo_browser/src/browser/session/exo_session_cookie_store.h"
+#include "exo_browser/src/browser/session/exo_session_visitedlink_store.h"
 
 namespace exo_browser {
 
@@ -49,13 +50,13 @@ class ExoBrowserDownloadManagerDelegate;
 class ExoSession : public content::BrowserContext {
 public:
   /****************************************************************************/
-  /*                           PUBLIC INTERFACE                               */
+  /* PUBLIC INTERFACE                                                         */
   /****************************************************************************/
   // ### ~ExoSession
   virtual ~ExoSession();
 
   /****************************************************************************/
-  /*                     BROWSER CONTEXT IMPLEMENTATION                       */
+  /* BROWSER CONTEXT IMPLEMENTATION                                           */
   /****************************************************************************/
   virtual base::FilePath GetPath() const OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
@@ -85,7 +86,7 @@ public:
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
 
   /****************************************************************************/
-  /*                     REQUEST CONTEXT GETTER HELPERS                       */
+  /* REQUEST CONTEXT GETTER HELPERS                                           */
   /****************************************************************************/
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers);
@@ -95,12 +96,13 @@ public:
       content::ProtocolHandlerMap* protocol_handlers);
 
   ExoSessionCookieStore* GetCookieStore();
+  ExoSessionVisitedLinkStore* GetVisitedLinkStore();
 
 private:
   class ExoResourceContext;
 
   /****************************************************************************/
-  /*                           PRIVATE INTERFACE                              */
+  /* PRIVATE INTERFACE                                                        */
   /****************************************************************************/
   // ### ExoSession
   ExoSession(const bool off_the_record,
@@ -108,7 +110,7 @@ private:
              ExoSessionWrap* wrapper = NULL);
 
   /****************************************************************************/
-  /*                               MEMBERS                                    */
+  /* MEMBERS                                                                   */
   /****************************************************************************/
   bool                                             off_the_record_;
   bool                                             ignore_certificate_errors_;
@@ -118,6 +120,7 @@ private:
   scoped_refptr<ExoBrowserURLRequestContextGetter> url_request_getter_;
   scoped_refptr<ExoBrowserDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
+  scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 
   ExoSessionWrap*                                  wrapper_;
 

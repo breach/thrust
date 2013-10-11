@@ -49,6 +49,13 @@ private:
   void OffTheRecordTask(bool* off_the_record,
                         v8::Persistent<v8::Function>* cb_p);
 
+  static void AddVisitedLink(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void AddVisitedLinkTask(const std::string& url,
+                          v8::Persistent<v8::Function>* cb_p);
+  static void ClearVisitedLinks(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ClearVisitedLinksTask(v8::Persistent<v8::Function>* cb_p);
+
   /****************************************************************************/
   /*                                HANDLERS                                  */
   /****************************************************************************/

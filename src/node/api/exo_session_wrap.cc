@@ -101,8 +101,12 @@ ExoSessionWrap::Init(
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   /* Prototype */
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_off_the_record"),
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_offTheRecord"),
       FunctionTemplate::New(OffTheRecord)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_addVisitedLink"),
+      FunctionTemplate::New(AddVisitedLink)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_clearVisitedLinks"),
+      FunctionTemplate::New(ClearVisitedLinks)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setCookiesAddCallback"),
       FunctionTemplate::New(SetCookiesAddCallback)->GetFunction());
@@ -253,6 +257,7 @@ ExoSessionWrap::OffTheRecord(
   bool* off_the_record = new bool;
 
   ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ExoSessionWrap::OffTheRecordTask, 
@@ -272,6 +277,76 @@ ExoSessionWrap::OffTheRecordTask(
       FROM_HERE,
       base::Bind(&ExoSessionWrap::BooleanCallback, this, cb_p, off_the_record));
 }
+
+void 
+ExoSessionWrap::AddVisitedLink(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: url */
+  std::string url = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[0])));
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoSessionWrap::AddVisitedLinkTask, 
+                 session_w, url, cb_p));
+}
+
+void
+ExoSessionWrap::AddVisitedLinkTask(
+    const std::string& url,
+    Persistent<Function>* cb_p)
+{
+  if(session_ != NULL)
+    session_->GetVisitedLinkStore()->Add(url);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoSessionWrap::EmptyCallback, this, cb_p));
+}
+
+
+void 
+ExoSessionWrap::ClearVisitedLinks(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoSessionWrap::ClearVisitedLinksTask, 
+                 session_w, cb_p));
+}
+
+void
+ExoSessionWrap::ClearVisitedLinksTask(
+    Persistent<Function>* cb_p)
+{
+  if(session_ != NULL)
+    session_->GetVisitedLinkStore()->Clear();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoSessionWrap::EmptyCallback, this, cb_p));
+}
+
+
 /******************************************************************************/
 /*                                DISPATCHERS                                */
 /******************************************************************************/

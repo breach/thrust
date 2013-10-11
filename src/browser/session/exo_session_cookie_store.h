@@ -33,7 +33,7 @@ public:
   virtual ~ExoSessionCookieStore();
 
   /****************************************************************************/
-  /*             COOKIE MONSTER PERSISTENT STORE IMPLEMENTATION               */
+  /* COOKIE MONSTER PERSISTENT STORE IMPLEMENTATION                           */
   /****************************************************************************/
   virtual void Load(const LoadedCallback& loaded_callback);
 
@@ -53,6 +53,8 @@ private:
   ExoSession*         parent_;
 
   friend class ExoSession;
+
+  DISALLOW_COPY_AND_ASSIGN(ExoSessionCookieStore);
 };
   
 } // namespace exo_browser
