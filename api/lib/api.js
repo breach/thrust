@@ -321,6 +321,9 @@ var exo_session = function(spec, my) {
   /* Should only be called by exo_frame. */
   common.getter(that, 'internal', my, 'internal');
 
+  common.getter(that, 'off_the_record', my, 'off_the_record');
+  common.getter(that, 'path', my, 'path');
+
   return that;
 };
 

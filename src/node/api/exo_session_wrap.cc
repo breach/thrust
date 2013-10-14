@@ -37,11 +37,11 @@ ObjectFromCanonicalCookie(
                 String::New(cc.Path().c_str()));
 
   cookie_o->Set(String::New("creation"),
-                Number::New(cc.CreationDate().ToInternalValue() / 1000));
+                Number::New(cc.CreationDate().ToInternalValue()));
   cookie_o->Set(String::New("expiry"),
-                Number::New(cc.ExpiryDate().ToInternalValue() / 1000));
+                Number::New(cc.ExpiryDate().ToInternalValue()));
   cookie_o->Set(String::New("last_access"),
-                Number::New(cc.LastAccessDate().ToInternalValue() / 1000));
+                Number::New(cc.LastAccessDate().ToInternalValue()));
 
   cookie_o->Set(String::New("secure"),
                 Boolean::New(cc.IsSecure()));

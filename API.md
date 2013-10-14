@@ -30,6 +30,9 @@ exo_session.set_cookie_handlers({
 exo_session.add_visited_link(url, [cb_]);
 exo_session.clear_visited_links([cb_]);
 
+exo_session.off_the_record();
+exo_session.path();
+
 
 var b = api.exo_browser({
   size: [123, 23]

@@ -9,6 +9,7 @@
  * 2013-08-12 spolu   Creation
  * 2013-09-05 spolu   Fix #56
  * 2013-09-23 spolu   Simplification for Shell
+ * 2013-10-14 spolu   Cookie Store integration #79
  */
 
 var events = require('events');
@@ -75,6 +76,9 @@ var session = function(spec, my) {
       path: api.data_path('exo_browser_shell'),
       off_the_record: false
     });
+    my.cookie_store = require('./cookie_store.js').cookie_store({
+      session: my.exo_session
+    });
 
     my.exo_browser.on('frame_created', browser_frame_created);
     my.exo_browser.on('frame_close', browser_frame_close);
@@ -95,8 +99,10 @@ var session = function(spec, my) {
     });
 
     my.exo_browser.on('frame_navigation_state', function(frame, state) {
-      var href = state.entries[state.entries.length - 1].url.href;
-      my.exo_session.add_visited_link(href);
+      if(state.entries.length > 0) {
+        var href = state.entries[state.entries.length - 1].url.href;
+        my.exo_session.add_visited_link(href);
+      }
     });
 
     async.parallel({

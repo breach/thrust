@@ -9,6 +9,7 @@
  */
 var util = require('util');
 var events = require('events');
+var nedb = require('nedb');
 
 "use strict";
 
@@ -201,10 +202,14 @@ var factory = function(spec, my) {
   my.DEBUG = spec.debug || false;
   my.name = spec.name;
 
+  my.db = {};
+  my.in_memory_db = null;
+
   // 
   // #### _private methods_
   //
   var log;          /* log(str); */
+  var db;           /* db(path); */
 
   //
   // #### _that_
@@ -212,15 +217,14 @@ var factory = function(spec, my) {
   var that = new events.EventEmitter();
 
 
-  //
   // ### log
+  //
+  // Log helper function for `my.log` object implementation
   // ```
   // @str {string} the string to log
   // @debug {boolean} is it debug
   // @error {boolean} is it error
   // ```
-  // Log helper function for `my.log` object implementation
-  //
   log = function(str, debug, error) {
     if(!my.LOGGING) return;
     var pre = '[' + new Date().toISOString() + '] ';
@@ -236,10 +240,9 @@ var factory = function(spec, my) {
     });
   };
 
-  //
   // ### log object
+  //
   // Log object exposed by the factory with `out`, `error`, `debug` methods
-  // 
   my.log = {
     out: function(str) {
       log(str);
@@ -249,7 +252,7 @@ var factory = function(spec, my) {
         log('*********************************************', false, true);
         log('ERROR: ' + err.message);
         log('*********************************************', false, true);
-        log(err.stack);
+        log(err.stack || '');
         log('---------------------------------------------', false, true);
       }
       else {
@@ -268,11 +271,36 @@ var factory = function(spec, my) {
     }
   };
 
+  // ### db
+  //
+  // Returns the DB for the given path. If path is not specified, then the DB 
+  // will be run in-memory
+  // ```
+  // @path {string} path to use for the nedb
+  // ```
+  db = function(path) {
+    if(!path) {
+      if(!my.in_memory_db) {
+        my.in_memory_db = new nedb();
+      }
+      return my.in_memory_db;
+    }
+    if(!my.db[path]) {
+      my.db[path] = new nedb({ 
+        filename: path, 
+        autoload: true 
+      });
+    }
+    return my.db[path];
+  };
+
   exports.getter(that, 'log', my, 'log');
 
   exports.setter(that, 'debug', my, 'DEBUG');
   exports.setter(that, 'logging', my, 'LOGGING');
   exports.setter(that, 'name', my, 'name');
+
+  exports.method(that, 'db', db, _super);
 
   return that;
 };
