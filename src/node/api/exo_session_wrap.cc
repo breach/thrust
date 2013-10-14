@@ -107,6 +107,10 @@ ExoSessionWrap::Init(
       FunctionTemplate::New(AddVisitedLink)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_clearVisitedLinks"),
       FunctionTemplate::New(ClearVisitedLinks)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_clearAllData"),
+      FunctionTemplate::New(ClearAllData)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_clearDataForOrigin"),
+      FunctionTemplate::New(ClearDataForOrigin)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setCookiesAddCallback"),
       FunctionTemplate::New(SetCookiesAddCallback)->GetFunction());
@@ -340,6 +344,73 @@ ExoSessionWrap::ClearVisitedLinksTask(
 {
   if(session_ != NULL)
     session_->GetVisitedLinkStore()->Clear();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoSessionWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoSessionWrap::ClearAllData(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoSessionWrap::ClearAllDataTask, 
+                 session_w, cb_p));
+}
+
+void
+ExoSessionWrap::ClearAllDataTask(
+    Persistent<Function>* cb_p)
+{
+  if(session_ != NULL)
+    session_->ClearAllData();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoSessionWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoSessionWrap::ClearDataForOrigin(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: url */
+  std::string url = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[0])));
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(args.This());
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoSessionWrap::ClearDataForOriginTask, 
+                 session_w, url, cb_p));
+}
+
+void
+ExoSessionWrap::ClearDataForOriginTask(
+    const std::string& url,
+    Persistent<Function>* cb_p)
+{
+  if(session_ != NULL)
+    session_->ClearDataForOrigin(GURL(url));
 
   NodeThread::Get()->PostTask(
       FROM_HERE,

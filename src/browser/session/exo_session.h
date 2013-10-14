@@ -55,6 +55,21 @@ public:
   // ### ~ExoSession
   virtual ~ExoSession();
 
+  // ### ClearAllData
+  //
+  // Clears all data stored related to this session. The process is async and
+  // does not return a callback.
+  void ClearAllData();
+
+  // ### ClearDataForOrigin
+  //
+  // Clears all data stored related to this session and the provided origin. It
+  // does not return a callback.
+  // ```
+  // @origin {GURL}
+  // ```
+  void ClearDataForOrigin(const GURL& storage_origin);
+
   /****************************************************************************/
   /* BROWSER CONTEXT IMPLEMENTATION                                           */
   /****************************************************************************/

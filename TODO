@@ -1,5 +1,5 @@
 :exo_session
-  - Delete VisitedLinks / Cache / Local Storage JS API
+  - Fix ClearDataForOrigin (no match -> ClearAll, match stacks)
 
 :api_source
   - Access ExoFrame Source Code from API
@@ -13,3 +13,4 @@ DONE:
 - Cookie Deserialization
 - Expose VisitedLinks AddURL to JS (to add url from there)
 - Embed NeDB in Shell for Cookie Storage
+- Delete VisitedLinks / Cache / Local Storage JS API

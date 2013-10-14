@@ -108,6 +108,26 @@ ExoSession::~ExoSession()
   LOG(INFO) << "ExoSesion Destructor";
 }
 
+void
+ExoSession::ClearAllData()
+{
+  LOG(INFO) << "CLEAR ALL DATA";
+  GetDefaultStoragePartition(this)->ClearDataForUnboundedRange(
+      StoragePartition::REMOVE_DATA_MASK_ALL,
+      StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL);
+}
+
+void
+ExoSession::ClearDataForOrigin(const GURL& storage_origin)
+{
+  LOG(INFO) << "CLEAR DATA FOR ORIGIN";
+  GetDefaultStoragePartition(this)->ClearDataForOrigin(
+      StoragePartition::REMOVE_DATA_MASK_ALL,
+      StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL,
+      storage_origin,
+      GetDefaultStoragePartition(this)->GetURLRequestContext());
+}
+
 base::FilePath 
 ExoSession::GetPath() const 
 {
@@ -182,6 +202,7 @@ ExoSession::CreateRequestContextForStoragePartition(
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers) 
 {
+  DCHECK(false);
   /* TODO(spolu): Add Support URLRequestContextGetter per StoragePartition. */
   /*              This might be made easier once http://crbug.com/159193    */
   /*              has landed in a release branch.                           */

@@ -109,6 +109,8 @@ var exo_session = function(spec, my) {
   var set_cookie_handlers;   /* set_cookie_handlers({}); */
   var add_visited_link;      /* add_visited_link(url); */
   var clear_visited_links;   /* clear_visited_links(); */
+  var clear_all_data;        /* clear_all_data(); */
+  var clear_data_for_origin; /* clear_data_for_origin(url); */
 
   //
   // #### _protected_
@@ -222,6 +224,45 @@ var exo_session = function(spec, my) {
     });
   };
 
+  // ### clear_all_data
+  //
+  // Clears all persisted data
+  // ```
+  // @cb_ {function(err)} [optional]
+  // ```
+  clear_all_data = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._clearAllData(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### clear_data_for_origin
+  //
+  // Clears all persisted data related to origin
+  // ```
+  // @url {string} the origin to clear
+  // @cb_ {function(err)} [optional]
+  // ```
+  clear_data_for_origin = function(url, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._clearDataForOrigin(url, function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
   // ### init
   //
   // Runs initialization procedure.
@@ -317,6 +358,9 @@ var exo_session = function(spec, my) {
   common.method(that, 'set_cookie_handlers', set_cookie_handlers, _super);
   common.method(that, 'add_visited_link', add_visited_link, _super);
   common.method(that, 'clear_visited_links', clear_visited_links, _super);
+
+  common.method(that, 'clear_all_data', clear_all_data, _super);
+  common.method(that, 'clear_data_for_origin', clear_data_for_origin, _super);
 
   /* Should only be called by exo_frame. */
   common.getter(that, 'internal', my, 'internal');

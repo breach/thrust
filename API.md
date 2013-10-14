@@ -120,9 +120,11 @@ s._setCookiesDeleteCallback(cookie);
 s._setCookiesUpdateAccessTimeCallback(cookie);
 s._setCookiesForceKeepSessionStateCallback(cookie);
 
-s._addVisitedLink(link, cb_);
+s._addVisitedLink(url, cb_);
 s._clearVisitedLinks(cb_);
 
+s._clearAllData(cb_);
+s._clearDataForOrigin(url, cb_);
 
 /*********************************************************************/
 /* EXOBROWSER */

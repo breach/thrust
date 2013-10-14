@@ -105,7 +105,6 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 
-    /* TODO(spolu): net cookies */
     if(parent_) {
       storage_->set_cookie_store(
           new net::CookieMonster(parent_->GetCookieStore(), NULL));
@@ -128,7 +127,7 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(new net::TransportSecurityState);
 
-    // TODO(spolu): use v8 if possible, look at chrome code.
+    /* TODO(spolu): use v8 if possible, look at chrome code. */
     storage_->set_proxy_service(
         net::ProxyService::CreateUsingSystemProxyResolver(
           proxy_config_service_.release(),
