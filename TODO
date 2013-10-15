@@ -1,11 +1,13 @@
-:exo_session
-  - Fix ClearDataForOrigin (no match -> ClearAll, match stacks)
 
-:api_source
+:api_source #78
   - Access ExoFrame Source Code from API
 
-:api_capture
+:api_capture #77
   - Capture ExoFrame ScreenShot from API
+
+:cleanser #90
+  - Reintroduce ClearDataForOrigin
+  - Ability to list Data
 
 DONE:
 - Finish Cookie API: Load/LoadForKey/Flush
