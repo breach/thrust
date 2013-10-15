@@ -10,6 +10,10 @@
 #include "base/platform_file.h"
 #include "content/public/renderer/content_renderer_client.h"
 
+namespace visitedlink {                                                         
+class VisitedLinkSlave;                                                         
+}    
+
 namespace WebKit {
 class WebFrame;
 class WebPlugin;
@@ -37,8 +41,14 @@ class ExoBrowserContentRendererClient : public content::ContentRendererClient {
       const WebKit::WebPluginParams& params,
       WebKit::WebPlugin** plugin) OVERRIDE;
 
+  virtual unsigned long long VisitedLinkHash(const char* canonical_url,         
+                                             size_t length) OVERRIDE;           
+  virtual bool IsLinkVisited(unsigned long long link_hash) OVERRIDE;   
+
+
  private:
   scoped_ptr<ExoBrowserRenderProcessObserver> observer_;
+  scoped_ptr<visitedlink::VisitedLinkSlave>   visited_link_slave_;
 };
 
 } // namespace exo_browser

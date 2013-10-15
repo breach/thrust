@@ -11,8 +11,10 @@
 #include "exo_browser/src/browser/ui/exo_browser.h"
 #include "exo_browser/src/browser/ui/exo_frame.h"
 #include "exo_browser/src/node/api/exo_browser_wrap.h"
+#include "exo_browser/src/node/api/exo_session_wrap.h"
 #include "exo_browser/src/node/node_thread.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
+
 
 using namespace v8;
 
@@ -110,12 +112,18 @@ ExoFrameWrap::CreateExoFrame(
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
 
-  /* args[0]: spec = { name, url } */
+  /* args[0]: spec = { name, url, session } */
   Local<Object> spec = Local<Object>::Cast(args[0]);
   std::string name = std::string(
       *String::Utf8Value(spec->Get(String::New("name"))->ToString()));
   std::string url = std::string(
       *String::Utf8Value(spec->Get(String::New("url"))->ToString()));
+  Local<Object> session_o = 
+    Local<Object>::Cast(spec->Get(String::New("session")));
+  ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(session_o);
+  /* We keep the ExoSessionWrap as is and suppose here that the object won't */
+  /* be reclaimed for the time of the ExoFrame construction. The API wrapper */
+  /* must ensure that.                                                       */
   
   /* args[1]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[1]);
@@ -124,7 +132,8 @@ ExoFrameWrap::CreateExoFrame(
 
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::CreateTask, frame_w, name, url, frame_p, cb_p));
+      base::Bind(&ExoFrameWrap::CreateTask, frame_w, 
+                 name, url, (void*)session_w, frame_p, cb_p));
 }
 
 
@@ -132,10 +141,12 @@ void
 ExoFrameWrap::CreateTask(
     const std::string& name,
     const std::string& url,
+    void* session_w,
     Persistent<Object>* frame_p,
     Persistent<Function>* cb_p)
 {
   frame_ = new ExoFrame(name,
+                        ((ExoSessionWrap*)session_w)->session_,
                         this);
   frame_->LoadURL(GURL(url));
 

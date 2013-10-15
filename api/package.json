@@ -1,14 +1,28 @@
 {
   "name": "exo_browser",
-  "version": "0.2.0",
   "description": "ExoBrowser JS API",
-  "dependencies": {
-    "async": "0.2.x"
+  "author": {
+    "name": "Stanislas Polu",
+    "email": "polu.stanislas@gmail.com",
+    "url": "http://github.com/spolu" 
   },
-  "author": { "name": "Stanislas Polu",
-              "email": "polu.stanislas@gmail.com",
-	      "url": "http://github.com/spolu" },
-  "repository" :    { "type" :  "git",
-                      "url" :   "http://github.com/spolu/exo_browser.git" },
+  "version": "0.3.5",
+  "dependencies": {
+    "async": "0.2.x",
+    "mkdirp": "0.3.x"
+  },
+  "repository" : { 
+    "type" :  "git",
+    "url" :   "http://github.com/spolu/exo_browser.git" 
+  },
+  "bugs": {
+    "url": "https://github.com/spolu/exo_browser/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/spolu/exo_browser/raw/master/LICENSE"
+    }
+  ],
   "main": "./lib/api.js"
 }

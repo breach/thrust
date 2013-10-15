@@ -19,6 +19,7 @@ class ExoBrowserMainParts;
 class ExoBrowserContext;
 class ExoBrowserResourceDispatcherHostDelegate;
 class RenderProcessHost;
+class ExoSession;
 
 class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
  public:
@@ -28,7 +29,9 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
   ExoBrowserContentBrowserClient();
   virtual ~ExoBrowserContentBrowserClient();
 
-  // ContentBrowserClient Override.
+  /****************************************************************************/
+  /*                  CONTENTBROWSERCLIENT IMPLEMENTATION                     */
+  /****************************************************************************/
   virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
 
@@ -42,7 +45,8 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 
-  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  /* TODO(spolu): Reintroduce AccessTokenStore */
+  //virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
 
   virtual std::string GetDefaultDownloadName() OVERRIDE;
 
@@ -67,9 +71,35 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
 
-  ExoBrowserContext* browser_context();
-  ExoBrowserContext* off_the_record_browser_context();
+  /****************************************************************************/
+  /*                            EXOSESSION I/F                                */
+  /****************************************************************************/
+  // ### RegisterExoSession
+  // ```
+  // @session {ExoSession} the session to register
+  // ```
+  // Lets ExoSession register themselves when constructed so that they can be
+  // retrieved from their underlying BrowserContext when needed.
+  // see ExoSessionForBrowserContext
+  void RegisterExoSession(ExoSession* session);
 
+  // ### UnRegisterExoSession
+  // ```
+  // @session {ExoSession} the session to unregister
+  // ```
+  void UnRegisterExoSession(ExoSession* session);
+
+  // ### ExoSessionFroBrowserContext
+  // ```
+  // @content_browser_context {BrowserContext}
+  // ```
+  // Retrieves the ExoSession wrapping the given content::BrowserContext
+  ExoSession* ExoSessionForBrowserContext(
+      content::BrowserContext* browser_context);
+
+  /****************************************************************************/
+  /*                              ACCESSORS                                   */
+  /****************************************************************************/
   ExoBrowserResourceDispatcherHostDelegate* 
   resource_dispatcher_host_delegate() {
     return resource_dispatcher_host_delegate_.get();
@@ -78,14 +108,13 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
     return browser_main_parts_;
   }
 
+
  private:
-  ExoBrowserContext* ExoBrowserContextForBrowserContext(
-      content::BrowserContext* content_browser_context);
-
   scoped_ptr<ExoBrowserResourceDispatcherHostDelegate>
-      resource_dispatcher_host_delegate_;
+                            resource_dispatcher_host_delegate_;
 
-  ExoBrowserMainParts* browser_main_parts_;
+  ExoBrowserMainParts*      browser_main_parts_;
+  std::vector<ExoSession*>  sessions_;
 };
 
 } // namespace exo_browser

@@ -18,6 +18,7 @@ class ObjectWrap;
 
 namespace exo_browser {
 
+class ExoSession;
 
 class ExoBrowserWrap : public ObjectWrap {
 public:

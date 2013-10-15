@@ -9,9 +9,31 @@ JS counterparts Wrappers.
 
 No DevTools ATM
 
-#### API v0.alpha:
+#### API v0.3-beta:
 
 ```
+var s = api.exo_session({
+  path: '',
+  off_the_record: false
+  cookie_handlers: { ... }
+});
+
+exo_session.set_cookie_handlers({
+  load_for_key: null,             /* load_for_key(key, cb_(cookies)); */
+  flush: null,                    /* flush(cb_()); */
+  add: null,                      /* add(cc); */
+  remove: null,                   /* remove(cc); */
+  update_access_time: null,       /* update_access_time(cc); */
+  force_keep_session_state: null  /* force_keep_session_state(); */
+});
+
+exo_session.add_visited_link(url, [cb_]);
+exo_session.clear_visited_links([cb_]);
+
+exo_session.off_the_record();
+exo_session.path();
+
+
 var b = api.exo_browser({
   size: [123, 23]
 });
@@ -31,7 +53,6 @@ exo_browser#frame_load_finish(frame, url)
 exo_browser#frame_loading_start(frame)
 exo_browser#frame_loading_stop(frame)
 exo_browser#frame_created(frame, dispostion, initial_pos, from)
-
 
 exo_browser.frame(name);
 
@@ -54,6 +75,7 @@ exo_browser.maximize([cb_]);
 var f = api.exo_frame({
   name: '',
   url: '',
+  session: s
 });
 
 exo_frame.ready();
@@ -79,12 +101,36 @@ exo_frame.focus([cb_]);
 ```
 
 
-#### Internal API v0.alpha:
+#### Internal API v0.3-beta:
 
 ```
+/*********************************************************************/
+/* EXOSESSION */
+/*********************************************************************/
+_exo_browser._createExoSession({
+  path: '~/.config/smthg',
+  off_the_record: false
+}, cb_);
+
+s._setCookiesLoadForKeyHandler(key, rid, cb_);
+s._setCookiesFlushHandler(rid, cb_);
+
+s._setCookiesAddCallback(cookie);
+s._setCookiesDeleteCallback(cookie);
+s._setCookiesUpdateAccessTimeCallback(cookie);
+s._setCookiesForceKeepSessionStateCallback(cookie);
+
+s._addVisitedLink(url, cb_);
+s._clearVisitedLinks(cb_);
+
+s._clearAllData(cb_);
+s._clearDataForOrigin(url, cb_);
+
+/*********************************************************************/
 /* EXOBROWSER */
+/*********************************************************************/
 _exo_browser._createExoBrowser({
-  size: [123, 23]
+  size: [123, 23],
 }, cb_);
 
 b._size(cb_);
@@ -103,10 +149,13 @@ b._setNavigationStateCallback(cb_);
 
 b.kill(cb_);
 
+/*********************************************************************/
 /* EXOFRAME */
+/*********************************************************************/
 _exo_browser._createExoFrame({
   name: '',
   url: '',
+  session: s,
 }, cb_);
 
 f._loadURL(url, cb_);

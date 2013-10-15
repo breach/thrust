@@ -93,8 +93,8 @@ class ExoFrame;
 // (width for LEFT, RIGHT; height for TOP, BOTTOM) that can be programatically
 // set and updated.
 //
-// The ExoBrowser initialization always come from Javascript and. So it is aware 
-// of its associated JS wrapper (used to dispatch callbacks).
+// The ExoBrowser initialization always come from Javascript. It is aware of its 
+// associated JS wrapper (used to dispatch callbacks).
 //
 // The ExoBrowser lives on the BrowserThread::UI thread, and should PostTask on
 // the NodeJS thread whenever it wants to communicate with its JS Wrapper
@@ -466,6 +466,8 @@ private:
 
   friend class ExoBrowserWrap;
   friend class ExoFrameWrap;
+
+  DISALLOW_COPY_AND_ASSIGN(ExoBrowser);
 };
 
 } // namespace exo_browser
