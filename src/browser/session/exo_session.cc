@@ -111,21 +111,9 @@ ExoSession::~ExoSession()
 void
 ExoSession::ClearAllData()
 {
-  LOG(INFO) << "CLEAR ALL DATA";
   GetDefaultStoragePartition(this)->ClearDataForUnboundedRange(
       StoragePartition::REMOVE_DATA_MASK_ALL,
       StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL);
-}
-
-void
-ExoSession::ClearDataForOrigin(const GURL& storage_origin)
-{
-  LOG(INFO) << "CLEAR DATA FOR ORIGIN";
-  GetDefaultStoragePartition(this)->ClearDataForOrigin(
-      StoragePartition::REMOVE_DATA_MASK_ALL,
-      StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL,
-      storage_origin,
-      GetDefaultStoragePartition(this)->GetURLRequestContext());
 }
 
 base::FilePath 

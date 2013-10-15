@@ -61,15 +61,6 @@ public:
   // does not return a callback.
   void ClearAllData();
 
-  // ### ClearDataForOrigin
-  //
-  // Clears all data stored related to this session and the provided origin. It
-  // does not return a callback.
-  // ```
-  // @origin {GURL}
-  // ```
-  void ClearDataForOrigin(const GURL& storage_origin);
-
   /****************************************************************************/
   /* BROWSER CONTEXT IMPLEMENTATION                                           */
   /****************************************************************************/
