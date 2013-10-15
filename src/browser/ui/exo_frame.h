@@ -68,6 +68,7 @@ public:
   virtual ~ExoFrame();
 
   // ### FRAME_TYPE
+  //
   // An enum representing the frame type (control or page)
   enum FRAME_TYPE {
     NOTYPE_FRAME = 0,
@@ -77,56 +78,83 @@ public:
   };
 
   // ### LoadURL
+  //
+  // Loads the provided url in this ExoFrame.
   // ```
   // @url {URL} the url to load
   // ```
-  // Loads the provided url in this ExoFrame.
   void LoadURL(const GURL& url);
 
   // ### GoBackOrForward
+  //
+  // Go Back or Forward in the ExoFrame browsing history.
   // ```
   // @offet {int} go back or forward of offset
   // ```
-  // Go Back or Forward in the ExoFrame browsing history.
   void GoBackOrForward(int offset);
 
   // ### Reload
+  //
   // Reloads the ExoFrame content.
   void Reload();
 
   // ### Stop
+  //
   // Stop loading the ExoFrame content.
   void Stop();
 
   // ### Focus
+  //
   // Focuses the ExoFrame
   void Focus();
 
   // ### Find
+  //
   // Searches for a string in the frame. We stay close to the Content API for 
   // now
   void Find(int request_id, const string16& search_text,
             const WebKit::WebFindOptions& options);
   // ### StopFinding
+  //
   // Stop the finding of a string
   void StopFinding(content::StopFindAction action);
 
   // ### type
+  //
   // Returns the frame type
   FRAME_TYPE type() const { return type_; }
 
   // ### size
+  //
   // Retrieves the frame size
   gfx::Size size() { return PlatformSize(); }
 
   // ### name
+  //
   // Returns the ExoFrame name
   const std::string& name() const { return name_; }
 
 
   // ### parent
+  //
   // Returns the ExoFrame's parent ExoBrowser
   ExoBrowser* parent() const { return parent_; }
+
+
+  // ### CaptureFrame
+  //
+  // Captures the current ExoFrame and returns the capture as PNG string data
+  // ```
+  // @src_rect {gfx::Rect} 
+  // @dst_size {gfx::Size}  
+  // @callback {Callback}
+  // ```
+  /* 
+  void CaptureFrame(
+      const gfx::Rect& src_rect,
+      const gfx::Size& dst_size,
+      const base::Callback<void(bool, const std::string&)>& callback);
+  */
 
   /****************************************************************************/
   /*                   WEBCONTENTSOBSERVER IMPLEMENTATION                     */

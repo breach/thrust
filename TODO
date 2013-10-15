@@ -1,9 +1,12 @@
-
-:api_source #78
-  - Access ExoFrame Source Code from API
-
+>>v0.3<<
 :api_capture #77
   - Capture ExoFrame ScreenShot from API
+    browser/extensions/api/tabs/tabs_api.cc
+    http://stackoverflow.com/questions/14915058/how-to-display-binary-data-as-image-extjs-4
+
+>>v0.4<<
+:api_source #78
+  - Access ExoFrame Source Code from API
 
 :cleanser #90
   - Reintroduce ClearDataForOrigin
