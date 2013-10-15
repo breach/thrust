@@ -9,6 +9,7 @@
  * 2013-08-12 spolu   Creation
  * 2013-09-05 spolu   Fix #56
  * 2013-09-23 spolu   Simplification for Shell
+ * 2013-10-14 spolu   Cookie Store integration #79
  */
 
 var events = require('events');
@@ -31,6 +32,7 @@ var session = function(spec, my) {
   my.base_url = spec.base_url;
   my.name = 'no_session';
   my.exo_browser = null;
+  my.exo_session = null;
   my.popups = [];
 
   my.frame = null;
@@ -70,6 +72,14 @@ var session = function(spec, my) {
     my.exo_browser.focus();
     my.name = my.exo_browser.name();
 
+    my.exo_session = api.exo_session({
+      path: api.data_path('exo_browser_shell'),
+      off_the_record: false
+    });
+    my.cookie_store = require('./cookie_store.js').cookie_store({
+      session: my.exo_session
+    });
+
     my.exo_browser.on('frame_created', browser_frame_created);
     my.exo_browser.on('frame_close', browser_frame_close);
     my.exo_browser.on('open_url', browser_open_url);
@@ -77,7 +87,8 @@ var session = function(spec, my) {
 
     my.frame = api.exo_frame({
       name: my.name,
-      url: my.base_url + '/home.html'
+      url: my.base_url + '/home.html',
+      session: my.exo_session
     });
     my.exo_browser.add_page(my.frame, function() {
       my.exo_browser.show_page(my.frame);
@@ -85,6 +96,13 @@ var session = function(spec, my) {
 
     my.box = require('./box.js').box({
       session: that
+    });
+
+    my.exo_browser.on('frame_navigation_state', function(frame, state) {
+      if(state.entries.length > 0) {
+        var href = state.entries[state.entries.length - 1].url.href;
+        my.exo_session.add_visited_link(href);
+      }
     });
 
     async.parallel({
@@ -225,6 +243,7 @@ var session = function(spec, my) {
 
   common.getter(that, 'name', my, 'name');
   common.getter(that, 'exo_browser', my, 'exo_browser');
+  common.getter(that, 'exo_session', my, 'exo_session');
   common.getter(that, 'base_url', my, 'base_url');
 
   common.getter(that, 'box', my, 'box');

@@ -42,6 +42,7 @@ struct WebFindOptions;
 
 namespace exo_browser {
 
+class ExoSession;
 class ExoBrowser;
 class ExoFrameWrap;
 
@@ -159,15 +160,18 @@ private:
   /****************************************************************************/
   // ### ExoFrame
   // Constructor used when a new WebContents has already been created for us.
-  // (generally a popup).
+  // (generally a popup). No ExoSession is required here as the WebContents is
+  // already created.
   explicit ExoFrame(const std::string& name,
                     content::WebContents* web_contents,
                     ExoFrameWrap* wrapper = NULL);
 
   // ### ExoFrame
   // Constructor used to create a new ExoFrame with a fresh WebContents object.
-  // A call to LoadURL should be performed right after.
+  // A call to LoadURL should be performed right after. An ExoSession is
+  // required here as an underlying WebContents is created.
   explicit ExoFrame(const std::string& name,
+                    ExoSession* session,
                     ExoFrameWrap* wrapper = NULL);
 
   // ### SetParent
@@ -217,6 +221,8 @@ private:
   friend class ExoBrowser;
   friend class ExoFrameWrap;
   friend class ExoBrowserWrap;
+
+  DISALLOW_COPY_AND_ASSIGN(ExoFrame);
 };
 
 } // namespace exo_browser

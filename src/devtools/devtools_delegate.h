@@ -19,7 +19,7 @@ namespace exo_browser {
 
 class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit ExoBrowserDevToolsDelegate(content::BrowserContext* browser_context);
+  explicit ExoBrowserDevToolsDelegate();
   virtual ~ExoBrowserDevToolsDelegate();
 
   // Stops http server.
@@ -42,7 +42,6 @@ class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   }
 
  private:
-  content::BrowserContext* browser_context_;
   content::DevToolsHttpHandler* devtools_http_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserDevToolsDelegate);

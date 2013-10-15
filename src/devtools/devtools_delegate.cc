@@ -45,9 +45,7 @@ net::StreamListenSocketFactory* CreateSocketFactory() {
 
 namespace exo_browser {
 
-ExoBrowserDevToolsDelegate::ExoBrowserDevToolsDelegate(
-    BrowserContext* browser_context)
-  : browser_context_(browser_context) 
+ExoBrowserDevToolsDelegate::ExoBrowserDevToolsDelegate()
 {
   /* TODO(spolu): Sort out that comment */
   // Note that Content Shell always used bundled DevTools frontend,

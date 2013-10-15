@@ -7,6 +7,7 @@
  * @author: spolu
  *
  * @log:
+ * 2013-09-26 spolu   ExoSession support
  * 2013-09-20 spolu   Move to `api/`
  * 2013-08-12 spolu   Add name to browser
  * 2013-08-11 spolu   Creation
@@ -15,8 +16,348 @@
 var common = require('./common.js');
 var events = require('events');
 var async = require('async');
+var path = require('path');
+var mkdirp = require('mkdirp');
 
 var _exo_browser = apiDispatcher.requireExoBrowser();
+
+// ### data_path
+//
+// Computes a default path for storing app data for the current platform
+// ```
+// @app_name {string} the app name to use
+// ```
+exports.data_path = function(app_name) {
+  var data_path;
+  switch (process.platform) {
+    case 'win32':
+    case 'win64': {
+      data_path = process.env.LOCALAPPDATA || process.env.APPDATA;
+      if (!data_path) { 
+        throw new Error("Couldn't find the base application data path"); 
+      }
+      data_path = path.join(data_path, app_name);
+    }
+    break;
+    case 'darwin': {
+      data_path = process.env.HOME;
+      if (!data_path) { 
+        throw new Error("Couldn't find the base application data path"); 
+      }
+      data_path = path.join(data_path, 
+                            'Library', 'Application Support', app_name);
+      break;
+    }
+    case 'linux': {
+      data_path = process.env.HOME;
+      if (!data_path) { 
+        throw new Error("Couldn't find the base application data path"); 
+      }
+      data_path = path.join(data_path, '.config', app_name);
+      break;
+    }
+    default: {
+      throw new Error("Can't compute application data path for platform: " + 
+                      process.platform);
+      break;
+    }
+  }
+  return data_path;
+};
+
+
+// ## exo_session
+//
+// Wrapper around the internal API representation of an ExoSession.
+//
+// An ExoSession represents all the context required by the browser to display
+// a web papge. Two ExoFrames displayed with separate ExoSessions are perfectly
+// independent (unless they share local HTML5 Storage)
+//
+// The `path` arguments is expected
+// ```
+// @spec { [path], [off_the_record], [cookie_handlers] }
+// ```
+var exo_session = function(spec, my) {
+  var _super = {};
+  my = my || {};
+  spec = spec || {};
+
+  my.internal = null;
+  my.ready = false;
+  my.killed = false;
+  
+  my.off_the_record = 
+    (typeof spec.off_the_record === 'boolean') ? spec.off_the_record : true;
+  my.path = spec.path || exports.data_path('exo_browser_api');
+
+  my.cookie_handlers = {
+    load_all: null,                 /* load_all(cb_(cookies)) */
+    load_for_key: null,             /* load_for_key(key, cb_(cookies)); */
+    flush: null,                    /* flush(cb_()); */
+    add: null,                      /* add(c); */
+    remove: null,                   /* remove(c); */
+    update_access_time: null,       /* update_access_time(c); */
+    force_keep_session_state: null  /* force_keep_session_state(); */
+  };
+
+
+  //
+  // #### _public_
+  //
+  var kill;                  /* kill(); */
+  var set_cookie_handlers;   /* set_cookie_handlers({}); */
+  var add_visited_link;      /* add_visited_link(url); */
+  var clear_visited_links;   /* clear_visited_links(); */
+  var clear_all_data;        /* clear_all_data(); */
+
+  //
+  // #### _protected_
+  //
+  var pre;                 /* pre(cb_); */
+
+  //
+  // #### _private_
+  //
+  var init;                /* init(); */
+
+  //
+  // #### _that_
+  //
+  var that = new events.EventEmitter();
+
+  // ### pre
+  //
+  // Takes care of the syncronization. If the session is not yet ready it will
+  // wait on the `ready` event.
+  // ```
+  // @cb_ {function(err)}
+  // ```
+  pre = function(cb_) {
+    if(my.killed) {
+      return cb_(new Error('Session was killed: ' + my.name));
+    }
+    if(!my.ready) {
+      that.on('ready', function() {
+        return cb_();
+      });
+    }
+    else {
+      return cb_();
+    }
+  };
+
+  // ### kill
+  //
+  // Deletes the internal exo session to let the object get GCed
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  kill = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.killed = true;
+        my.ready = false;
+        delete my.internal;
+        that.removeAllListeners();
+      }
+    });
+  };
+
+  // ### set_cookie_handlers
+  //
+  // ```
+  // @handlers {object} dictionary of handlers
+  // ```
+  set_cookie_handlers = function(handlers) {
+    my.cookie_handlers = {
+      load_for_key: handlers.load_for_key || null,
+      flush: handlers.flush || null,
+      add: handlers.add || null,
+      remove: handlers.remove || null,
+      update_access_time: handlers.update_acccess_time || null,
+      force_keep_session_state: handlers.force_keep_session_state || null
+    };
+  };
+
+  // ### add_visited_link
+  //
+  // Adds an URL to the list of visited links (stored on disk if not of the 
+  // record)
+  // ```
+  // @url {string} the url to load
+  // @cb_ {function(err)} [optional]
+  // ```
+  add_visited_link = function(url, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._addVisitedLink(url, function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### clear_visited_links
+  //
+  // Clears all visited links and destroy the file system storage if it exists.
+  // ```
+  // @cb_ {function(err)} [optional]
+  // ```
+  clear_visited_links = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._clearVisitedLinks(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### clear_all_data
+  //
+  // Clears all persisted data
+  // ```
+  // @cb_ {function(err)} [optional]
+  // ```
+  clear_all_data = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._clearAllData(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### init
+  //
+  // Runs initialization procedure.
+  init = function() {
+    var finish = function() {
+      my.internal._setCookiesLoadForKeyHandler(function(key, rid, cb_) {
+        if(my.cookie_handlers.load_for_key) {
+          my.cookie_handlers.load_for_key(key, function(cookies) {
+            return (cb_.bind(my.internal, rid, cookies))();
+          });
+        }
+        else {
+          return (cb_.bind(my.internal, rid, []))();
+        }
+      });
+      my.internal._setCookiesFlushHandler(function(rid, cb_) {
+        if(my.cookie_handlers.flush) {
+          my.cookie_handlers.flush(function() {
+            return (cb_.bind(my.internal, rid))();
+          });
+        }
+        else {
+          return (cb_.bind(my.internal, rid))();
+        }
+      });
+
+      my.internal._setCookiesAddCallback(function(cc) {
+        if(my.cookie_handlers.add) {
+          my.cookie_handlers.add(cc);
+        }
+      });
+      my.internal._setCookiesDeleteCallback(function(cc) {
+        if(my.cookie_handlers.remove) {
+          my.cookie_handlers.remove(cc);
+        }
+      });
+      my.internal._setCookiesUpdateAccessTimeCallback(function(cc) {
+        if(my.cookie_handlers.update_access_time) {
+          my.cookie_handlers.update_access_time(cc);
+        }
+      });
+      my.internal._setCookiesForceKeepSessionStateCallback(function(cc) {
+        if(my.cookie_handlers.force_keep_session_state) {
+          my.cookie_handlers.force_keep_session_state();
+        }
+      });
+
+      my.ready = true;
+      that.emit('ready');
+    };
+
+    set_cookie_handlers(spec.cookie_handlers || {});
+
+    var create = function() {
+      if(my.internal) {
+        return finish();
+      }
+      else {
+        _exo_browser._createExoSession({
+          path: my.path,
+          off_the_record: my.off_the_record
+        }, function(s) {
+          my.internal = s;
+          return finish();
+        });
+      }
+    };
+
+    if(!my.off_the_record) {
+      mkdirp(my.path, function(err) {
+        if(err) {
+          /* We can't do much more than throwing the error as there is no       */
+          /* handler to pass it to. It would be a bad idea to start the browser */
+          /* without a proper data directory setup.                             */
+          throw err;
+        }
+        else {
+          create();
+        }
+      });
+    }
+    else {
+      create();
+    }
+  };
+
+
+  init();
+
+  common.method(that, 'kill', kill, _super);
+  common.method(that, 'pre', pre, _super);
+
+  common.method(that, 'set_cookie_handlers', set_cookie_handlers, _super);
+  common.method(that, 'add_visited_link', add_visited_link, _super);
+  common.method(that, 'clear_visited_links', clear_visited_links, _super);
+
+  common.method(that, 'clear_all_data', clear_all_data, _super);
+
+  /* Should only be called by exo_frame. */
+  common.getter(that, 'internal', my, 'internal');
+
+  common.getter(that, 'off_the_record', my, 'off_the_record');
+  common.getter(that, 'path', my, 'path');
+
+  return that;
+};
+
+exports.exo_session = exo_session;
+exports.default_session = function() {
+  if(!exports._default_session) {
+    exports._default_session = exo_session({});
+  }
+  return exports._default_session;
+};
+
+
 
 exports.NOTYPE_FRAME = 0;
 exports.CONTROL_FRAME = 1;
@@ -26,7 +367,7 @@ exports.frame_count = 0;
 
 // ## exo_frame
 //
-// Wrapper around the internal API representation of an ExoFrame. It alos serves
+// Wrapper around the internal API representation of an ExoFrame. It also serves
 // as a proxy on the internal state of the ExoFrame.
 //
 // ExoFrames are named objects. Their names are expected to be uniques. If no
@@ -35,7 +376,7 @@ exports.frame_count = 0;
 //
 // The `url` argument is expected.
 // ```
-// @spec { url, [name] | internal }
+// @spec { url, [name], [session] | internal }
 // ```
 var exo_frame = function(spec, my) {
   var _super = {};
@@ -43,11 +384,14 @@ var exo_frame = function(spec, my) {
   spec = spec || {};
 
   my.internal = spec.internal || null;
+  my.ready = false;
+  my.killed = false;
 
   my.url = spec.url || '';
   my.name = spec.name || ('fr-' + (exports.frame_count++));
+  my.session = spec.session || exports.default_session();
+
   my.visible = false;
-  my.ready = false;
   my.parent = null;
   my.type = exports.NOTYPE_FRAME;
   my.loading = 0;
@@ -70,10 +414,14 @@ var exo_frame = function(spec, my) {
   var kill;                /* kill(); */
 
   //
+  // #### _protected_
+  //
+  var pre;                 /* pre(cb_); */
+
+  //
   // #### _private_
   //
-  var init;     /* init(); */
-  var pre;      /* pre(cb_); */
+  var init;                /* init(); */
 
   //
   // #### _that_
@@ -108,6 +456,7 @@ var exo_frame = function(spec, my) {
   // ```
   // @url {string} the url to load
   // @cb_ {function(err)} [optional]
+  // ```
   load_url = function(url, cb_) {
     pre(function(err) {
       if(err) {
@@ -309,12 +658,24 @@ var exo_frame = function(spec, my) {
       });
     }
     else {
-      _exo_browser._createExoFrame({
-        name: my.name,
-        url: my.url
-      }, function(f) {
-        my.internal = f;
-        return finish();
+      my.session.pre(function(err) {
+        if(err) {
+          /* We can't do much more than throwing the error as there is no   */
+          /* handler to pass it to. This means we've used a killed session, */
+          /* things must have gone bad and throwing an error is a way to    */
+          /* express that.                                                  */
+          throw err;
+        }
+        else {
+          _exo_browser._createExoFrame({
+            name: my.name,
+            url: my.url,
+            session: my.session.internal()
+          }, function(f) {
+            my.internal = f;
+            return finish();
+          });
+        }
       });
     }
   };
@@ -322,7 +683,9 @@ var exo_frame = function(spec, my) {
 
   init();
 
+  common.method(that, 'kill', kill, _super);
   common.method(that, 'pre', pre, _super);
+
   common.method(that, 'load_url', load_url, _super);
   common.method(that, 'go_back_or_forward', go_back_or_forward, _super);
   common.method(that, 'reload', reload, _super);
@@ -330,7 +693,6 @@ var exo_frame = function(spec, my) {
   common.method(that, 'focus', focus, _super);
   common.method(that, 'find', find, _super);
   common.method(that, 'find_stop', find_stop, _super);
-  common.method(that, 'kill', kill, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');
@@ -352,12 +714,11 @@ var exo_frame = function(spec, my) {
   common.setter(that, 'type', my, 'type');
   common.setter(that, 'title', my, 'title');
 
-  common.method(that, 'pre', pre, _super);
-
   return that;
 };
 
 exports.exo_frame = exo_frame;
+
 
 
 exports._exo_browsers = {};
@@ -750,15 +1111,12 @@ var exo_browser = function(spec, my) {
         var frame = exo_frame({ internal: _frame });
         frame.on('ready', function() {
           that.emit('frame_created', frame, disposition, initial_pos, origin);
-          console.log(frame.name() + ': ' + disposition + 
-                      ' ' + initial_pos + ' [' + origin.name() + ']');
         });
       });
       my.internal._setFrameKeyboardCallback(function(from, event) {
         that.emit('frame_keyboard', my.frames[from], event);
       });
       my.internal._setNavigationStateCallback(function(from, state) {
-        //console.log(state);
         state.entries.forEach(function(e) {
           e.url = require('url').parse(e.virtual_url || '');
         });

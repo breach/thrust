@@ -38,6 +38,7 @@
 #include "content/public/common/url_constants.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/net/network_delegate.h"
+#include "exo_browser/src/browser/session/exo_session.h"
 
 using namespace content;
 
@@ -61,13 +62,15 @@ void InstallProtocolHandlers(net::URLRequestJobFactoryImpl* job_factory,
 }  // namespace
 
 ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
+    ExoSession* parent,
     bool ignore_certificate_errors,
     const base::FilePath& base_path,
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     ProtocolHandlerMap* protocol_handlers,
     net::NetLog* net_log)
-    : ignore_certificate_errors_(ignore_certificate_errors),
+    : parent_(parent),
+      ignore_certificate_errors_(ignore_certificate_errors),
       base_path_(base_path),
       io_loop_(io_loop),
       file_loop_(file_loop),
@@ -102,8 +105,14 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 
-    /* TODO(spolu): net cookies */
-    storage_->set_cookie_store(new net::CookieMonster(NULL, NULL));
+    if(parent_) {
+      storage_->set_cookie_store(
+          new net::CookieMonster(parent_->GetCookieStore(), NULL));
+    }
+    else {
+      storage_->set_cookie_store(
+          new net::CookieMonster(NULL, NULL));
+    }
 
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
         new net::DefaultServerBoundCertStore(NULL),
@@ -118,7 +127,7 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(new net::TransportSecurityState);
 
-    // TODO(spolu): use v8 if possible, look at chrome code.
+    /* TODO(spolu): use v8 if possible, look at chrome code. */
     storage_->set_proxy_service(
         net::ProxyService::CreateUsingSystemProxyResolver(
           proxy_config_service_.release(),
@@ -132,8 +141,14 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
         scoped_ptr<net::HttpServerProperties>(
             new net::HttpServerPropertiesImpl()));
 
-    base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
-    net::HttpCache::DefaultBackend* main_backend =
+
+    net::HttpCache::BackendFactory* main_backend = NULL;
+    if(parent_->IsOffTheRecord()) {
+      main_backend = net::HttpCache::DefaultBackend::InMemory(0);
+    }
+    else {
+      base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
+      main_backend =
         new net::HttpCache::DefaultBackend(
             net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
@@ -141,6 +156,7 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
             0,
             BrowserThread::GetMessageLoopProxyForThread(BrowserThread::CACHE)
                 .get());
+    }
 
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.cert_verifier =

@@ -19,7 +19,6 @@
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
 
-#include "exo_browser/src/browser/browser_context.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/ui/exo_browser.h"
 #include "exo_browser/src/devtools/devtools_delegate.h"
@@ -89,17 +88,13 @@ void
 ExoBrowserMainParts::PreMainMessageLoopRun() 
 {
   net_log_.reset(new ExoBrowserNetLog());
-  browser_context_.reset(new ExoBrowserContext(false, net_log_.get()));
-  off_the_record_browser_context_.reset(
-      new ExoBrowserContext(true, net_log_.get()));
 
   ExoBrowser::Initialize();
   net::NetModule::SetResourceProvider(PlatformResourceProvider);
 
-  devtools_delegate_.reset(
-      new ExoBrowserDevToolsDelegate(browser_context_.get()));
+  devtools_delegate_.reset(new ExoBrowserDevToolsDelegate());
 
-  if (parameters_.ui_task) {
+  if(parameters_.ui_task) {
     parameters_.ui_task->Run();
     delete parameters_.ui_task;
     run_message_loop_ = false;
@@ -115,8 +110,7 @@ void ExoBrowserMainParts::PostMainMessageLoopRun()
 {
   if (devtools_delegate_)
     devtools_delegate_->Stop();
-  browser_context_.reset();
-  off_the_record_browser_context_.reset();
+  /* TODO(spolu): Cleanup Remaining ExoSession? */
 }
 
 }  // namespace

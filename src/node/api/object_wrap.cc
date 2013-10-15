@@ -42,10 +42,10 @@ ObjectWrap::EmptyCallback(
   v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::Local<v8::Function> cb = 
     v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
-  v8::Local<v8::Object> browser_o = 
+  v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
-  cb->Call(browser_o, 0, NULL);
+  cb->Call(obj, 0, NULL);
   cb_p->Dispose();
   delete cb_p;
 }
@@ -58,15 +58,34 @@ ObjectWrap::IntCallback(
   v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::Local<v8::Function> cb = 
     v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
-  v8::Local<v8::Object> browser_o = 
+  v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
   v8::Local<v8::Integer> i = v8::Integer::New(*integer);
   v8::Local<v8::Value> argv[1] = { i };
-  cb->Call(browser_o, 1, argv);
+  cb->Call(obj, 1, argv);
   cb_p->Dispose();
   delete cb_p;
   delete integer;
+}
+
+void 
+ObjectWrap::BooleanCallback(
+    v8::Persistent<v8::Function>* cb_p, 
+    const bool* boolean) 
+{
+  v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
+  v8::Local<v8::Function> cb = 
+    v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
+  v8::Local<v8::Object> obj = 
+    v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
+        this->persistent());
+  v8::Local<v8::Boolean> b = v8::Boolean::New(*boolean);
+  v8::Local<v8::Value> argv[1] = { b };
+  cb->Call(obj, 1, argv);
+  cb_p->Dispose();
+  delete cb_p;
+  delete boolean;
 }
 
 void 
@@ -77,12 +96,12 @@ ObjectWrap::StringCallback(
   v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::Local<v8::Function> cb = 
     v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
-  v8::Local<v8::Object> browser_o = 
+  v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
   v8::Local<v8::String> s = v8::String::New(str->c_str());
   v8::Local<v8::Value> argv[1] = { s };
-  cb->Call(browser_o, 1, argv);
+  cb->Call(obj, 1, argv);
   cb_p->Dispose();
   delete cb_p;
   delete str;
@@ -96,14 +115,14 @@ ObjectWrap::PointCallback(
   v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::Local<v8::Function> cb = 
     v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
-  v8::Local<v8::Object> browser_o = 
+  v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
   v8::Local<v8::Array> point_array = v8::Array::New();
   point_array->Set(0, v8::Integer::New(point->x()));
   point_array->Set(1, v8::Integer::New(point->y()));
   v8::Local<v8::Value> argv[1] = { point_array };
-  cb->Call(browser_o, 1, argv);
+  cb->Call(obj, 1, argv);
   cb_p->Dispose();
   delete cb_p;
   delete point;
@@ -117,14 +136,14 @@ ObjectWrap::SizeCallback(
   v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::Local<v8::Function> cb = 
     v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
-  v8::Local<v8::Object> browser_o = 
+  v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
   v8::Local<v8::Array> size_array = v8::Array::New();
   size_array->Set(0, v8::Integer::New(size->width()));
   size_array->Set(1, v8::Integer::New(size->height()));
   v8::Local<v8::Value> argv[1] = { size_array };
-  cb->Call(browser_o, 1, argv);
+  cb->Call(obj, 1, argv);
   cb_p->Dispose();
   delete cb_p;
   delete size;

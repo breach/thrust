@@ -144,7 +144,8 @@ var control = function(spec, my) {
       '/#/?session=' + my.session.name()
     my.frame = api.exo_frame({
       name: my.name,
-      url: url
+      url: url,
+      session: my.session.exo_session()
     });
     my.session.exo_browser().set_control(my.control_type, my.frame);
     my.init_cb_ = cb_;

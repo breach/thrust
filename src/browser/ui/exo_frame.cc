@@ -28,11 +28,12 @@ ExoFrame::ExoFrame(
     const std::string& name,
     content::WebContents* web_contents,
     ExoFrameWrap* wrapper)
-  : WebContentsObserver(web_contents),
-    name_(name),
-    type_(NOTYPE_FRAME),
-    wrapper_(wrapper)
+: WebContentsObserver(web_contents),
+  name_(name),
+  type_(NOTYPE_FRAME),
+  wrapper_(wrapper)
 {
+  /* TODO(spolu): Check ExoSession herited from source WebContents */
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
   LOG(INFO) << "ExoFrame Constructor [" << web_contents << "]";
@@ -40,13 +41,13 @@ ExoFrame::ExoFrame(
 
 ExoFrame::ExoFrame(
     const std::string& name,
+    ExoSession* session,
     ExoFrameWrap* wrapper)
-  : name_(name),
-    type_(NOTYPE_FRAME),
-    wrapper_(wrapper)
+: name_(name),
+  type_(NOTYPE_FRAME),
+  wrapper_(wrapper)
 {
-  WebContents::CreateParams create_params(
-      (BrowserContext*)ExoBrowserContentBrowserClient::Get()->browser_context());
+  WebContents::CreateParams create_params((BrowserContext*)session);
   WebContents* web_contents = WebContents::Create(create_params);
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
@@ -72,7 +73,7 @@ ExoFrame::SetType(
 ExoFrame::~ExoFrame()
 {
   /* Not much to do. If we're here that means that our JS wrapper has been */
-  /* reclaimed and that most of what is related to use has been destroyed  */
+  /* reclaimed and that most of what is related to us has been destroyed   */
   /* already. Our associated web_contents, should be deleted with its      */
   /* scoped_ptr.                                                           */
   LOG(INFO) << "ExoFrame Destructor [" << web_contents_ << "]";
