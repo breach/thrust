@@ -31,7 +31,6 @@ public:
   // ### ExoSessionVisitedLinkStore
   // We keep a pointer to the parent ExoSession to call into the JS API
   ExoSessionVisitedLinkStore(ExoSession* parent);
-  virtual ~ExoSessionVisitedLinkStore();
 
   // ### Init
   // Initialiazes the VisitedLinkStore (underlying VisitedLinkMaster 
@@ -56,10 +55,13 @@ public:
       const scoped_refptr<URLEnumerator>& enumerator) OVERRIDE;
 
 private:
+  virtual ~ExoSessionVisitedLinkStore();
+
   ExoSession*                                parent_;
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 
   friend class ExoSession;
+  friend class base::RefCountedThreadSafe<ExoSessionVisitedLinkStore>;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSessionVisitedLinkStore);
 };
