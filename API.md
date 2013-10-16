@@ -98,6 +98,15 @@ exo_frame.go_back_or_forward(offset, [cb_]);
 exo_frame.reload([cb_]);
 exo_frame.stop([cb_]);
 exo_frame.focus([cb_]);
+
+exo_frame.undo([cb_]);
+exo_frame.redo([cb_]);
+exo_frame.cut_selection([cb_]);
+exo_frame.copy_selection([cb_]);
+exo_frame.paste([cb_]);
+exo_frame.delete_selection([cb_]);
+exo_frame.select_all([cb_]);
+exo_frame.unselect([cb_]);
 ```
 
 
@@ -162,6 +171,14 @@ f._loadURL(url, cb_);
 f._goBackOrForward(offset, cb_);
 f._reload(cb_);
 f._stop(cb_);
+f._undo(cb_);
+f._redo(cb_);
+f._cutSelection(cb_);
+f._copySelection(cb_);
+f._paste(cb_);
+f._deleteSelection(cb_);
+f._selectAll(cb_);
+f._unselect(cb_);
 f._focus(cb_);
 f._find(rid, text, forward, sensitive, next, cb_)
 f._stopFinding(action, cb_);

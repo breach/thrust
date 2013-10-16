@@ -64,6 +64,23 @@ private:
   static void Stop(const v8::FunctionCallbackInfo<v8::Value>& args);
   void StopTask(v8::Persistent<v8::Function>* cb_p);
 
+  static void Undo(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void UndoTask(v8::Persistent<v8::Function>* cb_p);
+  static void Redo(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void RedoTask(v8::Persistent<v8::Function>* cb_p);
+  static void CutSelection(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CutSelectionTask(v8::Persistent<v8::Function>* cb_p);
+  static void CopySelection(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CopySelectionTask(v8::Persistent<v8::Function>* cb_p);
+  static void Paste(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void PasteTask(v8::Persistent<v8::Function>* cb_p);
+  static void DeleteSelection(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DeleteSelectionTask(v8::Persistent<v8::Function>* cb_p);
+  static void SelectAll(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void SelectAllTask(v8::Persistent<v8::Function>* cb_p);
+  static void Unselect(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void UnselectTask(v8::Persistent<v8::Function>* cb_p);
+
   static void Focus(const v8::FunctionCallbackInfo<v8::Value>& args);
   void FocusTask(v8::Persistent<v8::Function>* cb_p);
 

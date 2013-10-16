@@ -407,6 +407,14 @@ var exo_frame = function(spec, my) {
   var go_back_or_forward;  /* go_back_or_forward(offset, [cb_]); */
   var reload;              /* reload([cb_]); */
   var stop;                /* stop([cb_]); */ 
+  var undo;                /* undo([cb_]); */
+  var redo;                /* redo([cb_]); */
+  var cut_selection;       /* cut_selection([cb_]); */
+  var copy_selection;      /* copy_selection([cb_]); */
+  var paste;               /* paste([cb_]); */
+  var delete_selection;    /* delete_selection([cb_]); */
+  var select_all;          /* select_all([cb_]); */
+  var unselect;            /* unselect([cb_]); */
   var focus;               /* focus([cb_]); */
   var find;                /* find(text, forward, case, next, [cb_]); */
   var find_stop;           /* find_stop(action, [cb_]); */
@@ -524,6 +532,158 @@ var exo_frame = function(spec, my) {
       }
       else {
         my.internal._stop(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### undo
+  //
+  // Edit actions `undo`
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  undo = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._undo(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### redo
+  //
+  // Edit actions `redo`
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  redo = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._redo(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### cut_selection
+  //
+  // Edit actions `cut`. Cuts the selection.
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  cut_selection = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._cutSelection(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### copy_selection
+  //
+  // Edit actions `copy`. Copies the selection (clipboard)
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  copy_selection = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._copySelection(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### paste
+  //
+  // Edit actions `paste`
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  paste = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._paste(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### delete_selection
+  //
+  // Edit actions `delete`
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  delete_selection = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._deleteSelection(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+  
+  // ### select_all
+  //
+  // Edit actions `select_all`
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  select_all = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._selectAll(function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+  
+  // ### unselect
+  //
+  // Edit actions `unselect`
+  // ```
+  // @cb_    {functio(err)}
+  // ```
+  unselect = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._unselect(function() {
           if(cb_) return cb_();
         });
       }
@@ -690,6 +850,16 @@ var exo_frame = function(spec, my) {
   common.method(that, 'go_back_or_forward', go_back_or_forward, _super);
   common.method(that, 'reload', reload, _super);
   common.method(that, 'stop', stop, _super);
+  
+  common.method(that, 'undo', undo, _super);
+  common.method(that, 'redo', redo, _super);
+  common.method(that, 'cut_selection', cut_selection, _super);
+  common.method(that, 'copy_selection', copy_selection, _super);
+  common.method(that, 'paste', paste, _super);
+  common.method(that, 'delete_selection', delete_selection, _super);
+  common.method(that, 'select_all', select_all, _super);
+  common.method(that, 'unselect', unselect, _super);
+
   common.method(that, 'focus', focus, _super);
   common.method(that, 'find', find, _super);
   common.method(that, 'find_stop', find_stop, _super);
