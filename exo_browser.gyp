@@ -515,7 +515,7 @@
           'product_name': '<(exo_browser_product_name) Framework',
           'mac_bundle': 1,
           'mac_bundle_resources': [
-            #'app/English.lproj/HttpAuth.xib',
+            #'src/app/English.lproj/HttpAuth.xib',
             #'src/app/English.lproj/MainMenu.xib',
             '<(PRODUCT_DIR)/exo_browser.pak'
           ],

@@ -8,6 +8,8 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/favicon_url.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_view_host.h" 
 #include "exo_browser/src/browser/ui/exo_browser.h"
 #include "exo_browser/src/browser/ui/exo_frame.h"
 #include "exo_browser/src/node/api/exo_browser_wrap.h"
@@ -39,6 +41,24 @@ ExoFrameWrap::Init(
       FunctionTemplate::New(Reload)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_stop"),
       FunctionTemplate::New(Stop)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_undo"),
+      FunctionTemplate::New(Undo)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_redo"),
+      FunctionTemplate::New(Redo)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_cutSelection"),
+      FunctionTemplate::New(CutSelection)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_copySelection"),
+      FunctionTemplate::New(CopySelection)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_paste"),
+      FunctionTemplate::New(Paste)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_deleteSelection"),
+      FunctionTemplate::New(DeleteSelection)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_selectAll"),
+      FunctionTemplate::New(SelectAll)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_unselect"),
+      FunctionTemplate::New(Unselect)->GetFunction());
+
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
       FunctionTemplate::New(Focus)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_find"),
@@ -326,6 +346,249 @@ ExoFrameWrap::StopTask(
 }
 
 
+
+void 
+ExoFrameWrap::Undo(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::UndoTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::UndoTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->web_contents_->GetRenderViewHost()->Undo();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoFrameWrap::Redo(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::RedoTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::RedoTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->web_contents_->GetRenderViewHost()->Redo();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+
+void 
+ExoFrameWrap::CutSelection(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::CutSelectionTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::CutSelectionTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL) 
+    frame_->web_contents_->GetRenderViewHost()->Cut();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoFrameWrap::CopySelection(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::CopySelectionTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::CopySelectionTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL) 
+    frame_->web_contents_->GetRenderViewHost()->Copy();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+
+void 
+ExoFrameWrap::Paste(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::PasteTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::PasteTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->web_contents_->GetRenderViewHost()->Paste();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoFrameWrap::DeleteSelection(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::DeleteSelectionTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::DeleteSelectionTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->web_contents_->GetRenderViewHost()->Delete();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoFrameWrap::SelectAll(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::SelectAllTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::SelectAllTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->web_contents_->GetRenderViewHost()->SelectAll();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+
+void 
+ExoFrameWrap::Unselect(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::UnselectTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::UnselectTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->web_contents_->GetRenderViewHost()->Unselect();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
 void 
 ExoFrameWrap::Focus(
     const v8::FunctionCallbackInfo<v8::Value>& args)
