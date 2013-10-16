@@ -39,6 +39,9 @@ public:
     std::string ssl_security_type_;
     uint32      ssl_cert_status_;
     int         ssl_content_status_;
+
+    NavigationEntry();
+    ~NavigationEntry();
   };
 
 private:

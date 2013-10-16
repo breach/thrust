@@ -30,26 +30,27 @@ public:
   // ### ExoSessionCookieStore
   // We keep a pointer to the parent ExoSession to call into the JS API
   ExoSessionCookieStore(ExoSession* parent);
-  virtual ~ExoSessionCookieStore();
 
   /****************************************************************************/
   /* COOKIE MONSTER PERSISTENT STORE IMPLEMENTATION                           */
   /****************************************************************************/
-  virtual void Load(const LoadedCallback& loaded_callback);
+  virtual void Load(const LoadedCallback& loaded_callback) OVERRIDE;
 
   virtual void LoadCookiesForKey(
       const std::string& key,
-      const LoadedCallback& loaded_callback);
+      const LoadedCallback& loaded_callback) OVERRIDE;
 
-  virtual void Flush(const base::Closure& callback);
+  virtual void Flush(const base::Closure& callback) OVERRIDE;
 
-  virtual void AddCookie(const net::CanonicalCookie& cc);
-  virtual void UpdateCookieAccessTime(const net::CanonicalCookie& cc);
-  virtual void DeleteCookie(const net::CanonicalCookie& cc);
+  virtual void AddCookie(const net::CanonicalCookie& cc) OVERRIDE;
+  virtual void UpdateCookieAccessTime(const net::CanonicalCookie& cc) OVERRIDE;
+  virtual void DeleteCookie(const net::CanonicalCookie& cc) OVERRIDE;
 
-  virtual void SetForceKeepSessionState();
+  virtual void SetForceKeepSessionState() OVERRIDE;
 
 private:
+  virtual ~ExoSessionCookieStore();
+
   ExoSession*         parent_;
 
   friend class ExoSession;
