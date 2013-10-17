@@ -418,6 +418,7 @@ var exo_frame = function(spec, my) {
   var focus;               /* focus([cb_]); */
   var find;                /* find(text, forward, case, next, [cb_]); */
   var find_stop;           /* find_stop(action, [cb_]); */
+  var capture;             /* capture([cb_]); */
 
   var kill;                /* kill(); */
 
@@ -740,6 +741,7 @@ var exo_frame = function(spec, my) {
   // Stop finding in frame html
   // ```
   // @action {string} the stop find action type ('clear'|'keep'|'activate')
+  // ```
   find_stop = function(action, cb_) {
     pre(function(err) {
       if(err) {
@@ -748,6 +750,30 @@ var exo_frame = function(spec, my) {
       else {
         my.internal._stopFinding(action, function() {
           if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### capture
+  //
+  // Capture the current tab and returns PNG data as a base64 string
+  // ```
+  // @cb_ {function(err, data)} the asynchronous callback
+  // ```
+  capture = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._capture(function(data) {
+          if(cb_) { 
+            if(data && data.length > 0) 
+              return cb_(null, data);
+            else
+              return cb_(new Error("Capture failed"));
+          }
         });
       }
     });
@@ -863,6 +889,7 @@ var exo_frame = function(spec, my) {
   common.method(that, 'focus', focus, _super);
   common.method(that, 'find', find, _super);
   common.method(that, 'find_stop', find_stop, _super);
+  common.method(that, 'capture', capture, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');

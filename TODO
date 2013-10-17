@@ -1,9 +1,3 @@
->>v0.3<<
-:api_capture #77
-  - Capture ExoFrame ScreenShot from API
-    browser/extensions/api/tabs/tabs_api.cc
-    http://stackoverflow.com/questions/14915058/how-to-display-binary-data-as-image-extjs-4
-
 >>v0.4<<
 :api_source #78
   - Access ExoFrame Source Code from API
@@ -12,10 +6,20 @@
   - Reintroduce ClearDataForOrigin
   - Ability to list Data
 
+:api_zoom #92
+  - Page Zoom API
+
+:api_menu #93
+  - App Name & Menu Item API
+
 DONE:
+
+
+>>v0.3<<:
 - Finish Cookie API: Load/LoadForKey/Flush
 - Check LoadForKey/Load merge is OK (null / '')
 - Cookie Deserialization
 - Expose VisitedLinks AddURL to JS (to add url from there)
 - Embed NeDB in Shell for Cookie Storage
 - Delete VisitedLinks / Cache / Local Storage JS API
+- Capture ExoFrame ScreenShot from API

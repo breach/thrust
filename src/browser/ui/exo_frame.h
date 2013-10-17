@@ -62,7 +62,7 @@ class ExoFrame : public content::NotificationObserver,
                  public content::WebContentsObserver {
 public:
   /****************************************************************************/
-  /*                         PUBLIC INTERFACE                                 */
+  /* PUBLIC INTERFACE                                                         */
   /****************************************************************************/
   // ### ~ExoFrame
   virtual ~ExoFrame();
@@ -119,6 +119,16 @@ public:
   // Stop the finding of a string
   void StopFinding(content::StopFindAction action);
 
+  // ### CaptureFrame
+  //
+  // Captures the current ExoFrame and returns the image as a PNG base64 string 
+  // ```
+  // @callback {Callback}
+  // ```
+  void CaptureFrame(
+      const base::Callback<void(bool, const std::string&)>& callback);
+
+
   // ### type
   //
   // Returns the frame type
@@ -141,23 +151,8 @@ public:
   ExoBrowser* parent() const { return parent_; }
 
 
-  // ### CaptureFrame
-  //
-  // Captures the current ExoFrame and returns the capture as PNG string data
-  // ```
-  // @src_rect {gfx::Rect} 
-  // @dst_size {gfx::Size}  
-  // @callback {Callback}
-  // ```
-  /* 
-  void CaptureFrame(
-      const gfx::Rect& src_rect,
-      const gfx::Size& dst_size,
-      const base::Callback<void(bool, const std::string&)>& callback);
-  */
-
   /****************************************************************************/
-  /*                   WEBCONTENTSOBSERVER IMPLEMENTATION                     */
+  /* WEBCONTENTSOBSERVER IMPLEMENTATION                                       */
   /****************************************************************************/
   virtual void DidUpdateFaviconURL(
       int32 page_id,
@@ -184,7 +179,7 @@ public:
 
 private:
   /****************************************************************************/
-  /*                           PRIVATE INTERFACE                              */
+  /* PRIVATE INTERFACE                                                        */
   /****************************************************************************/
   // ### ExoFrame
   // Constructor used when a new WebContents has already been created for us.
@@ -217,7 +212,7 @@ private:
 
 
   /****************************************************************************/
-  /*                            PLATFORM INTERFACE                            */
+  /* PLATFORM INTERFACE                                                       */
   /****************************************************************************/
   // All the methods that begin with Platform need to be implemented by the
   // platform specific Browser implementation.
@@ -227,15 +222,43 @@ private:
   gfx::Size PlatformSize();
 
   /****************************************************************************/
-  /*                  NOTIFICATION OBSERVER IMPLEMENTATION                    */
+  /* NOTIFICATION OBSERVER IMPLEMENTATION                                     */
   /****************************************************************************/
   virtual void Observe(int type,
                        const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
 
+  /****************************************************************************/
+  /* CAPTUREFRAME ASYNCHRONOUS IMPLEMENTATION                                 */
+  /****************************************************************************/
+  // ### CaptureImpl
+  //
+  // Class used to be passed around across async call to capture frame
+  class CaptureFrameImpl 
+    : public base::RefCountedThreadSafe<CaptureFrameImpl> {
+
+  public:
+    CaptureFrameImpl(
+        ExoFrame* parent,
+        const base::Callback<void(bool, const std::string&)>& callback_);
+
+    void Run();
+
+  private:
+    void CopyFromBackingStoreComplete(
+        bool succeeded,
+        const SkBitmap& bitmap);
+    void Finish(
+        bool succeeded,
+        const SkBitmap& screen_capture);
+
+    ExoFrame*                                      parent_;
+    base::Callback<void(bool, const std::string&)> callback_;
+  };
+
 
   /****************************************************************************/
-  /*                               MEMBERS                                    */
+  /* MEMBERS                                                                  */
   /****************************************************************************/
   std::string                      name_;
   FRAME_TYPE                       type_;

@@ -4,17 +4,21 @@
 #include "exo_browser/src/browser/ui/exo_frame.h"
 
 #include "base/bind.h"
+#include "base/base64.h"
 #include "base/message_loop/message_loop.h"
+#include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "ui/gfx/codec/png_codec.h"
 #include "content/public/common/favicon_url.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_widget_host_view.h" 
+#include "content/public/browser/render_view_host.h" 
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
-#include "content/public/browser/render_view_host.h" 
 #include "exo_browser/src/browser/ui/exo_browser.h"
 #include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/browser/content_browser_client.h"
@@ -131,6 +135,92 @@ ExoFrame::StopFinding(
 {
   web_contents_->GetRenderViewHost()->StopFinding(action);
 }
+
+void
+ExoFrame::CaptureFrame(
+    const base::Callback<void(bool, const std::string&)>& callback)
+{
+  /* CaptureFrameImpl is RefCounted so it will get deallocated when needed. */
+  (new CaptureFrameImpl(this, callback))->Run();
+}
+
+ExoFrame::CaptureFrameImpl::CaptureFrameImpl(
+    ExoFrame* parent,
+    const base::Callback<void(bool, const std::string&)>& callback)
+  : parent_(parent),
+    callback_(callback)
+{
+}
+
+void
+ExoFrame::CaptureFrameImpl::Run()
+{
+  RenderViewHost* render_view_host = 
+    parent_->web_contents_->GetRenderViewHost();
+  content::RenderWidgetHostView* view = render_view_host->GetView();
+  if(!view) {
+    callback_.Run(false, "");
+    return;
+  }
+
+  render_view_host->CopyFromBackingStore(
+      gfx::Rect(),
+      view->GetViewBounds().size(),
+      base::Bind(&ExoFrame::CaptureFrameImpl::CopyFromBackingStoreComplete, 
+                 this));
+}
+
+void
+ExoFrame::CaptureFrameImpl::CopyFromBackingStoreComplete(
+    bool succeeded,
+    const SkBitmap& bitmap)
+{
+  if(succeeded) {
+    Finish(succeeded, bitmap);
+    return;
+  }
+
+  content::RenderWidgetHost* render_widget_host = 
+    parent_->web_contents_->GetRenderViewHost();
+  if(!render_widget_host) {
+    callback_.Run(false, "");
+    return;
+  }
+
+  render_widget_host->GetSnapshotFromRenderer(
+      gfx::Rect(),
+      base::Bind(&ExoFrame::CaptureFrameImpl::Finish, this));
+}
+
+void
+ExoFrame::CaptureFrameImpl::Finish(
+    bool succeeded,
+    const SkBitmap& screen_capture) {
+  if(!succeeded) {
+    callback_.Run(false, "");
+    return;
+  }
+
+  std::vector<unsigned char> data;
+  SkAutoLockPixels screen_capture_lock(screen_capture);
+  bool encoded = gfx::PNGCodec::EncodeBGRASkBitmap(screen_capture, true, &data);
+  std::string mime_type = "image/png";
+
+  if(!encoded) {
+    callback_.Run(false, "");
+    return;
+  }
+
+  std::string base64_result;
+  base::StringPiece stream_as_string(
+      reinterpret_cast<const char*>(vector_as_array(&data)), data.size());
+  base::Base64Encode(stream_as_string, &base64_result);
+  base64_result.insert(0, base::StringPrintf("data:%s;base64,",
+                                             mime_type.c_str()));
+  callback_.Run(true, base64_result);
+}
+
+
 
 /******************************************************************************/
 /*                    WEBCONTENTSOBSERVER IMPLEMENTATION                      */
