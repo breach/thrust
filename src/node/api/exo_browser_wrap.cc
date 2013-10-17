@@ -113,6 +113,14 @@ StringFromWindowOpenDisposition(
 
 namespace exo_browser {
 
+ExoBrowserWrap::NavigationEntry::NavigationEntry()
+{
+}
+
+ExoBrowserWrap::NavigationEntry::~NavigationEntry()
+{
+}
+
 Persistent<Function> ExoBrowserWrap::s_constructor;
 
 void 

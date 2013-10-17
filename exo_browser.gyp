@@ -187,8 +187,9 @@
           ],
         }],  # OS=="android"
         # TODO(spolu) removed use_aura condition as link does not work on linux
-        # otherwise (content_shell works thanks to content_tests)
-        ['(os_posix==1 and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
+        # otherwise (content_shell works thanks to content_tests). Added OS!="mac"
+        # since compilation fails otherwise
+        ['(os_posix==1 and OS!="mac" and linux_use_tcmalloc==1) or (android_use_tcmalloc==1)', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
             '../base/allocator/allocator.gyp:allocator',
@@ -514,8 +515,8 @@
           'product_name': '<(exo_browser_product_name) Framework',
           'mac_bundle': 1,
           'mac_bundle_resources': [
-            #'app/English.lproj/HttpAuth.xib',
-            #'app/English.lproj/MainMenu.xib',
+            #'src/app/English.lproj/HttpAuth.xib',
+            #'src/app/English.lproj/MainMenu.xib',
             '<(PRODUCT_DIR)/exo_browser.pak'
           ],
           'dependencies': [

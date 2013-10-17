@@ -44,9 +44,9 @@ ObjectFromCanonicalCookie(
                 Number::New(cc.LastAccessDate().ToInternalValue()));
 
   cookie_o->Set(String::New("secure"),
-                Boolean::New(cc.IsSecure()));
+                v8::Boolean::New(cc.IsSecure()));
   cookie_o->Set(String::New("http_only"),
-                Boolean::New(cc.IsHttpOnly()));
+                v8::Boolean::New(cc.IsHttpOnly()));
 
   cookie_o->Set(String::New("priority"),
                 Number::New(cc.Priority()));
