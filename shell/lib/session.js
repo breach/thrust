@@ -133,13 +133,6 @@ var session = function(spec, my) {
       }
     });
 
-    setTimeout(function() {
-      my.frame.capture(function(err, data) {
-        console.log(err);
-        console.log(data);
-      });
-    }, 2000);
-
     async.parallel({
       box: function(cb_) {
         my.box.init(cb_);
