@@ -106,32 +106,30 @@ var session = function(spec, my) {
     });
 
     my.exo_browser.on('frame_keyboard', function(frame, event) {
-      var modifier = (1 << 1); /* ctrl */
-      var modifier_key = 17;
       if(process.platform === 'darwin') {
-        modifier = (1 << 3); /* command */
-        modifier_key = 91;
-      }
-      console.log('KEYCODE: ' + event.keycode);
-      if(event.type === 7 && (event.modifiers === modifier) &&
-         event.keycode === 67) {
-        /* Ctrl - C */
+        var modifier = (1 << 3); /* command */
+        var modifier_key = 91;
+        //console.log('KEYCODE: ' + event.keycode);
+        if(event.type === 7 && (event.modifiers === modifier) &&
+           event.keycode === 67) {
+          /* Ctrl - C */
         frame.copy_selection();
-      }
-      if(event.type === 7 && (event.modifiers === modifier) &&
-         event.keycode === 86) {
-        /* Ctrl - V */
+        }
+        if(event.type === 7 && (event.modifiers === modifier) &&
+           event.keycode === 86) {
+          /* Ctrl - V */
         frame.paste();
-      }
-      if(event.type === 7 && (event.modifiers === modifier) &&
-         event.keycode === 88) {
-        /* Ctrl - X */
+        }
+        if(event.type === 7 && (event.modifiers === modifier) &&
+           event.keycode === 88) {
+          /* Ctrl - X */
         frame.cut_selection();
-      }
-      if(event.type === 7 && (event.modifiers === modifier) &&
-         event.keycode === 65) {
-        /* Ctrl - A */
+        }
+        if(event.type === 7 && (event.modifiers === modifier) &&
+           event.keycode === 65) {
+          /* Ctrl - A */
         frame.select_all();
+        }
       }
     });
 

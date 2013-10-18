@@ -93,6 +93,11 @@ private:
   void StopFindingTask(content::StopFindAction action,
                        v8::Persistent<v8::Function>* cb_p);
 
+  static void Capture(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CaptureTask(v8::Persistent<v8::Function>* cb_p);
+  void CaptureCallback(v8::Persistent<v8::Function>* cb_p,
+                       bool suceeded,
+                       const std::string& result);
 
   static void Name(const v8::FunctionCallbackInfo<v8::Value>& args);
   void NameTask(std::string* name,
@@ -132,18 +137,18 @@ private:
   /****************************************************************************/
   /*                               MEMBERS                                    */
   /****************************************************************************/
-  ExoFrame*                    frame_;
+  ExoFrame*                                 frame_;
 
-  v8::Persistent<v8::Function> title_update_cb_;
-  v8::Persistent<v8::Function> favicon_update_cb_;
+  v8::Persistent<v8::Function>              title_update_cb_;
+  v8::Persistent<v8::Function>              favicon_update_cb_;
 
-  v8::Persistent<v8::Function> pending_url_cb_;
-  v8::Persistent<v8::Function> load_fail_cb_;
-  v8::Persistent<v8::Function> load_finish_cb_;
-  v8::Persistent<v8::Function> loading_start_cb_;
-  v8::Persistent<v8::Function> loading_stop_cb_;
+  v8::Persistent<v8::Function>              pending_url_cb_;
+  v8::Persistent<v8::Function>              load_fail_cb_;
+  v8::Persistent<v8::Function>              load_finish_cb_;
+  v8::Persistent<v8::Function>              loading_start_cb_;
+  v8::Persistent<v8::Function>              loading_stop_cb_;
 
-  static v8::Persistent<v8::Function>  s_constructor;
+  static v8::Persistent<v8::Function>       s_constructor;
 
   friend class base::RefCountedThreadSafe<ExoFrameWrap>;
   friend class ExoBrowserWrap;

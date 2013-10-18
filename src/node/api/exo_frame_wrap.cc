@@ -66,6 +66,9 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_stopFinding"),
       FunctionTemplate::New(StopFinding)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_capture"),
+      FunctionTemplate::New(Capture)->GetFunction());
+
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_name"),
       FunctionTemplate::New(Name)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
@@ -723,6 +726,48 @@ ExoFrameWrap::StopFindingTask(
       base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
 }
 
+
+
+void 
+ExoFrameWrap::Capture(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::CaptureTask, frame_w, cb_p));
+}
+
+void
+ExoFrameWrap::CaptureTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL) {
+    frame_->CaptureFrame(
+        base::Bind(&ExoFrameWrap::CaptureCallback, this, cb_p));
+  }
+}
+
+void
+ExoFrameWrap::CaptureCallback(
+    Persistent<Function>* cb_p,
+    bool suceeded,
+    const std::string& result)
+{
+  std::string* data = new std::string();
+  (*data) = result;
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, data));
+}
 
 
 void 
