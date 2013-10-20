@@ -152,6 +152,10 @@ ExoFrame::CaptureFrameImpl::CaptureFrameImpl(
 {
 }
 
+ExoFrame::CaptureFrameImpl::~CaptureFrameImpl()
+{
+}
+
 void
 ExoFrame::CaptureFrameImpl::Run()
 {
