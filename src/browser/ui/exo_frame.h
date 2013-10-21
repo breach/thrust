@@ -245,6 +245,8 @@ private:
     void Run();
 
   private:
+    ~CaptureFrameImpl();
+
     void CopyFromBackingStoreComplete(
         bool succeeded,
         const SkBitmap& bitmap);
@@ -254,6 +256,8 @@ private:
 
     ExoFrame*                                      parent_;
     base::Callback<void(bool, const std::string&)> callback_;
+
+    friend class base::RefCountedThreadSafe<CaptureFrameImpl>;
   };
 
 
