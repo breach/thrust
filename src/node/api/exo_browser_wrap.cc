@@ -172,6 +172,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(SetFrameKeyboardCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setNavigationStateCallback"),
       FunctionTemplate::New(SetNavigationStateCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFindReplyCallback"),
+      FunctionTemplate::New(SetFindReplyCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
@@ -1026,6 +1028,64 @@ ExoBrowserWrap::DispatchNavigationState(
     cb->Call(browser_o, 2, argv);
   }
 }
+
+
+void
+ExoBrowserWrap::SetFindReplyCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  browser_w->find_reply_cb_.Reset(Isolate::GetCurrent(), cb);
+}
+
+void
+ExoBrowserWrap::DispatchFindReply(
+    const std::string& src_frame,
+    int request_id,
+    int number_of_matches,
+    const gfx::Rect& selection_rect,
+    int active_match_ordinal,
+    bool final_update)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> browser_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!find_reply_cb_.IsEmpty()) {
+    Local<String> frame_arg = String::New(src_frame.c_str());
+    Local<Integer> request_id_arg = Integer::New(request_id);
+    Local<Integer> number_of_matches_arg = Integer::New(number_of_matches);
+
+    Local<Array> selection_rect_arg = Array::New();
+    selection_rect_arg->Set(0, Integer::New(selection_rect.x()));
+    selection_rect_arg->Set(1, Integer::New(selection_rect.y()));
+    selection_rect_arg->Set(2, Integer::New(selection_rect.width()));
+    selection_rect_arg->Set(3, Integer::New(selection_rect.height()));
+
+    Local<Integer> active_match_arg = Integer::New(active_match_ordinal);
+    Local<Boolean> final_update_arg = Boolean::New(final_update);
+
+    Local<Function> cb = 
+      Local<Function>::New(Isolate::GetCurrent(), find_reply_cb_);
+
+
+    Local<Value> argv[6] = { frame_arg,
+                             request_id_arg,
+                             number_of_matches_arg,
+                             selection_rect_arg,
+                             active_match_arg,
+                             final_update_arg };
+
+    cb->Call(browser_o, 6, argv);
+  }
+}
+
 
 } // namespace exo_browser
     

@@ -53,6 +53,7 @@ exo_browser#frame_load_finish(frame, url)
 exo_browser#frame_loading_start(frame)
 exo_browser#frame_loading_stop(frame)
 exo_browser#frame_created(frame, dispostion, initial_pos, from)
+exo_browser#frame_find_reply(frame, rid, matches, selection, active, final)
 
 exo_browser.frame(name);
 
@@ -157,6 +158,7 @@ b._setFrameCloseCallback(cb_);
 b._setFrameCreatedCallback(cb_);
 b._setFrameKeyboardCallback(cb_);
 b._setNavigationStateCallback(cb_);
+b._setFindReplyCallback(cb_);
 
 b.kill(cb_);
 
