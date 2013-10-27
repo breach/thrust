@@ -719,7 +719,7 @@ var exo_frame = function(spec, my) {
   // @forward   {boolean} search forward (backward otherwise)
   // @sensitive {boolean} case sensitive (insensitive otherwise)
   // @next      {boolean} followup request (first one otherwise)
-  // @cb_       {functio(err)}
+  // @cb_       {functio(err, rid)}
   // ```
   find = function(text, forward, sensitive, next, cb_) {
     pre(function(err) {
@@ -730,7 +730,7 @@ var exo_frame = function(spec, my) {
         var rid = next ? my.find[text] : ++my.find_rid;
         my.find[text] = rid;
         my.internal._find(rid, text, forward, sensitive, next, function() {
-          if(cb_) return cb_();
+          if(cb_) return cb_(rid);
         });
       }
     });
@@ -1318,6 +1318,11 @@ var exo_browser = function(spec, my) {
           e.url = require('url').parse(e.virtual_url || '');
         });
         that.emit('frame_navigation_state', my.frames[from], state);
+      });
+      my.internal._setFindReplyCallback(function(from, rid, matches, selection,
+                                                 active, final) {
+        that.emit('frame_find_reply', my.frames[from], rid, matches, 
+                                      selection, active, final);
       });
 
       my.ready = true;

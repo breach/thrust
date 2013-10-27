@@ -166,6 +166,15 @@ private:
                                const std::vector<NavigationEntry>& entries,
                                bool can_go_back,
                                bool can_go_forward);
+
+  static void SetFindReplyCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DispatchFindReply(const std::string& src_frame,
+                         int request_id,
+                         int number_of_matches,
+                         const gfx::Rect& selection_rect,
+                         int active_match_ordinal,
+                         bool final_update);
                                
 
   /****************************************************************************/
@@ -182,6 +191,7 @@ private:
   v8::Persistent<v8::Function> frame_created_cb_;
   v8::Persistent<v8::Function> frame_keyboard_cb_;
   v8::Persistent<v8::Function> navigation_state_cb_;
+  v8::Persistent<v8::Function> find_reply_cb_;
 
   static v8::Persistent<v8::Function>  s_constructor;
 

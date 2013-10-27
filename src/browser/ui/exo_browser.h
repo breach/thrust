@@ -302,6 +302,13 @@ public:
   virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
   virtual void WorkerCrashed(content::WebContents* source) OVERRIDE;
 
+  virtual void FindReply(content::WebContents* web_contents,
+                         int request_id,
+                         int number_of_matches,
+                         const gfx::Rect& selection_rect,
+                         int active_match_ordinal,
+                         bool final_update) OVERRIDE;
+
 private:
   /****************************************************************************/
   /*                           PRIVATE INTERFACE                              */
