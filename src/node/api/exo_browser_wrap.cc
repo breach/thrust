@@ -1069,7 +1069,7 @@ ExoBrowserWrap::DispatchFindReply(
     selection_rect_arg->Set(3, Integer::New(selection_rect.height()));
 
     Local<Integer> active_match_arg = Integer::New(active_match_ordinal);
-    Local<Boolean> final_update_arg = Boolean::New(final_update);
+    Local<v8::Boolean> final_update_arg = v8::Boolean::New(final_update);
 
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), find_reply_cb_);
