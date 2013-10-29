@@ -1,13 +1,11 @@
 ExoBrowser
 ==========
 
-**Latest Release**:[v0.1.exp1](https://github.com/spolu/exo_browser/wiki/Release:-ExoBrowser:Exp.1)
-
 The ExoBrowser is a scriptable platform designed to ease the experimentation with new concepts for the Web Browser.
 
 The ExoBrowser exposes its API (parts of the Chromium Content API + a Simple View Model) in Javascript and enables the implementation of a fully functional browser entirely out of it (as a Javascript/HTML/CSS app)
 
-See [The Experimentation Platform to Build a Next Generation Browser](http://spolu.github.io/exo_browser/2013/09/05/the-experimentation-platform-to-build-a-next-generation-web-browser.html)
+See [ExoBrowser HomePage](http://spolu.github.io/exo_browser)
 
 #### Downloads
 
