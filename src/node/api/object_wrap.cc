@@ -70,6 +70,25 @@ ObjectWrap::IntCallback(
 }
 
 void 
+ObjectWrap::DoubleCallback(
+    v8::Persistent<v8::Function>* cb_p, 
+    const double* number) 
+{
+  v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
+  v8::Local<v8::Function> cb = 
+    v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
+  v8::Local<v8::Object> obj = 
+    v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
+        this->persistent());
+  v8::Local<v8::Number> d = v8::Number::New(*number);
+  v8::Local<v8::Value> argv[1] = { d };
+  cb->Call(obj, 1, argv);
+  cb_p->Dispose();
+  delete cb_p;
+  delete number;
+}
+
+void 
 ObjectWrap::BooleanCallback(
     v8::Persistent<v8::Function>* cb_p, 
     const bool* boolean) 

@@ -144,6 +144,19 @@ ExoFrame::CaptureFrame(
   (new CaptureFrameImpl(this, callback))->Run();
 }
 
+void
+ExoFrame::Zoom(
+    content::PageZoom zoom)
+{
+  web_contents_->GetRenderViewHost()->Zoom(zoom);
+}
+
+double
+ExoFrame::ZoomLevel() const
+{
+  return web_contents_->GetZoomLevel();
+}
+
 ExoFrame::CaptureFrameImpl::CaptureFrameImpl(
     ExoFrame* parent,
     const base::Callback<void(bool, const std::string&)>& callback)

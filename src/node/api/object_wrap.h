@@ -74,6 +74,9 @@ protected:
   void IntCallback(v8::Persistent<v8::Function>* cb_p, 
                    const int* integer);
 
+  void DoubleCallback(v8::Persistent<v8::Function>* cb_p, 
+                      const double* number);
+
   void BooleanCallback(v8::Persistent<v8::Function>* cb_p, 
                        const bool* boolean);
 

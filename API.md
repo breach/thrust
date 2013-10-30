@@ -96,6 +96,8 @@ exo_frame.find_stop(action, [cb_]);
 
 exo_frame.capture(cb_);
 
+exo_frame.zoom(zoom, [cb_]);
+
 exo_frame.load_url(url, [cb_]);
 exo_frame.go_back_or_forward(offset, [cb_]);
 exo_frame.reload([cb_]);
@@ -187,6 +189,8 @@ f._focus(cb_);
 f._find(rid, text, forward, sensitive, next, cb_)
 f._stopFinding(action, cb_);
 f._capture(cb_);
+f._zoom(zoom, cb_);
+f._zoomLevel(cb_);
 
 f._name(cb_);
 f._type(cb_);

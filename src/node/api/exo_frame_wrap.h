@@ -6,6 +6,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
+#include "content/public/common/page_zoom.h"
 #include "content/public/common/stop_find_action.h"
 #include "exo_browser/src/node/api/object_wrap.h"
 #include "exo_browser/src/node/api/exo_browser_wrap.h"
@@ -98,6 +99,13 @@ private:
   void CaptureCallback(v8::Persistent<v8::Function>* cb_p,
                        bool suceeded,
                        const std::string& result);
+
+  static void Zoom(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ZoomTask(const content::PageZoom zoom,
+                v8::Persistent<v8::Function>* cb_p);
+  static void ZoomLevel(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ZoomLevelTask(double* number,
+                     v8::Persistent<v8::Function>* cb_p);
 
   static void Name(const v8::FunctionCallbackInfo<v8::Value>& args);
   void NameTask(std::string* name,
