@@ -11,11 +11,12 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/size.h"
 #include "ui/gfx/point.h"
+#include "content/public/common/stop_find_action.h"
+#include "content/public/common/page_zoom.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
-#include "content/public/common/stop_find_action.h"
 
 #if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>
@@ -128,6 +129,18 @@ public:
   void CaptureFrame(
       const base::Callback<void(bool, const std::string&)>& callback);
 
+  // ### Zoom
+  //
+  // Zoom the page in/out/reset
+  // ```
+  // @zoom {PageZoom} in/out/reset
+  // ```
+  void Zoom(const content::PageZoom zoom);
+  
+  // ### GetZoomLevel
+  //
+  // Retrieves the current Zoom Level
+  double ZoomLevel() const;
 
   // ### type
   //

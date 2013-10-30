@@ -419,6 +419,7 @@ var exo_frame = function(spec, my) {
   var find;                /* find(text, forward, case, next, [cb_]); */
   var find_stop;           /* find_stop(action, [cb_]); */
   var capture;             /* capture([cb_]); */
+  var zoom;                /* zoom(zoom, [cb_]); */
 
   var kill;                /* kill(); */
 
@@ -779,6 +780,39 @@ var exo_frame = function(spec, my) {
     });
   };
 
+  // ### zoom
+  //
+  // Zoom the frame and returns asyncrhonously the current zoom if the callback
+  // is defined. If zoom is undefined or null no action is performed but the
+  // current zoom is returned if the callback is defined.
+  // ```
+  // @zoom {string} "in"|"out"|"reset"|null
+  // @cb_ {function(err, level)} the asynchronous callback
+  // ```
+  zoom = function(zoom, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        if(zoom) {
+          my.internal._zoom(zoom, function() {
+            if(cb_) {
+              my.internal._zoomLevel(function(level) {
+                return cb_(null, level);
+              });
+            }
+          });
+        }
+        else if(cb_) {
+          my.internal._zoomLevel(function(level) {
+            return cb_(null, level);
+          });
+        }
+      }
+    });
+  };
+
   // ### kill
   //
   // Deletes the internal exo frame to let the object get GCed
@@ -890,6 +924,7 @@ var exo_frame = function(spec, my) {
   common.method(that, 'find', find, _super);
   common.method(that, 'find_stop', find_stop, _super);
   common.method(that, 'capture', capture, _super);
+  common.method(that, 'zoom', zoom, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');

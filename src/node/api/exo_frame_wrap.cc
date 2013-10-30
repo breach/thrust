@@ -69,6 +69,11 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_capture"),
       FunctionTemplate::New(Capture)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_zoom"),
+      FunctionTemplate::New(Zoom)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_zoomLevel"),
+      FunctionTemplate::New(ZoomLevel)->GetFunction());
+
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_name"),
       FunctionTemplate::New(Name)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
@@ -686,7 +691,7 @@ ExoFrameWrap::StopFinding(
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
-  /* args[1]: action */
+  /* args[0]: action */
   std::string action_str = std::string(
       *String::Utf8Value(Local<String>::Cast(args[0])));
 
@@ -768,6 +773,87 @@ ExoFrameWrap::CaptureCallback(
       FROM_HERE,
       base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, data));
 }
+
+void 
+ExoFrameWrap::Zoom(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: zoom */
+  std::string zoom_str = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[0])));
+
+  content::PageZoom zoom = content::PAGE_ZOOM_RESET;
+  if(zoom_str.compare("in") == 0) {
+    zoom = content::PAGE_ZOOM_IN;
+  }
+  if(zoom_str.compare("reset") == 0) {
+    zoom = content::PAGE_ZOOM_RESET;
+  }
+  if(zoom_str.compare("out") == 0) {
+    zoom = content::PAGE_ZOOM_OUT;
+  }
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::ZoomTask, frame_w, zoom, cb_p));
+}
+
+
+void
+ExoFrameWrap::ZoomTask(
+    const content::PageZoom zoom,
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->Zoom(zoom);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoFrameWrap::ZoomLevel(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  double* number = new double;
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::ZoomLevelTask, frame_w, number, cb_p));
+}
+
+
+void
+ExoFrameWrap::ZoomLevelTask(
+    double* number,
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    (*number) = frame_->ZoomLevel();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::DoubleCallback, this, cb_p, number));
+}
+
+
 
 
 void 
