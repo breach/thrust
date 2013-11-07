@@ -37,10 +37,6 @@ ObjectFromNavigationEntry(
                String::New(entry.virtual_url_.c_str()));
   entry_o->Set(String::New("title"), 
                String::New(entry.title_.c_str()));
-  /* TODO(spolu):
-  entry_o->Set(String::New("favicon"),
-               String::New(entry.favicon_));
-  */
   entry_o->Set(String::New("visible"),
                v8::Boolean::New(entry.visible_));
   entry_o->Set(String::New("timestamp"),
@@ -143,6 +139,8 @@ ExoBrowserWrap::Init(
       FunctionTemplate::New(Focus)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_maximize"),
       FunctionTemplate::New(Maximize)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setTitle"),
+      FunctionTemplate::New(SetTitle)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_addPage"),
       FunctionTemplate::New(AddPage)->GetFunction());
@@ -444,6 +442,42 @@ ExoBrowserWrap::MaximizeTask(
 {
   if(browser_ != NULL && !browser_->is_killed())
     browser_->Maximize();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
+}
+
+
+
+void 
+ExoBrowserWrap::SetTitle(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: title */
+  std::string title = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[0])));
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoBrowserWrap::SetTitleTask, browser_w, title, cb_p));
+}
+
+void
+ExoBrowserWrap::SetTitleTask(
+    const std::string& title,
+    Persistent<Function>* cb_p)
+{
+  if(browser_ != NULL && !browser_->is_killed())
+    browser_->SetTitle(title);
 
   NodeThread::Get()->PostTask(
       FROM_HERE,

@@ -85,6 +85,10 @@ private:
   static void Maximize(const v8::FunctionCallbackInfo<v8::Value>& args);
   void MaximizeTask(v8::Persistent<v8::Function>* cb_p);
 
+  static void SetTitle(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void SetTitleTask(const std::string& title,
+                    v8::Persistent<v8::Function>* cb_p);
+
 
   static void SetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */

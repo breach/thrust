@@ -78,6 +78,16 @@ public:
     FRAME_TYPE_COUNT
   };
 
+  // ### ExoFrameForWebContents
+  //
+  // Static getter to retrieve the ExoFrame associated with the given 
+  // WebContents
+  // ```
+  // @web_contents {WebContents}
+  // ```
+  static ExoFrame* ExoFrameForWebContents(
+      content::WebContents* web_contents);
+
   // ### LoadURL
   //
   // Loads the provided url in this ExoFrame.

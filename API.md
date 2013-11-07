@@ -126,13 +126,13 @@ _exo_browser._createExoSession({
   off_the_record: false
 }, cb_);
 
-s._setCookiesLoadForKeyHandler(key, rid, cb_);
-s._setCookiesFlushHandler(rid, cb_);
+s._setCookiesLoadForKeyHandler(hdlr_);
+s._setCookiesFlushHandler(hdlr_);
 
-s._setCookiesAddCallback(cookie);
-s._setCookiesDeleteCallback(cookie);
-s._setCookiesUpdateAccessTimeCallback(cookie);
-s._setCookiesForceKeepSessionStateCallback(cookie);
+s._setCookiesAddCallback(cb_);
+s._setCookiesDeleteCallback(cb_);
+s._setCookiesUpdateAccessTimeCallback(cb_);
+s._setCookiesForceKeepSessionStateCallback(cb_);
 
 s._addVisitedLink(url, cb_);
 s._clearVisitedLinks(cb_);
@@ -151,6 +151,7 @@ b._size(cb_);
 b._position(cb_);
 b._focus(cb_);
 b._maximize(cb_);
+b._setTitle(title, cb_);
 
 b._setOpenURLCallback(cb_);
 b._setResizeCallback(cb_);
