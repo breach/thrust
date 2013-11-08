@@ -23,6 +23,7 @@ struct FaviconURL;
 namespace exo_browser {
 
 class ExoFrame;
+class ExoBrowserWebContentsViewDelegate;
 
 class ExoFrameWrap : public ObjectWrap {
 public:
@@ -49,7 +50,7 @@ private:
   static void DeleteTask(ExoFrame* frame);
 
   /****************************************************************************/
-  /*                           WRAPPERS, TASKS                                */
+  /* WRAPPERS, TASKS */
   /****************************************************************************/
   static void LoadURL(const v8::FunctionCallbackInfo<v8::Value>& args);
   void LoadURLTask(const std::string& url,
@@ -116,7 +117,22 @@ private:
                 v8::Persistent<v8::Function>* cb_p);
 
   /****************************************************************************/
-  /*                              DISPATCHERS                                 */
+  /* HANDLERS */
+  /****************************************************************************/
+  typedef base::Callback<void(const std::vector<std::string>&, 
+                              const base::Callback<void(const int)>&)> ContextMenuCallback;
+
+  static void SetBuildContextMenuHandler(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void BuildContextMenuCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void CallBuildContextMenu(const content::ContextMenuParams& params,
+                            const ContextMenuCallback& cb);
+  void CallTriggerContextMenuItem(const int index);
+
+
+  /****************************************************************************/
+  /* DISPATCHERS */
   /****************************************************************************/
   static void SetLoadFailCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -143,9 +159,13 @@ private:
       const std::vector<content::FaviconURL>& candidates);
 
   /****************************************************************************/
-  /*                               MEMBERS                                    */
+  /* MEMBERS */
   /****************************************************************************/
   ExoFrame*                                 frame_;
+
+  v8::Persistent<v8::Function>              build_context_menu_hdlr_;
+  v8::Persistent<v8::Function>              build_context_menu_trigger_;
+  ContextMenuCallback                       build_context_menu_callback_;
 
   v8::Persistent<v8::Function>              title_update_cb_;
   v8::Persistent<v8::Function>              favicon_update_cb_;
@@ -161,6 +181,7 @@ private:
   friend class base::RefCountedThreadSafe<ExoFrameWrap>;
   friend class ExoBrowserWrap;
   friend class ExoFrame;
+  friend class ExoBrowserWebContentsViewDelegate;
 
   DISALLOW_COPY_AND_ASSIGN(ExoFrameWrap);
 };

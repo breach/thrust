@@ -17,7 +17,8 @@
 namespace exo_browser {
 
 class ExoBrowserWebContentsViewDelegate : 
-    public content::WebContentsViewDelegate {
+    public content::WebContentsViewDelegate,
+    public base::RefCountedThreadSafe<ExoBrowserWebContentsViewDelegate> {
  public:
   explicit ExoBrowserWebContentsViewDelegate(
       content::WebContents* web_contents);
@@ -27,6 +28,18 @@ class ExoBrowserWebContentsViewDelegate :
   virtual void ShowContextMenu(
       const content::ContextMenuParams& params) OVERRIDE;
   virtual content::WebDragDestDelegate* GetDragDestDelegate() OVERRIDE;
+
+  // ### BuildContextMenu
+  //
+  // Constructs a context menu based on the string received and call the
+  // `trigger` callback if a menu item is clicked
+  // ```
+  // @menu    {vector<string>} the list of menu items (empty string ~ seperator)
+  // @trigger {Callback<int>} the callback to call when a menu is fired
+  // ```
+  void BuildContextMenu(
+      const std::vector<std::string>& items,
+      const base::Callback<void(const int)>& trigger);
 
 #if defined(TOOLKIT_GTK)
   virtual void Initialize(GtkWidget* expanded_container,
@@ -58,23 +71,11 @@ class ExoBrowserWebContentsViewDelegate :
   ui::OwnedWidgetGtk floating_;
   GtkWidget* expanded_container_;
 
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnBackMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnForwardMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnReloadMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnCutMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnCopyMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnPasteMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnDeleteMenuActivated);
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void,
-                       OnInspectMenuActivated);
+  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void, 
+                       OnContextMenuItemActivated);
 #endif
+
+  friend class base::RefCountedThreadSafe<ExoBrowserWebContentsViewDelegate>;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserWebContentsViewDelegate);
 };

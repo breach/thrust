@@ -71,6 +71,7 @@ exo_browser.show_page(frame, [cb_]);
 
 exo_browser.focus([cb_]);
 exo_browser.maximize([cb_]);
+exo_browser.set_title(title, [cb_]);
 
 
 var f = api.exo_frame({
@@ -196,10 +197,12 @@ f._zoomLevel(cb_);
 f._name(cb_);
 f._type(cb_);
 
-b._setLoadFailCallback(cb_);
-b._setLoadFinishCallback(cb_);
-b._setLoadingStartCallback(cb_);
-b._setLoadingStopCallback(cb_);
+f._setBuildContextMenuHandler(cb_);
+
+f._setLoadFailCallback(cb_);
+f._setLoadFinishCallback(cb_);
+f._setLoadingStartCallback(cb_);
+f._setLoadingStopCallback(cb_);
 
 /* CONTROL */
 

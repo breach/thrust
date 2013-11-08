@@ -1,13 +1,16 @@
 >>v0.4<<
-:api_source #78
-  - Access ExoFrame Source Code from API
+:api_menu #93
+  - Window Title,Icon & Context Menu API
+
+:api_devtools #37
+  - DevTools API
+
+:file_ui
+  - File Upload/Download UI
 
 :cleanser #90
   - Reintroduce ClearDataForOrigin
   - Ability to list Data
-
-:api_menu #93
-  - App Name & Menu Item API
 
 DONE:
 

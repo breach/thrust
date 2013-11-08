@@ -70,6 +70,7 @@ var session = function(spec, my) {
     });
     my.exo_browser.maximize();
     my.exo_browser.focus();
+    my.exo_browser.set_title('ExoBrowser Shell');
     my.name = my.exo_browser.name();
 
     my.exo_session = api.exo_session({

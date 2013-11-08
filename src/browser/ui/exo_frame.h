@@ -46,6 +46,7 @@ namespace exo_browser {
 class ExoSession;
 class ExoBrowser;
 class ExoFrameWrap;
+class ExoBrowserWebContentsViewDelegate;
 
 // ### ExoFrame
 //
@@ -299,6 +300,7 @@ private:
   friend class ExoBrowser;
   friend class ExoFrameWrap;
   friend class ExoBrowserWrap;
+  friend class ExoBrowserWebContentsViewDelegate;
 
   DISALLOW_COPY_AND_ASSIGN(ExoFrame);
 };

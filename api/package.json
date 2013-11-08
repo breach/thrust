@@ -6,22 +6,22 @@
     "email": "polu.stanislas@gmail.com",
     "url": "http://github.com/spolu" 
   },
-  "version": "0.3.9",
+  "version": "0.4.2",
   "dependencies": {
     "async": "0.2.x",
     "mkdirp": "0.3.x"
   },
   "repository" : { 
     "type" :  "git",
-    "url" :   "http://github.com/spolu/exo_browser.git" 
+    "url" :   "http://github.com/breach/exo_browser.git" 
   },
   "bugs": {
-    "url": "https://github.com/spolu/exo_browser/issues"
+    "url": "https://github.com/breach/exo_browser/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/spolu/exo_browser/raw/master/LICENSE"
+      "url": "https://github.com/breach/exo_browser/raw/master/LICENSE"
     }
   ],
   "main": "./lib/api.js"

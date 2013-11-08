@@ -839,6 +839,23 @@ var exo_frame = function(spec, my) {
   // Runs initialization procedure.
   init = function() {
     var finish = function() {
+      my.internal._setBuildContextMenuHandler(function(cb_) {
+        var menu = ['foo', 'bar'];
+        return cb_.bind(my.internal, menu, function(idx) {
+          console.log('TRIGGER: ' + idx + ' ' + menu[idx]);
+        });
+        /* TODO(spolu): Expose API */
+        /*
+        if(my.cookie_handlers.load_for_key) {
+          my.cookie_handlers.load_for_key(key, function(cookies) {
+            return (cb_.bind(my.internal, rid, cookies))();
+          });
+        }
+        else {
+          return (cb_.bind(my.internal, rid, []))();
+        }
+        */
+      });
       my.internal._setFaviconUpdateCallback(function(favicons) {
         if(my.parent) {
           my.parent.emit('frame_favicon_update', that, favicons);
@@ -1291,7 +1308,25 @@ var exo_browser = function(spec, my) {
     });
   };
 
-
+  // ### set_title
+  // 
+  // Sets the title for the ExoBrowser window
+  // ```
+  // @title {string} the window title to set
+  // @cb_   {function(err)} [optional]
+  // ```
+  set_title = function(title, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._setTitle(title, function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
 
 
   // ### init
@@ -1389,6 +1424,7 @@ var exo_browser = function(spec, my) {
 
   common.method(that, 'focus', focus, _super);
   common.method(that, 'maximize', maximize, _super);
+  common.method(that, 'set_title', set_title, _super);
 
   return that;
 };

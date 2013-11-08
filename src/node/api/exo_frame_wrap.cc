@@ -79,6 +79,10 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
       FunctionTemplate::New(Type)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(
+      String::NewSymbol("_setBuildContextMenuHandler"),
+      FunctionTemplate::New(SetBuildContextMenuHandler)->GetFunction());
+
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadFailCallback"),
       FunctionTemplate::New(SetLoadFailCallback)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadFinishCallback"),
@@ -218,7 +222,7 @@ ExoFrameWrap::DeleteTask(
 }
 
 /******************************************************************************/
-/*                              WRAPPERS, TASKS                               */
+/* WRAPPERS, TASKS */
 /******************************************************************************/
 
 void 
@@ -924,7 +928,102 @@ ExoFrameWrap::TypeTask(
 }
 
 /******************************************************************************/
-/*                                DISPATCHERS                                 */
+/* HANDLERS */
+/******************************************************************************/
+
+void ExoFrameWrap::SetBuildContextMenuHandler(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: hdlr */
+  Local<Function> hdlr = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->build_context_menu_hdlr_.Reset(Isolate::GetCurrent(), hdlr);
+}
+
+void ExoFrameWrap::BuildContextMenuCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  ExoFrameWrap* frame_w = 
+    ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+
+  /* args[0]: items */
+  std::vector<std::string> menu;
+  Local<Array> items = Local<Array>::Cast(args[0]);
+  for(unsigned int i = 0; i < items->Length(); i ++) {
+    std::string item = std::string(
+        *String::Utf8Value(Local<String>::Cast(items->Get(Integer::New(i)))));
+    menu.push_back(item);
+  }
+
+  /* args[1]: trigger_ */
+  Local<Function> trigger = Local<Function>::Cast(args[1]);
+  frame_w->build_context_menu_trigger_.Reset(Isolate::GetCurrent(), trigger);
+
+  //LOG(INFO) << "BuildContextMenuCallback" << " [" << menu.size() << "]";
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(frame_w->build_context_menu_callback_, menu, 
+                 base::Bind(&ExoFrameWrap::CallTriggerContextMenuItem, 
+                            frame_w)));
+}
+
+void ExoFrameWrap::CallBuildContextMenu(
+    const content::ContextMenuParams& params,
+    const ContextMenuCallback& cb)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!build_context_menu_hdlr_.IsEmpty()) {
+    Local<Function> hdlr = 
+      Local<Function>::New(Isolate::GetCurrent(), build_context_menu_hdlr_);
+
+    build_context_menu_callback_ = cb;
+    Local<FunctionTemplate> tpl = 
+      FunctionTemplate::New(BuildContextMenuCallback);
+    
+    //LOG(INFO) << "BuildContextMenu";
+
+    Local<Function> cb_arg = tpl->GetFunction();
+
+    /* TODO(spolu) Convert ContextMenuParams */
+
+    Local<v8::Value> argv[1] = { cb_arg };
+    hdlr->Call(frame_o, 1, argv);
+  }
+}
+
+void ExoFrameWrap::CallTriggerContextMenuItem(
+    const int index)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!build_context_menu_trigger_.IsEmpty()) {
+    Local<Function> trigger = 
+      Local<Function>::New(Isolate::GetCurrent(), build_context_menu_trigger_);
+
+    LOG(INFO) << "TriggerContextMenuItem: " << index;
+
+    Local<Integer> index_arg = Integer::New(index);
+
+    Local<Value> argv[1] = { index_arg };
+    trigger->Call(frame_o, 1, argv);
+  }
+}
+
+/******************************************************************************/
+/* DISPATCHERS */
 /******************************************************************************/
 
 void
