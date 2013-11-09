@@ -22,7 +22,6 @@ class ExoBrowserWebContentsViewDelegate :
  public:
   explicit ExoBrowserWebContentsViewDelegate(
       content::WebContents* web_contents);
-  virtual ~ExoBrowserWebContentsViewDelegate();
 
   // WebContentsViewDelegate Override.
   virtual void ShowContextMenu(
@@ -53,7 +52,7 @@ class ExoBrowserWebContentsViewDelegate :
   virtual NSObject<RenderWidgetHostViewMacDelegate>*
       CreateRenderWidgetHostViewDelegate(
           content::RenderWidgetHost* render_widget_host) OVERRIDE;
-  void ActionPerformed(int id);
+  void ActionPerformed(int index);
 #elif defined(OS_WIN)
   virtual void StoreFocus() OVERRIDE;
   virtual void RestoreFocus() OVERRIDE;
@@ -64,6 +63,8 @@ class ExoBrowserWebContentsViewDelegate :
 #endif
 
  private:
+  virtual ~ExoBrowserWebContentsViewDelegate();
+
   content::WebContents* web_contents_;
   content::ContextMenuParams params_;
 

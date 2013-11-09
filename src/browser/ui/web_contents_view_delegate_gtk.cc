@@ -40,7 +40,7 @@ ExoBrowserWebContentsViewDelegate::ExoBrowserWebContentsViewDelegate(
 
 ExoBrowserWebContentsViewDelegate::~ExoBrowserWebContentsViewDelegate() 
 {
-  LOG(INFO) << "WebContentsViewDelegate Destructor";
+  LOG(INFO) << "ExoBrowserWebContentsViewDelegate Destructor";
   floating_.Destroy();
 }
 

@@ -840,10 +840,10 @@ var exo_frame = function(spec, my) {
   init = function() {
     var finish = function() {
       my.internal._setBuildContextMenuHandler(function(cb_) {
-        var menu = ['foo', 'bar'];
+        var menu = ['foo', '', 'bar'];
         return cb_.bind(my.internal, menu, function(idx) {
           console.log('TRIGGER: ' + idx + ' ' + menu[idx]);
-        });
+        })();
         /* TODO(spolu): Expose API */
         /*
         if(my.cookie_handlers.load_for_key) {
