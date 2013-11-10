@@ -97,22 +97,6 @@ ExoBrowserWebContentsViewDelegate::BuildContextMenu(
     gtk_widget_show_all(menu);
     gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 3, GDK_CURRENT_TIME);
   }
-
-  /*
-  params_ = params;
-  bool has_link = !params_.unfiltered_link_url.is_empty();
-  bool has_selection = !params_.selection_text.empty();
-
-  if (params_.media_type == WebContextMenuData::MediaTypeNone &&
-      !has_link &&
-      !has_selection &&
-      !params_.is_editable) {
-  }
-  if (params_.is_editable) {
-  } 
-  else if (has_selection) {
-  }
-  */
 }
 
 WebDragDestDelegate* 

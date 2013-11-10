@@ -9,7 +9,7 @@ JS counterparts Wrappers.
 
 No DevTools ATM
 
-#### API v0.3-beta:
+#### API v0.4-alpha:
 
 ```
 var s = api.exo_session({
@@ -80,6 +80,14 @@ var f = api.exo_frame({
   session: s
 });
 
+exo_frame.set_context_menu_handler(function(params, cb_) {
+  return cb_(null, {
+    'Foo': function() { ... },
+    '': null,
+    'Bar': function() { ... }
+  });
+});
+
 exo_frame.ready();
 exo_frame#ready();
 
@@ -96,7 +104,6 @@ exo_frame.find(text, forward, case, next, [cb_]);
 exo_frame.find_stop(action, [cb_]);
 
 exo_frame.capture(cb_);
-
 exo_frame.zoom(zoom, [cb_]);
 
 exo_frame.load_url(url, [cb_]);
@@ -113,10 +120,11 @@ exo_frame.paste([cb_]);
 exo_frame.delete_selection([cb_]);
 exo_frame.select_all([cb_]);
 exo_frame.unselect([cb_]);
+
 ```
 
 
-#### Internal API v0.3-beta:
+#### Internal API v0.4-alpha:
 
 ```
 /*********************************************************************/
@@ -215,8 +223,6 @@ b._setControlDimension(type, size, cb_);
 b._addPage(frame, cb_);
 b._removePage(name, cb_);
 b._showPage(name, cb_);
-
-/* EXOBROWSER NETWORKING */ 
 
 ```
 

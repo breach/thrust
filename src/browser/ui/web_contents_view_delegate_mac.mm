@@ -151,18 +151,6 @@ ExoBrowserWebContentsViewDelegate::BuildContextMenu(
                      forView:parent_view];
 
   }
-  /*
-  params_ = params;
-  bool has_link = !params_.unfiltered_link_url.is_empty();
-  bool has_selection = ! params_.selection_text.empty();
-  if (params.media_type == WebContextMenuData::MediaTypeNone &&
-      !has_link &&
-      !has_selection &&
-      !params_.is_editable) {
-  if (params_.is_editable) {
-  else if (has_selection) {
-  */
-
 }
 
 void 

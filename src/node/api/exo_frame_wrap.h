@@ -119,8 +119,9 @@ private:
   /****************************************************************************/
   /* HANDLERS */
   /****************************************************************************/
-  typedef base::Callback<void(const std::vector<std::string>&, 
-                              const base::Callback<void(const int)>&)> ContextMenuCallback;
+  typedef base::Callback<void(
+      const std::vector<std::string>&, 
+      const base::Callback<void(const int)>&)> ContextMenuCallback;
 
   static void SetBuildContextMenuHandler(
       const v8::FunctionCallbackInfo<v8::Value>& args);
