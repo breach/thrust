@@ -42,7 +42,7 @@ private:
   static void DeleteTask(ExoSession* session);
 
   /****************************************************************************/
-  /*                             WRAPPERS, TASKS                              */
+  /* WRAPPERS, TASKS */
   /****************************************************************************/
 
   static void OffTheRecord(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -60,7 +60,7 @@ private:
   void ClearAllDataTask(v8::Persistent<v8::Function>* cb_p);
 
   /****************************************************************************/
-  /*                                HANDLERS                                  */
+  /* HANDLERS */
   /****************************************************************************/
   typedef net::CookieMonster::PersistentCookieStore::LoadedCallback
     LoadedCallback;
@@ -81,7 +81,7 @@ private:
 
 
   /****************************************************************************/
-  /*                               DISPATCHERS                                */
+  /* DISPATCHERS */
   /****************************************************************************/
   static void SetCookiesAddCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -100,7 +100,7 @@ private:
   void DispatchCookiesForceKeepSessionState();
 
   /****************************************************************************/
-  /*                                MEMBERS                                   */
+  /* MEMBERS */
   /****************************************************************************/
   ExoSession*                  session_;
 

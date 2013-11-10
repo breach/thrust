@@ -6,8 +6,10 @@
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
 
 #include "base/strings/utf_string_conversions.h"
+#include "third_party/WebKit/public/web/WebContextMenuData.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/favicon_url.h"
+#include "content/public/common/context_menu_params.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_view_host.h" 
 #include "exo_browser/src/browser/ui/exo_browser.h"
@@ -19,6 +21,59 @@
 
 
 using namespace v8;
+
+namespace {
+
+static Local<Object>
+ObjectFromContextMenuParams(
+    const content::ContextMenuParams params)
+{
+  Local<Object> params_o = Object::New();
+
+  params_o->Set(String::New("x"), Number::New(params.x));
+  params_o->Set(String::New("y"), Number::New(params.y));
+
+  params_o->Set(String::New("link_url"),
+                String::New(params.link_url.spec().c_str()));
+  params_o->Set(String::New("raw_link_url"),
+                String::New(params.unfiltered_link_url.spec().c_str()));
+  params_o->Set(String::New("src_url"),
+                String::New(params.src_url.spec().c_str()));
+
+  params_o->Set(String::New("page_url"),
+                String::New(params.page_url.spec().c_str()));
+  params_o->Set(String::New("frame_url"),
+                String::New(params.frame_url.spec().c_str()));
+
+  params_o->Set(String::New("is_editable"),
+                v8::Boolean::New(params.is_editable));
+
+  switch(params.media_type) {
+    case WebKit::WebContextMenuData::MediaTypeImage:
+      params_o->Set(String::New("media_type"), String::New("image"));
+      break;
+    case WebKit::WebContextMenuData::MediaTypeVideo:
+      params_o->Set(String::New("media_type"), String::New("video"));
+      break;
+    case WebKit::WebContextMenuData::MediaTypeAudio:
+      params_o->Set(String::New("media_type"), String::New("audio"));
+      break;
+    case WebKit::WebContextMenuData::MediaTypeFile:
+      params_o->Set(String::New("media_type"), String::New("file"));
+      break;
+    case WebKit::WebContextMenuData::MediaTypePlugin:
+      params_o->Set(String::New("media_type"), String::New("plugin"));
+      break;
+    default:
+    case WebKit::WebContextMenuData::MediaTypeNone:
+      params_o->Set(String::New("media_type"), String::New("none"));
+      break;
+  }
+
+  return params_o;
+}
+
+}
 
 namespace exo_browser {
 
@@ -78,6 +133,10 @@ ExoFrameWrap::Init(
       FunctionTemplate::New(Name)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
       FunctionTemplate::New(Type)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewSymbol("_setBuildContextMenuHandler"),
+      FunctionTemplate::New(SetBuildContextMenuHandler)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadFailCallback"),
       FunctionTemplate::New(SetLoadFailCallback)->GetFunction());
@@ -218,7 +277,7 @@ ExoFrameWrap::DeleteTask(
 }
 
 /******************************************************************************/
-/*                              WRAPPERS, TASKS                               */
+/* WRAPPERS, TASKS */
 /******************************************************************************/
 
 void 
@@ -924,7 +983,98 @@ ExoFrameWrap::TypeTask(
 }
 
 /******************************************************************************/
-/*                                DISPATCHERS                                 */
+/* HANDLERS */
+/******************************************************************************/
+
+void ExoFrameWrap::SetBuildContextMenuHandler(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: hdlr */
+  Local<Function> hdlr = Local<Function>::Cast(args[0]);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  frame_w->build_context_menu_hdlr_.Reset(Isolate::GetCurrent(), hdlr);
+}
+
+void ExoFrameWrap::BuildContextMenuCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  ExoFrameWrap* frame_w = 
+    ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+
+  /* args[0]: items */
+  std::vector<std::string> menu;
+  Local<Array> items = Local<Array>::Cast(args[0]);
+  for(unsigned int i = 0; i < items->Length(); i ++) {
+    std::string item = std::string(
+        *String::Utf8Value(Local<String>::Cast(items->Get(Integer::New(i)))));
+    menu.push_back(item);
+  }
+
+  /* args[1]: trigger_ */
+  Local<Function> trigger = Local<Function>::Cast(args[1]);
+  frame_w->build_context_menu_trigger_.Reset(Isolate::GetCurrent(), trigger);
+
+  //LOG(INFO) << "BuildContextMenuCallback" << " [" << menu.size() << "]";
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(frame_w->build_context_menu_callback_, menu, 
+                 base::Bind(&ExoFrameWrap::CallTriggerContextMenuItem, 
+                            frame_w)));
+}
+
+void ExoFrameWrap::CallBuildContextMenu(
+    const content::ContextMenuParams& params,
+    const ContextMenuCallback& cb)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!build_context_menu_hdlr_.IsEmpty()) {
+    Local<Function> hdlr = 
+      Local<Function>::New(Isolate::GetCurrent(), build_context_menu_hdlr_);
+
+    build_context_menu_callback_ = cb;
+    Local<FunctionTemplate> tpl = 
+      FunctionTemplate::New(BuildContextMenuCallback);
+
+    Local<Object> params_arg = ObjectFromContextMenuParams(params);
+    Local<Function> cb_arg = tpl->GetFunction();
+
+    Local<v8::Value> argv[2] = { params_arg,
+                                 cb_arg };
+    hdlr->Call(frame_o, 2, argv);
+  }
+}
+
+void ExoFrameWrap::CallTriggerContextMenuItem(
+    const int index)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+  Local<Object> frame_o = 
+    Local<Object>::New(Isolate::GetCurrent(), 
+                       this->persistent());
+
+  if(!build_context_menu_trigger_.IsEmpty()) {
+    Local<Function> trigger = 
+      Local<Function>::New(Isolate::GetCurrent(), build_context_menu_trigger_);
+
+    Local<Integer> index_arg = Integer::New(index);
+
+    Local<Value> argv[1] = { index_arg };
+    trigger->Call(frame_o, 1, argv);
+  }
+}
+
+/******************************************************************************/
+/* DISPATCHERS */
 /******************************************************************************/
 
 void

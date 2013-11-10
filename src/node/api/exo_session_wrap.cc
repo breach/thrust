@@ -242,7 +242,7 @@ ExoSessionWrap::DeleteTask(
 
 
 /******************************************************************************/
-/*                              WRAPPERS, TASKS                               */
+/* WRAPPERS, TASKS */
 /******************************************************************************/
 
 void 
@@ -381,7 +381,7 @@ ExoSessionWrap::ClearAllDataTask(
 
 
 /******************************************************************************/
-/*                                DISPATCHERS                                */
+/* DISPATCHERS */
 /******************************************************************************/
 void 
 ExoSessionWrap::SetCookiesAddCallback(
@@ -519,7 +519,7 @@ ExoSessionWrap::DispatchCookiesForceKeepSessionState()
 }
 
 /******************************************************************************/
-/*                                 HANDLERS                                   */
+/* HANDLERS */
 /******************************************************************************/
 void
 ExoSessionWrap::SetCookiesLoadForKeyHandler(

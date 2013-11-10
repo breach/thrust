@@ -46,6 +46,7 @@ namespace exo_browser {
 class ExoSession;
 class ExoBrowser;
 class ExoFrameWrap;
+class ExoBrowserWebContentsViewDelegate;
 
 // ### ExoFrame
 //
@@ -77,6 +78,16 @@ public:
     PAGE_FRAME,
     FRAME_TYPE_COUNT
   };
+
+  // ### ExoFrameForWebContents
+  //
+  // Static getter to retrieve the ExoFrame associated with the given 
+  // WebContents
+  // ```
+  // @web_contents {WebContents}
+  // ```
+  static ExoFrame* ExoFrameForWebContents(
+      content::WebContents* web_contents);
 
   // ### LoadURL
   //
@@ -289,6 +300,7 @@ private:
   friend class ExoBrowser;
   friend class ExoFrameWrap;
   friend class ExoBrowserWrap;
+  friend class ExoBrowserWebContentsViewDelegate;
 
   DISALLOW_COPY_AND_ASSIGN(ExoFrame);
 };

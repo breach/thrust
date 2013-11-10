@@ -104,7 +104,7 @@ public:
   static const int kDefaultWindowHeight;
   
   /****************************************************************************/
-  /*                         STATIC INTERFACE                                 */
+  /* STATIC INTERFACE */
   /****************************************************************************/
   // ### Initialize
   //
@@ -132,7 +132,7 @@ public:
   static void KillAll();
 
   /****************************************************************************/
-  /*                            PUBLIC INTERFACE                              */
+  /* PUBLIC INTERFACE */
   /****************************************************************************/
   // ### ~ExoBrowser
   virtual ~ExoBrowser();
@@ -227,6 +227,11 @@ public:
   // Maximize the ExoBrowser window
   void Maximize() { PlatformMaximize(); }
 
+  // ### SetTitle
+  //
+  // Sets the ExoBrowser window title
+  void SetTitle(const std::string& title) { PlatformSetTitle(title); }
+
 
   // ### Kill
   // 
@@ -257,7 +262,7 @@ public:
   gfx::NativeWindow window() { return window_; }
 
   /****************************************************************************/
-  /*                  WEBCONTENTSDELEGATE IMPLEMENTATION                      */
+  /* WEBCONTENTSDELEGATE IMPLEMENTATION */
   /****************************************************************************/
   virtual content::WebContents* OpenURLFromTab(
       content::WebContents* source,
@@ -311,7 +316,7 @@ public:
 
 private:
   /****************************************************************************/
-  /*                           PRIVATE INTERFACE                              */
+  /* PRIVATE INTERFACE */
   /****************************************************************************/
   explicit ExoBrowser(ExoBrowserWrap* wrapper);
 
@@ -326,7 +331,7 @@ private:
 
 
   /****************************************************************************/
-  /*                        STATIC PLATFORM INTERFACE                         */
+  /* STATIC PLATFORM INTERFACE */
   /****************************************************************************/
   // All the methods that begin with Platform need to be implemented by the
   // platform specific Browser implementation.
@@ -338,7 +343,7 @@ private:
 
 
   /****************************************************************************/
-  /*                            PLATFORM INTERFACE                            */
+  /* PLATFORM INTERFACE */
   /****************************************************************************/
   // ### PlatformCleanup
   //
@@ -428,7 +433,7 @@ private:
 
 
   /****************************************************************************/
-  /*                               MEMBERS                                    */
+  /* MEMBERS */
   /****************************************************************************/
   scoped_ptr<ExoBrowserJavaScriptDialogManager> dialog_manager_;
 

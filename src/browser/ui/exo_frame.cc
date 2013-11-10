@@ -28,6 +28,15 @@ using namespace content;
 
 namespace exo_browser {
 
+static std::map<WebContents*, ExoFrame*> s_exo_frames;
+
+ExoFrame* ExoFrame::ExoFrameForWebContents(
+    content::WebContents* web_contents)
+{
+  return s_exo_frames[web_contents];
+}
+
+
 ExoFrame::ExoFrame(
     const std::string& name,
     content::WebContents* web_contents,
@@ -41,6 +50,7 @@ ExoFrame::ExoFrame(
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
   LOG(INFO) << "ExoFrame Constructor [" << web_contents << "]";
+  s_exo_frames[web_contents_.get()] = this;
 }
 
 ExoFrame::ExoFrame(
@@ -55,6 +65,7 @@ ExoFrame::ExoFrame(
   WebContents* web_contents = WebContents::Create(create_params);
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
+  s_exo_frames[web_contents_.get()] = this;
 }
 
 void
@@ -81,6 +92,7 @@ ExoFrame::~ExoFrame()
   /* already. Our associated web_contents, should be deleted with its      */
   /* scoped_ptr.                                                           */
   LOG(INFO) << "ExoFrame Destructor [" << web_contents_ << "]";
+  s_exo_frames.erase(web_contents_.get());
 }
 
 void
@@ -125,8 +137,6 @@ ExoFrame::Find(
     const WebKit::WebFindOptions& options)
 {
   web_contents_->GetRenderViewHost()->Find(request_id, search_text, options);
-  /* TODO(spolu): Eventually implement WebContentsDelegate (exo_browser.h) */
-  /* FindReply to get info about the find action.                          */
 }
 
 void

@@ -400,28 +400,31 @@ var exo_frame = function(spec, my) {
   my.find_rid = 0;
   my.find = {};
 
+  my.context_menu_handler = null;
+
   //
   // #### _public_
   //
-  var load_url;            /* load_url(url, [cb_]); */
-  var go_back_or_forward;  /* go_back_or_forward(offset, [cb_]); */
-  var reload;              /* reload([cb_]); */
-  var stop;                /* stop([cb_]); */ 
-  var undo;                /* undo([cb_]); */
-  var redo;                /* redo([cb_]); */
-  var cut_selection;       /* cut_selection([cb_]); */
-  var copy_selection;      /* copy_selection([cb_]); */
-  var paste;               /* paste([cb_]); */
-  var delete_selection;    /* delete_selection([cb_]); */
-  var select_all;          /* select_all([cb_]); */
-  var unselect;            /* unselect([cb_]); */
-  var focus;               /* focus([cb_]); */
-  var find;                /* find(text, forward, case, next, [cb_]); */
-  var find_stop;           /* find_stop(action, [cb_]); */
-  var capture;             /* capture([cb_]); */
-  var zoom;                /* zoom(zoom, [cb_]); */
+  var load_url;                 /* load_url(url, [cb_]); */
+  var go_back_or_forward;       /* go_back_or_forward(offset, [cb_]); */
+  var reload;                   /* reload([cb_]); */
+  var stop;                     /* stop([cb_]); */ 
+  var undo;                     /* undo([cb_]); */
+  var redo;                     /* redo([cb_]); */
+  var cut_selection;            /* cut_selection([cb_]); */
+  var copy_selection;           /* copy_selection([cb_]); */
+  var paste;                    /* paste([cb_]); */
+  var delete_selection;         /* delete_selection([cb_]); */
+  var select_all;               /* select_all([cb_]); */
+  var unselect;                 /* unselect([cb_]); */
+  var focus;                    /* focus([cb_]); */
+  var find;                     /* find(text, forward, case, next, [cb_]); */
+  var find_stop;                /* find_stop(action, [cb_]); */
+  var capture;                  /* capture([cb_]); */
+  var zoom;                     /* zoom(zoom, [cb_]); */
+  var set_context_menu_handler; /* set_context_menu_handler(hdlr) */
 
-  var kill;                /* kill(); */
+  var kill;                     /* kill(); */
 
   //
   // #### _protected_
@@ -813,6 +816,26 @@ var exo_frame = function(spec, my) {
     });
   };
 
+  // ### set_context_menu_handler
+  //
+  // TODO(spolu): Specification
+  // The handler must have the following signature and semantic:
+  // ```
+  // function(params, cb_) {
+  // return cb_(null, {
+  //   'Foo': function() { ... },
+  //   '': null,
+  //   'Bar': function() { ... }
+  // });
+  // ```
+  // Empty string can be used as separators and do not require a trigger.
+  // ```
+  // @hdlr {function(err, menu)} the handler
+  // ```
+  set_context_menu_handler = function(hdlr) {
+    my.context_menu_handler = hdlr || null;
+  };
+
   // ### kill
   //
   // Deletes the internal exo frame to let the object get GCed
@@ -839,6 +862,28 @@ var exo_frame = function(spec, my) {
   // Runs initialization procedure.
   init = function() {
     var finish = function() {
+      my.internal._setBuildContextMenuHandler(function(params, cb_) {
+        if(my.context_menu_handler) {
+          my.context_menu_handler(params, function(err, menu) {
+            if(err || !menu) { 
+              /* In this case we simply interrupt the menu construction. */
+              return; 
+            }
+            var triggers = [];
+            var items = [];
+            for(var item in menu) {
+              if(menu.hasOwnProperty(item) && 
+                 (!item || typeof menu[item] === 'function')) {
+                items.push(item || '');
+                triggers.push(menu[item]);
+              }
+            }
+            return (cb_.bind(my.internal, items, function(idx) {
+              triggers[idx]();
+            }))();
+          });
+        }
+      });
       my.internal._setFaviconUpdateCallback(function(favicons) {
         if(my.parent) {
           my.parent.emit('frame_favicon_update', that, favicons);
@@ -925,6 +970,8 @@ var exo_frame = function(spec, my) {
   common.method(that, 'find_stop', find_stop, _super);
   common.method(that, 'capture', capture, _super);
   common.method(that, 'zoom', zoom, _super);
+  common.method(that, 'set_context_menu_handler', 
+                       set_context_menu_handler, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');
@@ -1291,7 +1338,25 @@ var exo_browser = function(spec, my) {
     });
   };
 
-
+  // ### set_title
+  // 
+  // Sets the title for the ExoBrowser window
+  // ```
+  // @title {string} the window title to set
+  // @cb_   {function(err)} [optional]
+  // ```
+  set_title = function(title, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._setTitle(title, function() {
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
 
 
   // ### init
@@ -1389,6 +1454,7 @@ var exo_browser = function(spec, my) {
 
   common.method(that, 'focus', focus, _super);
   common.method(that, 'maximize', maximize, _super);
+  common.method(that, 'set_title', set_title, _super);
 
   return that;
 };

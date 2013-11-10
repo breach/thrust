@@ -70,6 +70,7 @@ var session = function(spec, my) {
     });
     my.exo_browser.maximize();
     my.exo_browser.focus();
+    my.exo_browser.set_title('ExoBrowser Shell');
     my.name = my.exo_browser.name();
 
     my.exo_session = api.exo_session({
@@ -90,6 +91,19 @@ var session = function(spec, my) {
       url: my.base_url + '/home.html',
       session: my.exo_session
     });
+    my.frame.set_context_menu_handler(function(params, cb_) {
+      //console.log(JSON.stringify(params));
+      return cb_(null, {
+        'Foo': function() {
+          console.log('`Foo` clicked');
+        },
+        '': null,
+        'Bar': function() {
+          console.log('`Bar` clicked');
+        }
+      });
+    });
+
     my.exo_browser.add_page(my.frame, function() {
       my.exo_browser.show_page(my.frame);
     });
