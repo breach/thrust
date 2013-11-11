@@ -101,6 +101,10 @@ private:
                        bool suceeded,
                        const std::string& result);
 
+  static void GetDevTools(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void GetDevToolsTask(std::string* name,
+                       v8::Persistent<v8::Function>* cb_p);
+
   static void Zoom(const v8::FunctionCallbackInfo<v8::Value>& args);
   void ZoomTask(const content::PageZoom zoom,
                 v8::Persistent<v8::Function>* cb_p);

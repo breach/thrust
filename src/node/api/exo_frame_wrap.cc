@@ -124,6 +124,9 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_capture"),
       FunctionTemplate::New(Capture)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_getDevTools"),
+      FunctionTemplate::New(GetDevTools)->GetFunction());
+
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_zoom"),
       FunctionTemplate::New(Zoom)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_zoomLevel"),
@@ -831,6 +834,38 @@ ExoFrameWrap::CaptureCallback(
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, data));
+}
+
+void
+ExoFrameWrap::GetDevTools(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  std::string* url = new std::string();
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::GetDevToolsTask, frame_w, url, cb_p));
+}
+
+void
+ExoFrameWrap::GetDevToolsTask(
+    std::string* url,
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    (*url) = frame_->GetDevTools().spec();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, url));
 }
 
 void 

@@ -97,9 +97,14 @@ var session = function(spec, my) {
         'Foo': function() {
           console.log('`Foo` clicked');
         },
-        '': null,
         'Bar': function() {
           console.log('`Bar` clicked');
+        },
+        '': null,
+        'Inspect': function() {
+          my.frame.get_dev_tools(function(url) {
+            console.log('DEVTOOLS URL: ' + url);
+          });
         }
       });
     });

@@ -19,6 +19,12 @@
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#include "content/public/browser/devtools_agent_host.h"
+#include "content/public/browser/devtools_http_handler.h"
+#include "content/public/browser/devtools_manager.h"
+#include "exo_browser/src/browser/content_browser_client.h"
+#include "exo_browser/src/browser/browser_main_parts.h"
+#include "exo_browser/src/devtools/devtools_delegate.h"
 #include "exo_browser/src/browser/ui/exo_browser.h"
 #include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/browser/content_browser_client.h"
@@ -165,6 +171,29 @@ double
 ExoFrame::ZoomLevel() const
 {
   return web_contents_->GetZoomLevel();
+}
+
+const GURL
+ExoFrame::GetDevTools()
+{
+  ExoBrowserContentBrowserClient* browser_client = 
+    ExoBrowserContentBrowserClient::Get();
+  
+  RenderViewHost* inspected_rvh = web_contents()->GetRenderViewHost();
+  scoped_refptr<DevToolsAgentHost> agent(
+      DevToolsAgentHost::GetOrCreateFor(inspected_rvh));
+  DevToolsManager* manager = DevToolsManager::GetInstance();
+
+  if(agent->IsAttached()) {
+    /* Break remote debugging debugging session. */
+    manager->CloseAllClientHosts();
+  }
+
+  ExoBrowserDevToolsDelegate* delegate = 
+    browser_client->browser_main_parts()->devtools_delegate(); 
+
+  GURL url = delegate->devtools_http_handler()->GetFrontendURL(agent.get());
+  return url;
 }
 
 ExoFrame::CaptureFrameImpl::CaptureFrameImpl(

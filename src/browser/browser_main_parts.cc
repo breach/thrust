@@ -18,7 +18,6 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
-
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/ui/exo_browser.h"
 #include "exo_browser/src/devtools/devtools_delegate.h"
