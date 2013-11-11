@@ -2,9 +2,6 @@
 :api_icons
   - GTK Icon API
 
-:api_devtools #37
-  - DevTools API
-
 :file_ui
   - File Upload/Download UI
 
@@ -17,6 +14,7 @@ DONE:
 >>v0.4<<
 - Page Zoom API
 - Window Title & Context Menu API
+- DevTools API
 
 >>v0.3<<:
 - Finish Cookie API: Load/LoadForKey/Flush
