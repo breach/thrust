@@ -153,6 +153,11 @@ public:
   // Retrieves the current Zoom Level
   double ZoomLevel() const;
 
+  // ### GetDevTools
+  //
+  // Opens an headless DevTools and returns the URL
+  const GURL GetDevTools();
+
   // ### type
   //
   // Returns the frame type

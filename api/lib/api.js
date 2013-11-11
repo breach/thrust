@@ -405,6 +405,7 @@ var exo_frame = function(spec, my) {
   //
   // #### _public_
   //
+  var set_context_menu_handler; /* set_context_menu_handler(hdlr) */
   var load_url;                 /* load_url(url, [cb_]); */
   var go_back_or_forward;       /* go_back_or_forward(offset, [cb_]); */
   var reload;                   /* reload([cb_]); */
@@ -422,7 +423,7 @@ var exo_frame = function(spec, my) {
   var find_stop;                /* find_stop(action, [cb_]); */
   var capture;                  /* capture([cb_]); */
   var zoom;                     /* zoom(zoom, [cb_]); */
-  var set_context_menu_handler; /* set_context_menu_handler(hdlr) */
+  var get_dev_tools;            /* get_dev_tools(cb_); */
 
   var kill;                     /* kill(); */
 
@@ -461,6 +462,25 @@ var exo_frame = function(spec, my) {
     else {
       return cb_();
     }
+  };
+
+  // ### set_context_menu_handler
+  //
+  // The handler must have the following signature and semantic:
+  // ```
+  // function(params, cb_) {
+  // return cb_(null, {
+  //   'Foo': function() { ... },
+  //   '': null,
+  //   'Bar': function() { ... }
+  // });
+  // ```
+  // Empty string can be used as separators and do not require a trigger.
+  // ```
+  // @hdlr {function(err, menu)} the handler
+  // ```
+  set_context_menu_handler = function(hdlr) {
+    my.context_menu_handler = hdlr || null;
   };
 
   // ### load_url
@@ -816,24 +836,23 @@ var exo_frame = function(spec, my) {
     });
   };
 
-  // ### set_context_menu_handler
+  // ### get_dev_tools
   //
-  // TODO(spolu): Specification
-  // The handler must have the following signature and semantic:
+  // Start and retrieves the DevTools URL 
   // ```
-  // function(params, cb_) {
-  // return cb_(null, {
-  //   'Foo': function() { ... },
-  //   '': null,
-  //   'Bar': function() { ... }
-  // });
+  // @cb_ {function(url)} the async callback
   // ```
-  // Empty string can be used as separators and do not require a trigger.
-  // ```
-  // @hdlr {function(err, menu)} the handler
-  // ```
-  set_context_menu_handler = function(hdlr) {
-    my.context_menu_handler = hdlr || null;
+  get_dev_tools = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._getDevTools(function(url) {
+          if(cb_) return cb_(url);
+        });
+      }
+    });
   };
 
   // ### kill
@@ -951,6 +970,9 @@ var exo_frame = function(spec, my) {
   common.method(that, 'kill', kill, _super);
   common.method(that, 'pre', pre, _super);
 
+  common.method(that, 'set_context_menu_handler', 
+                       set_context_menu_handler, _super);
+
   common.method(that, 'load_url', load_url, _super);
   common.method(that, 'go_back_or_forward', go_back_or_forward, _super);
   common.method(that, 'reload', reload, _super);
@@ -970,8 +992,7 @@ var exo_frame = function(spec, my) {
   common.method(that, 'find_stop', find_stop, _super);
   common.method(that, 'capture', capture, _super);
   common.method(that, 'zoom', zoom, _super);
-  common.method(that, 'set_context_menu_handler', 
-                       set_context_menu_handler, _super);
+  common.method(that, 'get_dev_tools', get_dev_tools, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');

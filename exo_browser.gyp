@@ -119,8 +119,6 @@
         'src/browser/ui/dialog/javascript_dialog.h',
         'src/devtools/devtools_delegate.cc',
         'src/devtools/devtools_delegate.h',
-        'src/devtools/devtools_frontend.cc',
-        'src/devtools/devtools_frontend.h',
         'src/net/net_log.cc',
         'src/net/net_log.h',
         'src/net/network_delegate.cc',

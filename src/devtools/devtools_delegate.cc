@@ -93,15 +93,6 @@ ExoBrowserDevToolsDelegate::GetPageThumbnailData(const GURL& url)
 RenderViewHost* 
 ExoBrowserDevToolsDelegate::CreateNewTarget() {
   return NULL;
-  /* TODO(spolu): fix */
-  /*
-  Browser* browser = ExoBrowser::CreateNewWindow(browser_context_,
-                                              GURL(kAboutBlankURL),
-                                              NULL,
-                                              MSG_ROUTING_NONE,
-                                              gfx::Size());
-  return browser->web_contents()->GetRenderViewHost();
-  */
 }
 
 DevToolsHttpHandlerDelegate::TargetType
