@@ -32,17 +32,8 @@ class ExoBrowserDownloadManagerDelegate
       const content::DownloadOpenDelayedCallback& callback) OVERRIDE;
   virtual void GetNextId(const content::DownloadIdCallback& callback) OVERRIDE;
 
-  // Inhibits prompting and sets the default download path.
-  void SetDownloadBehaviorForTesting(
-      const base::FilePath& default_download_path);
-
- protected:
-  // To allow subclasses for testing.
-  virtual ~ExoBrowserDownloadManagerDelegate();
-
  private:
-  friend class base::RefCountedThreadSafe<ExoBrowserDownloadManagerDelegate>;
-
+  virtual ~ExoBrowserDownloadManagerDelegate();
 
   void GenerateFilename(uint32 download_id,
                         const content::DownloadTargetCallback& callback,
@@ -56,8 +47,10 @@ class ExoBrowserDownloadManagerDelegate
                           const base::FilePath& suggested_path);
 
   content::DownloadManager* download_manager_;
-  base::FilePath default_download_path_;
-  bool suppress_prompting_;
+  base::FilePath            default_download_path_;
+  bool                      suppress_prompting_;
+
+  friend class base::RefCountedThreadSafe<ExoBrowserDownloadManagerDelegate>;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserDownloadManagerDelegate);
 };

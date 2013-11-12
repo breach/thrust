@@ -15,7 +15,7 @@
 
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/net/url_request_context_getter.h"
-#include "exo_browser/src/browser/download_manager_delegate.h"
+#include "exo_browser/src/browser/dialog/download_manager_delegate.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "exo_browser/src/node/api/exo_session_wrap.h"
