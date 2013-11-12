@@ -11,8 +11,8 @@
 #include "content/public/browser/web_contents.h"
 
 #include "exo_browser/src/browser/session/exo_session.h"
-#include "exo_browser/src/browser/ui/exo_browser.h"
-#include "exo_browser/src/browser/ui/exo_frame.h"
+#include "exo_browser/src/browser/exo_browser.h"
+#include "exo_browser/src/browser/exo_frame.h"
 #include "exo_browser/src/node/node_thread.h"
 
 using namespace v8;

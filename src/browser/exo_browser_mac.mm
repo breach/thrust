@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Stanislas Polu.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/ui/exo_browser.h"
+#include "exo_browser/src/browser/exo_browser.h"
 
 #include <algorithm>
 
@@ -15,7 +15,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "exo_browser/src/app/resource.h"
-#include "exo_browser/src/browser/ui/exo_frame.h"
+#include "exo_browser/src/browser/exo_frame.h"
 
 using namespace content;
 

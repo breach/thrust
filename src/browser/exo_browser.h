@@ -40,6 +40,7 @@ class BrowserContext;
 class SiteInstance;
 class WebContents;
 struct NativeWebKeyboardEvent;
+struct FileChooserParams;
 }
 
 namespace exo_browser {
@@ -313,6 +314,13 @@ public:
                          const gfx::Rect& selection_rect,
                          int active_match_ordinal,
                          bool final_update) OVERRIDE;
+
+  virtual void RunFileChooser(
+      content::WebContents* web_contents,
+      const content::FileChooserParams& params) OVERRIDE;
+  virtual void EnumerateDirectory(content::WebContents* web_contents,
+                                  int request_id,
+                                  const base::FilePath& path) OVERRIDE;
 
 private:
   /****************************************************************************/

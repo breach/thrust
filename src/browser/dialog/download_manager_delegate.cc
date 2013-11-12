@@ -2,16 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/download_manager_delegate.h"
-
-#if defined(TOOLKIT_GTK)
-#include <gtk/gtk.h>
-#endif
-
-#if defined(OS_WIN)
-#include <windows.h>
-#include <commdlg.h>
-#endif
+#include "exo_browser/src/browser/dialog/download_manager_delegate.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -148,79 +139,6 @@ ExoBrowserDownloadManagerDelegate::OnDownloadPathGenerated(
   }
 
   ChooseDownloadPath(download_id, callback, suggested_path);
-}
-
-void 
-ExoBrowserDownloadManagerDelegate::ChooseDownloadPath(
-    uint32 download_id,
-    const DownloadTargetCallback& callback,
-    const base::FilePath& suggested_path) 
-{
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  DownloadItem* item = download_manager_->GetDownload(download_id);
-  if (!item || (item->GetState() != DownloadItem::IN_PROGRESS))
-    return;
-
-  base::FilePath result;
-#if defined(OS_WIN) && !defined(USE_AURA)
-  std::wstring file_part = base::FilePath(suggested_path).BaseName().value();
-  wchar_t file_name[MAX_PATH];
-  base::wcslcpy(file_name, file_part.c_str(), arraysize(file_name));
-  OPENFILENAME save_as;
-  ZeroMemory(&save_as, sizeof(save_as));
-  save_as.lStructSize = sizeof(OPENFILENAME);
-  save_as.hwndOwner = item->GetWebContents()->GetView()->GetNativeView();
-  save_as.lpstrFile = file_name;
-  save_as.nMaxFile = arraysize(file_name);
-
-  std::wstring directory;
-  if (!suggested_path.empty())
-    directory = suggested_path.DirName().value();
-
-  save_as.lpstrInitialDir = directory.c_str();
-  save_as.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING |
-                  OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
-
-  if (GetSaveFileName(&save_as))
-    result = base::FilePath(std::wstring(save_as.lpstrFile));
-#elif defined(TOOLKIT_GTK)
-  GtkWidget *dialog;
-  gfx::NativeWindow parent_window;
-  std::string base_name = base::FilePath(suggested_path).BaseName().value();
-
-  parent_window = item->GetWebContents()->GetView()->GetTopLevelNativeWindow();
-  dialog = gtk_file_chooser_dialog_new("Save File",
-                                       parent_window,
-                                       GTK_FILE_CHOOSER_ACTION_SAVE,
-                                       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-                                       NULL);
-  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog),
-                                                 TRUE);
-  gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),
-                                    base_name.c_str());
-
-  if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-    char *filename;
-    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    result = base::FilePath(filename);
-    g_free(filename);
-  }
-  gtk_widget_destroy(dialog);
-#else
-  NOTIMPLEMENTED();
-#endif
-
-  callback.Run(result, DownloadItem::TARGET_DISPOSITION_PROMPT,
-               DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
-}
-
-void 
-ExoBrowserDownloadManagerDelegate::SetDownloadBehaviorForTesting(
-    const base::FilePath& default_download_path) 
-{
-  default_download_path_ = default_download_path;
-  suppress_prompting_ = true;
 }
 
 } // namespace exo_browser

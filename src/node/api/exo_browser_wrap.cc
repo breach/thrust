@@ -16,8 +16,8 @@
 
 #include "net/cert/cert_status_flags.h"
 
-#include "exo_browser/src/browser/ui/exo_browser.h"
-#include "exo_browser/src/browser/ui/exo_frame.h"
+#include "exo_browser/src/browser/exo_browser.h"
+#include "exo_browser/src/browser/exo_frame.h"
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
 #include "exo_browser/src/node/node_thread.h"
 

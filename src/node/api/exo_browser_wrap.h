@@ -10,7 +10,7 @@
 #include "ui/gfx/point.h"
 #include "ui/gfx/rect.h"
 #include "exo_browser/src/node/api/object_wrap.h"
-#include "exo_browser/src/browser/ui/exo_browser.h"
+#include "exo_browser/src/browser/exo_browser.h"
 
 namespace node {
 class ObjectWrap;
