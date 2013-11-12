@@ -89,7 +89,6 @@
         'src/browser/util/platform_util_mac.mm',
         'src/browser/util/renderer_preferences_util.h',
         'src/browser/util/renderer_preferences_util.cc',
-        'src/browser/util/platform_util_aura.cc',
         'src/browser/content_browser_client.cc',
         'src/browser/content_browser_client.h',
         'src/browser/browser_application_mac.h',
