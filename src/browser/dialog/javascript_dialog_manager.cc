@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/ui/dialog/javascript_dialog_manager.h"
+#include "exo_browser/src/browser/dialog/javascript_dialog_manager.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -11,7 +11,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/browser/ui/dialog/javascript_dialog.h"
+#include "exo_browser/src/browser/dialog/javascript_dialog.h"
 
 using namespace content;
 

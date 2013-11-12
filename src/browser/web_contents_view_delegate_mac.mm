@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/ui/web_contents_view_delegate.h"
+#include "exo_browser/src/browser/web_contents_view_delegate.h"
 
 #import  <Cocoa/Cocoa.h>
 
@@ -15,7 +15,7 @@
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/context_menu_params.h"
 #include "exo_browser/src/node/node_thread.h"
-#include "exo_browser/src/browser/ui/exo_frame.h"
+#include "exo_browser/src/browser/exo_frame.h"
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
 
 using namespace content;

@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Stanislas Polu.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/ui/exo_browser.h"
+#include "exo_browser/src/browser/exo_browser.h"
 
 #include "base/auto_reset.h"
 #include "base/message_loop/message_loop.h"
@@ -21,10 +21,10 @@
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
 #include "exo_browser/src/browser/content_browser_client.h"
-#include "exo_browser/src/browser/ui/dialog/javascript_dialog_manager.h"
-#include "exo_browser/src/browser/ui/dialog/file_select_helper.h"
+#include "exo_browser/src/browser/dialog/javascript_dialog_manager.h"
+#include "exo_browser/src/browser/dialog/file_select_helper.h"
 #include "exo_browser/src/common/messages.h"
-#include "exo_browser/src/browser/ui/exo_frame.h"
+#include "exo_browser/src/browser/exo_frame.h"
 #include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/node/api/exo_browser_wrap.h"
 

@@ -19,7 +19,7 @@
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
 #include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/browser/ui/exo_browser.h"
+#include "exo_browser/src/browser/exo_browser.h"
 #include "exo_browser/src/devtools/devtools_delegate.h"
 #include "exo_browser/src/net/net_log.h"
 #include "exo_browser/src/node/node_thread.h"

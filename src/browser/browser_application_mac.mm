@@ -5,7 +5,7 @@
 #include "exo_browser/src/browser/browser_application_mac.h"
 
 #include "base/auto_reset.h"
-#include "exo_browser/src/browser/ui/exo_browser.h"
+#include "exo_browser/src/browser/exo_browser.h"
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "url/gurl.h"
 

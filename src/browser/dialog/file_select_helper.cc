@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "exo_browser/src/browser/ui/dialog/file_select_helper.h"
+#include "exo_browser/src/browser/dialog/file_select_helper.h"
 
 #include <string>
 #include <utility>

@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Stanislas Polu.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/ui/exo_frame.h"
+#include "exo_browser/src/browser/exo_frame.h"
 
 #include "base/bind.h"
 #include "base/base64.h"
@@ -25,7 +25,7 @@
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
 #include "exo_browser/src/devtools/devtools_delegate.h"
-#include "exo_browser/src/browser/ui/exo_browser.h"
+#include "exo_browser/src/browser/exo_browser.h"
 #include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
