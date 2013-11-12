@@ -1,20 +1,21 @@
-// Copyright (c) 2013 Stanislas Polu.
-// Copyright (c) 2012 Intel Corp
-// Copyright (c) 2012 The Chromium Authors.
-// See the LICENSE file.
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-#include "content/nw/src/browser/file_select_helper.h"
+#include "exo_browser/src/browser/ui/dialog/file_select_helper.h"
 
 #include <string>
+#include <utility>
 
 #include "base/bind.h"
 #include "base/file_util.h"
-#include "base/platform_file.h"
-#include "base/logging.h"
-#include "base/strings/string_util.h"
+#include "base/files/file_enumerator.h"
 #include "base/strings/string_split.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "chrome/browser/platform_util.h"
+#include "net/base/mime_util.h"
+#include "ui/base/l10n/l10n_util.h"
+#include "ui/shell_dialogs/selected_file_info.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
@@ -23,17 +24,10 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_params.h"
-#include "grit/nw_resources.h"
-#include "net/base/mime_util.h"
-#include "ui/shell_dialogs/selected_file_info.h"
-#include "ui/base/l10n/l10n_util.h"
+#include "grit/exo_browser_resources.h"
+#include "exo_browser/src/browser/util/platform_util.h"
 
-using content::BrowserThread;
-using content::FileChooserParams;
-using content::RenderViewHost;
-using content::RenderWidgetHost;
-using content::WebContents;
-using base::FilePath;
+using namespace content;
 
 namespace {
 
@@ -50,7 +44,7 @@ void NotifyRenderViewHost(RenderViewHost* render_view_host,
 
 // Converts a list of FilePaths to a list of ui::SelectedFileInfo.
 std::vector<ui::SelectedFileInfo> FilePathListToSelectedFileInfoList(
-    const std::vector<FilePath>& paths) {
+    const std::vector<base::FilePath>& paths) {
   std::vector<ui::SelectedFileInfo> selected_files;
   for (size_t i = 0; i < paths.size(); ++i) {
     selected_files.push_back(
@@ -59,7 +53,10 @@ std::vector<ui::SelectedFileInfo> FilePathListToSelectedFileInfoList(
   return selected_files;
 }
 
-}  // namespace
+} // namespace
+
+
+namespace exo_browser {
 
 struct FileSelectHelper::ActiveDirectoryEnumeration {
   ActiveDirectoryEnumeration() : rvh_(NULL) {}
@@ -67,7 +64,7 @@ struct FileSelectHelper::ActiveDirectoryEnumeration {
   scoped_ptr<DirectoryListerDispatchDelegate> delegate_;
   scoped_ptr<net::DirectoryLister> lister_;
   RenderViewHost* rvh_;
-  std::vector<FilePath> results_;
+  std::vector<base::FilePath> results_;
 };
 
 FileSelectHelper::FileSelectHelper()
@@ -76,8 +73,7 @@ FileSelectHelper::FileSelectHelper()
       select_file_dialog_(),
       select_file_types_(),
       dialog_type_(ui::SelectFileDialog::SELECT_OPEN_FILE),
-      dialog_mode_(FileChooserParams::Open)
-{
+      dialog_mode_(FileChooserParams::Open) {
 }
 
 FileSelectHelper::~FileSelectHelper() {
@@ -106,7 +102,7 @@ void FileSelectHelper::DirectoryListerDispatchDelegate::OnListDone(int error) {
   parent_->OnListDone(id_, error);
 }
 
-void FileSelectHelper::FileSelected(const FilePath& path,
+void FileSelectHelper::FileSelected(const base::FilePath& path,
                                     int index, void* params) {
   FileSelectedWithExtraInfo(ui::SelectedFileInfo(path, path), index, params);
 }
@@ -118,9 +114,8 @@ void FileSelectHelper::FileSelectedWithExtraInfo(
   if (!render_view_host_)
     return;
 
-  const FilePath& path = file.local_path;
-  if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER &&
-      extract_directory_) {
+  const base::FilePath& path = file.local_path;
+  if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER) {
     StartNewEnumeration(path, kFileSelectEnumerationId, render_view_host_);
     return;
   }
@@ -133,8 +128,9 @@ void FileSelectHelper::FileSelectedWithExtraInfo(
   RunFileChooserEnd();
 }
 
-void FileSelectHelper::MultiFilesSelected(const std::vector<FilePath>& files,
-                                          void* params) {
+void FileSelectHelper::MultiFilesSelected(
+    const std::vector<base::FilePath>& files,
+    void* params) {
   std::vector<ui::SelectedFileInfo> selected_files =
       FilePathListToSelectedFileInfoList(files);
 
@@ -167,7 +163,7 @@ void FileSelectHelper::FileSelectionCanceled(void* params) {
   RunFileChooserEnd();
 }
 
-void FileSelectHelper::StartNewEnumeration(const FilePath& path,
+void FileSelectHelper::StartNewEnumeration(const base::FilePath& path,
                                            int request_id,
                                            RenderViewHost* render_view_host) {
   scoped_ptr<ActiveDirectoryEnumeration> entry(new ActiveDirectoryEnumeration);
@@ -237,7 +233,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
       new ui::SelectFileDialog::FileTypeInfo(*base_file_type));
   file_type->include_all_files = true;
   file_type->extensions.resize(1);
-  std::vector<FilePath::StringType>* extensions = &file_type->extensions.back();
+  std::vector<base::FilePath::StringType>* extensions =
+      &file_type->extensions.back();
 
   // Find the corresponding extensions.
   int valid_type_count = 0;
@@ -280,7 +277,7 @@ FileSelectHelper::GetFileTypesFromAcceptType(
   //    dialog uses the first extension in the list to form the description,
   //    like "EHTML Files". This is not what we want.
   if (valid_type_count > 1 ||
-      (valid_type_count == 1 && !description_id == 0 && extensions->size() > 1))
+      (valid_type_count == 1 && description_id == 0 && extensions->size() > 1))
     description_id = IDS_CUSTOM_FILES;
 
   if (description_id) {
@@ -297,14 +294,13 @@ void FileSelectHelper::RunFileChooser(content::WebContents* tab,
   // FileSelectHelper will keep itself alive until it sends the result message.
   scoped_refptr<FileSelectHelper> file_select_helper(
       new FileSelectHelper());
-  file_select_helper->extract_directory_ = params.extract_directory;
   file_select_helper->RunFileChooser(tab->GetRenderViewHost(), tab, params);
 }
 
 // static
 void FileSelectHelper::EnumerateDirectory(content::WebContents* tab,
                                           int request_id,
-                                          const FilePath& path) {
+                                          const base::FilePath& path) {
   // FileSelectHelper will keep itself alive until it sends the result message.
   scoped_refptr<FileSelectHelper> file_select_helper(
       new FileSelectHelper());
@@ -341,8 +337,7 @@ void FileSelectHelper::RunFileChooser(RenderViewHost* render_view_host,
 
 void FileSelectHelper::RunFileChooserOnFileThread(
     const FileChooserParams& params) {
-  select_file_types_ =
-      GetFileTypesFromAcceptType(params.accept_types);
+  select_file_types_ = GetFileTypesFromAcceptType(params.accept_types);
 
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
@@ -380,8 +375,7 @@ void FileSelectHelper::RunFileChooserOnUIThread(
       NOTREACHED();
   }
 
-  FilePath default_file_name = params.default_file_name;
-  FilePath working_path      = params.initial_path;
+  base::FilePath default_file_name = params.default_file_name;
 
   gfx::NativeWindow owning_window =
       platform_util::GetTopLevel(render_view_host_->GetView()->GetNativeView());
@@ -391,11 +385,12 @@ void FileSelectHelper::RunFileChooserOnUIThread(
       params.title,
       default_file_name,
       select_file_types_.get(),
-      select_file_types_.get() ? 1 : 0,  // 1-based index.
-      FILE_PATH_LITERAL(""),
+      select_file_types_.get() && !select_file_types_->extensions.empty()
+          ? 1
+          : 0,  // 1-based index of default extension to show.
+      base::FilePath::StringType(),
       owning_window,
-      const_cast<content::FileChooserParams*>(&params),
-      working_path);
+      NULL); //const_cast<content::FileChooserParams*>(&params),
 
   select_file_types_.reset();
 }
@@ -411,7 +406,7 @@ void FileSelectHelper::RunFileChooserEnd() {
 
 void FileSelectHelper::EnumerateDirectory(int request_id,
                                           RenderViewHost* render_view_host,
-                                          const FilePath& path) {
+                                          const base::FilePath& path) {
 
   // Because this class returns notifications to the RenderViewHost, it is
   // difficult for callers to know how long to keep a reference to this
@@ -464,3 +459,5 @@ bool FileSelectHelper::IsAcceptTypeValid(const std::string& accept_type) {
   }
   return true;
 }
+
+} // namespace exo_browser

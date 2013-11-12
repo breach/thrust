@@ -22,6 +22,7 @@
 #include "exo_browser/src/browser/browser_main_parts.h"
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "exo_browser/src/browser/ui/dialog/javascript_dialog_manager.h"
+#include "exo_browser/src/browser/ui/dialog/file_select_helper.h"
 #include "exo_browser/src/common/messages.h"
 #include "exo_browser/src/browser/ui/exo_frame.h"
 #include "exo_browser/src/node/node_thread.h"
@@ -496,5 +497,21 @@ ExoBrowser::FindReply(
                  active_match_ordinal, final_update));
 }
 
+void 
+ExoBrowser::RunFileChooser(
+    WebContents* web_contents,
+    const FileChooserParams& params)
+{
+  FileSelectHelper::RunFileChooser(web_contents, params);
+}
+
+void 
+ExoBrowser::EnumerateDirectory(
+    WebContents* web_contents,
+    int request_id,
+    const base::FilePath& path)
+{
+  FileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
+}
 
 } // namespace exo_browser

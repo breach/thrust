@@ -1,5 +1,4 @@
 // Copyright (c) 2013 Stanislas Polu.
-// Copyright (c) 2012 Intel Corp
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
@@ -11,11 +10,11 @@
 
 #include "base/compiler_specific.h"
 #include "base/gtest_prod_util.h"
+#include "net/base/directory_lister.h"
+#include "ui/shell_dialogs/select_file_dialog.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/common/file_chooser_params.h"
-#include "net/base/directory_lister.h"
-#include "ui/shell_dialogs/select_file_dialog.h"
 
 namespace content {
 class RenderViewHost;
@@ -24,10 +23,6 @@ class WebContents;
 
 namespace ui {
 struct SelectedFileInfo;
-}
-
-namespace base {
-class FilePath;
 }
 
 namespace exo_browser {
@@ -51,8 +46,6 @@ class FileSelectHelper
                                  const base::FilePath& path);
 
  private:
-  friend class base::RefCountedThreadSafe<FileSelectHelper>;
-  FRIEND_TEST_ALL_PREFIXES(FileSelectHelperTest, IsAcceptTypeValid);
   explicit FileSelectHelper();
   virtual ~FileSelectHelper();
 
@@ -77,7 +70,7 @@ class FileSelectHelper
   };
 
   void RunFileChooser(content::RenderViewHost* render_view_host,
-                      content::WebContents* tab_contents,
+                      content::WebContents* web_contents,
                       const content::FileChooserParams& params);
   void RunFileChooserOnFileThread(
       const content::FileChooserParams& params);
@@ -126,15 +119,13 @@ class FileSelectHelper
   // callback is received from the enumeration code.
   void EnumerateDirectoryEnd();
 
-  bool extract_directory_;
-
   // Helper method to get allowed extensions for select file dialog from
   // the specified accept types as defined in the spec:
   //   http://whatwg.org/html/number-state.html#attr-input-accept
   // |accept_types| contains only valid lowercased MIME types or file extensions
   // beginning with a period (.).
-  scoped_ptr<ui::SelectFileDialog::FileTypeInfo> GetFileTypesFromAcceptType(
-      const std::vector<string16>& accept_types);
+  static scoped_ptr<ui::SelectFileDialog::FileTypeInfo>
+      GetFileTypesFromAcceptType(const std::vector<string16>& accept_types);
 
   // Check the accept type is valid. It is expected to be all lower case with
   // no whitespace.
@@ -163,6 +154,8 @@ class FileSelectHelper
 
   // Registrar for notifications regarding our RenderViewHost.
   content::NotificationRegistrar notification_registrar_;
+
+  friend class base::RefCountedThreadSafe<FileSelectHelper>;
 
   DISALLOW_COPY_AND_ASSIGN(FileSelectHelper);
 };
