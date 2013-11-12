@@ -1,10 +1,4 @@
->>v0.4<<
-:api_icons
-  - GTK Icon API
-
-:file_ui
-  - File Upload/Download UI
-
+>>v0.5<<
 :cleanser #90
   - Reintroduce ClearDataForOrigin
   - Ability to list Data
@@ -15,6 +9,9 @@ DONE:
 - Page Zoom API
 - Window Title & Context Menu API
 - DevTools API
+- File Upload/Download UI
+- GTK Icon API
+- Antialiasing
 
 >>v0.3<<:
 - Finish Cookie API: Load/LoadForKey/Flush

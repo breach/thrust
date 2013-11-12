@@ -226,6 +226,11 @@ private:
                     ExoSession* session,
                     ExoFrameWrap* wrapper = NULL);
 
+  // ### Init
+  // Runs some initialization for the given Exoframe
+  void Init();
+
+
   // ### SetParent
   // Sets the parent ExoBrowser
   void SetParent(ExoBrowser* parent);
