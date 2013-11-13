@@ -1,13 +1,19 @@
->>v0.4<<
-:api_icons
-  - GTK Icon API
-
-:file_ui
-  - File Upload/Download UI
-
+>>v0.5<<
 :cleanser #90
   - Reintroduce ClearDataForOrigin
   - Ability to list Data
+
+:print #108
+  - Printing Support
+
+:form_data #107
+  - Password, Form Data API
+
+:html_auth #106
+  - User authorization API
+
+:hover_stack
+  - Hover Controllers
 
 DONE:
 
@@ -15,6 +21,9 @@ DONE:
 - Page Zoom API
 - Window Title & Context Menu API
 - DevTools API
+- File Upload/Download UI
+- Antialiasing
+- GTK Icon API
 
 >>v0.3<<:
 - Finish Cookie API: Load/LoadForKey/Flush

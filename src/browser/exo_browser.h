@@ -116,11 +116,13 @@ public:
   //
   // Creates a new empty ExoBrowser window.
   // ```
-  // @wrapper {ExoBrowserWrap} the wrapper associated with this ExoBrowser
-  // @size    {Size} the initial size of the window
+  // @wrapper   {ExoBrowserWrap} the wrapper associated with this ExoBrowser
+  // @size      {Size} the initial size of the window
+  // @icon_path {string} icon_path (no effect on OSX)
   // ```
   static ExoBrowser* CreateNew(ExoBrowserWrap* wrapper,
-                               const gfx::Size& size);
+                               const gfx::Size& size,
+                               const std::string& icon_path);
 
   // ### instances
   //
@@ -361,7 +363,8 @@ private:
   // ### PlatformCreateWindow
   //
   // Creates the ExoBrowser window GUI.
-  void PlatformCreateWindow(int width, int height);
+  void PlatformCreateWindow(int width, int height, 
+                            const std::string& icon_path);
 
   // ### PlatformKill
   //
@@ -373,6 +376,7 @@ private:
   // Set the title of ExoBrowser window.
   void PlatformSetTitle(const std::string& title);
 
+
   // ### PlatformFocus
   //
   // Focuses the ExoBrowser window
@@ -382,7 +386,6 @@ private:
   //
   // Maximizes the ExoBrowser window
   void PlatformMaximize();
-
 
   // ### PlatformAddPage
   //

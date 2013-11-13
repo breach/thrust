@@ -93,8 +93,10 @@ ExoBrowser::PlatformCleanUp()
 void 
 ExoBrowser::PlatformCreateWindow(
     int width,
-    int height) 
+    int height,
+    const std:string& icon_path)
 {
+  /* icon_path is ignore on OSX */
   visible_page_ = NULL;
   NSRect initial_window_bounds =
       NSMakeRect(0, 0, width, height);
@@ -276,6 +278,7 @@ ExoBrowser::PlatformSetTitle(
   NSString* title_string = base::SysUTF8ToNSString(title);
   [window_ setTitle:title_string];
 }
+
 
 void 
 ExoBrowser::PlatformKill() 

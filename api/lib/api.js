@@ -1022,7 +1022,7 @@ exports.exo_frame = exo_frame;
 
 
 exports._exo_browsers = {};
-exports.exo_browser = function(name) {
+exports._exo_browser = function(name) {
   return exports._exo_browsers[name] || null;
 };
 
@@ -1047,7 +1047,7 @@ exports.browser_count = 0;
 // name is specifed a statically incremented counter is used to provide a unique
 // human readable name.
 // ```
-// @spec { size, [name] }
+// @spec { size, icon_path, [name] }
 // ```
 var exo_browser = function(spec, my) {
   var _super = {};
@@ -1059,6 +1059,7 @@ var exo_browser = function(spec, my) {
   my.ready = false;
   my.killed = false;
   my.size = spec.size || [800, 600];
+  my.icon_path = spec.icon_path || '';
   my.name = spec.name || ('br-' + (exports.frame_count++));
 
   my.frames = {};
@@ -1083,6 +1084,8 @@ var exo_browser = function(spec, my) {
   var kill;                  /* kill([cb_]); */
   var focus;                 /* focus([cb_]); */
   var maximize;              /* maximize([cb_]); */
+
+  var set_title;             /* set_title(title, [cb_]); */
 
   var set_control;           /* set_control(type, frame, [cb_]); */
   var unset_control;         /* unset_control(type, [cb_]); */
@@ -1385,7 +1388,8 @@ var exo_browser = function(spec, my) {
   // Runs initialization procedure and adds itself to the internal registry.
   init = function() {
     _exo_browser._createExoBrowser({
-      size: my.size
+      size: my.size,
+      icon_path: my.icon_path
     }, function(b) {
       my.internal = b;
       exports._exo_browsers[my.name] = that;

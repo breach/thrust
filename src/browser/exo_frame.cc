@@ -24,10 +24,11 @@
 #include "content/public/browser/devtools_manager.h"
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
-#include "exo_browser/src/devtools/devtools_delegate.h"
 #include "exo_browser/src/browser/exo_browser.h"
-#include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/browser/content_browser_client.h"
+#include "exo_browser/src/browser/util/renderer_preferences_util.h"
+#include "exo_browser/src/devtools/devtools_delegate.h"
+#include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
 
 using namespace content;
@@ -56,7 +57,7 @@ ExoFrame::ExoFrame(
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
   LOG(INFO) << "ExoFrame Constructor [" << web_contents << "]";
-  s_exo_frames[web_contents_.get()] = this;
+  Init();
 }
 
 ExoFrame::ExoFrame(
@@ -71,7 +72,19 @@ ExoFrame::ExoFrame(
   WebContents* web_contents = WebContents::Create(create_params);
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
+  LOG(INFO) << "ExoFrame Constructor (web_contents created) [" 
+            << web_contents << "]";
+  Init();
+}
+
+void
+ExoFrame::Init()
+{
   s_exo_frames[web_contents_.get()] = this;
+
+  renderer_preferences_util::UpdateFromSystemSettings(
+      web_contents_->GetMutableRendererPrefs());
+  web_contents_->GetRenderViewHost()->SyncRendererPrefs();
 }
 
 void

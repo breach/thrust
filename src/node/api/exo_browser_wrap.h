@@ -55,6 +55,7 @@ private:
 
 
   void CreateTask(const gfx::Size& size,
+                  const std::string& icon_path,
                   v8::Persistent<v8::Object>* browser_p,
                   v8::Persistent<v8::Function>* cb_p);
   void CreateCallback(v8::Persistent<v8::Object>* browser_p,
@@ -88,7 +89,6 @@ private:
   static void SetTitle(const v8::FunctionCallbackInfo<v8::Value>& args);
   void SetTitleTask(const std::string& title,
                     v8::Persistent<v8::Function>* cb_p);
-
 
   static void SetControl(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */

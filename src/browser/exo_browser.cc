@@ -75,10 +75,11 @@ ExoBrowser::Initialize()
 ExoBrowser*
 ExoBrowser::CreateNew(
     ExoBrowserWrap* wrapper,
-    const gfx::Size& size)
+    const gfx::Size& size,
+    const std::string& icon_path)
 {
   ExoBrowser* browser = new ExoBrowser(wrapper);
-  browser->PlatformCreateWindow(size.width(), size.height());
+  browser->PlatformCreateWindow(size.width(), size.height(), icon_path);
 
   return browser;
 }

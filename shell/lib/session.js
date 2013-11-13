@@ -13,6 +13,7 @@
  */
 
 var events = require('events');
+var path = require('path');
 var common = require('./common.js');
 var factory = common.factory;
 var api = require('exo_browser');
@@ -66,11 +67,14 @@ var session = function(spec, my) {
   // Initialializes this session and spawns the associated exo_browser
   init = function() {
     my.exo_browser = api.exo_browser({
-      size: [1200, 768]
+      size: [1200, 768],
+      icon_path: path.join(__dirname, '../shell.png')
     });
     my.exo_browser.maximize();
     my.exo_browser.focus();
+
     my.exo_browser.set_title('ExoBrowser Shell');
+
     my.name = my.exo_browser.name();
 
     my.exo_session = api.exo_session({

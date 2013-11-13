@@ -35,7 +35,8 @@ exo_session.path();
 
 
 var b = api.exo_browser({
-  size: [123, 23]
+  size: [123, 23],
+  icon_path: ''
 });
 
 exo_browser.ready();
