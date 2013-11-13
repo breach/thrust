@@ -7,6 +7,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include "base/file_util.h"
+#include "base/threading/thread_restrictions.h"
 #include "ui/gfx/image/image.h"
 #include "ui/gfx/image/image_skia_rep.h"
 #include "ui/gfx/codec/png_codec.h"
@@ -70,7 +71,9 @@ ExoBrowser::PlatformCreateWindow(
   gtk_container_add(GTK_CONTAINER(window_), hbox_);
   gtk_window_resize(window_, width, height);
 
-  /* Set the icon for the window before it gets displayed. */
+  /* Set the icon for the window before it gets displayed. We exceptionally */
+  /* allow IO on this thread (UI) to load the PNG image.                    */
+  base::ThreadRestrictions::SetIOAllowed(true);
   gfx::Image icon;
   base::FilePath p = base::FilePath::FromUTF8Unsafe(icon_path);
   // Read the file from disk.
@@ -86,6 +89,7 @@ ExoBrowser::PlatformCreateWindow(
       gtk_window_set_icon(GTK_WINDOW(window_), icon.ToGdkPixbuf());
     }
   }
+  base::ThreadRestrictions::SetIOAllowed(false);
 
   // Finally, show the window.
   gtk_widget_show_all(GTK_WIDGET(window_));
