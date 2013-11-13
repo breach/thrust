@@ -6,6 +6,10 @@
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
+#include "base/file_util.h"
+#include "ui/gfx/image/image.h"
+#include "ui/gfx/image/image_skia_rep.h"
+#include "ui/gfx/codec/png_codec.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "exo_browser/src/browser/exo_frame.h"
@@ -29,7 +33,8 @@ ExoBrowser::PlatformCleanUp()
 void 
 ExoBrowser::PlatformCreateWindow(
     int width,
-    int height)
+    int height,
+    const std::string& icon_path)
 {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_title(window_, "ExoBrowser");
@@ -65,6 +70,23 @@ ExoBrowser::PlatformCreateWindow(
   gtk_container_add(GTK_CONTAINER(window_), hbox_);
   gtk_window_resize(window_, width, height);
 
+  /* Set the icon for the window before it gets displayed. */
+  gfx::Image icon;
+  base::FilePath p = base::FilePath::FromUTF8Unsafe(icon_path);
+  // Read the file from disk.
+  std::string file_contents;
+  if(!p.empty() && file_util::ReadFileToString(p, &file_contents)) {
+    // Decode the bitmap using WebKit's image decoder.
+    const unsigned char* data =
+      reinterpret_cast<const unsigned char*>(file_contents.data());
+    scoped_ptr<SkBitmap> decoded(new SkBitmap());
+    gfx::PNGCodec::Decode(data, file_contents.length(), decoded.get());
+    if(!decoded->empty()) {
+      icon = gfx::Image::CreateFrom1xBitmap(*decoded.release());
+      gtk_window_set_icon(GTK_WINDOW(window_), icon.ToGdkPixbuf());
+    }
+  }
+
   // Finally, show the window.
   gtk_widget_show_all(GTK_WIDGET(window_));
 }
@@ -81,7 +103,6 @@ ExoBrowser::PlatformSetTitle(
 {
   gtk_window_set_title(GTK_WINDOW(window_), title.c_str());
 }
-
 
 
 void 
