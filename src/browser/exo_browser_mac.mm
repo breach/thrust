@@ -94,7 +94,7 @@ void
 ExoBrowser::PlatformCreateWindow(
     int width,
     int height,
-    const std:string& icon_path)
+    const std::string& icon_path)
 {
   /* icon_path is ignore on OSX */
   visible_page_ = NULL;
