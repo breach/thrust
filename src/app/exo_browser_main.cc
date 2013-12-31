@@ -2,9 +2,12 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "content/public/app/content_main.h"
-#include "exo_browser/src/app/main_delegate.h"
 #include "sandbox/win/src/sandbox_types.h"
+#include "content/public/app/content_main.h"
+#include "v8/include/v8.h"
+#include "third_party/node/src/node.h"
+#include "exo_browser/src/app/main_delegate.h"
+#include <iostream>
 
 #if defined(OS_WIN)
 #include "content/public/app/startup_helper_win.h"
@@ -26,6 +29,16 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
 #else
 
 int main(int argc, const char** argv) {
+  std::cout << "##########################################" << std::endl;
+  std::cout << "##           EXO_BROWSER START          ##" << std::endl;
+  std::cout << "##########################################" << std::endl;
+  for(int i = 0; i < argc; i ++) {
+    if(strcmp(argv[i], "--no-chrome") == 0) {
+      std::cout << "OPTION: --no-chrome" << std::endl;
+      return node::Start(argc, (char **)argv);
+    }
+  }
+
 #if defined(OS_MACOSX)
   // Do the delegate work in main_mac to avoid having to export the
   // delegate types. (from the Content Shell)

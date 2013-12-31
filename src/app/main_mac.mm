@@ -7,8 +7,7 @@
 #include "exo_browser/src/app/main_delegate.h"
 
 #if defined(OS_MACOSX)
-int ContentMain(int argc,
-                const char** argv) {
+int ContentMain(int argc, const char** argv) {
   exo_browser::ExoBrowserMainDelegate delegate;
   return content::ContentMain(argc, argv, &delegate);
 }

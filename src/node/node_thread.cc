@@ -131,9 +131,6 @@ void
 NodeThread::Run(
     base::MessageLoop* message_loop) 
 {
-  /* TODO(spolu): fork execution depending on kExoBrowserRaw */
-  /* If not set, launch the default version of the Browser.  */
-  /* If set, pass argc/argv to Node                          */
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
 
   base::FilePath path = GetSelfPath().DirName();
