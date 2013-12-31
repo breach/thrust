@@ -1103,7 +1103,7 @@ void ExoFrameWrap::CallTriggerContextMenuItem(
 
     Local<Integer> index_arg = Integer::New(index);
 
-    Local<Value> argv[1] = { index_arg };
+    Local<v8::Value> argv[1] = { index_arg };
     trigger->Call(frame_o, 1, argv);
   }
 }
@@ -1144,7 +1144,7 @@ ExoFrameWrap::DispatchLoadFail(
     Local<Integer> error_code_arg = Integer::New(error_code);
     Local<String> error_desc_arg = String::New(error_desc.c_str());
 
-    Local<Value> argv[3] = { url_arg,
+    Local<v8::Value> argv[3] = { url_arg,
                              error_code_arg,
                              error_desc_arg };
     cb->Call(frame_o, 3, argv);
@@ -1179,7 +1179,7 @@ ExoFrameWrap::DispatchLoadFinish(
 
     Local<String> url_arg = String::New(url.c_str());
 
-    Local<Value> argv[1] = { url_arg };
+    Local<v8::Value> argv[1] = { url_arg };
     cb->Call(frame_o, 1, argv);
   }
 }
@@ -1280,7 +1280,7 @@ ExoFrameWrap::DispatchFaviconUpdate(
       }
     };
 
-    Local<Value> argv[1] = { favicons_arg };
+    Local<v8::Value> argv[1] = { favicons_arg };
     cb->Call(frame_o, 1, argv);
   }
 }

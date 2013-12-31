@@ -200,7 +200,10 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     DCHECK(set_protocol);
     set_protocol = job_factory->SetProtocolHandler(
         chrome::kFileScheme,
-        new net::FileProtocolHandler);
+        new net::FileProtocolHandler(
+            content::BrowserThread::GetBlockingPool()->
+                GetTaskRunnerWithShutdownBehavior(
+                    base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
     DCHECK(set_protocol);
     storage_->set_job_factory(job_factory.release());
   }

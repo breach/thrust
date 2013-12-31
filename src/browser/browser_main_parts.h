@@ -25,7 +25,7 @@ struct MainFunctionParams;
 namespace exo_browser {
 
 class ExoBrowserContext;
-class ExoBrowserDevToolsDelegate;
+//class ExoBrowserDevToolsDelegate;
 class NodeThread;
 
 class ExoBrowserMainParts : public content::BrowserMainParts {
@@ -45,9 +45,11 @@ class ExoBrowserMainParts : public content::BrowserMainParts {
       int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
+  /*
   ExoBrowserDevToolsDelegate* devtools_delegate() {
     return devtools_delegate_.get();
   }
+  */
 
   net::NetLog* net_log() { 
     return net_log_.get(); 
@@ -60,7 +62,7 @@ class ExoBrowserMainParts : public content::BrowserMainParts {
   const content::MainFunctionParams& parameters_;
   bool run_message_loop_;
 
-  scoped_ptr<ExoBrowserDevToolsDelegate> devtools_delegate_;
+  //scoped_ptr<ExoBrowserDevToolsDelegate> devtools_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserMainParts);
 };
