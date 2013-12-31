@@ -1,4 +1,9 @@
 >>v0.5<<
+:upgrade #114
+  - Upgrade to Chrome 32.0.1700.68 (v8: 3.22.24.9)
+  - Upgrade to Node 0.10.24 (v8: 3.22.24.9)
+
+>>v0.x<<
 :cleanser #90
   - Reintroduce ClearDataForOrigin
   - Ability to list Data
@@ -15,7 +20,11 @@
 :hover_stack
   - Hover Controllers
 
+
 DONE:
+
+>>v0.5<<
+- Add the ability to run NodeJS only
 
 >>v0.4<<
 - Page Zoom API

@@ -55,10 +55,11 @@
         '<(DEPTH)/components/components.gyp:visitedlink_browser',
         '<(DEPTH)/components/components.gyp:visitedlink_common',
         '<(DEPTH)/components/components.gyp:visitedlink_renderer',
-        '<(DEPTH)/third_party/node/node.gyp:node_base'
+        '<(DEPTH)/third_party/node/node.gyp:node_base',
       ],
       'include_dirs': [
         '<(DEPTH)'
+        '<(DEPTH)/v8/include',
         '<(DEPTH)/third_party/node/src',
         '<(DEPTH)/third_party/node/deps/uv/include',
         '<(DEPTH)/third_party/node/deps/cares/include',
@@ -348,9 +349,15 @@
         'exo_browser_pak',
         '<(DEPTH)/third_party/mesa/mesa.gyp:osmesa',
         '<(DEPTH)/tools/imagediff/image_diff.gyp:image_diff',
+        '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
+        '<(DEPTH)/third_party/node/node.gyp:node_base',
       ],
       'include_dirs': [
         '<(DEPTH)',
+        '<(DEPTH)/v8/include',
+        '<(DEPTH)/third_party/node/src',
+        '<(DEPTH)/third_party/node/deps/uv/include',
+        '<(DEPTH)/third_party/node/deps/cares/include',
       ],
       'sources': [
         #TODO(spolu): Move when implementing win
@@ -573,6 +580,15 @@
           'mac_bundle': 1,
           'dependencies': [
             'exo_browser_framework',
+            '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
+            '<(DEPTH)/third_party/node/node.gyp:node_base',
+          ],
+          'include_dirs': [
+            '<(DEPTH)',
+            '<(DEPTH)/v8/include',
+            '<(DEPTH)/third_party/node/src',
+            '<(DEPTH)/third_party/node/deps/uv/include',
+            '<(DEPTH)/third_party/node/deps/cares/include',
           ],
           'sources': [
             'src/app/exo_browser_main.cc',
