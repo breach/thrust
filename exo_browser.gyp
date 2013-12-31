@@ -50,7 +50,9 @@
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/url/url.gyp:url_lib',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
+        '<(DEPTH)/webkit/common/user_agent/webkit_user_agent.gyp:user_agent',
+        '<(DEPTH)/webkit/common/webkit_common.gyp:webkit_common',
+        '<(DEPTH)/webkit/glue/webkit_glue.gyp:glue',
         '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         '<(DEPTH)/components/components.gyp:visitedlink_browser',
         '<(DEPTH)/components/components.gyp:visitedlink_common',
@@ -190,12 +192,12 @@
             'exo_browser_jni_headers',
           ],
         }, {  # else: OS!="android"
-          'dependencies': [
-            # This dependency is for running DRT against the exo_browser, and
-            # this combination is not yet supported on Android.
-            '<(DEPTH)/webkit/support/webkit_support.gyp:webkit_support',
-          ],
         }],  # OS=="android"
+        ['os_posix == 1 and OS != "mac" and android_webview_build != 1', {
+          'dependencies': [
+            '../components/components.gyp:breakpad_host',
+          ],
+        }],
         # TODO(spolu) removed use_aura condition as link does not work on linux
         # otherwise (content_shell works thanks to content_tests). Added OS!="mac"
         # since compilation fails otherwise
@@ -209,14 +211,30 @@
           'dependencies': [
             '<(DEPTH)/ui/aura/aura.gyp:aura',
             '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
-            '<(DEPTH)/ui/views/controls/webview/webview.gyp:webview',
-            '<(DEPTH)/ui/views/views.gyp:views',
-            '<(DEPTH)/ui/views/views.gyp:views_test_support',
-            '<(DEPTH)/ui/ui.gyp:ui_resources',
           ],
           'sources/': [
             ['exclude', 'src/browser/exo_browser_gtk.cc'],
             ['exclude', 'src/browser/exo_frame_gtk.cc'],
+          ],
+          'conditions': [
+            ['toolkit_views==1', {
+              'dependencies': [
+                '<(DEPTH)/ui/views/controls/webview/webview.gyp:webview',
+                '<(DEPTH)/ui/views/views.gyp:views',
+                '<(DEPTH)/ui/views/views.gyp:views_test_support',
+                '<(DEPTH)/ui/ui.gyp:ui_resources',
+              ],
+              'sources/': [
+                ['exclude', 'src/browser/exo_browser_aura.cc'],
+              ],
+            }, {
+              'sources/': [
+              ],
+            }],
+          ],
+        }, {
+          'sources/': [
+            ['exclude', 'shell/browser/exo_browser_aura.cc'],
           ],
         }],  # use_aura==1
         ['use_ash==1', {
