@@ -1,3 +1,8 @@
+
+/******************************************************************************/
+/* TODO */
+/******************************************************************************/
+
 >>v0.5<<
 :upgrade #114
   - Upgrade to Chrome 32.0.1700.68 (v8: 3.22.24.9)
@@ -42,3 +47,16 @@ DONE:
 - Embed NeDB in Shell for Cookie Storage
 - Delete VisitedLinks / Cache / Local Storage JS API
 - Capture ExoFrame ScreenShot from API
+
+
+/******************************************************************************/
+/* NOTES ON CHROMIUM */
+/******************************************************************************/
+
+- Issue 159193: Move URLRequestContext getters from Profile into StoragePartition 
+https://code.google.com/p/chromium/issues/detail?id=159193#c28
+
+- Issue 330264: Tracking bug: Migrate BrowserPlugin to use RenderFrame Architecture
+https://code.google.com/p/chromium/issues/detail?id=330264
+
+
