@@ -17,6 +17,7 @@ namespace exo_browser {
 
 class ExoSessionWrap;
 class DownloadManagerDelegate;
+class ExoBrowserDevToolsDelegate;
 class ResourceContext;
 class ExoBrowserURLRequestContextGetter;
 class ExoBrowserDownloadManagerDelegate;
@@ -60,6 +61,18 @@ public:
   // Clears all data stored related to this session. The process is async and
   // does not return a callback.
   void ClearAllData();
+
+  /****************************************************************************/
+  /* EXOFRAME / DEVTOOLS I/F                                                  */
+  /****************************************************************************/
+  ExoBrowserDevToolsDelegate* devtools_delegate() {
+    return devtools_delegate_.get();
+  }
+
+  // ### GetDevToolsURL
+  //
+  // Returns the DevTools URL for this session
+  GURL GetDevToolsURL();
 
   /****************************************************************************/
   /* BROWSER CONTEXT IMPLEMENTATION                                           */
@@ -135,10 +148,13 @@ private:
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
   scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 
+  scoped_ptr<ExoBrowserDevToolsDelegate>           devtools_delegate_;
+
   ExoSessionWrap*                                  wrapper_;
 
   friend class ExoSessionWrap;
   friend class ExoSessionCookieStore;
+  friend class ExoBrowserDevToolsDelegate;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSession);
 };

@@ -78,7 +78,7 @@ ExoBrowser::PlatformCreateWindow(
   base::FilePath p = base::FilePath::FromUTF8Unsafe(icon_path);
   // Read the file from disk.
   std::string file_contents;
-  if(!p.empty() && file_util::ReadFileToString(p, &file_contents)) {
+  if(!p.empty() && base::ReadFileToString(p, &file_contents)) {
     // Decode the bitmap using WebKit's image decoder.
     const unsigned char* data =
       reinterpret_cast<const unsigned char*>(file_contents.data());

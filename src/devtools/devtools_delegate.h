@@ -14,12 +14,13 @@ class BrowserContext;
 class DevToolsHttpHandler;
 }
 
-
 namespace exo_browser {
+
+class ExoSession;
 
 class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit ExoBrowserDevToolsDelegate();
+  explicit ExoBrowserDevToolsDelegate(ExoSession* session);
   virtual ~ExoBrowserDevToolsDelegate();
 
   // Stops http server.
@@ -30,12 +31,14 @@ class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual base::FilePath GetDebugFrontendDir() OVERRIDE;
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
-  virtual content::RenderViewHost* CreateNewTarget() OVERRIDE;
-  virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE;
-  virtual std::string GetViewDescription(content::RenderViewHost*) OVERRIDE;
-  virtual scoped_refptr<net::StreamListenSocket> CreateSocketForTethering(
-      net::StreamListenSocket::Delegate* delegate,
-      std::string* name) OVERRIDE;
+
+  virtual scoped_ptr<content::DevToolsTarget> 
+    CreateNewTarget(const GURL& url) OVERRIDE;
+  virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;
+
+  virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(         
+      net::StreamListenSocket::Delegate* delegate,                              
+      std::string* name) OVERRIDE;             
 
   content::DevToolsHttpHandler* devtools_http_handler() {
     return devtools_http_handler_;
@@ -43,6 +46,7 @@ class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
 
  private:
   content::DevToolsHttpHandler* devtools_http_handler_;
+  ExoSession*                   session_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserDevToolsDelegate);
 };

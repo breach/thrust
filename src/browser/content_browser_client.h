@@ -72,7 +72,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
 
   /****************************************************************************/
-  /*                            EXOSESSION I/F                                */
+  /* EXOSESSION I/F                                                           */
   /****************************************************************************/
   // ### RegisterExoSession
   // ```

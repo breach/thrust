@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
@@ -24,8 +24,6 @@ struct MainFunctionParams;
 
 namespace exo_browser {
 
-class ExoBrowserContext;
-//class ExoBrowserDevToolsDelegate;
 class NodeThread;
 
 class ExoBrowserMainParts : public content::BrowserMainParts {
@@ -41,15 +39,8 @@ class ExoBrowserMainParts : public content::BrowserMainParts {
   virtual void PreMainMessageLoopStart() OVERRIDE;
   virtual void PostMainMessageLoopStart() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;
-  virtual bool MainMessageLoopRun(
-      int* result_code) OVERRIDE;
+  virtual bool MainMessageLoopRun(int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
-
-  /*
-  ExoBrowserDevToolsDelegate* devtools_delegate() {
-    return devtools_delegate_.get();
-  }
-  */
 
   net::NetLog* net_log() { 
     return net_log_.get(); 
@@ -61,8 +52,6 @@ class ExoBrowserMainParts : public content::BrowserMainParts {
   // For running content_browsertests.
   const content::MainFunctionParams& parameters_;
   bool run_message_loop_;
-
-  //scoped_ptr<ExoBrowserDevToolsDelegate> devtools_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserMainParts);
 };

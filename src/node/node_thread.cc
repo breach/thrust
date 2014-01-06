@@ -45,7 +45,8 @@ base::FilePath GetSelfPath() {
   base::FilePath path;
 
   size_t size = 2 * PATH_MAX;
-  char* execPath = new char[size];
+  char* execPath = (char*)malloc(size);
+  //char* execPath = new char[size];
   if (uv_exepath(execPath, &size) == 0) {
     path = base::FilePath::FromUTF8Unsafe(std::string(execPath, size));
   } else {

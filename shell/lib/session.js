@@ -81,8 +81,12 @@ var session = function(spec, my) {
       path: api.data_path('exo_browser_shell'),
       off_the_record: false
     });
+    my.exo_session_frame = api.exo_session({
+      path: api.data_path('exo_browser_shell_frame'),
+      off_the_record: false
+    });
     my.cookie_store = require('./cookie_store.js').cookie_store({
-      session: my.exo_session
+      session: my.exo_session_frame
     });
 
     my.exo_browser.on('frame_created', browser_frame_created);
@@ -93,7 +97,7 @@ var session = function(spec, my) {
     my.frame = api.exo_frame({
       name: my.name,
       url: my.base_url + '/home.html',
-      session: my.exo_session
+      session: my.exo_session_frame
     });
     my.frame.set_context_menu_handler(function(params, cb_) {
       //console.log(JSON.stringify(params));
@@ -106,7 +110,13 @@ var session = function(spec, my) {
         },
         '': null,
         'Inspect': function() {
-          my.frame.get_dev_tools(function(url) {
+          my.exo_session_frame.get_dev_tools_url(function(url) {
+            console.log('DEVTOOLS URL FRAME: ' + url);
+            my.frame.get_dev_tools_id(function(id) {
+              console.log('DEVTOOLS ID: ' + id);
+            });
+          });
+          my.exo_session.get_dev_tools_url(function(url) {
             console.log('DEVTOOLS URL: ' + url);
           });
         }

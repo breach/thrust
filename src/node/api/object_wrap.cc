@@ -168,5 +168,26 @@ ObjectWrap::SizeCallback(
   delete size;
 }
 
+void 
+ObjectWrap::PersistentCallback(
+    v8::Persistent<v8::Function>* cb_p, 
+    v8::Persistent<v8::Object>* arg_p)
+{
+  v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
+  v8::Local<v8::Function> cb = 
+    v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), *cb_p);
+  v8::Local<v8::Object> arg_o = 
+    v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), *arg_p);
+  v8::Local<v8::Object> obj = 
+    v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
+        this->persistent());
+  v8::Local<v8::Value> argv[1] = { arg_o };
+  cb->Call(obj, 1, argv);
+  cb_p->Dispose();
+  delete cb_p;
+  arg_p->Dispose();
+  delete arg_p;
+}
+
 } // namespace exo_browser
 
