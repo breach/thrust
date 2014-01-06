@@ -288,19 +288,9 @@ ExoBrowser::PlatformKill()
 
 
 void 
-ExoBrowser::PlatformAddPage(
-    ExoFrame *frame)
+ExoBrowser::PlatformClearPage()
 {
-  /* Nothing to Do? */
-}
-
-
-void 
-ExoBrowser::PlatformRemovePage(
-    ExoFrame *frame)
-{
-  WebContentsView* content_view = frame->web_contents_->GetView();
-  if(visible_page_ == content_view->GetNativeView()) {
+  if(visible_page_ != NULL) {
     [visible_page_ removeFromSuperview];
     visible_page_ = NULL;
   }
@@ -311,16 +301,20 @@ void
 ExoBrowser::PlatformShowPage(
     ExoFrame *frame)
 {
-  NSView* web_view = frame->web_contents_->GetView()->GetNativeView();
+  if(visible_page_ != NULL) {
+    PlatformClearPage();
+  }
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  visible_page_ = content_view->GetNativeView();
 
   [pages_box_ setSubviews:[NSArray array]];
 
   NSRect rect = [pages_box_ bounds];
-  [web_view setFrame:rect];
-  [web_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
-  [pages_box_ addSubview: web_view];
+  [visible_page setFrame:rect];
+  [visible_page setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+  [pages_box_ addSubview: visible_page];
 
-  [web_view setNeedsDisplay:YES];
+  [visible_page setNeedsDisplay:YES];
 }
 
 

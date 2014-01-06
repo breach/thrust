@@ -107,18 +107,13 @@ private:
                                v8::Persistent<v8::Function>* cb_p);
 
 
-  static void AddPage(const v8::FunctionCallbackInfo<v8::Value>& args);
-  /* TODO(spolu): Fix usage of (void*) */
-  void AddPageTask(void* frame_w,
-                   v8::Persistent<v8::Function>* cb_p);
-
-  static void RemovePage(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void RemovePageTask(const std::string& name,
-                      v8::Persistent<v8::Function>* cb_p);
-
   static void ShowPage(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void ShowPageTask(const std::string& name,
+  /* TODO(spolu): Fix usage of (void*) */
+  void ShowPageTask(void* frame_w,
                     v8::Persistent<v8::Function>* cb_p);
+
+  static void ClearPage(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ClearPageTask(v8::Persistent<v8::Function>* cb_p);
 
   /****************************************************************************/
   /*                              DISPATCHERS                                 */

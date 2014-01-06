@@ -88,7 +88,7 @@ public:
   // @web_contents {WebContents}
   // ```
   static ExoFrame* ExoFrameForWebContents(
-      content::WebContents* web_contents);
+      const content::WebContents* web_contents);
 
   // ### LoadURL
   //

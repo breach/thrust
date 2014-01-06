@@ -36,10 +36,11 @@ using namespace content;
 
 namespace exo_browser {
 
-static std::map<WebContents*, ExoFrame*> s_exo_frames;
+static std::map<const WebContents*, ExoFrame*> s_exo_frames;
 
-ExoFrame* ExoFrame::ExoFrameForWebContents(
-    content::WebContents* web_contents)
+ExoFrame* 
+ExoFrame::ExoFrameForWebContents(
+    const content::WebContents* web_contents)
 {
   return s_exo_frames[web_contents];
 }

@@ -123,9 +123,7 @@ var session = function(spec, my) {
       });
     });
 
-    my.exo_browser.add_page(my.frame, function() {
-      my.exo_browser.show_page(my.frame);
-    });
+    my.exo_browser.show_page(my.frame);
 
     my.box = require('./box.js').box({
       session: that
