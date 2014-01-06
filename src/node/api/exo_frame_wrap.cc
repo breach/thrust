@@ -124,8 +124,8 @@ ExoFrameWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_capture"),
       FunctionTemplate::New(Capture)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_getDevTools"),
-      FunctionTemplate::New(GetDevTools)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_getDevToolsId"),
+      FunctionTemplate::New(GetDevToolsId)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_zoom"),
       FunctionTemplate::New(Zoom)->GetFunction());
@@ -837,7 +837,7 @@ ExoFrameWrap::CaptureCallback(
 }
 
 void
-ExoFrameWrap::GetDevTools(
+ExoFrameWrap::GetDevToolsId(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -847,25 +847,25 @@ ExoFrameWrap::GetDevTools(
   Persistent<Function> *cb_p = new Persistent<Function>();
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
-  std::string* url = new std::string();
+  std::string* id = new std::string();
 
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::GetDevToolsTask, frame_w, url, cb_p));
+      base::Bind(&ExoFrameWrap::GetDevToolsIdTask, frame_w, id, cb_p));
 }
 
 void
-ExoFrameWrap::GetDevToolsTask(
-    std::string* url,
+ExoFrameWrap::GetDevToolsIdTask(
+    std::string* id,
     Persistent<Function>* cb_p)
 {
   if(frame_ != NULL)
-    (*url) = frame_->GetDevTools().spec();
+    (*id) = frame_->GetDevToolsId();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
-      base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, url));
+      base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, id));
 }
 
 void 
@@ -1103,7 +1103,7 @@ void ExoFrameWrap::CallTriggerContextMenuItem(
 
     Local<Integer> index_arg = Integer::New(index);
 
-    Local<Value> argv[1] = { index_arg };
+    Local<v8::Value> argv[1] = { index_arg };
     trigger->Call(frame_o, 1, argv);
   }
 }
@@ -1144,7 +1144,7 @@ ExoFrameWrap::DispatchLoadFail(
     Local<Integer> error_code_arg = Integer::New(error_code);
     Local<String> error_desc_arg = String::New(error_desc.c_str());
 
-    Local<Value> argv[3] = { url_arg,
+    Local<v8::Value> argv[3] = { url_arg,
                              error_code_arg,
                              error_desc_arg };
     cb->Call(frame_o, 3, argv);
@@ -1179,7 +1179,7 @@ ExoFrameWrap::DispatchLoadFinish(
 
     Local<String> url_arg = String::New(url.c_str());
 
-    Local<Value> argv[1] = { url_arg };
+    Local<v8::Value> argv[1] = { url_arg };
     cb->Call(frame_o, 1, argv);
   }
 }
@@ -1280,7 +1280,7 @@ ExoFrameWrap::DispatchFaviconUpdate(
       }
     };
 
-    Local<Value> argv[1] = { favicons_arg };
+    Local<v8::Value> argv[1] = { favicons_arg };
     cb->Call(frame_o, 1, argv);
   }
 }

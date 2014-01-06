@@ -12,12 +12,14 @@
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/browser/devtools_http_handler.h"
 
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/net/url_request_context_getter.h"
 #include "exo_browser/src/browser/dialog/download_manager_delegate.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
 #include "exo_browser/src/browser/content_browser_client.h"
+#include "exo_browser/src/devtools/devtools_delegate.h"
 #include "exo_browser/src/node/api/exo_session_wrap.h"
 
 using namespace content;
@@ -84,6 +86,8 @@ ExoSession::ExoSession(
 
   bool result = visitedlink_store_->Init();
   LOG(INFO) << "VisitedLink Init: " << result;
+
+  devtools_delegate_.reset(new ExoBrowserDevToolsDelegate(this));
   
   ExoBrowserContentBrowserClient::Get()->RegisterExoSession(this);
 }
@@ -104,6 +108,10 @@ ExoSession::~ExoSession()
   if(url_request_getter_.get())
     url_request_getter_.get()->parent_ = NULL;
 
+  /* We also stop the DevToolsDelegate. */
+  if (devtools_delegate_)
+    devtools_delegate_->Stop();
+
   /* If we're here that means that ou JS wrapper has been reclaimed */
   LOG(INFO) << "ExoSesion Destructor";
 }
@@ -114,6 +122,12 @@ ExoSession::ClearAllData()
   GetDefaultStoragePartition(this)->ClearDataForUnboundedRange(
       StoragePartition::REMOVE_DATA_MASK_ALL,
       StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL);
+}
+
+GURL
+ExoSession::GetDevToolsURL()
+{
+  return devtools_delegate_->devtools_http_handler()->GetFrontendURL();
 }
 
 base::FilePath 
@@ -214,10 +228,21 @@ void
 ExoSession::RequestMIDISysExPermission(
     int render_process_id,
     int render_view_id,
+    int bridge_id,
     const GURL& requesting_frame,
     const MIDISysExPermissionCallback& callback) 
 {
   callback.Run(false);
+}
+
+
+void 
+ExoSession::CancelMIDISysExPermissionRequest(
+    int render_process_id,
+    int render_view_id,
+    int bridge_id,
+    const GURL& requesting_frame)
+{
 }
 
 quota::SpecialStoragePolicy* 

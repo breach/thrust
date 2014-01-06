@@ -89,6 +89,8 @@ protected:
   void SizeCallback(v8::Persistent<v8::Function>* cb_p, 
                     const gfx::Size* size);
 
+  void PersistentCallback(v8::Persistent<v8::Function>* cb_p, 
+                          v8::Persistent<v8::Object>* arg_p);
 private:
   static void WeakCallback(v8::Isolate* isolate,
                            v8::Persistent<v8::Object>* pobj,

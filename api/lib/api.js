@@ -12,7 +12,6 @@
  * 2013-08-12 spolu   Add name to browser
  * 2013-08-11 spolu   Creation
  */
-
 var common = require('./common.js');
 var events = require('events');
 var async = require('async');
@@ -110,6 +109,7 @@ var exo_session = function(spec, my) {
   var add_visited_link;      /* add_visited_link(url); */
   var clear_visited_links;   /* clear_visited_links(); */
   var clear_all_data;        /* clear_all_data(); */
+  var get_dev_tools_url;     /* get_dev_tools_url(cb_); */
 
   //
   // #### _protected_
@@ -242,6 +242,26 @@ var exo_session = function(spec, my) {
     });
   };
 
+  // ### get_dev_tools_url
+  //
+  // Retrieve the DevTools URL for the session (JSON)
+  // ```
+  // @cb_ {function(devtools_url)} the async callback
+  // ```
+  get_dev_tools_url = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._getDevToolsURL(function(devtools_url) {
+          if(cb_) return cb_(devtools_url);
+        });
+      }
+    });
+  };
+
+
   // ### init
   //
   // Runs initialization procedure.
@@ -337,8 +357,8 @@ var exo_session = function(spec, my) {
   common.method(that, 'set_cookie_handlers', set_cookie_handlers, _super);
   common.method(that, 'add_visited_link', add_visited_link, _super);
   common.method(that, 'clear_visited_links', clear_visited_links, _super);
-
   common.method(that, 'clear_all_data', clear_all_data, _super);
+  common.method(that, 'get_dev_tools_url', get_dev_tools_url, _super);
 
   /* Should only be called by exo_frame. */
   common.getter(that, 'internal', my, 'internal');
@@ -423,7 +443,7 @@ var exo_frame = function(spec, my) {
   var find_stop;                /* find_stop(action, [cb_]); */
   var capture;                  /* capture([cb_]); */
   var zoom;                     /* zoom(zoom, [cb_]); */
-  var get_dev_tools;            /* get_dev_tools(cb_); */
+  var get_dev_tools_id;         /* get_dev_tools_id(cb_); */
 
   var kill;                     /* kill(); */
 
@@ -836,20 +856,21 @@ var exo_frame = function(spec, my) {
     });
   };
 
-  // ### get_dev_tools
+  // ### get_dev_tools_id
   //
-  // Start and retrieves the DevTools URL 
+  // Retrieves the DevTools Id for this frame. Must be used in conjonction with
+  // the ExoSession DevTools URL
   // ```
-  // @cb_ {function(url)} the async callback
+  // @cb_ {function(id)} the async callback
   // ```
-  get_dev_tools = function(cb_) {
+  get_dev_tools_id = function(cb_) {
     pre(function(err) {
       if(err) {
         if(cb_) return cb_(err);
       }
       else {
-        my.internal._getDevTools(function(url) {
-          if(cb_) return cb_(url);
+        my.internal._getDevToolsId(function(id) {
+          if(cb_) return cb_(id);
         });
       }
     });
@@ -992,7 +1013,7 @@ var exo_frame = function(spec, my) {
   common.method(that, 'find_stop', find_stop, _super);
   common.method(that, 'capture', capture, _super);
   common.method(that, 'zoom', zoom, _super);
-  common.method(that, 'get_dev_tools', get_dev_tools, _super);
+  common.method(that, 'get_dev_tools_id', get_dev_tools_id, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');

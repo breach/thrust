@@ -7,8 +7,6 @@ so that the nodeJS thread do not block on possible lenghty UI operations.
 Native objects live on the BrowserThread::UI thread but are aware of their
 JS counterparts Wrappers.
 
-No DevTools ATM
-
 #### API v0.4-alpha:
 
 ```
@@ -200,6 +198,7 @@ f._focus(cb_);
 f._find(rid, text, forward, sensitive, next, cb_)
 f._stopFinding(action, cb_);
 f._capture(cb_);
+f._getDevToolsFrame(cb_);
 f._zoom(zoom, cb_);
 f._zoomLevel(cb_);
 

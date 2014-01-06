@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
 #include "exo_browser/src/browser/exo_frame.h"
@@ -22,12 +22,13 @@
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_manager.h"
+#include "content/public/browser/devtools_client_host.h"
+#include "exo_browser/src/devtools/devtools_delegate.h"
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "exo_browser/src/browser/browser_main_parts.h"
 #include "exo_browser/src/browser/exo_browser.h"
 #include "exo_browser/src/browser/content_browser_client.h"
 #include "exo_browser/src/browser/util/renderer_preferences_util.h"
-#include "exo_browser/src/devtools/devtools_delegate.h"
 #include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
 
@@ -186,27 +187,13 @@ ExoFrame::ZoomLevel() const
   return web_contents_->GetZoomLevel();
 }
 
-const GURL
-ExoFrame::GetDevTools()
+std::string
+ExoFrame::GetDevToolsId()
 {
-  ExoBrowserContentBrowserClient* browser_client = 
-    ExoBrowserContentBrowserClient::Get();
-  
-  RenderViewHost* inspected_rvh = web_contents()->GetRenderViewHost();
-  scoped_refptr<DevToolsAgentHost> agent(
-      DevToolsAgentHost::GetOrCreateFor(inspected_rvh));
-  DevToolsManager* manager = DevToolsManager::GetInstance();
+  scoped_refptr<DevToolsAgentHost> agent_host = 
+    DevToolsAgentHost::GetOrCreateFor(web_contents()->GetRenderViewHost());
 
-  if(agent->IsAttached()) {
-    /* Break remote debugging debugging session. */
-    manager->CloseAllClientHosts();
-  }
-
-  ExoBrowserDevToolsDelegate* delegate = 
-    browser_client->browser_main_parts()->devtools_delegate(); 
-
-  GURL url = delegate->devtools_http_handler()->GetFrontendURL(agent.get());
-  return url;
+  return agent_host->GetId();
 }
 
 ExoFrame::CaptureFrameImpl::CaptureFrameImpl(
@@ -289,6 +276,13 @@ ExoFrame::CaptureFrameImpl::Finish(
   callback_.Run(true, base64_result);
 }
 
+ExoSession*
+ExoFrame::session() const
+{
+  return
+    ExoBrowserContentBrowserClient::Get()->ExoSessionForBrowserContext(
+        web_contents_->GetBrowserContext());
+}
 
 
 /******************************************************************************/

@@ -17,6 +17,7 @@ namespace exo_browser {
 
 class ExoSessionWrap;
 class DownloadManagerDelegate;
+class ExoBrowserDevToolsDelegate;
 class ResourceContext;
 class ExoBrowserURLRequestContextGetter;
 class ExoBrowserDownloadManagerDelegate;
@@ -62,6 +63,18 @@ public:
   void ClearAllData();
 
   /****************************************************************************/
+  /* EXOFRAME / DEVTOOLS I/F                                                  */
+  /****************************************************************************/
+  ExoBrowserDevToolsDelegate* devtools_delegate() {
+    return devtools_delegate_.get();
+  }
+
+  // ### GetDevToolsURL
+  //
+  // Returns the DevTools URL for this session
+  GURL GetDevToolsURL();
+
+  /****************************************************************************/
   /* BROWSER CONTEXT IMPLEMENTATION                                           */
   /****************************************************************************/
   virtual base::FilePath GetPath() const OVERRIDE;
@@ -83,8 +96,15 @@ public:
   virtual void RequestMIDISysExPermission(
       int render_process_id,
       int render_view_id,
+      int bridge_id,
       const GURL& requesting_frame,
       const MIDISysExPermissionCallback& callback) OVERRIDE;
+  virtual void CancelMIDISysExPermissionRequest(
+      int render_process_id,
+      int render_view_id,
+      int bridge_id,
+      const GURL& requesting_frame) OVERRIDE;
+
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
@@ -128,10 +148,13 @@ private:
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
   scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 
+  scoped_ptr<ExoBrowserDevToolsDelegate>           devtools_delegate_;
+
   ExoSessionWrap*                                  wrapper_;
 
   friend class ExoSessionWrap;
   friend class ExoSessionCookieStore;
+  friend class ExoBrowserDevToolsDelegate;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSession);
 };

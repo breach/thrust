@@ -59,6 +59,10 @@ private:
   static void ClearAllData(const v8::FunctionCallbackInfo<v8::Value>& args);
   void ClearAllDataTask(v8::Persistent<v8::Function>* cb_p);
 
+  static void GetDevToolsURL(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void GetDevToolsURLTask(std::string* url,
+                          v8::Persistent<v8::Function>* cb_p);
+
   /****************************************************************************/
   /* HANDLERS */
   /****************************************************************************/

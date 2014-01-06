@@ -29,9 +29,6 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
 #else
 
 int main(int argc, const char** argv) {
-  std::cout << "##########################################" << std::endl;
-  std::cout << "##           EXO_BROWSER START          ##" << std::endl;
-  std::cout << "##########################################" << std::endl;
   for(int i = 0; i < argc; i ++) {
     if(strcmp(argv[i], "--no-chrome") == 0) {
       std::cout << "OPTION: --no-chrome" << std::endl;

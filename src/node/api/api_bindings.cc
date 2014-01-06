@@ -42,7 +42,8 @@ Handle<String>
 WrapSource(
     Handle<String> source) 
 {
-  HandleScope handle_scope;
+  HandleScope handle_scope(Isolate::GetCurrent());
+
   Handle<String> left =
     String::New("(function(root, exports) {");
   Handle<String> right = String::New("\n })");
@@ -57,7 +58,7 @@ RequireFromResource(
     Handle<String> name,
     int resource_id) 
 {
-  HandleScope scope;
+  HandleScope handle_scope(Isolate::GetCurrent());
 
   Handle<String> source = String::NewExternal(
       new StaticV8ExternalAsciiStringResource(

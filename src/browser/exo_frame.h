@@ -1,8 +1,8 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_UI_EXO_FRAME_H_
-#define EXO_BROWSER_BROWSER_UI_EXO_FRAME_H_
+#ifndef EXO_BROWSER_BROWSER_EXO_FRAME_H_
+#define EXO_BROWSER_BROWSER_EXO_FRAME_H_
 
 #include "base/basictypes.h"
 #include "base/callback_forward.h"
@@ -47,6 +47,7 @@ class ExoSession;
 class ExoBrowser;
 class ExoFrameWrap;
 class ExoBrowserWebContentsViewDelegate;
+class ExoBrowserDevToolsDelegate;
 
 // ### ExoFrame
 //
@@ -153,10 +154,10 @@ public:
   // Retrieves the current Zoom Level
   double ZoomLevel() const;
 
-  // ### GetDevTools
+  // ### GetDevToolsURL
   //
-  // Opens an headless DevTools and returns the URL
-  const GURL GetDevTools();
+  // Retrieves the devtools URL for this frame
+  std::string GetDevToolsId();
 
   // ### type
   //
@@ -178,6 +179,11 @@ public:
   //
   // Returns the ExoFrame's parent ExoBrowser
   ExoBrowser* parent() const { return parent_; }
+
+  // ### session
+  //
+  // Returns the ExoSession for this ExoFrame
+  ExoSession* session() const;
 
 
   /****************************************************************************/
@@ -311,10 +317,11 @@ private:
   friend class ExoFrameWrap;
   friend class ExoBrowserWrap;
   friend class ExoBrowserWebContentsViewDelegate;
+  friend class ExoBrowserDevToolsFrontend;
 
   DISALLOW_COPY_AND_ASSIGN(ExoFrame);
 };
 
 } // namespace exo_browser
 
-#endif // EXO_BROWSER_BROWSER_UI_EXO_FRAME_H_
+#endif // EXO_BROWSER_BROWSER_EXO_FRAME_H_
