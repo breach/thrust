@@ -1083,8 +1083,7 @@ var exo_browser = function(spec, my) {
   my.icon_path = spec.icon_path || '';
   my.name = spec.name || ('br-' + (exports.frame_count++));
 
-  my.frames = {};
-  my.pages = {};
+  my.page = null;
 
   my.controls = {};
   my.controls[exports.TOP_CONTROL] = null;
@@ -1097,6 +1096,8 @@ var exo_browser = function(spec, my) {
   my.control_dimensions[exports.BOTTOM_CONTROL] = 0;
   my.control_dimensions[exports.LEFT_CONTROL] = 0;
   my.control_dimensions[exports.RIGHT_CONTROL] = 0;
+
+  my.frames = {};
 
 
   //
@@ -1112,9 +1113,8 @@ var exo_browser = function(spec, my) {
   var unset_control;         /* unset_control(type, [cb_]); */
   var set_control_dimension; /* set_control_dimension(type, size, [cb_]); */
 
-  var add_page;              /* add_page(frame, [cb_]); */
-  var remove_page;           /* remove_page(frame, [cb_]); */
   var show_page;             /* show_page(frame, [cb_]); */
+  var clear_page;            /* clear_page([cb_]); */
 
   //
   // #### _private_
@@ -1234,65 +1234,11 @@ var exo_browser = function(spec, my) {
     });
   };
 
-  // ### add_page
-  //
-  // Adds a page to the browser. The visible page is not altered by this method
-  // ```
-  // @frame {exo_frame} the frame to add as a page
-  // @cb_   {funciton(err)
-  // ```
-  add_page = function(frame, cb_) {
-    /* We take care of "synchronization" */
-    async.parallel([ pre, frame.pre ], function(err) {
-      if(err) {
-        if(cb_) return cb_(err);
-      }
-      else {
-        my.internal._addPage(frame.internal(), function() {
-          frame.set_parent(that);
-          frame.set_type(exports.PAGE_TYPE);
-          my.pages[frame.name()] = frame;
-          my.frames[frame.name()] = frame;
-          if(cb_) return cb_();
-        });
-      }
-    });
-  };
-
-  // ### remove_page
-  //
-  // Removes the specified page
-  // ```
-  // @frame {exo_frame} the frame to add as a page
-  // @cb_   {funciton(err)
-  // ```
-  remove_page = function(frame, cb_) {
-    /* We take care of "synchronization" */
-    async.parallel([ pre, frame.pre ], function(err) {
-      if(err) {
-        if(cb_) return cb_(err);
-      }
-      else {
-        if(my.frames[frame.name()] !== frame) {
-          return cb_(new Error('Frame not known: ' + frame.name()));
-        }
-        my.internal._removePage(frame.name(), function() {
-          frame.set_visible(false);
-          frame.set_parent(null);
-          frame.set_type(exports.NO_TYPE);
-          delete my.pages[frame.name()];
-          delete my.frames[frame.name()];
-          if(cb_) return cb_();
-        });
-      }
-    });
-  };
-
   // ### show_page
   //
-  // Shows the provided page in the browser.
+  // Shows the page in the browser. Clears the currently shown page.
   // ```
-  // @frame {exo_frame} the frame to add as a page
+  // @frame {exo_frame} the frame to show as page
   // @cb_   {funciton(err)
   // ```
   show_page = function(frame, cb_) {
@@ -1302,16 +1248,51 @@ var exo_browser = function(spec, my) {
         if(cb_) return cb_(err);
       }
       else {
+        my.internal._showPage(frame.internal(), function() {
+          if(my.page) {
+            my.page.set_visible(false);
+            my.page.set_parent(null);
+            my.page.set_type(exports.NO_TYPE);
+            delete my.frames[my.page.name()]
+            delete my.page;
+            my.page = null;
+          }
+          frame.set_parent(that);
+          frame.set_type(exports.PAGE_TYPE);
+          frame.set_visible(true);
+          my.page = frame;
+          my.frames[frame.name()] = frame;
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### clear_page
+  //
+  // Clears the current shown page
+  // ```
+  // @cb_   {funciton(err)
+  // ```
+  clear_page = function(frame, cb_) {
+    /* We take care of "synchronization" */
+    async.parallel([ pre, frame.pre ], function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
         if(my.frames[frame.name()] !== frame) {
           return cb_(new Error('Frame not known: ' + frame.name()));
         }
-        my.internal._showPage(frame.name(), function() {
-          for(var name in my.pages) {
-            if(my.pages.hasOwnProperty(name)) {
-              my.pages[name].set_visible(false);
-            }
+        my.internal._clearPage(function() {
+          if(my.page) {
+            my.page.set_visible(false);
+            my.page.set_parent(null);
+            my.page.set_type(exports.NO_TYPE);
+            delete my.frames[my.page.name()]
+            delete my.page;
+            my.page = null;
           }
-          frame.set_visible(true);
           if(cb_) return cb_();
         });
       }
@@ -1435,8 +1416,8 @@ var exo_browser = function(spec, my) {
         my.controls[exports.BOTTOM_CONTROL] = null;
         my.controls[exports.LEFT_CONTROL] = null;
         my.controls[exports.RIGHT_CONTROL] = null;
+        my.page = null;
         my.frames = {};
-        my.pages = {};
 
         delete my.internal;
         my.killed = true;
@@ -1494,9 +1475,8 @@ var exo_browser = function(spec, my) {
   common.method(that, 'unset_control', unset_control, _super);
   common.method(that, 'set_control_dimension', set_control_dimension, _super);
 
-  common.method(that, 'add_page', add_page, _super);
-  common.method(that, 'remove_page', remove_page, _super);
   common.method(that, 'show_page', show_page, _super);
+  common.method(that, 'clear_page', clear_page, _super);
 
   common.method(that, 'focus', focus, _super);
   common.method(that, 'maximize', maximize, _super);

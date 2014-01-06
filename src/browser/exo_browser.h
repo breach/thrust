@@ -183,32 +183,20 @@ public:
   // ```
   void UnsetControl(CONTROL_TYPE type);
 
-
-  // ### AddPage
+  // ### RemovePage
   //
-  // Adds a frame to this browser as a page. The visible page is not altered by
-  // this method. The frame will be refered by its name in all subsequent API
-  // interactios.
+  // Removes the frame from this browser if one is shown. 
+  // The frame is not deleted.
+  void ClearPage();
+
+  // ### ShowPage
+  //
+  // Show the given Frame as Page. If a page is already shown it is cleared
+  // first.
   // ```
   // @frame {ExoFrame} the frame to add as a page
   // ```
-  void AddPage(ExoFrame* frame);
-
-  // ### RemovePage
-  //
-  // Removes the frame from this browser. The frame is not deleted.
-  // ```
-  // @name {std::string} the frame name
-  // ```
-  void RemovePage(const std::string& name);
-
-  // ### showPage
-  //
-  // Make the page visible
-  // ```
-  // @name {std::string} the frame name
-  // ```
-  void ShowPage(const std::string& name);
+  void ShowPage(ExoFrame* frame);
 
 
   // ### RemoveFrame
@@ -330,16 +318,6 @@ private:
   /****************************************************************************/
   explicit ExoBrowser(ExoBrowserWrap* wrapper);
 
-  // ### FrameForWebContents
-  //
-  // Retrieves within this browser, the frame associated with the provided 
-  // WebContents. Returns NULL otherwise
-  // ```
-  // @content {WebContents} a WebContents
-  // ```
-  ExoFrame* FrameForWebContents(const content::WebContents* web_contents);
-
-
   /****************************************************************************/
   /* STATIC PLATFORM INTERFACE */
   /****************************************************************************/
@@ -387,15 +365,11 @@ private:
   // Maximizes the ExoBrowser window
   void PlatformMaximize();
 
-  // ### PlatformAddPage
-  //
-  // Adds the frame web_contents view to the page view hierarchy
-  void PlatformAddPage(ExoFrame *frame);
 
-  // ### PlatformRemovePage
+  // ### PlatformClearPage
   //
   // Removes the frame web_contents view from the page view hierarchy
-  void PlatformRemovePage(ExoFrame *frame);
+  void PlatformClearPage();
 
   // ### PlatformShowPage
   //
@@ -451,7 +425,7 @@ private:
   gfx::NativeWindow                             window_;
 
   std::map<CONTROL_TYPE, ExoFrame*>             controls_;
-  std::map<std::string, ExoFrame*>              pages_;
+  ExoFrame*                                     page_;
 
   ExoBrowserWrap*                               wrapper_;
 
