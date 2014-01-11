@@ -310,11 +310,11 @@ ExoBrowser::PlatformShowPage(
   [pages_box_ setSubviews:[NSArray array]];
 
   NSRect rect = [pages_box_ bounds];
-  [visible_page setFrame:rect];
-  [visible_page setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
-  [pages_box_ addSubview: visible_page];
+  [visible_page_ setFrame:rect];
+  [visible_page_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+  [pages_box_ addSubview: visible_page_];
 
-  [visible_page setNeedsDisplay:YES];
+  [visible_page_ setNeedsDisplay:YES];
 }
 
 
