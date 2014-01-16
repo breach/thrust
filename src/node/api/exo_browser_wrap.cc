@@ -142,10 +142,12 @@ ExoBrowserWrap::Init(
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setTitle"),
       FunctionTemplate::New(SetTitle)->GetFunction());
 
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_addPage"),
+      FunctionTemplate::New(AddPage)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("_removePage"),
+      FunctionTemplate::New(RemovePage)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_showPage"),
       FunctionTemplate::New(ShowPage)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_clearPage"),
-      FunctionTemplate::New(ClearPage)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(String::NewSymbol("_setControl"),
       FunctionTemplate::New(SetControl)->GetFunction());
@@ -609,10 +611,8 @@ ExoBrowserWrap::SetControlDimensionTask(
 
 
 
-
-
 void 
-ExoBrowserWrap::ShowPage(
+ExoBrowserWrap::AddPage(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -630,18 +630,18 @@ ExoBrowserWrap::ShowPage(
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       /* TODO(spolu): Fix usage of (void*) */
-      base::Bind(&ExoBrowserWrap::ShowPageTask, browser_w, 
+      base::Bind(&ExoBrowserWrap::AddPageTask, browser_w, 
                  (void*)frame_w, cb_p));
 }
 
 
 void
-ExoBrowserWrap::ShowPageTask(
+ExoBrowserWrap::AddPageTask(
     void* frame_w,
     Persistent<Function>* cb_p)
 {
   if(browser_ != NULL && !browser_->is_killed())
-    browser_->ShowPage(((ExoFrameWrap*)frame_w)->frame_);
+    browser_->AddPage(((ExoFrameWrap*)frame_w)->frame_);
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -652,29 +652,34 @@ ExoBrowserWrap::ShowPageTask(
 
 
 void 
-ExoBrowserWrap::ClearPage(
+ExoBrowserWrap::RemovePage(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
 
-  /* args[0]: cb_ */
-  Local<Function> cb = Local<Function>::Cast(args[0]);
+  /* args[0]: name */
+  std::string name = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[0])));
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
   Persistent<Function> *cb_p = new Persistent<Function>();
   cb_p->Reset(Isolate::GetCurrent(), cb);
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoBrowserWrap::ClearPageTask, browser_w, cb_p));
+      base::Bind(&ExoBrowserWrap::RemovePageTask, browser_w, name, cb_p));
 }
 
 
 void
-ExoBrowserWrap::ClearPageTask(
+ExoBrowserWrap::RemovePageTask(
+    const std::string& name,
     Persistent<Function>* cb_p)
 {
   if(browser_ != NULL && !browser_->is_killed())
-    browser_->ClearPage();
+    browser_->RemovePage(name);
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -682,6 +687,42 @@ ExoBrowserWrap::ClearPageTask(
 }
 
 
+
+
+void 
+ExoBrowserWrap::ShowPage(
+        const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: name */
+  std::string name = std::string(
+      *String::Utf8Value(Local<String>::Cast(args[0])));
+
+  /* args[1]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoBrowserWrap::ShowPageTask, browser_w, name, cb_p));
+}
+
+
+void
+ExoBrowserWrap::ShowPageTask(
+        const std::string& name,
+            Persistent<Function>* cb_p)
+{
+  if(browser_ != NULL && !browser_->is_killed())
+    browser_->ShowPage(name);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
+}
 
 /******************************************************************************/
 /*                                DISPATCHERS                                 */

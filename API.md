@@ -64,7 +64,8 @@ exo_browser.set_control(type, frame, [cb_]);
 exo_browser.unset_control(type, [cb_]);
 exo_browser.set_control_dimension(type, size, [cb_]);
 
-exo_browser.show_page(frame, [cb_]);
+exo_browser.add_page(frame, [cb_]);
+exo_browser.remove_page(frame, [cb_]);
 exo_browser.clear_page(frame, [cb_]);
 
 exo_browser.focus([cb_]);
@@ -220,6 +221,7 @@ b._setControlDimension(type, size, cb_);
 /* PAGE */
 
 b._showPage(name, cb_);
+b._removePage(name, cb_);
 b._clearPage(name, cb_);
 ```
 

@@ -288,35 +288,42 @@ ExoBrowser::PlatformKill()
 
 
 void 
-ExoBrowser::PlatformClearPage()
+ExoBrowser::PlatformAddPage(
+    ExoFrame *frame)
 {
-  if(visible_page_ != NULL) {
+  /* Nothing to Do */
+}
+
+void 
+ExoBrowser::PlatformRemovePage(
+    ExoFrame *frame)
+{
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  if(visible_page_ == content_view->GetNativeView()) {
     [visible_page_ removeFromSuperview];
     visible_page_ = NULL;
   }
 }
 
-
 void 
 ExoBrowser::PlatformShowPage(
     ExoFrame *frame)
 {
-  if(visible_page_ != NULL) {
-    PlatformClearPage();
-  }
   WebContentsView* content_view = frame->web_contents_->GetView();
-  visible_page_ = content_view->GetNativeView();
+  if(visible_page_ != content_view->GetNativeView()) {
+    if(visible_page_ != NULL) {
+      [visible_page_ removeFromSuperview];
+    }
+    visible_page_ = content_view->GetNativeView();
 
-  [pages_box_ setSubviews:[NSArray array]];
+    NSRect rect = [pages_box_ bounds];
+    [visible_page_ setFrame:rect];
+    [visible_page_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+    [pages_box_ addSubview: visible_page_];
 
-  NSRect rect = [pages_box_ bounds];
-  [visible_page_ setFrame:rect];
-  [visible_page_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
-  [pages_box_ addSubview: visible_page_];
-
-  [visible_page_ setNeedsDisplay:YES];
+    [visible_page_ setNeedsDisplay:YES];
+  }
 }
-
 
 
 void 

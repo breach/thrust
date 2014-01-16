@@ -28,7 +28,6 @@ DONE:
 - Upgrade to Chrome 32.0.1700.68 (v8: 3.22.24.9)
 - Upgrade to Node 0.10.24 (v8: 3.22.24.9)
 - Fix DevTools I/F
-- Simplify ExoBrowser/ExoFrame API
 
 >>v0.4<<
 - Page Zoom API

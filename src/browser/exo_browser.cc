@@ -44,7 +44,6 @@ ExoBrowser::ExoBrowser(
 #if defined(OS_WIN) && !defined(USE_AURA)
     default_edit_wnd_proc_(0),
 #endif
-    page_(NULL),
     wrapper_(wrapper),
     is_killed_(false)
 {
@@ -96,6 +95,27 @@ ExoBrowser::KillAll()
 }
 
 
+ExoFrame* 
+ExoBrowser::FrameForWebContents(
+    const WebContents* web_contents)
+{
+  std::map<std::string, ExoFrame*>::iterator p_it;
+  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
+    if((p_it->second)->web_contents_ == web_contents) {
+      return (p_it->second);
+    }
+  }
+  std::map<CONTROL_TYPE, ExoFrame*>::iterator c_it;
+  for(c_it = controls_.begin(); c_it != controls_.end(); ++c_it) {
+    if((c_it->second)->web_contents_ == web_contents) {
+      return (c_it->second);
+    }
+  }
+  return NULL;
+}
+
+
+
 void 
 ExoBrowser::SetControl(
     CONTROL_TYPE type,
@@ -133,28 +153,41 @@ ExoBrowser::SetControlDimension(
 }
 
 
-void 
-ExoBrowser::ClearPage()
+
+void
+ExoBrowser::AddPage(
+    ExoFrame* frame)
 {
-  if(page_ != NULL) {
-    PlatformClearPage();
-    page_->SetType(ExoFrame::NOTYPE_FRAME);
-    page_->SetParent(NULL);
-    page_ = NULL;
+  frame->SetType(ExoFrame::PAGE_FRAME);
+  frame->SetParent(this);
+  pages_[frame->name()] = frame;
+  PlatformAddPage(frame);
+}
+
+
+void 
+ExoBrowser::RemovePage(
+    const std::string& name)
+{
+  std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
+  if(it != pages_.end()) {
+    PlatformRemovePage(it->second);
+    (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
+    (it->second)->SetParent(NULL);
+    pages_.erase(it);
   }
+  /* Otherwise, nothing to do */
 }
 
 void
 ExoBrowser::ShowPage(
-    ExoFrame* frame)
+    const std::string& name)
 {
-  if(page_ != NULL) {
-    this->ClearPage();
+  std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
+  if(it != pages_.end()) {
+    PlatformShowPage(it->second);
   }
-  page_ = frame;
-  page_->SetType(ExoFrame::PAGE_FRAME);
-  page_->SetParent(this);
-  PlatformShowPage(page_);
+  /* Otherwise, nothing to do */
 }
 
 
@@ -162,8 +195,11 @@ void
 ExoBrowser::RemoveFrame(
     const std::string& name)
 {
-  if(page_ != NULL && page_->name() == name) {
-    ClearPage();
+  std::map<std::string, ExoFrame*>::iterator p_it;
+  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
+    if((p_it->second)->name() == name) {
+      return RemovePage((p_it->second)->name());
+    }
   }
   std::map<CONTROL_TYPE, ExoFrame*>::iterator c_it;
   for(c_it = controls_.begin(); c_it != controls_.end(); ++c_it) {
@@ -179,7 +215,9 @@ void
 ExoBrowser::Kill()
 {
   is_killed_ = true;
-  ClearPage();
+  while(pages_.begin() != pages_.end()) {
+    RemovePage((pages_.begin()->second)->name());
+  }
   while(controls_.begin() != controls_.end()) {
     UnsetControl(controls_.begin()->first);
   }
@@ -190,12 +228,13 @@ ExoBrowser::Kill()
       base::Bind(&ExoBrowserWrap::DispatchKill, wrapper_));
 }
 
+
 WebContents* 
 ExoBrowser::OpenURLFromTab(
     WebContents* source,
     const OpenURLParams& params) 
 {
-  ExoFrame* frame = ExoFrame::ExoFrameForWebContents(source);
+  ExoFrame* frame = FrameForWebContents(source);
   if(frame) {
     /* Relevant header files:                              */
     /*  ui/base/window_open_disposition.h                  */
@@ -232,7 +271,7 @@ void
 ExoBrowser::CloseContents(
     WebContents* source) 
 {
-  ExoFrame* frame = ExoFrame::ExoFrameForWebContents(source);
+  ExoFrame* frame = FrameForWebContents(source);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -247,7 +286,7 @@ ExoBrowser::PreHandleKeyboardEvent(
     const NativeWebKeyboardEvent& event,
     bool* is_keyboard_shortcut)
 {
-  ExoFrame* frame = ExoFrame::ExoFrameForWebContents(source);
+  ExoFrame* frame = FrameForWebContents(source);
   if(frame) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -270,7 +309,7 @@ ExoBrowser::NavigationStateChanged(
     const WebContents* source,
     unsigned changed_flags)
 {
-  ExoFrame* frame = ExoFrame::ExoFrameForWebContents(source);
+  ExoFrame* frame = FrameForWebContents(source);
   if(!frame) return;
 
   std::vector<ExoBrowserWrap::NavigationEntry> entries;
@@ -380,7 +419,7 @@ ExoBrowser::AddNewContents(
             << "\nWaiting Response: " << new_contents->IsWaitingForResponse()
             << "\nInterstitial: " << new_contents->GetInterstitialPage();
 
-  ExoFrame* src_frame = ExoFrame::ExoFrameForWebContents(source);
+  ExoFrame* src_frame = FrameForWebContents(source);
   DCHECK(src_frame != NULL);
   if(src_frame) {
     /* We generate a unique name for this new frame */
@@ -451,7 +490,7 @@ ExoBrowser::FindReply(
     int active_match_ordinal,
     bool final_update)
 {
-  ExoFrame* frame = ExoFrame::ExoFrameForWebContents(web_contents);
+  ExoFrame* frame = FrameForWebContents(web_contents);
   if(!frame) return;
 
   NodeThread::Get()->PostTask(
