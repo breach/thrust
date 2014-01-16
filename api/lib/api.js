@@ -163,6 +163,7 @@ var exo_session = function(spec, my) {
         my.ready = false;
         delete my.internal;
         that.removeAllListeners();
+        return cb_();
       }
     });
   };
@@ -892,6 +893,7 @@ var exo_frame = function(spec, my) {
         my.ready = false;
         delete my.internal;
         that.removeAllListeners();
+        return cb_();
       }
     });
   };
