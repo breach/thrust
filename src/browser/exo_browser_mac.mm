@@ -137,98 +137,36 @@ ExoBrowser::PlatformCreateWindow(
   control_right_box_ = [[[NSView alloc] init] autorelease];
   control_top_box_ = [[[NSView alloc] init] autorelease];
   control_bottom_box_ = [[[NSView alloc] init] autorelease];
-  vertical_box_ = [[[NSView alloc] init] autorelease];
+  horizontal_box_ = [[[NSView alloc] init] autorelease];
   pages_box_ = [[[NSView alloc] init] autorelease];
-
-  /* Horizontal Layout */
-  [control_left_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [content addSubview: control_left_box_]; 
-  [vertical_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [content addSubview: vertical_box_];
-  [control_right_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [content addSubview: control_right_box_]; 
-
-  NSDictionary *content_dict = 
-    NSDictionaryOfVariableBindings(control_left_box_,
-                                   control_right_box_,
-                                   vertical_box_);
-  [content addConstraints:
-    [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"|[control_left_box_][vertical_box_][control_right_box_]|"
-                          options:0
-                          metrics:nil
-                            views:content_dict]];
-
-  NSArray * control_left_box_constraints = 
-    [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"[control_left_box_(0)]"
-                          options:0
-                          metrics:nil
-                            views:content_dict];
-  [content addConstraints: control_left_box_constraints];
-  control_left_constraint_ = [control_left_box_constraints objectAtIndex: 0];
-
-  NSArray * control_right_box_constraints = 
-    [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"[control_right_box_(0)]"
-                          options:0
-                          metrics:nil
-                            views:content_dict];
-  [content addConstraints: control_right_box_constraints];
-  control_right_constraint_ = [control_right_box_constraints objectAtIndex: 0];
-
-  [content addConstraints:
-    [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"[vertical_box_(>=100)]"
-                          options:0
-                          metrics:nil
-                            views:content_dict]];
-  [content addConstraints:
-    [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"V:|-0-[vertical_box_(>=100)]-0-|"
-                          options:0
-                          metrics:nil
-                            views:content_dict]];
-  [content addConstraints:
-    [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"V:|-0-[control_left_box_]-0-|"
-                          options:0
-                          metrics:nil
-                            views:content_dict]];
-  [content addConstraints:
-    [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"V:|-0-[control_right_box_]-0-|"
-                          options:0
-                          metrics:nil
-                            views:content_dict]];
 
   /* Vertical Layout */
   [control_top_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [vertical_box_ addSubview: control_top_box_];
-  [pages_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [vertical_box_ addSubview: pages_box_];
+  [content addSubview: control_top_box_]; 
+  [horizontal_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [content addSubview: horizontal_box_];
   [control_bottom_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [vertical_box_ addSubview: control_bottom_box_];
-   
-  NSDictionary *vertical_dict = 
+  [content addSubview: control_bottom_box_]; 
+
+
+  NSDictionary *content_dict = 
     NSDictionaryOfVariableBindings(control_top_box_,
                                    control_bottom_box_,
-                                   pages_box_);
-
-  [vertical_box_ addConstraints:
+                                   horizontal_box_);
+  [content addConstraints:
     [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"V:|[control_top_box_][pages_box_][control_bottom_box_]|"
+      constraintsWithVisualFormat:@"V:|[control_top_box_][horizontal_box_][control_bottom_box_]|"
                           options:0
                           metrics:nil
-                            views:vertical_dict]];
+                            views:content_dict]];
 
   NSArray * control_top_box_constraints = 
     [NSLayoutConstraint 
       constraintsWithVisualFormat:@"V:[control_top_box_(0)]"
                           options:0
                           metrics:nil
-                            views:vertical_dict];
-  [vertical_box_ addConstraints: control_top_box_constraints];
+                            views:content_dict];
+  [content addConstraints: control_top_box_constraints];
   control_top_constraint_ = [control_top_box_constraints objectAtIndex: 0];
 
   NSArray * control_bottom_box_constraints = 
@@ -236,35 +174,98 @@ ExoBrowser::PlatformCreateWindow(
       constraintsWithVisualFormat:@"V:[control_bottom_box_(0)]"
                           options:0
                           metrics:nil
-                            views:vertical_dict];
-  [vertical_box_ addConstraints: control_bottom_box_constraints];
+                            views:content_dict];
+  [content addConstraints: control_bottom_box_constraints];
   control_bottom_constraint_ = [control_bottom_box_constraints objectAtIndex: 0];
 
-  [vertical_box_ addConstraints:
+  [content addConstraints:
     [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"V:[pages_box_(>=100)]"
+      constraintsWithVisualFormat:@"V:[horizontal_box_(>=100)]"
                           options:0
                           metrics:nil
-                            views:vertical_dict]];
-
-  [vertical_box_ addConstraints:
+                            views:content_dict]];
+  [content addConstraints:
     [NSLayoutConstraint 
-      constraintsWithVisualFormat:@"|-0-[pages_box_(>=100)]-0-|"
+      constraintsWithVisualFormat:@"|-0-[horizontal_box_(>=100)]-0-|"
                           options:0
                           metrics:nil
-                            views:vertical_dict]];
-  [vertical_box_ addConstraints:
+                            views:content_dict]];
+  [content addConstraints:
     [NSLayoutConstraint 
       constraintsWithVisualFormat:@"|-0-[control_top_box_]-0-|"
                           options:0
                           metrics:nil
-                            views:vertical_dict]];
-  [vertical_box_ addConstraints:
+                            views:content_dict]];
+  [content addConstraints:
     [NSLayoutConstraint 
       constraintsWithVisualFormat:@"|-0-[control_bottom_box_]-0-|"
                           options:0
                           metrics:nil
-                            views:vertical_dict]];
+                            views:content_dict]];
+
+  /* Horizontal Layout */
+  [control_left_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [horizontal_box_ addSubview: control_left_box_];
+  [pages_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [horizontal_box_ addSubview: pages_box_];
+  [control_right_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
+  [horizontal_box_ addSubview: control_right_box_];
+   
+  NSDictionary *horizontal_dict = 
+    NSDictionaryOfVariableBindings(control_left_box_,
+                                   control_right_box_,
+                                   pages_box_);
+
+  [horizontal_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"|[control_left_box_][pages_box_][control_right_box_]|"
+                          options:0
+                          metrics:nil
+                            views:horizontal_dict]];
+
+  NSArray * control_left_box_constraints = 
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"[control_left_box_(0)]"
+                          options:0
+                          metrics:nil
+                            views:horizontal_dict];
+  [horizontal_box_ addConstraints: control_left_box_constraints];
+  control_left_constraint_ = [control_left_box_constraints objectAtIndex: 0];
+
+  NSArray * control_right_box_constraints = 
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"[control_right_box_(0)]"
+                          options:0
+                          metrics:nil
+                            views:horizontal_dict];
+  [horizontal_box_ addConstraints: control_right_box_constraints];
+  control_right_constraint_ = [control_right_box_constraints objectAtIndex: 0];
+
+  [horizontal_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"[pages_box_(>=100)]"
+                          options:0
+                          metrics:nil
+                            views:horizontal_dict]];
+
+  [horizontal_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:|-0-[pages_box_(>=100)]-0-|"
+                          options:0
+                          metrics:nil
+                            views:horizontal_dict]];
+  [horizontal_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:|-0-[control_left_box_]-0-|"
+                          options:0
+                          metrics:nil
+                            views:horizontal_dict]];
+  [horizontal_box_ addConstraints:
+    [NSLayoutConstraint 
+      constraintsWithVisualFormat:@"V:|-0-[control_right_box_]-0-|"
+                          options:0
+                          metrics:nil
+                            views:horizontal_dict]];
 
   // show the window
   [window_ makeKeyAndOrderFront:nil];
