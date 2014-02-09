@@ -57,18 +57,19 @@ ExoBrowser::PlatformCreateWindow(
   visible_page_ = NULL;
 
   // Create the menu bar.
-  gtk_box_pack_start(GTK_BOX(hbox_), control_left_box_, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox_), vbox_, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox_), control_right_box_, FALSE, FALSE, 0);
 
   gtk_box_pack_start(GTK_BOX(vbox_), control_top_box_, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox_), pages_box_, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox_), hbox_, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(vbox_), control_bottom_box_, FALSE, FALSE, 0);
+
+  gtk_box_pack_start(GTK_BOX(hbox_), control_left_box_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox_), pages_box_, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox_), control_right_box_, FALSE, FALSE, 0);
 
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(OnWindowDestroyedThunk), this);
 
-  gtk_container_add(GTK_CONTAINER(window_), hbox_);
+  gtk_container_add(GTK_CONTAINER(window_), vbox_);
   gtk_window_resize(window_, width, height);
 
   /* Set the icon for the window before it gets displayed. We exceptionally */

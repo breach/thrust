@@ -480,7 +480,7 @@ private:
   NSLayoutConstraint*                           control_top_constraint_;
   NSView*                                       control_bottom_box_;
   NSLayoutConstraint*                           control_bottom_constraint_;
-  NSView*                                       vertical_box_;
+  NSView*                                       horizontal_box_;
   NSView*                                       pages_box_;
 #endif
   gfx::NativeView                               visible_page_;
