@@ -234,6 +234,7 @@ ExoBrowser::OpenURLFromTab(
     WebContents* source,
     const OpenURLParams& params) 
 {
+  LOG(INFO) << "WebContentsCreated: " << params.url;
   ExoFrame* frame = FrameForWebContents(source);
   if(frame) {
     /* Relevant header files:                              */
