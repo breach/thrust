@@ -28,17 +28,37 @@ class ExoBrowserWebContentsViewDelegate :
       const content::ContextMenuParams& params) OVERRIDE;
   virtual content::WebDragDestDelegate* GetDragDestDelegate() OVERRIDE;
 
-  // ### BuildContextMenu
-  //
-  // Constructs a context menu based on the string received and call the
-  // `trigger` callback if a menu item is clicked
-  // ```
-  // @menu    {vector<string>} the list of menu items (empty string ~ seperator)
-  // @trigger {Callback<int>} the callback to call when a menu is fired
-  // ```
-  void BuildContextMenu(
-      const std::vector<std::string>& items,
-      const base::Callback<void(const int)>& trigger);
+  /****************************************************************************/
+  /* EXECUTOR CLASS */
+  /****************************************************************************/
+  class Executor : public base::RefCountedThreadSafe<Executor> {
+   public:
+     // ### Executor
+     // 
+     // This class serves as a RefCountedThreadSafe object to be executed to
+     // display the context menu once the items have been retrieved
+     Executor(content::WebContents* web_contents)
+      : web_contents_(web_contents) {}
+    // ### BuildContextMenu
+    //
+    // Constructs a context menu based on the string received and call the
+    // `trigger` callback if a menu item is clicked
+    // ```
+    // @menu    {vector<string>} the list of menu items (empty string ~ seperator)
+    // @trigger {Callback<int>} the callback to call when a menu is fired
+    // ```
+    void BuildContextMenu(
+        const std::vector<std::string>& items,
+        const base::Callback<void(const int)>& trigger);
+
+   private:
+#if defined(TOOLKIT_GTK)
+    CHROMEGTK_CALLBACK_0(Executor, void, 
+                         OnContextMenuItemActivated);
+#endif
+
+    content::WebContents* web_contents_;
+  };
 
 #if defined(TOOLKIT_GTK)
   virtual void Initialize(GtkWidget* expanded_container,
@@ -54,12 +74,6 @@ class ExoBrowserWebContentsViewDelegate :
           content::RenderWidgetHost* render_widget_host) OVERRIDE;
   void ActionPerformed(int index);
 #elif defined(OS_WIN)
-  virtual void StoreFocus() OVERRIDE;
-  virtual void RestoreFocus() OVERRIDE;
-  virtual bool Focus() OVERRIDE;
-  virtual void TakeFocus(bool reverse) OVERRIDE;
-  virtual void SizeChanged(const gfx::Size& size) OVERRIDE;
-  void MenuItemSelected(int selection);
 #endif
 
  private:
@@ -71,9 +85,6 @@ class ExoBrowserWebContentsViewDelegate :
 #if defined(TOOLKIT_GTK)
   ui::OwnedWidgetGtk floating_;
   GtkWidget* expanded_container_;
-
-  CHROMEGTK_CALLBACK_0(ExoBrowserWebContentsViewDelegate, void, 
-                       OnContextMenuItemActivated);
 #endif
 
   friend class base::RefCountedThreadSafe<ExoBrowserWebContentsViewDelegate>;

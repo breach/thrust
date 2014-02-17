@@ -50,7 +50,8 @@ ExoBrowserWebContentsViewDelegate::ShowContextMenu(
 {
   base::Callback<void(const std::vector<std::string>&, 
                       const base::Callback<void(const int)>&)> callback = 
-    base::Bind(&ExoBrowserWebContentsViewDelegate::BuildContextMenu, this);
+    base::Bind(&ExoBrowserWebContentsViewDelegate::Executor::BuildContextMenu, 
+               new Executor(web_contents_));
 
   ExoFrame* exo_frame = ExoFrame::ExoFrameForWebContents(web_contents_);
   if(exo_frame && exo_frame->wrapper_) {
@@ -62,7 +63,7 @@ ExoBrowserWebContentsViewDelegate::ShowContextMenu(
 }
 
 void
-ExoBrowserWebContentsViewDelegate::BuildContextMenu(
+ExoBrowserWebContentsViewDelegate::Executor::BuildContextMenu(
     const std::vector<std::string>& items,
     const base::Callback<void(const int)>& trigger)
 {
@@ -98,6 +99,22 @@ ExoBrowserWebContentsViewDelegate::BuildContextMenu(
     gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 3, GDK_CURRENT_TIME);
   }
 }
+
+void 
+ExoBrowserWebContentsViewDelegate::Executor::OnContextMenuItemActivated(
+    GtkWidget* widget)
+{
+  int idx = atoi(gtk_widget_get_name(widget));
+
+  ExoFrame* exo_frame = ExoFrame::ExoFrameForWebContents(web_contents_);
+  if(exo_frame && exo_frame->wrapper_) {
+    NodeThread::Get()->PostTask(
+        FROM_HERE,
+        base::Bind(&ExoFrameWrap::CallTriggerContextMenuItem, 
+                   exo_frame->wrapper_, idx));
+  }
+}
+
 
 WebDragDestDelegate* 
 ExoBrowserWebContentsViewDelegate::GetDragDestDelegate() 
@@ -136,21 +153,6 @@ ExoBrowserWebContentsViewDelegate::OnNativeViewFocusEvent(
     GtkDirectionType type,
     gboolean* return_value) {
   return false;
-}
-
-void 
-ExoBrowserWebContentsViewDelegate::OnContextMenuItemActivated(
-    GtkWidget* widget)
-{
-  int idx = atoi(gtk_widget_get_name(widget));
-
-  ExoFrame* exo_frame = ExoFrame::ExoFrameForWebContents(web_contents_);
-  if(exo_frame && exo_frame->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoFrameWrap::CallTriggerContextMenuItem, 
-                   exo_frame->wrapper_, idx));
-  }
 }
 
 } // namespace exo_browser
