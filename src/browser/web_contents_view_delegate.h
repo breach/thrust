@@ -51,13 +51,20 @@ class ExoBrowserWebContentsViewDelegate :
         const std::vector<std::string>& items,
         const base::Callback<void(const int)>& trigger);
 
-   private:
 #if defined(TOOLKIT_GTK)
     CHROMEGTK_CALLBACK_0(Executor, void, 
                          OnContextMenuItemActivated);
+#elif defined(OS_MACOSX)
+    void ActionPerformed(int index);
 #endif
 
+   private:
+    ~Executor() {}
+
     content::WebContents* web_contents_;
+
+    friend class base::RefCountedThreadSafe<
+       ExoBrowserWebContentsViewDelegate::Executor>;
   };
 
 #if defined(TOOLKIT_GTK)
@@ -72,8 +79,6 @@ class ExoBrowserWebContentsViewDelegate :
   virtual NSObject<RenderWidgetHostViewMacDelegate>*
       CreateRenderWidgetHostViewDelegate(
           content::RenderWidgetHost* render_widget_host) OVERRIDE;
-  void ActionPerformed(int index);
-#elif defined(OS_WIN)
 #endif
 
  private:
@@ -86,8 +91,6 @@ class ExoBrowserWebContentsViewDelegate :
   ui::OwnedWidgetGtk floating_;
   GtkWidget* expanded_container_;
 #endif
-
-  friend class base::RefCountedThreadSafe<ExoBrowserWebContentsViewDelegate>;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserWebContentsViewDelegate);
 };
