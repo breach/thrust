@@ -58,7 +58,7 @@ ExoFrame::ExoFrame(
   /* TODO(spolu): Check ExoSession herited from source WebContents */
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
-  LOG(INFO) << "ExoFrame Constructor [" << web_contents << "]";
+  LOG(INFO) << "ExoFrame Constructor [" << web_contents_.get() << "]";
   Init();
 }
 
@@ -75,7 +75,7 @@ ExoFrame::ExoFrame(
   web_contents_.reset(web_contents);
   WebContentsObserver::Observe(web_contents);
   LOG(INFO) << "ExoFrame Constructor (web_contents created) [" 
-            << web_contents << "]";
+            << web_contents_.get() << "]";
   Init();
 }
 
@@ -93,7 +93,7 @@ void
 ExoFrame::SetParent(
     ExoBrowser* parent)
 {
-  LOG(INFO) << "ExoFrame SetParent [" << web_contents_ << "]: " << parent;
+  LOG(INFO) << "ExoFrame SetParent [" << web_contents_.get() << "]: " << parent;
   parent_ = parent;
   web_contents_->SetDelegate(parent_);
 }
@@ -112,7 +112,7 @@ ExoFrame::~ExoFrame()
   /* reclaimed and that most of what is related to us has been destroyed   */
   /* already. Our associated web_contents, should be deleted with its      */
   /* scoped_ptr.                                                           */
-  LOG(INFO) << "ExoFrame Destructor [" << web_contents_ << "]";
+  LOG(INFO) << "ExoFrame Destructor [" << web_contents_.get() << "]";
   s_exo_frames.erase(web_contents_.get());
 }
 

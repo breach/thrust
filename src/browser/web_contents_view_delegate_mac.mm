@@ -25,13 +25,13 @@ using WebKit::WebContextMenuData;
 
 @interface ExoBrowserContextMenuDelegate : NSObject<NSMenuDelegate> {
  @private
-  exo_browser::ExoBrowserWebContentsViewDelegate* delegate_;
+  exo_browser::ExoBrowserWebContentsViewDelegate::Executor* delegate_;
 }
 @end
 
 @implementation ExoBrowserContextMenuDelegate
 - (id)initWithDelegate:
-    (exo_browser::ExoBrowserWebContentsViewDelegate*) delegate {
+    (exo_browser::ExoBrowserWebContentsViewDelegate::Executor*) delegate {
   if ((self = [super init])) {
     delegate_ = delegate;
   }
@@ -93,7 +93,8 @@ ExoBrowserWebContentsViewDelegate::ShowContextMenu(
 {
   base::Callback<void(const std::vector<std::string>&, 
                       const base::Callback<void(const int)>&)> callback = 
-    base::Bind(&ExoBrowserWebContentsViewDelegate::BuildContextMenu, this);
+    base::Bind(&ExoBrowserWebContentsViewDelegate::Executor::BuildContextMenu, 
+               new Executor(web_contents_));
 
   ExoFrame* exo_frame = ExoFrame::ExoFrameForWebContents(web_contents_);
   if(exo_frame && exo_frame->wrapper_) {
@@ -106,7 +107,7 @@ ExoBrowserWebContentsViewDelegate::ShowContextMenu(
 
 
 void
-ExoBrowserWebContentsViewDelegate::BuildContextMenu(
+ExoBrowserWebContentsViewDelegate::Executor::BuildContextMenu(
     const std::vector<std::string>& items,
     const base::Callback<void(const int)>& trigger)
 {
@@ -154,7 +155,7 @@ ExoBrowserWebContentsViewDelegate::BuildContextMenu(
 }
 
 void 
-ExoBrowserWebContentsViewDelegate::ActionPerformed(
+ExoBrowserWebContentsViewDelegate::Executor::ActionPerformed(
     int index) 
 {
   ExoFrame* exo_frame = ExoFrame::ExoFrameForWebContents(web_contents_);
