@@ -490,13 +490,18 @@ var exo_frame = function(spec, my) {
   // The handler must have the following signature and semantic:
   // ```
   // function(params, cb_) {
-  // return cb_(null, {
-  //   'Foo': function() { ... },
-  //   '': null,
-  //   'Bar': function() { ... }
-  // });
+  //   return cb_(null, [{
+  //     item: 'Foo',
+  //     trigger: function() {}
+  //   }, {
+  //     item: null
+  //   }, {
+  //     item: 'Bar',
+  //     trigger: function() {}
+  //   }]);
+  // }
   // ```
-  // Empty string can be used as separators and do not require a trigger.
+  // `null` name string can be used as separators and do not require a trigger.
   // ```
   // @hdlr {function(err, menu)} the handler
   // ```
@@ -913,15 +918,13 @@ var exo_frame = function(spec, my) {
             }
             var triggers = [];
             var items = [];
-            for(var item in menu) {
-              if(menu.hasOwnProperty(item) && 
-                 (!item || typeof menu[item] === 'function')) {
-                items.push(item || '');
-                triggers.push(menu[item]);
-              }
-            }
+            menu.forEach(function(m) {
+              items.push(m.item || '');
+              triggers.push(m.trigger);
+            });
             return (cb_.bind(my.internal, items, function(idx) {
-              triggers[idx]();
+              if(triggers[idx])
+                triggers[idx]();
             }))();
           });
         }

@@ -101,15 +101,22 @@ var session = function(spec, my) {
     });
     my.frame.set_context_menu_handler(function(params, cb_) {
       //console.log(JSON.stringify(params));
-      return cb_(null, {
-        'Foo': function() {
+      return cb_(null, [{
+        item: 'Foo',
+        trigger: function() {
           console.log('`Foo` clicked');
-        },
-        'Bar': function() {
+        }
+      }, {
+        item: 'Bar',
+        trigger: function() {
           console.log('`Bar` clicked');
-        },
-        '': null,
-        'Inspect': function() {
+        }
+      }, {
+        item: '',
+        trigger: null
+      }, {
+        item: 'Inspect', 
+        trigger: function() {
           my.exo_session_frame.get_dev_tools_url(function(url) {
             console.log('DEVTOOLS URL FRAME: ' + url);
             my.frame.get_dev_tools_id(function(id) {
@@ -120,7 +127,7 @@ var session = function(spec, my) {
             console.log('DEVTOOLS URL: ' + url);
           });
         }
-      });
+      }]);
     });
 
     my.exo_browser.add_page(my.frame, function() {
