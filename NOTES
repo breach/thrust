@@ -24,6 +24,7 @@
 DONE:
 
 >>v0.5<<
+- Context Menu API enhancement
 - Add the ability to run NodeJS only
 - Upgrade to Chrome 32.0.1700.68 (v8: 3.22.24.9)
 - Upgrade to Node 0.10.24 (v8: 3.22.24.9)
