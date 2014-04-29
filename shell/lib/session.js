@@ -201,6 +201,7 @@ var session = function(spec, my) {
   // @origin      {exo_frame} origin exo_frame
   // ```
   browser_frame_created = function(frame, disposition, initial_pos, from) {
+    console.log('browser_frame_created: ' + disposition);
     if(disposition === 'new_window') {
       /* TODO(spolu): Handle new window. */
       console.log('new_window: ' + from);

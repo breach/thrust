@@ -128,6 +128,7 @@ ExoBrowser::SetControl(
   controls_[type] = frame;
   frame->SetType(ExoFrame::CONTROL_FRAME);
   frame->SetParent(this);
+  frame->web_contents_->WasShown();
   PlatformSetControl(type, frame);
 }
 
@@ -140,6 +141,7 @@ ExoBrowser::UnsetControl(
     PlatformUnsetControl(it->first, it->second);
     (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
     (it->second)->SetParent(NULL);
+    (it->second)->web_contents_->WasHidden();
     controls_.erase(it);
   }
 }
@@ -174,6 +176,7 @@ ExoBrowser::RemovePage(
     PlatformRemovePage(it->second);
     (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
     (it->second)->SetParent(NULL);
+    (it->second)->web_contents_->WasHidden();
     pages_.erase(it);
   }
   /* Otherwise, nothing to do */
@@ -183,11 +186,21 @@ void
 ExoBrowser::ShowPage(
     const std::string& name)
 {
+  ExoFrame* page = NULL;
   std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
   if(it != pages_.end()) {
-    PlatformShowPage(it->second);
+    page = it->second;
   }
-  /* Otherwise, nothing to do */
+  if(page != NULL) {
+    PlatformShowPage(page);
+    page->web_contents_->WasShown();
+  }
+  std::map<std::string, ExoFrame*>::iterator p_it;
+  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
+    if(page != NULL && p_it->second != page) {
+      (p_it->second)->web_contents_->WasHidden();
+    }
+  }
 }
 
 
