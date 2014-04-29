@@ -92,11 +92,10 @@ ApiBindings::~ApiBindings()
 }
 
 Handle<FunctionTemplate>
-ApiBindings::GetNativeFunction(
+ApiBindings::GetNativeFunctionTemplate(
+    Isolate *isolate,
     Handle<String> name)
 {
-  Isolate* isolate = Isolate::GetCurrent();
-
   if (name->Equals(v8::String::NewFromUtf8(isolate, "RequireExoBrowser")))
     return v8::FunctionTemplate::New(isolate, RequireExoBrowser);
 

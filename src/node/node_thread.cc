@@ -5,6 +5,7 @@
 
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
+#include "third_party/node/src/force_modules.h"
 #include "base/file_util.h"
 #include "base/command_line.h"
 #include "base/time/time.h"
@@ -195,8 +196,7 @@ NodeThread::Run(
         node::CreateEnvironment(node_isolate, 
                                 argc, argv, 
                                 exec_argc, exec_argv,
-                                NULL);
-                                //&extensions);
+                                &extensions);
     {
       Context::Scope context_scope(EnvironmentContext(env));
 
