@@ -125,7 +125,8 @@ class FileSelectHelper
   // |accept_types| contains only valid lowercased MIME types or file extensions
   // beginning with a period (.).
   static scoped_ptr<ui::SelectFileDialog::FileTypeInfo>
-      GetFileTypesFromAcceptType(const std::vector<string16>& accept_types);
+      GetFileTypesFromAcceptType(
+          const std::vector<base::string16>& accept_types);
 
   // Check the accept type is valid. It is expected to be all lower case with
   // no whitespace.

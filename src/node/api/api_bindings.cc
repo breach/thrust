@@ -42,12 +42,13 @@ Handle<String>
 WrapSource(
     Handle<String> source) 
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  Isolate* isolate = Isolate::GetCurrent();
+  EscapableHandleScope scope(isolate);
 
   Handle<String> left =
-    String::New("(function(root, exports) {");
-  Handle<String> right = String::New("\n })");
-  return handle_scope.Close(
+    String::NewFromUtf8(isolate, "(function(root, exports) {");
+  Handle<String> right = String::NewFromUtf8(isolate, "\n })");
+  return scope.Escape(
       String::Concat(left, String::Concat(source, right)));
 }
 
@@ -58,9 +59,11 @@ RequireFromResource(
     Handle<String> name,
     int resource_id) 
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
   Handle<String> source = String::NewExternal(
+      isolate,
       new StaticV8ExternalAsciiStringResource(
         GetStringResource(resource_id)));
   Handle<String> wrapped_source = WrapSource(source);
@@ -92,27 +95,31 @@ Handle<FunctionTemplate>
 ApiBindings::GetNativeFunction(
     Handle<String> name)
 {
-  if (name->Equals(v8::String::New("RequireExoBrowser")))
-    return v8::FunctionTemplate::New(RequireExoBrowser);
+  Isolate* isolate = Isolate::GetCurrent();
+
+  if (name->Equals(v8::String::NewFromUtf8(isolate, "RequireExoBrowser")))
+    return v8::FunctionTemplate::New(isolate, RequireExoBrowser);
 
   NOTREACHED() << "Non-existing function in `ApiBindings`: "
                << *v8::String::Utf8Value(name);
-  return v8::FunctionTemplate::New();
+  return v8::FunctionTemplate::New(isolate);
 }
 
 void
 ApiBindings::RequireExoBrowser(
     const v8::FunctionCallbackInfo<Value>& args)
 {
+  Isolate* isolate = Isolate::GetCurrent();
+
   /* Lazy Initialization */
-  Local<String> ExoBrowserSymbol = String::NewSymbol("exo_browser");
+  Local<String> ExoBrowserSymbol = String::NewFromUtf8(isolate, "exo_browser");
   Local<Value> ExoBrowserCachedExports = args.This()->Get(ExoBrowserSymbol);
   if (ExoBrowserCachedExports->IsObject()) {
     args.GetReturnValue().Set(ExoBrowserCachedExports);
     return;
   }
 
-  Local<Object> ExoBrowserExports = Object::New();
+  Local<Object> ExoBrowserExports = Object::New(isolate);
   args.This()->Set(ExoBrowserSymbol, ExoBrowserExports);
 
   ExoSessionWrap::Init(ExoBrowserExports);

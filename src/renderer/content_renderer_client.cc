@@ -23,18 +23,18 @@
 
 using namespace content;
 
-using WebKit::WebAudioDevice;
-using WebKit::WebClipboard;
-using WebKit::WebFrame;
-using WebKit::WebMIDIAccessor;
-using WebKit::WebMIDIAccessorClient;
-using WebKit::WebMediaStreamCenter;
-using WebKit::WebMediaStreamCenterClient;
-using WebKit::WebPlugin;
-using WebKit::WebPluginParams;
-using WebKit::WebRTCPeerConnectionHandler;
-using WebKit::WebRTCPeerConnectionHandlerClient;
-using WebKit::WebThemeEngine;
+using blink::WebAudioDevice;
+using blink::WebClipboard;
+using blink::WebFrame;
+using blink::WebMIDIAccessor;
+using blink::WebMIDIAccessorClient;
+using blink::WebMediaStreamCenter;
+using blink::WebMediaStreamCenterClient;
+using blink::WebPlugin;
+using blink::WebPluginParams;
+using blink::WebRTCPeerConnectionHandler;
+using blink::WebRTCPeerConnectionHandlerClient;
+using blink::WebThemeEngine;
 
 namespace exo_browser {
 
@@ -83,11 +83,10 @@ ExoBrowserContentRendererClient::RenderViewCreated(
 
 bool 
 ExoBrowserContentRendererClient::OverrideCreatePlugin(
-    RenderView* render_view,
+    content::RenderFrame* render_frame,
     WebFrame* frame,
     const WebPluginParams& params,
-    WebPlugin** plugin) 
-{
+    WebPlugin** plugin) {
   std::string mime_type = params.mimeType.utf8();
   if (mime_type == content::kBrowserPluginMimeType) {
     // Allow browser plugin in content_shell only if it is forced by flag.

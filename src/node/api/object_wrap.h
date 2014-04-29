@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) Joyent, Inc. and other Node contributors.
 // See the LICENSE file.
 
@@ -13,14 +13,6 @@
 #include "third_party/node/src/node.h"
 #include "v8/include/v8.h"
 
-// Explicitly instantiate some template classes, so we're sure they will be
-// present in the binary / shared object. There isn't much doubt that they will
-// be, but MSVC tends to complain about these things.
-#ifdef _MSC_VER
-  template class NODE_EXTERN v8::Persistent<v8::Object>;
-  template class NODE_EXTERN v8::Persistent<v8::FunctionTemplate>;
-#endif
-
 namespace exo_browser {
 
 class ObjectWrap : public base::RefCountedThreadSafe<ObjectWrap> {
@@ -31,7 +23,10 @@ public:
   static inline T* Unwrap(v8::Handle<v8::Object> handle) {
     DCHECK(!handle.IsEmpty());
     DCHECK(handle->InternalFieldCount() > 0);
-    return static_cast<T*>(handle->GetAlignedPointerFromInternalField(0));
+
+    void* ptr = handle->GetAlignedPointerFromInternalField(0);
+    ObjectWrap* wrap = static_cast<ObjectWrap*>(ptr);
+    return static_cast<T*>(wrap);
   }
 
   inline v8::Local<v8::Object> handle() {
@@ -58,7 +53,7 @@ protected:
   }
 
   inline void MakeWeak(void) {
-    persistent().MakeWeak(this, WeakCallback);
+    persistent().SetWeak(this, WeakCallback);
     persistent().MarkIndependent();
   }
 
@@ -92,14 +87,19 @@ protected:
   void PersistentCallback(v8::Persistent<v8::Function>* cb_p, 
                           v8::Persistent<v8::Object>* arg_p);
 private:
-  static void WeakCallback(v8::Isolate* isolate,
-                           v8::Persistent<v8::Object>* pobj,
-                           ObjectWrap* wrap) {
+
+  static void WeakCallback(
+      const v8::WeakCallbackData<v8::Object, ObjectWrap>& data) {
+    v8::Isolate* isolate = data.GetIsolate();
     v8::HandleScope scope(isolate);
+    ObjectWrap* wrap = data.GetParameter();
     DCHECK(wrap->refs_ == 0);
-    DCHECK(*pobj == wrap->persistent());
-    DCHECK((*pobj).IsNearDeath());
+    DCHECK(wrap->handle_.IsNearDeath());
+    DCHECK(
+        data.GetValue() == v8::Local<v8::Object>::New(isolate, wrap->handle_));
+    wrap->handle_.Reset();
     wrap->Release();
+    //delete wrap;
   }
 
   v8::Persistent<v8::Object> handle_;

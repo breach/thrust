@@ -14,7 +14,7 @@ namespace visitedlink {
 class VisitedLinkSlave;                                                         
 }    
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 class WebPlugin;
 struct WebPluginParams;
@@ -36,10 +36,10 @@ class ExoBrowserContentRendererClient : public content::ContentRendererClient {
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
 
   virtual bool OverrideCreatePlugin(
-      content::RenderView* render_view,
-      WebKit::WebFrame* frame,
-      const WebKit::WebPluginParams& params,
-      WebKit::WebPlugin** plugin) OVERRIDE;
+      content::RenderFrame* render_frame,
+      blink::WebFrame* frame,
+      const blink::WebPluginParams& params,
+      blink::WebPlugin** plugin) OVERRIDE;
 
   virtual unsigned long long VisitedLinkHash(const char* canonical_url,         
                                              size_t length) OVERRIDE;           

@@ -56,12 +56,6 @@ public:
   // ### ~ExoSession
   virtual ~ExoSession();
 
-  // ### ClearAllData
-  //
-  // Clears all data stored related to this session. The process is async and
-  // does not return a callback.
-  void ClearAllData();
-
   /****************************************************************************/
   /* EXOFRAME / DEVTOOLS I/F                                                  */
   /****************************************************************************/
@@ -80,6 +74,9 @@ public:
   virtual base::FilePath GetPath() const OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
 
+  virtual content::DownloadManagerDelegate* 
+    GetDownloadManagerDelegate() OVERRIDE;
+
   virtual net::URLRequestContextGetter* GetRequestContext() OVERRIDE;
   virtual net::URLRequestContextGetter* GetRequestContextForRenderProcess(
       int renderer_child_id) OVERRIDE;
@@ -90,20 +87,27 @@ public:
           const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
 
-  virtual content::DownloadManagerDelegate* 
-    GetDownloadManagerDelegate() OVERRIDE;
-
-  virtual void RequestMIDISysExPermission(
+  virtual void RequestMidiSysExPermission(
       int render_process_id,
       int render_view_id,
       int bridge_id,
       const GURL& requesting_frame,
-      const MIDISysExPermissionCallback& callback) OVERRIDE;
-  virtual void CancelMIDISysExPermissionRequest(
+      const MidiSysExPermissionCallback& callback) OVERRIDE;
+  virtual void CancelMidiSysExPermissionRequest(
       int render_process_id,
       int render_view_id,
       int bridge_id,
       const GURL& requesting_frame) OVERRIDE;
+
+  virtual void RequestProtectedMediaIdentifierPermission(
+      int render_process_id,
+      int render_view_id,
+      int bridge_id,
+      int group_id,
+      const GURL& requesting_frame,
+      const ProtectedMediaIdentifierPermissionCallback& callback) OVERRIDE;
+  virtual void CancelProtectedMediaIdentifierPermissionRequests(
+      int group_id) OVERRIDE;
 
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;

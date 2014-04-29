@@ -148,11 +148,11 @@ ExoBrowserContentBrowserClient::IsHandledURL(
   /* TODO(spolu): Check in sync */
   static const char* const kProtocolList[] = {
       chrome::kBlobScheme,
-      chrome::kFileSystemScheme,
-      chrome::kChromeUIScheme,
-      chrome::kChromeDevToolsScheme,
-      chrome::kDataScheme,
-      chrome::kFileScheme,
+      kFileSystemScheme,
+      kChromeUIScheme,
+      kChromeDevToolsScheme,
+      kDataScheme,
+      kFileScheme,
   };
   for (size_t i = 0; i < arraysize(kProtocolList); ++i) {
     if (url.scheme() == kProtocolList[i])

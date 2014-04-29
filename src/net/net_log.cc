@@ -22,7 +22,7 @@ GetExoBrowserConstants()
   base::DictionaryValue* constants_dict = net::NetLogLogger::GetConstants();
 
   // Add a dictionary with client information
-  base::DictionaryValue* dict = new DictionaryValue();
+  base::DictionaryValue* dict = new base::DictionaryValue();
 
   dict->SetString("name", "exo_browser");
   dict->SetString("command_line",

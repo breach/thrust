@@ -32,6 +32,7 @@ ExoBrowserDownloadManagerDelegate::ExoBrowserDownloadManagerDelegate()
 
 ExoBrowserDownloadManagerDelegate::~ExoBrowserDownloadManagerDelegate()
 {
+  LOG(INFO) << "ExoBrowserDownloadManagerDelegate Destructor";
 }
 
 
@@ -46,6 +47,7 @@ void
 ExoBrowserDownloadManagerDelegate::Shutdown() 
 {
   Release();
+  download_manager_ = NULL;
 }
 
 bool 
@@ -69,21 +71,22 @@ ExoBrowserDownloadManagerDelegate::DetermineDownloadTarget(
     return true;
   }
 
-  base::FilePath generated_name = net::GenerateFileName(
-      download->GetURL(),
-      download->GetContentDisposition(),
-      EmptyString(),
-      download->GetSuggestedFilename(),
-      download->GetMimeType(),
-      "download");
+  FilenameDeterminedCallback filename_determined_callback =
+      base::Bind(&ExoBrowserDownloadManagerDelegate::OnDownloadPathGenerated,
+                 this,
+                 download->GetId(),
+                 callback);
 
   BrowserThread::PostTask(
       BrowserThread::FILE,
       FROM_HERE,
-      base::Bind(
-          &ExoBrowserDownloadManagerDelegate::GenerateFilename,
-          this, download->GetId(), callback, generated_name,
-          default_download_path_));
+      base::Bind(&ExoBrowserDownloadManagerDelegate::GenerateFilename,
+                 download->GetURL(),
+                 download->GetContentDisposition(),
+                 download->GetSuggestedFilename(),
+                 download->GetMimeType(),
+                 default_download_path_,
+                 filename_determined_callback));
   return true;
 }
 
@@ -105,22 +108,27 @@ ExoBrowserDownloadManagerDelegate::GetNextId(
 
 void 
 ExoBrowserDownloadManagerDelegate::GenerateFilename(
-    uint32 download_id,
-    const DownloadTargetCallback& callback,
-    const base::FilePath& generated_name,
-    const base::FilePath& suggested_directory) 
+    const GURL& url,
+    const std::string& content_disposition,
+    const std::string& suggested_filename,
+    const std::string& mime_type,
+    const base::FilePath& suggested_directory,
+    const FilenameDeterminedCallback& callback)
 {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::FILE));
+
+  base::FilePath generated_name = net::GenerateFileName(url,
+                                                        content_disposition,
+                                                        std::string(),
+                                                        suggested_filename,
+                                                        mime_type,
+                                                        "download");
   if (!base::PathExists(suggested_directory))
-    file_util::CreateDirectory(suggested_directory);
+    base::CreateDirectory(suggested_directory);
 
   base::FilePath suggested_path(suggested_directory.Append(generated_name));
   BrowserThread::PostTask(
-      BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(
-          &ExoBrowserDownloadManagerDelegate::OnDownloadPathGenerated,
-          this, download_id, callback, suggested_path));
+      BrowserThread::UI, FROM_HERE, base::Bind(callback, suggested_path));
 }
 
 void 

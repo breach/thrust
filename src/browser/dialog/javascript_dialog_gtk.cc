@@ -19,12 +19,13 @@ const char kPromptTextId[] = "exo_browser_prompt_text";
 
 // If there's a text entry in the dialog, get the text from the first one and
 // return it.
-string16 GetPromptText(GtkDialog* dialog) {
+base::string16 
+GetPromptText(GtkDialog* dialog) {
   GtkWidget* widget = static_cast<GtkWidget*>(
       g_object_get_data(G_OBJECT(dialog), kPromptTextId));
   if (widget)
-    return UTF8ToUTF16(gtk_entry_get_text(GTK_ENTRY(widget)));
-  return string16();
+    return base::UTF8ToUTF16(gtk_entry_get_text(GTK_ENTRY(widget)));
+  return base::string16();
 }
 
 }  // namespace
@@ -36,8 +37,8 @@ JavaScriptDialog::JavaScriptDialog(
     ExoBrowserJavaScriptDialogManager* manager,
     gfx::NativeWindow parent_window,
     JavaScriptMessageType message_type,
-    const string16& message_text,
-    const string16& default_prompt_text,
+    const base::string16& message_text,
+    const base::string16& default_prompt_text,
     const JavaScriptDialogManager::DialogClosedCallback& callback)
     : manager_(manager),
       callback_(callback),
@@ -71,7 +72,7 @@ JavaScriptDialog::JavaScriptDialog(
                                        gtk_message_type,
                                        buttons,
                                        "%s",
-                                       UTF16ToUTF8(message_text).c_str());
+                                       base::UTF16ToUTF8(message_text).c_str());
   g_signal_connect(gtk_dialog_,
                    "delete-event",
                    G_CALLBACK(gtk_widget_hide_on_delete),
@@ -90,7 +91,7 @@ JavaScriptDialog::JavaScriptDialog(
         gtk_dialog_get_content_area(GTK_DIALOG(gtk_dialog_));
     GtkWidget* text_box = gtk_entry_new();
     gtk_entry_set_text(GTK_ENTRY(text_box),
-                       UTF16ToUTF8(default_prompt_text).c_str());
+                       base::UTF16ToUTF8(default_prompt_text).c_str());
     gtk_box_pack_start(GTK_BOX(content_area), text_box, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(gtk_dialog_), kPromptTextId, text_box);
     gtk_entry_set_activates_default(GTK_ENTRY(text_box), TRUE);
@@ -121,7 +122,7 @@ JavaScriptDialog::OnResponse(
       break;
     case GTK_RESPONSE_CANCEL:
     case GTK_RESPONSE_DELETE_EVENT:
-      callback_.Run(false, string16());
+      callback_.Run(false, base::string16());
       break;
     default:
       NOTREACHED();
