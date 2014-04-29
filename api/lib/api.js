@@ -108,7 +108,6 @@ var exo_session = function(spec, my) {
   var set_cookie_handlers;   /* set_cookie_handlers({}); */
   var add_visited_link;      /* add_visited_link(url); */
   var clear_visited_links;   /* clear_visited_links(); */
-  var clear_all_data;        /* clear_all_data(); */
   var get_dev_tools_url;     /* get_dev_tools_url(cb_); */
 
   //
@@ -218,25 +217,6 @@ var exo_session = function(spec, my) {
       }
       else {
         my.internal._clearVisitedLinks(function() {
-          if(cb_) return cb_();
-        });
-      }
-    });
-  };
-
-  // ### clear_all_data
-  //
-  // Clears all persisted data
-  // ```
-  // @cb_ {function(err)} [optional]
-  // ```
-  clear_all_data = function(cb_) {
-    pre(function(err) {
-      if(err) {
-        if(cb_) return cb_(err);
-      }
-      else {
-        my.internal._clearAllData(function() {
           if(cb_) return cb_();
         });
       }
@@ -358,7 +338,6 @@ var exo_session = function(spec, my) {
   common.method(that, 'set_cookie_handlers', set_cookie_handlers, _super);
   common.method(that, 'add_visited_link', add_visited_link, _super);
   common.method(that, 'clear_visited_links', clear_visited_links, _super);
-  common.method(that, 'clear_all_data', clear_all_data, _super);
   common.method(that, 'get_dev_tools_url', get_dev_tools_url, _super);
 
   /* Should only be called by exo_frame. */

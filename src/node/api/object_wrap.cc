@@ -16,7 +16,7 @@ ObjectWrap::~ObjectWrap()
   if (persistent().IsEmpty()) return;
   DCHECK(persistent().IsNearDeath());
   persistent().ClearWeak();
-  persistent().Dispose();
+  persistent().Reset();
 }
 
 void 
@@ -46,7 +46,7 @@ ObjectWrap::EmptyCallback(
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
   cb->Call(obj, 0, NULL);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
 }
 
@@ -61,10 +61,11 @@ ObjectWrap::IntCallback(
   v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
-  v8::Local<v8::Integer> i = v8::Integer::New(*integer);
+  v8::Local<v8::Integer> i = v8::Integer::New(v8::Isolate::GetCurrent(), 
+                                              *integer);
   v8::Local<v8::Value> argv[1] = { i };
   cb->Call(obj, 1, argv);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
   delete integer;
 }
@@ -80,10 +81,10 @@ ObjectWrap::DoubleCallback(
   v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
-  v8::Local<v8::Number> d = v8::Number::New(*number);
+  v8::Local<v8::Number> d = v8::Number::New(v8::Isolate::GetCurrent(), *number);
   v8::Local<v8::Value> argv[1] = { d };
   cb->Call(obj, 1, argv);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
   delete number;
 }
@@ -99,10 +100,11 @@ ObjectWrap::BooleanCallback(
   v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
-  v8::Local<v8::Boolean> b = v8::Boolean::New(*boolean);
+  v8::Local<v8::Boolean> b = v8::Boolean::New(v8::Isolate::GetCurrent(), 
+                                              *boolean);
   v8::Local<v8::Value> argv[1] = { b };
   cb->Call(obj, 1, argv);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
   delete boolean;
 }
@@ -118,10 +120,11 @@ ObjectWrap::StringCallback(
   v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
-  v8::Local<v8::String> s = v8::String::New(str->c_str());
+  v8::Local<v8::String> s = v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), 
+                                                    str->c_str());
   v8::Local<v8::Value> argv[1] = { s };
   cb->Call(obj, 1, argv);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
   delete str;
 }
@@ -137,12 +140,12 @@ ObjectWrap::PointCallback(
   v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
-  v8::Local<v8::Array> point_array = v8::Array::New();
-  point_array->Set(0, v8::Integer::New(point->x()));
-  point_array->Set(1, v8::Integer::New(point->y()));
+  v8::Local<v8::Array> point_array = v8::Array::New(v8::Isolate::GetCurrent());
+  point_array->Set(0, v8::Integer::New(v8::Isolate::GetCurrent(), point->x()));
+  point_array->Set(1, v8::Integer::New(v8::Isolate::GetCurrent(), point->y()));
   v8::Local<v8::Value> argv[1] = { point_array };
   cb->Call(obj, 1, argv);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
   delete point;
 }
@@ -158,12 +161,14 @@ ObjectWrap::SizeCallback(
   v8::Local<v8::Object> obj = 
     v8::Local<v8::Object>::New(v8::Isolate::GetCurrent(), 
         this->persistent());
-  v8::Local<v8::Array> size_array = v8::Array::New();
-  size_array->Set(0, v8::Integer::New(size->width()));
-  size_array->Set(1, v8::Integer::New(size->height()));
+  v8::Local<v8::Array> size_array = v8::Array::New(v8::Isolate::GetCurrent());
+  size_array->Set(0, v8::Integer::New(v8::Isolate::GetCurrent(), 
+                                      size->width()));
+  size_array->Set(1, v8::Integer::New(v8::Isolate::GetCurrent(), 
+                                      size->height()));
   v8::Local<v8::Value> argv[1] = { size_array };
   cb->Call(obj, 1, argv);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
   delete size;
 }
@@ -183,9 +188,9 @@ ObjectWrap::PersistentCallback(
         this->persistent());
   v8::Local<v8::Value> argv[1] = { arg_o };
   cb->Call(obj, 1, argv);
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
-  arg_p->Dispose();
+  arg_p->Reset();
   delete arg_p;
 }
 

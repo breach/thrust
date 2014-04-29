@@ -118,7 +118,7 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
         new net::DefaultServerBoundCertStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
     storage_->set_http_user_agent_settings(
-        new net::StaticHttpUserAgentSettings("en-us,en", EmptyString()));
+        new net::StaticHttpUserAgentSettings("en-us,en", std::string()));
 
     scoped_ptr<net::HostResolver> host_resolver(
         net::HostResolver::CreateDefaultResolver(
@@ -195,11 +195,10 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     // ExoBrowserContentBrowserClient::IsHandledURL().
     InstallProtocolHandlers(job_factory.get(), &protocol_handlers_);
     bool set_protocol = job_factory->SetProtocolHandler(
-        chrome::kDataScheme,
-        new net::DataProtocolHandler);
+        kDataScheme, new net::DataProtocolHandler);
     DCHECK(set_protocol);
     set_protocol = job_factory->SetProtocolHandler(
-        chrome::kFileScheme,
+        kFileScheme,
         new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
                 GetTaskRunnerWithShutdownBehavior(

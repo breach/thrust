@@ -37,7 +37,7 @@ class SiteInstance;
 class WebContents;
 } 
 
-namespace WebKit {
+namespace blink {
 struct WebFindOptions;
 }
 
@@ -125,8 +125,8 @@ public:
   //
   // Searches for a string in the frame. We stay close to the Content API for 
   // now
-  void Find(int request_id, const string16& search_text,
-            const WebKit::WebFindOptions& options);
+  void Find(int request_id, const base::string16& search_text,
+            const blink::WebFindOptions& options);
   // ### StopFinding
   //
   // Stop the finding of a string
@@ -198,7 +198,7 @@ public:
       const GURL& validated_url,
       bool is_main_frame,
       int error_code,
-      const string16& error_description,
+      const base::string16& error_description,
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DidFinishLoad(
       int64 frame_id,

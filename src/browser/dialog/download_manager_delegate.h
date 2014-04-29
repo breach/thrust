@@ -20,6 +20,7 @@ class ExoBrowserDownloadManagerDelegate
       public base::RefCountedThreadSafe<ExoBrowserDownloadManagerDelegate> {
  public:
   ExoBrowserDownloadManagerDelegate();
+  virtual ~ExoBrowserDownloadManagerDelegate();
 
   void SetDownloadManager(content::DownloadManager* manager);
 
@@ -33,12 +34,15 @@ class ExoBrowserDownloadManagerDelegate
   virtual void GetNextId(const content::DownloadIdCallback& callback) OVERRIDE;
 
  private:
-  virtual ~ExoBrowserDownloadManagerDelegate();
+  typedef base::Callback<void(const base::FilePath&)>
+      FilenameDeterminedCallback;
 
-  void GenerateFilename(uint32 download_id,
-                        const content::DownloadTargetCallback& callback,
-                        const base::FilePath& generated_name,
-                        const base::FilePath& suggested_directory);
+  static void GenerateFilename(const GURL& url,
+                               const std::string& content_disposition,
+                               const std::string& suggested_filename,
+                               const std::string& mime_type,
+                               const base::FilePath& suggested_directory,
+                               const FilenameDeterminedCallback& callback);
   void OnDownloadPathGenerated(uint32 download_id,
                                const content::DownloadTargetCallback& callback,
                                const base::FilePath& suggested_path);

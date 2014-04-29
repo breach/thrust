@@ -16,7 +16,13 @@
 #include "ui/gfx/gtk_util.h"
 #endif
 
-#include "ui/views/controls/textfield/native_textfield_views.h"
+#if defined(TOOLKIT_VIEWS)
+#include "ui/views/controls/textfield/textfield.h"
+#endif
+
+#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
+#include "ui/views/linux_ui/linux_ui.h"
+#endif
 
 namespace renderer_preferences_util {
 

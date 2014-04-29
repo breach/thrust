@@ -116,14 +116,6 @@ ExoSession::~ExoSession()
   LOG(INFO) << "ExoSesion Destructor";
 }
 
-void
-ExoSession::ClearAllData()
-{
-  GetDefaultStoragePartition(this)->ClearDataForUnboundedRange(
-      StoragePartition::REMOVE_DATA_MASK_ALL,
-      StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL);
-}
-
 GURL
 ExoSession::GetDevToolsURL()
 {
@@ -140,6 +132,18 @@ bool
 ExoSession::IsOffTheRecord() const 
 {
   return off_the_record_;
+}
+
+
+content::DownloadManagerDelegate* 
+ExoSession::GetDownloadManagerDelegate()  
+{
+  if (!download_manager_delegate_.get()) {
+    DownloadManager* manager = BrowserContext::GetDownloadManager(this);
+    download_manager_delegate_ = new ExoBrowserDownloadManagerDelegate();
+    download_manager_delegate_->SetDownloadManager(manager);
+  }
+  return download_manager_delegate_.get();
 }
 
 
@@ -213,35 +217,42 @@ ExoSession::CreateRequestContextForStoragePartition(
 
 
 
-content::DownloadManagerDelegate* 
-ExoSession::GetDownloadManagerDelegate()  
-{
-  if (!download_manager_delegate_.get()) {
-    DownloadManager* manager = BrowserContext::GetDownloadManager(this);
-    download_manager_delegate_ = new ExoBrowserDownloadManagerDelegate();
-    download_manager_delegate_->SetDownloadManager(manager);
-  }
-  return download_manager_delegate_.get();
-}
-
 void 
-ExoSession::RequestMIDISysExPermission(
+ExoSession::RequestMidiSysExPermission(
     int render_process_id,
     int render_view_id,
     int bridge_id,
     const GURL& requesting_frame,
-    const MIDISysExPermissionCallback& callback) 
+    const MidiSysExPermissionCallback& callback) 
 {
   callback.Run(false);
 }
 
 
 void 
-ExoSession::CancelMIDISysExPermissionRequest(
+ExoSession::CancelMidiSysExPermissionRequest(
     int render_process_id,
     int render_view_id,
     int bridge_id,
     const GURL& requesting_frame)
+{
+}
+
+void 
+ExoSession::RequestProtectedMediaIdentifierPermission(
+    int render_process_id,
+    int render_view_id,
+    int bridge_id,
+    int group_id,
+    const GURL& requesting_frame,
+    const ProtectedMediaIdentifierPermissionCallback& callback) 
+{
+  callback.Run(true);
+}
+
+void 
+ExoSession::CancelProtectedMediaIdentifierPermissionRequests(
+    int group_id) 
 {
 }
 

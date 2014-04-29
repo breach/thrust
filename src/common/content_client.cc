@@ -29,7 +29,7 @@ ExoBrowserContentClient::GetUserAgent() const
   return webkit_glue::BuildUserAgentFromProduct(product);
 }
 
-string16 
+base::string16 
 ExoBrowserContentClient::GetLocalizedString(
     int message_id) const 
 {

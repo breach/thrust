@@ -17,7 +17,9 @@ class ApiBindings : public v8::Extension {
     virtual ~ApiBindings();
 
     virtual v8::Handle<v8::FunctionTemplate> 
-      GetNativeFunction(v8::Handle<v8::String> name) OVERRIDE;
+      GetNativeFunctionTemplate(
+          v8::Isolate *isolate,
+          v8::Handle<v8::String> name) OVERRIDE;
 
   private:
     // Exposes the ExoBrowser API

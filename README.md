@@ -1,15 +1,14 @@
 ExoBrowser
 ==========
 
-The ExoBrowser is a scriptable platform designed to ease the experimentation with new concepts for the Web Browser.
+The ExoBrowser is a scriptable platform designed to ease the experimentation 
+with new concepts for the Web Browser.
 
-The ExoBrowser exposes its API (parts of the Chromium Content API + a Simple View Model) in Javascript and enables the implementation of a fully functional browser entirely out of it (as a Javascript/HTML/CSS app)
+The ExoBrowser exposes its API (parts of the Chromium Content API + 
+a Simple View Model) in Javascript and enables the implementation of a fully 
+functional browser entirely out of it (as a Javascript/HTML/CSS app)
 
-See [ExoBrowser HomePage](http://breach.github.io/exo_browser)
-
-#### Downloads
-
-See [Downloads](http://breach.github.io/exo_browser/downloads/)
+The ExoBrowser is used by Breach.
 
 #### The ExoBrowser Architecture
 

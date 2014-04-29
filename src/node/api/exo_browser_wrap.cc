@@ -29,34 +29,39 @@ static Local<Object>
 ObjectFromNavigationEntry(
     const exo_browser::ExoBrowserWrap::NavigationEntry& entry)
 {
-  Local<Object> entry_o = Object::New();
+  Local<Object> entry_o = Object::New(Isolate::GetCurrent());
 
-  entry_o->Set(String::New("url"), 
-               String::New(entry.url_.c_str()));
-  entry_o->Set(String::New("virtual_url"), 
-               String::New(entry.virtual_url_.c_str()));
-  entry_o->Set(String::New("title"), 
-               String::New(entry.title_.c_str()));
-  entry_o->Set(String::New("visible"),
-               v8::Boolean::New(entry.visible_));
-  entry_o->Set(String::New("timestamp"),
-               Number::New(entry.timestamp_));
-  entry_o->Set(String::New("id"),
-               Number::New(entry.id_));
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "url"), 
+               String::NewFromUtf8(Isolate::GetCurrent(), 
+                                   entry.url_.c_str()));
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "virtual_url"), 
+               String::NewFromUtf8(Isolate::GetCurrent(), 
+                                   entry.virtual_url_.c_str()));
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "title"), 
+               String::NewFromUtf8(Isolate::GetCurrent(), 
+                                   entry.title_.c_str()));
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "visible"),
+               v8::Boolean::New(Isolate::GetCurrent(), entry.visible_));
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "timestamp"),
+               Number::New(Isolate::GetCurrent(), entry.timestamp_));
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "id"),
+               Number::New(Isolate::GetCurrent(), entry.id_));
 
-  entry_o->Set(String::New("type"),
-               String::New(entry.type_.c_str()));
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "type"),
+               String::NewFromUtf8(Isolate::GetCurrent(),  
+                                   entry.type_.c_str()));
 
-  Local<Object> ssl_o = Object::New();
+  Local<Object> ssl_o = Object::New(Isolate::GetCurrent());
 
-  ssl_o->Set(String::New("security_type"),
-             String::New(entry.ssl_security_type_.c_str()));
-  ssl_o->Set(String::New("cert_status"), 
-             Integer::New(entry.ssl_cert_status_));
-  ssl_o->Set(String::New("content_status"), 
-             Integer::New(entry.ssl_content_status_));
+  ssl_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "security_type"),
+             String::NewFromUtf8(Isolate::GetCurrent(), 
+                                 entry.ssl_security_type_.c_str()));
+  ssl_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "cert_status"), 
+             Integer::New(Isolate::GetCurrent(), entry.ssl_cert_status_));
+  ssl_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "content_status"), 
+             Integer::New(Isolate::GetCurrent(), entry.ssl_content_status_));
 
-  entry_o->Set(String::New("ssl"), ssl_o);
+  entry_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "ssl"), ssl_o);
 
   return entry_o;
 }
@@ -68,37 +73,48 @@ StringFromWindowOpenDisposition(
   Local<String> disposition_str;
   switch(disposition) {
     case SUPPRESS_OPEN:
-      disposition_str = String::New("suppress_open");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "suppress_open");
       break;
     case CURRENT_TAB:
-      disposition_str = String::New("current_tab");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "current_tab");
       break;
     case SINGLETON_TAB:
-      disposition_str = String::New("singelton_tab");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "singelton_tab");
       break;
     case NEW_FOREGROUND_TAB:
-      disposition_str = String::New("new_foreground_tab");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "new_foreground_tab");
       break;
     case NEW_BACKGROUND_TAB:
-      disposition_str = String::New("new_background_tab");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "new_background_tab");
       break;
     case NEW_POPUP:
-      disposition_str = String::New("new_popup");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "new_popup");
       break;
     case NEW_WINDOW:
-      disposition_str = String::New("new_window");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "new_window");
       break;
     case SAVE_TO_DISK:
-      disposition_str = String::New("save_to_disk");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "save_to_disk");
       break;
     case OFF_THE_RECORD:
-      disposition_str = String::New("off_the_record");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "off_the_record");
       break;
     case IGNORE_ACTION:
-      disposition_str = String::New("ignore_action");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "ignore_action");
       break;
     default:
-      disposition_str = String::New("unknown");
+      disposition_str = 
+        String::NewFromUtf8(Isolate::GetCurrent(), "unknown");
   }
   return disposition_str;
 }
@@ -123,60 +139,92 @@ void
 ExoBrowserWrap::Init(
     Handle<Object> exports) 
 {
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("_ExoBrowser"));
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(Isolate::GetCurrent(), 
+                                                      New);
+  tpl->SetClassName(String::NewFromUtf8(Isolate::GetCurrent(), "_ExoBrowser"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   /* Prototype */
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_kill"),
-      FunctionTemplate::New(Kill)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_kill"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Kill)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_size"),
-      FunctionTemplate::New(Size)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_position"),
-      FunctionTemplate::New(Position)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
-      FunctionTemplate::New(Focus)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_maximize"),
-      FunctionTemplate::New(Maximize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setTitle"),
-      FunctionTemplate::New(SetTitle)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_size"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Size)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_position"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Position)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_focus"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Focus)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_maximize"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Maximize)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setTitle"),
+      FunctionTemplate::New(Isolate::GetCurrent(), SetTitle)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_addPage"),
-      FunctionTemplate::New(AddPage)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_removePage"),
-      FunctionTemplate::New(RemovePage)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_showPage"),
-      FunctionTemplate::New(ShowPage)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_addPage"),
+      FunctionTemplate::New(Isolate::GetCurrent(), AddPage)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_removePage"),
+      FunctionTemplate::New(Isolate::GetCurrent(), RemovePage)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_showPage"),
+      FunctionTemplate::New(Isolate::GetCurrent(), ShowPage)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setControl"),
-      FunctionTemplate::New(SetControl)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setControlDimension"),
-      FunctionTemplate::New(SetControlDimension)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_unsetControl"),
-      FunctionTemplate::New(UnsetControl)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setControl"),
+      FunctionTemplate::New(Isolate::GetCurrent(), SetControl)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setControlDimension"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetControlDimension)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_unsetControl"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            UnsetControl)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setOpenURLCallback"),
-      FunctionTemplate::New(SetOpenURLCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setResizeCallback"),
-      FunctionTemplate::New(SetResizeCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setKillCallback"),
-      FunctionTemplate::New(SetKillCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameCloseCallback"),
-      FunctionTemplate::New(SetFrameCloseCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameCreatedCallback"),
-      FunctionTemplate::New(SetFrameCreatedCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFrameKeyboardCallback"),
-      FunctionTemplate::New(SetFrameKeyboardCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setNavigationStateCallback"),
-      FunctionTemplate::New(SetNavigationStateCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFindReplyCallback"),
-      FunctionTemplate::New(SetFindReplyCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setOpenURLCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetOpenURLCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setResizeCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetResizeCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setKillCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetKillCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setFrameCloseCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetFrameCloseCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setFrameCreatedCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetFrameCreatedCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setFrameKeyboardCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetFrameKeyboardCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setNavigationStateCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetNavigationStateCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setFindReplyCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetFindReplyCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
-  exports->Set(String::NewSymbol("_createExoBrowser"),
-      FunctionTemplate::New(CreateExoBrowser)->GetFunction());
+  exports->Set(String::NewFromUtf8(Isolate::GetCurrent(), "_createExoBrowser"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            CreateExoBrowser)->GetFunction());
 }
 
 
@@ -197,7 +245,7 @@ void
 ExoBrowserWrap::New(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   ExoBrowserWrap* browser_w = new ExoBrowserWrap();
   browser_w->Wrap(args.This());
@@ -209,7 +257,7 @@ void
 ExoBrowserWrap::CreateExoBrowser(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   DCHECK(Isolate::GetCurrent() == args.GetIsolate());
 
   Local<Function> c = 
@@ -224,11 +272,15 @@ ExoBrowserWrap::CreateExoBrowser(
 
   /* args[0]: spec = { size, icon_path } */
   Local<Object> spec = Local<Object>::Cast(args[0]);
-  Local<Array> in = Local<Array>::Cast(spec->Get(String::New("size")));
-  gfx::Size size(in->Get(Integer::New(0))->ToNumber()->Value(),
-                 in->Get(Integer::New(1))->ToNumber()->Value());
+  Local<Array> in = Local<Array>::Cast(
+      spec->Get(String::NewFromUtf8(Isolate::GetCurrent(), "size")));
+  gfx::Size size(in->Get(
+        Integer::New(Isolate::GetCurrent(), 0))->ToNumber()->Value(),
+                 in->Get(
+                   Integer::New(Isolate::GetCurrent(), 1))->ToNumber()->Value());
   std::string icon_path = std::string(*String::Utf8Value(
-        Local<String>::Cast(spec->Get(String::New("icon_path")))));
+        Local<String>::Cast(spec->Get(
+            String::NewFromUtf8(Isolate::GetCurrent(), "icon_path")))));
 
   /* args[1]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[1]);
@@ -261,7 +313,7 @@ ExoBrowserWrap::CreateCallback(
     Persistent<Object>* browser_p,
     Persistent<Function>* cb_p)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   Local<Function> cb = Local<Function>::New(Isolate::GetCurrent(), *cb_p);
   Local<Object> browser_o = Local<Object>::New(Isolate::GetCurrent(),
@@ -271,9 +323,9 @@ ExoBrowserWrap::CreateCallback(
   Local<v8::Value> argv[1] = { browser_o };
   cb->Call(browser_o, 1, argv);
 
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
-  browser_p->Dispose();
+  browser_p->Reset();
   delete browser_p;
 }
 
@@ -298,7 +350,7 @@ void
 ExoBrowserWrap::Kill(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -329,7 +381,7 @@ void
 ExoBrowserWrap::Size(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -363,7 +415,7 @@ void
 ExoBrowserWrap::Position(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -396,7 +448,7 @@ void
 ExoBrowserWrap::Focus(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -426,7 +478,7 @@ void
 ExoBrowserWrap::Maximize(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -457,7 +509,7 @@ void
 ExoBrowserWrap::SetTitle(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: title */
   std::string title = std::string(
@@ -493,7 +545,7 @@ void
 ExoBrowserWrap::SetControl(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: type */
   ExoBrowser::CONTROL_TYPE type = 
@@ -537,7 +589,7 @@ void
 ExoBrowserWrap::UnsetControl(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: type */
   ExoBrowser::CONTROL_TYPE type = 
@@ -573,7 +625,7 @@ void
 ExoBrowserWrap::SetControlDimension(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: type */
   ExoBrowser::CONTROL_TYPE type = 
@@ -615,7 +667,7 @@ void
 ExoBrowserWrap::AddPage(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: frame */
   Local<Object> frame_o = Local<Object>::Cast(args[0]);
@@ -655,7 +707,7 @@ void
 ExoBrowserWrap::RemovePage(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: name */
   std::string name = std::string(
@@ -693,7 +745,7 @@ void
 ExoBrowserWrap::ShowPage(
         const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: name */
   std::string name = std::string(
@@ -732,7 +784,7 @@ void
 ExoBrowserWrap::SetOpenURLCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -747,7 +799,7 @@ ExoBrowserWrap::DispatchOpenURL(
     const WindowOpenDisposition disposition,
     const std::string& from_frame)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
@@ -756,10 +808,12 @@ ExoBrowserWrap::DispatchOpenURL(
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), open_url_cb_);
 
-    Local<String> url_arg = String::New(url.c_str());
+    Local<String> url_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                url.c_str());
     Local<String> disposition_arg = 
       StringFromWindowOpenDisposition(disposition);
-    Local<String> from_frame_arg = String::New(from_frame.c_str());
+    Local<String> from_frame_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                       from_frame.c_str());
 
     Local<Value> argv[3] = { url_arg,
                              disposition_arg,
@@ -773,7 +827,7 @@ void
 ExoBrowserWrap::SetResizeCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -786,7 +840,7 @@ void
 ExoBrowserWrap::DispatchResize(
     const gfx::Size& size)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
@@ -795,9 +849,9 @@ ExoBrowserWrap::DispatchResize(
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), resize_cb_);
 
-    Local<Array> size_arg = Array::New();
-    size_arg->Set(0, Integer::New(size.width()));
-    size_arg->Set(1, Integer::New(size.height()));
+    Local<Array> size_arg = Array::New(Isolate::GetCurrent());
+    size_arg->Set(0, Integer::New(Isolate::GetCurrent(), size.width()));
+    size_arg->Set(1, Integer::New(Isolate::GetCurrent(), size.height()));
     Local<Value> argv[1] = { size_arg };
 
     cb->Call(browser_o, 1, argv);
@@ -809,7 +863,7 @@ void
 ExoBrowserWrap::SetKillCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -821,7 +875,7 @@ ExoBrowserWrap::SetKillCallback(
 void
 ExoBrowserWrap::DispatchKill()
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
@@ -843,7 +897,7 @@ void
 ExoBrowserWrap::SetFrameCloseCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -856,7 +910,7 @@ void
 ExoBrowserWrap::DispatchFrameClose(
     const std::string& frame)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
@@ -865,7 +919,8 @@ ExoBrowserWrap::DispatchFrameClose(
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), frame_close_cb_);
 
-    Local<String> frame_arg = String::New(frame.c_str());
+    Local<String> frame_arg = String::NewFromUtf8(Isolate::GetCurrent(),  
+                                                  frame.c_str());
 
     Local<Value> argv[1] = { frame_arg };
     cb->Call(browser_o, 1, argv);
@@ -877,7 +932,7 @@ void
 ExoBrowserWrap::SetFrameCreatedCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -893,7 +948,7 @@ ExoBrowserWrap::DispatchFrameCreated(
     const gfx::Rect& initial_pos,
     ExoFrame* new_frame)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   if(!frame_created_cb_.IsEmpty()) {
 
@@ -943,7 +998,7 @@ ExoBrowserWrap::FrameCreatedFinish(
     const gfx::Rect& initial_pos,
     Persistent<Object>* frame_p)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
@@ -955,14 +1010,19 @@ ExoBrowserWrap::FrameCreatedFinish(
   Local<Function> cb = 
     Local<Function>::New(Isolate::GetCurrent(), frame_created_cb_);
 
-  Local<String> from_arg = String::New(src_frame.c_str());
+  Local<String> from_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                               src_frame.c_str());
   Local<String> disposition_arg = StringFromWindowOpenDisposition(disposition);
 
-  Local<Array> initial_pos_arg = Array::New();
-  initial_pos_arg->Set(0, Integer::New(initial_pos.x()));
-  initial_pos_arg->Set(1, Integer::New(initial_pos.y()));
-  initial_pos_arg->Set(2, Integer::New(initial_pos.width()));
-  initial_pos_arg->Set(3, Integer::New(initial_pos.height()));
+  Local<Array> initial_pos_arg = Array::New(Isolate::GetCurrent());
+  initial_pos_arg->Set(0, Integer::New(Isolate::GetCurrent(), 
+                                       initial_pos.x()));
+  initial_pos_arg->Set(1, Integer::New(Isolate::GetCurrent(), 
+                                       initial_pos.y()));
+  initial_pos_arg->Set(2, Integer::New(Isolate::GetCurrent(), 
+                                       initial_pos.width()));
+  initial_pos_arg->Set(3, Integer::New(Isolate::GetCurrent(), 
+                                       initial_pos.height()));
 
   Local<Value> argv[4] = { frame_o,
                            disposition_arg,
@@ -970,7 +1030,7 @@ ExoBrowserWrap::FrameCreatedFinish(
                            from_arg };
   cb->Call(browser_o, 4, argv);
 
-  frame_p->Dispose();
+  frame_p->Reset();
   delete frame_p;
 }
 
@@ -978,7 +1038,7 @@ void
 ExoBrowserWrap::SetFrameKeyboardCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -992,7 +1052,7 @@ ExoBrowserWrap::DispatchFrameKeyboard(
     const std::string& frame,
     const content::NativeWebKeyboardEvent& event)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
@@ -1001,12 +1061,16 @@ ExoBrowserWrap::DispatchFrameKeyboard(
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), frame_keyboard_cb_);
 
-    Local<String> frame_arg = String::New(frame.c_str());
+    Local<String> frame_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                  frame.c_str());
 
-    Local<Object> event_arg = Object::New();
-    event_arg->Set(String::New("type"), Integer::New(event.type));
-    event_arg->Set(String::New("modifiers"), Integer::New(event.modifiers));
-    event_arg->Set(String::New("keycode"), Integer::New(event.windowsKeyCode));
+    Local<Object> event_arg = Object::New(Isolate::GetCurrent());
+    event_arg->Set(String::NewFromUtf8(Isolate::GetCurrent(), "type"), 
+                   Integer::New(Isolate::GetCurrent(), event.type));
+    event_arg->Set(String::NewFromUtf8(Isolate::GetCurrent(), "modifiers"), 
+                   Integer::New(Isolate::GetCurrent(), event.modifiers));
+    event_arg->Set(String::NewFromUtf8(Isolate::GetCurrent(), "keycode"), 
+                   Integer::New(Isolate::GetCurrent(), event.windowsKeyCode));
 
     Local<Value> argv[2] = { frame_arg,
                              event_arg };
@@ -1018,7 +1082,7 @@ void
 ExoBrowserWrap::SetNavigationStateCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -1034,26 +1098,28 @@ ExoBrowserWrap::DispatchNavigationState(
     bool can_go_back,
     bool can_go_forward)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
 
   if(!navigation_state_cb_.IsEmpty()) {
-    Local<Object> state_arg = Object::New();
+    Local<Object> state_arg = Object::New(Isolate::GetCurrent());
     
-    Local<Array> entries_a = Array::New();
+    Local<Array> entries_a = Array::New(Isolate::GetCurrent());
     for(unsigned int i = 0; i < entries.size(); i++) {
-      entries_a->Set(Integer::New(i), 
+      entries_a->Set(Integer::New(Isolate::GetCurrent(), i), 
                      ObjectFromNavigationEntry(entries[i]));
     }
-    state_arg->Set(String::New("entries"), entries_a);
-    state_arg->Set(String::New("can_go_back"),
-                   v8::Boolean::New(can_go_back));
-    state_arg->Set(String::New("can_go_forward"),
-                   v8::Boolean::New(can_go_forward));
+    state_arg->Set(String::NewFromUtf8(Isolate::GetCurrent(), "entries"), 
+                   entries_a);
+    state_arg->Set(String::NewFromUtf8(Isolate::GetCurrent(), "can_go_back"),
+                   v8::Boolean::New(Isolate::GetCurrent(), can_go_back));
+    state_arg->Set(String::NewFromUtf8(Isolate::GetCurrent(), "can_go_forward"),
+                   v8::Boolean::New(Isolate::GetCurrent(), can_go_forward));
 
-    Local<String> frame_arg = String::New(frame.c_str());
+    Local<String> frame_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                  frame.c_str());
 
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), navigation_state_cb_);
@@ -1069,7 +1135,7 @@ void
 ExoBrowserWrap::SetFindReplyCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   /* args[0]: cb_ */
   Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -1087,24 +1153,33 @@ ExoBrowserWrap::DispatchFindReply(
     int active_match_ordinal,
     bool final_update)
 {
-  HandleScope handle_scope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
   Local<Object> browser_o = 
     Local<Object>::New(Isolate::GetCurrent(), 
                        this->persistent());
 
   if(!find_reply_cb_.IsEmpty()) {
-    Local<String> frame_arg = String::New(src_frame.c_str());
-    Local<Integer> request_id_arg = Integer::New(request_id);
-    Local<Integer> number_of_matches_arg = Integer::New(number_of_matches);
+    Local<String> frame_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                  src_frame.c_str());
+    Local<Integer> request_id_arg = Integer::New(Isolate::GetCurrent(), 
+                                                 request_id);
+    Local<Integer> number_of_matches_arg = Integer::New(Isolate::GetCurrent(), 
+                                                        number_of_matches);
 
-    Local<Array> selection_rect_arg = Array::New();
-    selection_rect_arg->Set(0, Integer::New(selection_rect.x()));
-    selection_rect_arg->Set(1, Integer::New(selection_rect.y()));
-    selection_rect_arg->Set(2, Integer::New(selection_rect.width()));
-    selection_rect_arg->Set(3, Integer::New(selection_rect.height()));
+    Local<Array> selection_rect_arg = Array::New(Isolate::GetCurrent());
+    selection_rect_arg->Set(0, Integer::New(Isolate::GetCurrent(), 
+                                            selection_rect.x()));
+    selection_rect_arg->Set(1, Integer::New(Isolate::GetCurrent(), 
+                                            selection_rect.y()));
+    selection_rect_arg->Set(2, Integer::New(Isolate::GetCurrent(), 
+                                            selection_rect.width()));
+    selection_rect_arg->Set(3, Integer::New(Isolate::GetCurrent(), 
+                                            selection_rect.height()));
 
-    Local<Integer> active_match_arg = Integer::New(active_match_ordinal);
-    Local<v8::Boolean> final_update_arg = v8::Boolean::New(final_update);
+    Local<Integer> active_match_arg = Integer::New(Isolate::GetCurrent(), 
+                                                   active_match_ordinal);
+    Local<v8::Boolean> final_update_arg = 
+      v8::Boolean::New(Isolate::GetCurrent(), final_update);
 
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), find_reply_cb_);

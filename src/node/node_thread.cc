@@ -5,6 +5,7 @@
 
 #include "content/public/browser/browser_thread.h"
 #include "third_party/node/src/node.h"
+#include "third_party/node/src/force_modules.h"
 #include "base/file_util.h"
 #include "base/command_line.h"
 #include "base/time/time.h"
@@ -179,7 +180,7 @@ NodeThread::Run(
   const char** exec_argv;
   node::Init(&argc, const_cast<const char**>(argv), &exec_argc, &exec_argv);
 
-  node::SetupIsolate();
+  //node::SetupIsolate();
   Isolate* node_isolate = Isolate::GetCurrent();
 
   V8::Initialize();
@@ -196,15 +197,16 @@ NodeThread::Run(
                                 argc, argv, 
                                 exec_argc, exec_argv,
                                 &extensions);
+    {
+      Context::Scope context_scope(EnvironmentContext(env));
 
-    Context::Scope context_scope(EnvironmentContext(env));
-    HandleScope handle_scope(EnvironmentIsolate(env));
+      Thread::Run(message_loop);
 
-    Thread::Run(message_loop);
-
-    node::EmitExit(env);
-    node::RunAtExit(env);
-    env = NULL;
+      node::EmitExit(env);
+      node::RunAtExit(env);
+      EnvironmentDispose(env);
+      env = NULL;
+    }
   }
 
   /* Cleanup */

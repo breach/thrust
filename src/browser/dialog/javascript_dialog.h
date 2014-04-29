@@ -29,8 +29,8 @@ class JavaScriptDialog {
       ExoBrowserJavaScriptDialogManager* manager,
       gfx::NativeWindow parent_window,
       content::JavaScriptMessageType message_type,
-      const string16& message_text,
-      const string16& default_prompt_text,
+      const base::string16& message_text,
+      const base::string16& default_prompt_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback);
   ~JavaScriptDialog();
 
@@ -46,8 +46,8 @@ class JavaScriptDialog {
 #elif defined(OS_WIN)
   content::JavaScriptMessageType message_type_;
   HWND dialog_win_;
-  string16 message_text_;
-  string16 default_prompt_text_;
+  base::string16 message_text_;
+  base::string16 default_prompt_text_;
   static INT_PTR CALLBACK DialogProc(HWND dialog, UINT message, WPARAM wparam,
                                      LPARAM lparam);
 #elif defined(TOOLKIT_GTK)

@@ -107,11 +107,10 @@ ExoBrowserMainDelegate::BasicStartupComplete(
   // WebKitTestPlatformInitialize() are called.
   OverrideFrameworkBundlePath();
   OverrideChildProcessPath();
+  EnsureCorrectResolutionSettings();
 #endif  // OS_MACOSX
 
   InitLogging();
-  /* TODO(spolu): TO REMOVE? */
-  net::CookieMonster::EnableFileScheme();
 
   SetContentClient(&content_client_);
   return false;

@@ -21,7 +21,7 @@
 
 using namespace content;
 
-using WebKit::WebContextMenuData;
+using blink::WebContextMenuData;
 
 namespace exo_browser {
 
@@ -46,6 +46,7 @@ ExoBrowserWebContentsViewDelegate::~ExoBrowserWebContentsViewDelegate()
 
 void 
 ExoBrowserWebContentsViewDelegate::ShowContextMenu(
+    RenderFrameHost* render_frame_host,
     const ContextMenuParams& params) 
 {
   base::Callback<void(const std::vector<std::string>&, 

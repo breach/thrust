@@ -101,7 +101,7 @@ ExoBrowserNetworkDelegate::OnURLRequestDestroyed(
 void 
 ExoBrowserNetworkDelegate::OnPACScriptError(
     int line_number,
-    const string16& error) 
+    const base::string16& error) 
 {
 }
 
@@ -165,13 +165,6 @@ ExoBrowserNetworkDelegate::OnBeforeSocketStreamConnect(
     const net::CompletionCallback& callback) 
 {
   return net::OK;
-}
-
-void 
-ExoBrowserNetworkDelegate::OnRequestWaitStateChange(
-    const net::URLRequest& request,
-    RequestWaitState waiting) 
-{
 }
 
 } // namespace exo_browser

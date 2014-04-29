@@ -28,45 +28,58 @@ static Local<Object>
 ObjectFromContextMenuParams(
     const content::ContextMenuParams params)
 {
-  Local<Object> params_o = Object::New();
+  Local<Object> params_o = Object::New(Isolate::GetCurrent());
 
-  params_o->Set(String::New("x"), Number::New(params.x));
-  params_o->Set(String::New("y"), Number::New(params.y));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "x"), 
+                Number::New(Isolate::GetCurrent(), params.x));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "y"), 
+                Number::New(Isolate::GetCurrent(), params.y));
 
-  params_o->Set(String::New("link_url"),
-                String::New(params.link_url.spec().c_str()));
-  params_o->Set(String::New("raw_link_url"),
-                String::New(params.unfiltered_link_url.spec().c_str()));
-  params_o->Set(String::New("src_url"),
-                String::New(params.src_url.spec().c_str()));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "link_url"),
+                String::NewFromUtf8(Isolate::GetCurrent(), 
+                                    params.link_url.spec().c_str()));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "raw_link_url"),
+                String::NewFromUtf8(Isolate::GetCurrent(), 
+                                    params.unfiltered_link_url.spec().c_str()));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "src_url"),
+                String::NewFromUtf8(Isolate::GetCurrent(), 
+                                    params.src_url.spec().c_str()));
 
-  params_o->Set(String::New("page_url"),
-                String::New(params.page_url.spec().c_str()));
-  params_o->Set(String::New("frame_url"),
-                String::New(params.frame_url.spec().c_str()));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "page_url"),
+                String::NewFromUtf8(Isolate::GetCurrent(), 
+                                    params.page_url.spec().c_str()));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "frame_url"),
+                String::NewFromUtf8(Isolate::GetCurrent(), 
+                                    params.frame_url.spec().c_str()));
 
-  params_o->Set(String::New("is_editable"),
-                v8::Boolean::New(params.is_editable));
+  params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "is_editable"),
+                v8::Boolean::New(Isolate::GetCurrent(), params.is_editable));
 
   switch(params.media_type) {
-    case WebKit::WebContextMenuData::MediaTypeImage:
-      params_o->Set(String::New("media_type"), String::New("image"));
+    case blink::WebContextMenuData::MediaTypeImage:
+      params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "media_type"), 
+                    String::NewFromUtf8(Isolate::GetCurrent(), "image"));
       break;
-    case WebKit::WebContextMenuData::MediaTypeVideo:
-      params_o->Set(String::New("media_type"), String::New("video"));
+    case blink::WebContextMenuData::MediaTypeVideo:
+      params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "media_type"), 
+                    String::NewFromUtf8(Isolate::GetCurrent(), "video"));
       break;
-    case WebKit::WebContextMenuData::MediaTypeAudio:
-      params_o->Set(String::New("media_type"), String::New("audio"));
+    case blink::WebContextMenuData::MediaTypeAudio:
+      params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "media_type"), 
+                    String::NewFromUtf8(Isolate::GetCurrent(), "audio"));
       break;
-    case WebKit::WebContextMenuData::MediaTypeFile:
-      params_o->Set(String::New("media_type"), String::New("file"));
+    case blink::WebContextMenuData::MediaTypeFile:
+      params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "media_type"), 
+                    String::NewFromUtf8(Isolate::GetCurrent(), "file"));
       break;
-    case WebKit::WebContextMenuData::MediaTypePlugin:
-      params_o->Set(String::New("media_type"), String::New("plugin"));
+    case blink::WebContextMenuData::MediaTypePlugin:
+      params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "media_type"), 
+                    String::NewFromUtf8(Isolate::GetCurrent(), "plugin"));
       break;
     default:
-    case WebKit::WebContextMenuData::MediaTypeNone:
-      params_o->Set(String::New("media_type"), String::New("none"));
+    case blink::WebContextMenuData::MediaTypeNone:
+      params_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "media_type"), 
+                    String::NewFromUtf8(Isolate::GetCurrent(), "none"));
       break;
   }
 
@@ -83,81 +96,120 @@ void
 ExoFrameWrap::Init(
     Handle<Object> exports) 
 {
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("_ExoFrame"));
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(Isolate::GetCurrent(), 
+                                                      New);
+  tpl->SetClassName(String::NewFromUtf8(Isolate::GetCurrent(), "_ExoFrame"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   /* Prototype */
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_loadURL"),
-      FunctionTemplate::New(LoadURL)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_goBackOrForward"),
-      FunctionTemplate::New(GoBackOrForward)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_reload"),
-      FunctionTemplate::New(Reload)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_stop"),
-      FunctionTemplate::New(Stop)->GetFunction());
-
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_undo"),
-      FunctionTemplate::New(Undo)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_redo"),
-      FunctionTemplate::New(Redo)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_cutSelection"),
-      FunctionTemplate::New(CutSelection)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_copySelection"),
-      FunctionTemplate::New(CopySelection)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_paste"),
-      FunctionTemplate::New(Paste)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_deleteSelection"),
-      FunctionTemplate::New(DeleteSelection)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_selectAll"),
-      FunctionTemplate::New(SelectAll)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_unselect"),
-      FunctionTemplate::New(Unselect)->GetFunction());
-
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_focus"),
-      FunctionTemplate::New(Focus)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_find"),
-      FunctionTemplate::New(Find)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_stopFinding"),
-      FunctionTemplate::New(StopFinding)->GetFunction());
-
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_capture"),
-      FunctionTemplate::New(Capture)->GetFunction());
-
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_getDevToolsId"),
-      FunctionTemplate::New(GetDevToolsId)->GetFunction());
-
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_zoom"),
-      FunctionTemplate::New(Zoom)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_zoomLevel"),
-      FunctionTemplate::New(ZoomLevel)->GetFunction());
-
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_name"),
-      FunctionTemplate::New(Name)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_type"),
-      FunctionTemplate::New(Type)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_loadURL"),
+      FunctionTemplate::New(Isolate::GetCurrent(), LoadURL)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_goBackOrForward"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            GoBackOrForward)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_reload"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Reload)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_stop"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Stop)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(
-      String::NewSymbol("_setBuildContextMenuHandler"),
-      FunctionTemplate::New(SetBuildContextMenuHandler)->GetFunction());
+      String::NewFromUtf8(Isolate::GetCurrent(), "_undo"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Undo)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_redo"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Redo)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_cutSelection"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            CutSelection)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_copySelection"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            CopySelection)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_paste"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Paste)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_deleteSelection"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            DeleteSelection)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_selectAll"),
+      FunctionTemplate::New(Isolate::GetCurrent(), SelectAll)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_unselect"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Unselect)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadFailCallback"),
-      FunctionTemplate::New(SetLoadFailCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadFinishCallback"),
-      FunctionTemplate::New(SetLoadFinishCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_focus"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Focus)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_find"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Find)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_stopFinding"),
+      FunctionTemplate::New(Isolate::GetCurrent(), StopFinding)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadingStartCallback"),
-      FunctionTemplate::New(SetLoadingStartCallback)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setLoadingStopCallback"),
-      FunctionTemplate::New(SetLoadingStopCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_capture"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Capture)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("_setFaviconUpdateCallback"),
-      FunctionTemplate::New(SetFaviconUpdateCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_getDevToolsId"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            GetDevToolsId)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_zoom"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Zoom)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_zoomLevel"),
+      FunctionTemplate::New(Isolate::GetCurrent(), ZoomLevel)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_name"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Name)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_type"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Type)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setBuildContextMenuHandler"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetBuildContextMenuHandler)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setLoadFailCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetLoadFailCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setLoadFinishCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetLoadFinishCallback)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setLoadingStartCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetLoadingStartCallback)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setLoadingStopCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetLoadingStopCallback)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_setFaviconUpdateCallback"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            SetFaviconUpdateCallback)->GetFunction());
 
   s_constructor.Reset(Isolate::GetCurrent(), tpl->GetFunction());
 
-  exports->Set(String::NewSymbol("_createExoFrame"),
-      FunctionTemplate::New(CreateExoFrame)->GetFunction());
+  exports->Set(String::NewFromUtf8(Isolate::GetCurrent(), "_createExoFrame"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            CreateExoFrame)->GetFunction());
 }
 
 ExoFrameWrap::ExoFrameWrap()
@@ -205,11 +257,14 @@ ExoFrameWrap::CreateExoFrame(
   /* args[0]: spec = { name, url, session } */
   Local<Object> spec = Local<Object>::Cast(args[0]);
   std::string name = std::string(
-      *String::Utf8Value(spec->Get(String::New("name"))->ToString()));
+      *String::Utf8Value(spec->Get(
+          String::NewFromUtf8(Isolate::GetCurrent(), "name"))->ToString()));
   std::string url = std::string(
-      *String::Utf8Value(spec->Get(String::New("url"))->ToString()));
+      *String::Utf8Value(spec->Get(
+          String::NewFromUtf8(Isolate::GetCurrent(), "url"))->ToString()));
   Local<Object> session_o = 
-    Local<Object>::Cast(spec->Get(String::New("session")));
+    Local<Object>::Cast(spec->Get(
+          String::NewFromUtf8(Isolate::GetCurrent(), "session")));
   ExoSessionWrap* session_w = ObjectWrap::Unwrap<ExoSessionWrap>(session_o);
   /* We keep the ExoSessionWrap as is and suppose here that the object won't */
   /* be reclaimed for the time of the ExoFrame construction. The API wrapper */
@@ -260,9 +315,9 @@ ExoFrameWrap::CreateCallback(
   Local<v8::Value> argv[1] = { frame_o };
   cb->Call(frame_o, 1, argv);
 
-  cb_p->Dispose();
+  cb_p->Reset();
   delete cb_p;
-  frame_p->Dispose();
+  frame_p->Reset();
   delete frame_p;
 }
 
@@ -731,12 +786,12 @@ ExoFrameWrap::FindTask(
     bool forward, bool matchCase, bool findNext,
     Persistent<Function>* cb_p)
 {
-  WebKit::WebFindOptions options;
+  blink::WebFindOptions options;
   options.forward = forward;
   options.matchCase = matchCase;
   options.findNext = findNext;
 
-  string16 text = UTF8ToUTF16(search_text);
+  base::string16 text = base::UTF8ToUTF16(search_text);
 
   if(frame_ != NULL)
     frame_->Find(request_id, text, options);
@@ -1046,7 +1101,8 @@ void ExoFrameWrap::BuildContextMenuCallback(
   Local<Array> items = Local<Array>::Cast(args[0]);
   for(unsigned int i = 0; i < items->Length(); i ++) {
     std::string item = std::string(
-        *String::Utf8Value(Local<String>::Cast(items->Get(Integer::New(i)))));
+        *String::Utf8Value(Local<String>::Cast(
+            items->Get(Integer::New(Isolate::GetCurrent(), i)))));
     menu.push_back(item);
   }
 
@@ -1078,7 +1134,7 @@ void ExoFrameWrap::CallBuildContextMenu(
 
     build_context_menu_callback_ = cb;
     Local<FunctionTemplate> tpl = 
-      FunctionTemplate::New(BuildContextMenuCallback);
+      FunctionTemplate::New(Isolate::GetCurrent(), BuildContextMenuCallback);
 
     Local<Object> params_arg = ObjectFromContextMenuParams(params);
     Local<Function> cb_arg = tpl->GetFunction();
@@ -1101,7 +1157,7 @@ void ExoFrameWrap::CallTriggerContextMenuItem(
     Local<Function> trigger = 
       Local<Function>::New(Isolate::GetCurrent(), build_context_menu_trigger_);
 
-    Local<Integer> index_arg = Integer::New(index);
+    Local<Integer> index_arg = Integer::New(Isolate::GetCurrent(), index);
 
     Local<v8::Value> argv[1] = { index_arg };
     trigger->Call(frame_o, 1, argv);
@@ -1140,9 +1196,12 @@ ExoFrameWrap::DispatchLoadFail(
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), load_fail_cb_);
 
-    Local<String> url_arg = String::New(url.c_str());
-    Local<Integer> error_code_arg = Integer::New(error_code);
-    Local<String> error_desc_arg = String::New(error_desc.c_str());
+    Local<String> url_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                url.c_str());
+    Local<Integer> error_code_arg = Integer::New(Isolate::GetCurrent(), 
+                                                 error_code);
+    Local<String> error_desc_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                       error_desc.c_str());
 
     Local<v8::Value> argv[3] = { url_arg,
                              error_code_arg,
@@ -1177,7 +1236,8 @@ ExoFrameWrap::DispatchLoadFinish(
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), load_finish_cb_);
 
-    Local<String> url_arg = String::New(url.c_str());
+    Local<String> url_arg = String::NewFromUtf8(Isolate::GetCurrent(), 
+                                                url.c_str());
 
     Local<v8::Value> argv[1] = { url_arg };
     cb->Call(frame_o, 1, argv);
@@ -1269,14 +1329,16 @@ ExoFrameWrap::DispatchFaviconUpdate(
     Local<Function> cb = 
       Local<Function>::New(Isolate::GetCurrent(), favicon_update_cb_);
 
-    Local<Array> favicons_arg = Array::New();
+    Local<Array> favicons_arg = Array::New(Isolate::GetCurrent());
     for(unsigned int i = 0; i < candidates.size(); i ++) {
       if(candidates[i].icon_type == content::FaviconURL::INVALID_ICON) {
-        favicons_arg->Set(Integer::New(i), Null());
+        favicons_arg->Set(Integer::New(Isolate::GetCurrent(), i), 
+                          Null(Isolate::GetCurrent()));
       }
       else {
-        favicons_arg->Set(Integer::New(i), 
-            String::New(candidates[i].icon_url.spec().c_str()));
+        favicons_arg->Set(Integer::New(Isolate::GetCurrent(), i), 
+            String::NewFromUtf8(Isolate::GetCurrent(), 
+                                candidates[i].icon_url.spec().c_str()));
       }
     };
 
