@@ -154,6 +154,35 @@ ExoBrowser::SetControlDimension(
   PlatformSetControlDimension(type, size);
 }
 
+void
+ExoBrowser::ShowFloating(
+    ExoFrame* frame,
+    int x, 
+    int y,
+    int width, 
+    int height)
+{
+  if(floating_ != NULL) {
+    HideFloating();
+  }
+  floating_ = frame;
+  floating_->SetType(ExoFrame::FLOATING_FRAME);
+  floating_->SetParent(this);
+  PlatformShowFloating(floating_, x, y, width, height);
+  floating_->web_contents_->WasShown();
+}
+
+void 
+ExoBrowser::HideFloating()
+{
+  if(floating_ != NULL) {
+    floating_->SetType(ExoFrame::NOTYPE_FRAME);
+    floating_->SetParent(NULL);
+    PlatformHideFloating();
+    floating_->web_contents_->WasHidden();
+  }
+  floating_ = NULL;
+}
 
 
 void

@@ -7,7 +7,7 @@ so that the nodeJS thread do not block on possible lenghty UI operations.
 Native objects live on the BrowserThread::UI thread but are aware of their
 JS counterparts Wrappers.
 
-#### API v0.4-alpha:
+#### API v0.6-alpha:
 
 ```
 var s = api.exo_session({
@@ -63,6 +63,9 @@ exo_browser.pages();
 exo_browser.set_control(type, frame, [cb_]);
 exo_browser.unset_control(type, [cb_]);
 exo_browser.set_control_dimension(type, size, [cb_]);
+
+exo_browser.show_floating(frame, x, y, width, height, [cb_]);
+exo_browser.hide_floating([cb_]);
 
 exo_browser.add_page(frame, [cb_]);
 exo_browser.remove_page(frame, [cb_]);
@@ -123,7 +126,7 @@ exo_frame.unselect([cb_]);
 ```
 
 
-#### Internal API v0.4-alpha:
+#### Internal API v0.6-alpha:
 
 ```
 /*********************************************************************/
@@ -217,6 +220,11 @@ f._setLoadingStopCallback(cb_);
 b._setControl(type, frame, cb_);
 b._unsetControl(type, cb_);
 b._setControlDimension(type, size, cb_);
+
+/* FLOATING */
+
+b._showFloating(frame, x, y, width, height, cb_);
+b._hideFloating(cb_);
 
 /* PAGE */
 

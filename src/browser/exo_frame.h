@@ -77,6 +77,7 @@ public:
     NOTYPE_FRAME = 0,
     CONTROL_FRAME,
     PAGE_FRAME,
+    FLOATING_FRAME,
     FRAME_TYPE_COUNT
   };
 
