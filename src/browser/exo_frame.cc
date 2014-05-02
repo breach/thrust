@@ -31,6 +31,7 @@
 #include "exo_browser/src/browser/util/renderer_preferences_util.h"
 #include "exo_browser/src/node/node_thread.h"
 #include "exo_browser/src/node/api/exo_frame_wrap.h"
+#include "exo_browser/src/common/messages.h"
 
 using namespace content;
 
@@ -357,6 +358,14 @@ ExoFrame::DidStopLoading(
   }
 }
 
+bool 
+ExoFrame::OnMessageReceived(const IPC::Message& message) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(ExoFrame, message)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
+}
 
 void 
 ExoFrame::Observe(

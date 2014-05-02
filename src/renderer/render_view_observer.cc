@@ -6,9 +6,13 @@
 
 #include "base/command_line.h"
 #include "third_party/WebKit/public/web/WebView.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
+#include "third_party/WebKit/public/web/WebDraggableRegion.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_observer.h"
 #include "exo_browser/src/common/switches.h"
+#include "exo_browser/src/common/messages.h"
 
 using namespace content;
 
@@ -20,8 +24,21 @@ ExoBrowserRenderViewObserver::ExoBrowserRenderViewObserver(
 {
 }
 
+bool 
+ExoBrowserRenderViewObserver::OnMessageReceived(
+    const IPC::Message& message) 
+{
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(ExoBrowserRenderViewObserver, message)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+
+  return handled;
+}
+
 void 
-ExoBrowserRenderViewObserver::DidClearWindowObject(WebKit::WebFrame* frame) 
+ExoBrowserRenderViewObserver::DraggableRegionsChanged(
+    blink::WebFrame* frame) 
 {
   return;
 }

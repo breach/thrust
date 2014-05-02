@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
@@ -7,7 +7,7 @@
 
 #include "content/public/renderer/render_view_observer.h"
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 }
 
@@ -23,8 +23,11 @@ class ExoBrowserRenderViewObserver : public content::RenderViewObserver {
   virtual ~ExoBrowserRenderViewObserver() {}
 
  private:
-  // RenderViewObserver implementation.
-  virtual void DidClearWindowObject(WebKit::WebFrame* frame) OVERRIDE;
+  /****************************************************************************/
+  /* RENDERVIEWOBSERVER IMPLEMENTATION                                        */
+  /****************************************************************************/
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  virtual void DraggableRegionsChanged(blink::WebFrame* frame) OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserRenderViewObserver);
 };
