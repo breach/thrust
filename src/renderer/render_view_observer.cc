@@ -21,7 +21,9 @@ ExoBrowserRenderViewObserver::ExoBrowserRenderViewObserver(
 }
 
 void 
-ExoBrowserRenderViewObserver::DidClearWindowObject(WebKit::WebFrame* frame) 
+ExoBrowserRenderViewObserver::DidClearWindowObject(
+    blink::WebFrame* frame,
+    int world_id) 
 {
   return;
 }

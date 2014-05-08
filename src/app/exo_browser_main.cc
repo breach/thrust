@@ -2,7 +2,6 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "sandbox/win/src/sandbox_types.h"
 #include "content/public/app/content_main.h"
 #include "v8/include/v8.h"
 #include "third_party/node/src/node.h"
@@ -10,6 +9,7 @@
 #include <iostream>
 
 #if defined(OS_WIN)
+#include "sandbox/win/src/sandbox_types.h"
 #include "content/public/app/startup_helper_win.h"
 #endif
 

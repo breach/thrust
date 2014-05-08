@@ -162,12 +162,6 @@ ExoBrowserContentBrowserClient::IsHandledURL(
 }
 
 void 
-ExoBrowserContentBrowserClient::RenderProcessHostCreated(
-    content::RenderProcessHost* host) 
-{
-}
-
-void 
 ExoBrowserContentBrowserClient::RegisterExoSession(
     ExoSession* session)
 {
