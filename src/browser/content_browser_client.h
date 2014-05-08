@@ -56,9 +56,6 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
   virtual void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) OVERRIDE;
 
-  virtual void RenderProcessHostCreated(
-      content::RenderProcessHost* host) OVERRIDE;
-
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;

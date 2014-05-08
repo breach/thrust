@@ -41,9 +41,6 @@ std::vector<ExoBrowser*> ExoBrowser::s_instances;
 ExoBrowser::ExoBrowser(
     ExoBrowserWrap* wrapper)
   : window_(NULL),
-#if defined(OS_WIN) && !defined(USE_AURA)
-    default_edit_wnd_proc_(0),
-#endif
     wrapper_(wrapper),
     is_killed_(false)
 {

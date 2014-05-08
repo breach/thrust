@@ -594,6 +594,11 @@
                 }],
               ],
             }],
+            ['icu_use_data_file_flag==1', {
+              'mac_bundle_resources': [
+                '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
           ],
         },  # target exo_browser_framework
         {

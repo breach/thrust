@@ -24,14 +24,19 @@ namespace exo_browser {
 
 ExoBrowserDownloadManagerDelegate::ExoBrowserDownloadManagerDelegate()
   : download_manager_(NULL),
-    suppress_prompting_(false) 
+    suppress_prompting_(false),
+    weak_ptr_factory_(this)
 {
-  // Balanced in Shutdown();
-  AddRef();
 }
 
 ExoBrowserDownloadManagerDelegate::~ExoBrowserDownloadManagerDelegate()
 {
+  if (download_manager_) {
+    DCHECK_EQ(static_cast<DownloadManagerDelegate*>(this),
+              download_manager_->GetDelegate());
+    download_manager_->SetDelegate(NULL);
+    download_manager_ = NULL;
+  }
   LOG(INFO) << "ExoBrowserDownloadManagerDelegate Destructor";
 }
 
@@ -46,7 +51,9 @@ ExoBrowserDownloadManagerDelegate::SetDownloadManager(
 void 
 ExoBrowserDownloadManagerDelegate::Shutdown() 
 {
-  Release();
+  // Revoke any pending callbacks. download_manager_ et. al. are no longer safe
+  // to access after this point.
+  weak_ptr_factory_.InvalidateWeakPtrs();
   download_manager_ = NULL;
 }
 
@@ -73,7 +80,7 @@ ExoBrowserDownloadManagerDelegate::DetermineDownloadTarget(
 
   FilenameDeterminedCallback filename_determined_callback =
       base::Bind(&ExoBrowserDownloadManagerDelegate::OnDownloadPathGenerated,
-                 this,
+                 weak_ptr_factory_.GetWeakPtr(),
                  download->GetId(),
                  callback);
 

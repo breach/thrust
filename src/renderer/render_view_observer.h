@@ -7,7 +7,7 @@
 
 #include "content/public/renderer/render_view_observer.h"
 
-namespace WebKit {
+namespace blink {
 class WebFrame;
 }
 
@@ -24,7 +24,8 @@ class ExoBrowserRenderViewObserver : public content::RenderViewObserver {
 
  private:
   // RenderViewObserver implementation.
-  virtual void DidClearWindowObject(WebKit::WebFrame* frame) OVERRIDE;
+  virtual void DidClearWindowObject(blink::WebFrame* frame,
+                                    int world_id) OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserRenderViewObserver);
 };

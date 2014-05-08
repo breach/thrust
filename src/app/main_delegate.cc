@@ -5,6 +5,7 @@
 #include "exo_browser/src/app/main_delegate.h"
 
 #include "base/command_line.h"
+#include "base/files/file.h"
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -107,7 +108,8 @@ ExoBrowserMainDelegate::BasicStartupComplete(
   // WebKitTestPlatformInitialize() are called.
   OverrideFrameworkBundlePath();
   OverrideChildProcessPath();
-  EnsureCorrectResolutionSettings();
+  /* TODO(spolu): Double check it is not necessary if not testing. */
+  //EnsureCorrectResolutionSettings();
 #endif  // OS_MACOSX
 
   InitLogging();
