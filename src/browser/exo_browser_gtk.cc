@@ -40,6 +40,7 @@ ExoBrowser::PlatformCreateWindow(
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_title(window_, "ExoBrowser");
 
+  fixed_ = gtk_fixed_new();
   hbox_ = gtk_hbox_new(FALSE, 0);
   vbox_ = gtk_vbox_new(FALSE, 0);
 
@@ -47,6 +48,9 @@ ExoBrowser::PlatformCreateWindow(
   control_right_box_ = gtk_event_box_new();
   control_top_box_ = gtk_event_box_new();
   control_bottom_box_ = gtk_event_box_new();
+
+  floating_box_ = gtk_event_box_new();
+  floating_frame_ = NULL;
 
   gtk_widget_set_size_request(control_left_box_, 0, 0);
   gtk_widget_set_size_request(control_right_box_, 0, 0);
@@ -66,10 +70,19 @@ ExoBrowser::PlatformCreateWindow(
   gtk_box_pack_start(GTK_BOX(hbox_), pages_box_, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox_), control_right_box_, FALSE, FALSE, 0);
 
+  gtk_fixed_put(GTK_FIXED(fixed_), vbox_, 0, 0);
+
+  gtk_widget_set_size_request(floating_box_, 0, 0);
+  gtk_fixed_put(GTK_FIXED(fixed_), floating_box_, 0, 0);
+
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(OnWindowDestroyedThunk), this);
+  g_signal_connect(G_OBJECT(window_), "check-resize",
+                   G_CALLBACK(OnWindowCheckResizeThunk), this);
+  g_signal_connect(G_OBJECT(fixed_), "size-request",
+                   G_CALLBACK(OnFixedSizeRequestThunk), this);
 
-  gtk_container_add(GTK_CONTAINER(window_), vbox_);
+  gtk_container_add(GTK_CONTAINER(window_), fixed_);
   gtk_window_resize(window_, width, height);
 
   /* Set the icon for the window before it gets displayed. We exceptionally */
@@ -236,6 +249,35 @@ ExoBrowser::PlatformUnsetControl(
 
 
 void
+ExoBrowser::PlatformShowFloating(
+    ExoFrame* frame,
+    int x, 
+    int y,
+    int width, 
+    int height)
+{
+  DCHECK(floating_frame_ == NULL);
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  floating_frame_ = content_view->GetNativeView();
+  gtk_container_add(GTK_CONTAINER(floating_box_), floating_frame_);
+  gtk_fixed_move(GTK_FIXED(fixed_), floating_box_, x, y);
+  gtk_widget_set_size_request(floating_box_, width, height);
+  LOG(INFO) << "FLOATING SHOW DONE";
+}
+
+void
+ExoBrowser::PlatformHideFloating()
+{
+  DCHECK(floating_frame_ != NULL);
+  gtk_container_remove(GTK_CONTAINER(floating_box_), floating_frame_);
+  gtk_widget_set_size_request(floating_box_, 0, 0);
+  gtk_fixed_move(GTK_FIXED(fixed_), floating_box_, 0, 0);
+  floating_frame_ = NULL;
+  LOG(INFO) << "FLOATING HIDE DONE";
+}
+
+
+void
 ExoBrowser::PlatformFocus()
 {
   gtk_window_present(window_);
@@ -263,6 +305,36 @@ ExoBrowser::PlatformPosition()
   gtk_window_get_position(window_, &x, &y);
   return gfx::Point(x, y);
 }
+
+gboolean 
+ExoBrowser::OnFixedSizeRequest(
+    GtkWidget* fixed,
+    GtkRequisition* req)
+{
+  /* We arbitrarly set the fixed_ widget requisition so that the window can */
+  /* be resized.                                                            */
+  req->width = 400;
+  req->height = 300;
+
+  return FALSE;  // Don't stop this message.
+}
+
+gboolean 
+ExoBrowser::OnWindowCheckResize(
+    GtkWidget* window) 
+{
+  int w, h;
+  gtk_window_get_size(window_, &w, &h);
+
+  if(w_width_ != w || w_height_ != h) {
+    w_width_ = w;
+    w_height_ = h;
+
+    gtk_widget_set_size_request(vbox_, w, h);
+  }
+  return FALSE;  // Don't stop this message.
+}
+           
 
 gboolean 
 ExoBrowser::OnWindowDestroyed(

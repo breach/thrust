@@ -361,7 +361,8 @@ exports.default_session = function() {
 
 exports.NOTYPE_FRAME = 0;
 exports.CONTROL_FRAME = 1;
-exports.PAGE_FRAME = 2;
+exports.FLOATING_FRAME = 2;
+exports.PAGE_FRAME = 3;
 
 exports.frame_count = 0;
 
@@ -1097,6 +1098,9 @@ var exo_browser = function(spec, my) {
   var unset_control;         /* unset_control(type, [cb_]); */
   var set_control_dimension; /* set_control_dimension(type, size, [cb_]); */
 
+  var show_floating;         /* show_floating(frame, x, y, width, height, [cb_]); */
+  var hide_floating;         /* hide_floating([cb_]);
+
   var add_page;              /* add_page(frame, [cb_]); */
   var remove_page;           /* remove_page(frame, [cb_]); */
   var show_page;             /* show_page(frame, [cb_]); */
@@ -1150,7 +1154,7 @@ var exo_browser = function(spec, my) {
       else {
         my.internal._setControl(type, frame.internal(), function() {
           frame.set_parent(that);
-          frame.set_type(exports.CONTROL_TYPE);
+          frame.set_type(exports.CONTROL_FRAME);
           my.frames[frame.name()] = frame;
           my.controls[type] = frame;
           if(my.control_dimensions[type] === 0) {
@@ -1181,7 +1185,7 @@ var exo_browser = function(spec, my) {
         my.internal._unsetControl(type, function() {
           var control = my.controls[type];
           control.set_parent(null);
-          control.set_type(exports.NO_TYPE);
+          control.set_type(exports.NOTYPE_FRAME);
           control.set_visible(false);
           my.controls[type] = null;
           my.control_dimensions[type] = 0;
@@ -1215,6 +1219,73 @@ var exo_browser = function(spec, my) {
             my.controls[type].set_visible(true);
           }
           if(cb_) return cb_(null, my.controls[type]);
+        });
+      }
+    });
+  };
+
+
+  // ### show_floating
+  //
+  // Display the specified frame as the floating frame
+  // ```
+  // @frame {exo_frame} the frame to set as control
+  // @x      {number} the x position
+  // @y      {number} the y position
+  // @width  {number} the width
+  // @height {number} the height
+  // @cb_    {function(err)} [optional]
+  // ```
+  show_floating = function(frame, x, y, width, height, cb_) {
+    /* We take care of "synchronization" */
+    async.parallel([ pre, frame.pre ], function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._showFloating(frame.internal(), 
+                                  x, y, width, height, function() {
+          if(my.floating) {
+            my.floating.set_parent(null);
+            my.floating.set_type(exports.NOTYPE_FRAME);
+            my.floating.set_visible(false);
+            delete my.frames[my.floating.name()];
+            my.floating = null;
+          }
+          my.floating = frame;
+          my.floating.set_parent(that);
+          my.floating.set_type(exports.FLOATING_FRAME);
+          my.floating.set_visible(true);
+          my.frames[my.floating.name()] = my.floating;
+          if(cb_) return cb_();
+        });
+      }
+    });
+  };
+
+  // ### hide_floating
+  //
+  // Hides the floating frame
+  // ```
+  // @cb_   {function(err, frame)} [optional]
+  // ```
+  hide_floating = function(cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._hideFloating(function() {
+          var frame = null;
+          if(my.floating) {
+            frame = my.floating;
+            my.floating.set_parent(null);
+            my.floating.set_type(exports.NOTYPE_FRAME);
+            my.floating.set_visible(false);
+            delete my.frames[my.floating.name()];
+            my.floating = null;
+          }
+          if(cb_) return cb_(null, frame);
         });
       }
     });
@@ -1484,6 +1555,9 @@ var exo_browser = function(spec, my) {
   common.method(that, 'set_control', set_control, _super);
   common.method(that, 'unset_control', unset_control, _super);
   common.method(that, 'set_control_dimension', set_control_dimension, _super);
+
+  common.method(that, 'show_floating', show_floating, _super);
+  common.method(that, 'hide_floating', hide_floating, _super);
 
   common.method(that, 'add_page', add_page, _super);
   common.method(that, 'remove_page', remove_page, _super);
