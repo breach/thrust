@@ -103,6 +103,7 @@ void
 ExoFrame::SetType(
     FRAME_TYPE type)
 {
+  LOG(INFO) << "ExoFrame SetType [" << this << "]: " << type;
   type_ = type;
 }
 

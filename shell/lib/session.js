@@ -134,9 +134,8 @@ var session = function(spec, my) {
       my.exo_browser.show_page(my.frame);
     });
 
-    /*
-    var i = 0;
-    setInterval(function() {
+    var i = 1;
+    setTimeout(function() {
       console.log('BOOM');
       var floating_frame = api.exo_frame({
         name: 'floating' + (++i),
@@ -145,6 +144,7 @@ var session = function(spec, my) {
       });
       my.exo_browser.show_floating(floating_frame, 100 * i, 100, 200 * i, 200 * i, function(err) {
         console.log('FLOATING DONE');
+        /*
         setTimeout(function() {
           my.exo_browser.hide_floating(function(err, frame) {
             console.log(frame);
@@ -154,9 +154,9 @@ var session = function(spec, my) {
               global.gc();
           });
         }, 1000);
+        */
       });
-    }, 2000);
-   */
+    }, 5000);
 
     my.box = require('./box.js').box({
       session: that

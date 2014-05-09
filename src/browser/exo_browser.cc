@@ -41,6 +41,7 @@ std::vector<ExoBrowser*> ExoBrowser::s_instances;
 ExoBrowser::ExoBrowser(
     ExoBrowserWrap* wrapper)
   : window_(NULL),
+    floating_(NULL),
     wrapper_(wrapper),
     is_killed_(false)
 {
@@ -159,6 +160,7 @@ ExoBrowser::ShowFloating(
     int width, 
     int height)
 {
+  LOG(INFO) << "ShowFloating: " << floating_;
   if(floating_ != NULL) {
     HideFloating();
   }
@@ -173,6 +175,7 @@ void
 ExoBrowser::HideFloating()
 {
   if(floating_ != NULL) {
+    LOG(INFO) << "HideFloating: " << floating_;
     floating_->SetType(ExoFrame::NOTYPE_FRAME);
     floating_->SetParent(NULL);
     PlatformHideFloating();

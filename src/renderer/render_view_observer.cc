@@ -44,6 +44,7 @@ ExoBrowserRenderViewObserver::DidClearWindowObject(
   return;
 }
 
+void
 ExoBrowserRenderViewObserver::DraggableRegionsChanged(
     blink::WebFrame* frame) 
 {

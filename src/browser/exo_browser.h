@@ -474,11 +474,7 @@ private:
   gfx::Point PlatformPosition();
 
 
-#if defined(OS_WIN) && !defined(USE_AURA)
-  static ATOM RegisterWindowClass();
-  static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-  static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
-#elif defined(TOOLKIT_GTK)
+#if defined(TOOLKIT_GTK)
   CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
   CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, 
                      GtkAccelGroup*, GObject*, guint, GdkModifierType);
@@ -487,6 +483,7 @@ private:
   CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowCheckResize);
   CHROMEGTK_CALLBACK_1(ExoBrowser, gboolean, OnFixedSizeRequest, 
                        GtkRequisition*);
+#elif defined(OS_MACOSX)
 #endif
 
 
@@ -505,10 +502,7 @@ private:
 
   bool                                          is_killed_;
 
-#if defined(OS_WIN) && !defined(USE_AURA)
-  WNDPROC                                       default_edit_wnd_proc_;
-  static HINSTANCE                              instance_handle_;
-#elif defined(TOOLKIT_GTK)
+#if defined(TOOLKIT_GTK)
   GtkWidget*                                    fixed_;
   GtkWidget*                                    hbox_;
   GtkWidget*                                    vbox_;
@@ -523,6 +517,8 @@ private:
   int                                           w_width_;
   int                                           w_height_;
 #elif defined(OS_MACOSX)
+  NSView*                                       control_layer_;
+  NSView*                                       floating_layer_;
   NSView*                                       control_left_box_;
   NSLayoutConstraint*                           control_left_constraint_;
   NSView*                                       control_right_box_;
@@ -533,6 +529,7 @@ private:
   NSLayoutConstraint*                           control_bottom_constraint_;
   NSView*                                       horizontal_box_;
   NSView*                                       pages_box_;
+  NSView*                                       floating_box_;
 #endif
   gfx::NativeView                               visible_page_;
   gfx::NativeView                               floating_frame_;
