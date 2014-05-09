@@ -156,11 +156,11 @@ var session = function(spec, my) {
         }, 1000);
       });
     }, 2000);
+    */
 
     my.box = require('./box.js').box({
       session: that
     });
-    */
 
     my.exo_browser.on('frame_navigation_state', function(frame, state) {
       if(state.entries.length > 0) {
