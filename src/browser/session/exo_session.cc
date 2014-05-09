@@ -140,7 +140,7 @@ ExoSession::GetDownloadManagerDelegate()
 {
   if (!download_manager_delegate_.get()) {
     DownloadManager* manager = BrowserContext::GetDownloadManager(this);
-    download_manager_delegate_ = new ExoBrowserDownloadManagerDelegate();
+    download_manager_delegate_.reset(new ExoBrowserDownloadManagerDelegate());
     download_manager_delegate_->SetDownloadManager(manager);
   }
   return download_manager_delegate_.get();

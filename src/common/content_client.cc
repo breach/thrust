@@ -26,6 +26,7 @@ std::string
 ExoBrowserContentClient::GetUserAgent() const 
 {
   std::string product = "Chrome/" UA_VERSION;
+  product += " Breach";
   return webkit_glue::BuildUserAgentFromProduct(product);
 }
 

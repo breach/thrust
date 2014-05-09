@@ -23,15 +23,6 @@ ExoBrowserResourceDispatcherHostDelegate::
 {
 }
 
-bool 
-ExoBrowserResourceDispatcherHostDelegate::AcceptAuthRequest(
-    net::URLRequest* request,
-    net::AuthChallengeInfo* auth_info) 
-{
-  /* Why not? */
-  return true;
-}
-
 ResourceDispatcherHostLoginDelegate*
 ExoBrowserResourceDispatcherHostDelegate::CreateLoginDelegate(
     net::AuthChallengeInfo* auth_info, 

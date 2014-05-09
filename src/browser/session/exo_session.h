@@ -147,8 +147,8 @@ private:
   base::FilePath                                   path_;
 
   scoped_ptr<ExoResourceContext>                   resource_context_;
+  scoped_ptr<ExoBrowserDownloadManagerDelegate>    download_manager_delegate_;
   scoped_refptr<ExoBrowserURLRequestContextGetter> url_request_getter_;
-  scoped_refptr<ExoBrowserDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
   scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 

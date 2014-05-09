@@ -38,42 +38,6 @@ GetStringResource(
   return ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
 }
   
-Handle<String> 
-WrapSource(
-    Handle<String> source) 
-{
-  Isolate* isolate = Isolate::GetCurrent();
-  EscapableHandleScope scope(isolate);
-
-  Handle<String> left =
-    String::NewFromUtf8(isolate, "(function(root, exports) {");
-  Handle<String> right = String::NewFromUtf8(isolate, "\n })");
-  return scope.Escape(
-      String::Concat(left, String::Concat(source, right)));
-}
-
-void 
-RequireFromResource(
-    Handle<Object> root,
-    Handle<Object> exports,
-    Handle<String> name,
-    int resource_id) 
-{
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
-
-  Handle<String> source = String::NewExternal(
-      isolate,
-      new StaticV8ExternalAsciiStringResource(
-        GetStringResource(resource_id)));
-  Handle<String> wrapped_source = WrapSource(source);
-
-  Handle<Script> script(Script::New(wrapped_source, name));
-  Handle<Function> func = Handle<Function>::Cast(script->Run());
-  Handle<Value> args[] = { root, exports };
-  func->Call(root, 2, args);
-}
-
 } // namespace
 
 namespace exo_browser {

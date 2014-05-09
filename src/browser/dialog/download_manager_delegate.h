@@ -7,6 +7,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
+#include "base/memory/weak_ptr.h"
 #include "content/public/browser/download_manager_delegate.h"
 
 namespace content {
@@ -16,8 +17,7 @@ class DownloadManager;
 namespace exo_browser {
 
 class ExoBrowserDownloadManagerDelegate
-    : public content::DownloadManagerDelegate,
-      public base::RefCountedThreadSafe<ExoBrowserDownloadManagerDelegate> {
+    : public content::DownloadManagerDelegate {
  public:
   ExoBrowserDownloadManagerDelegate();
   virtual ~ExoBrowserDownloadManagerDelegate();
@@ -50,9 +50,10 @@ class ExoBrowserDownloadManagerDelegate
                           const content::DownloadTargetCallback& callback,
                           const base::FilePath& suggested_path);
 
-  content::DownloadManager* download_manager_;
-  base::FilePath            default_download_path_;
-  bool                      suppress_prompting_;
+  content::DownloadManager*                               download_manager_;
+  base::FilePath                                          default_download_path_;
+  bool                                                    suppress_prompting_;
+  base::WeakPtrFactory<ExoBrowserDownloadManagerDelegate> weak_ptr_factory_; 
 
   friend class base::RefCountedThreadSafe<ExoBrowserDownloadManagerDelegate>;
 

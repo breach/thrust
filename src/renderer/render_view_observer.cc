@@ -37,6 +37,13 @@ ExoBrowserRenderViewObserver::OnMessageReceived(
 }
 
 void 
+ExoBrowserRenderViewObserver::DidClearWindowObject(
+    blink::WebFrame* frame,
+    int world_id) 
+{
+  return;
+}
+
 ExoBrowserRenderViewObserver::DraggableRegionsChanged(
     blink::WebFrame* frame) 
 {
