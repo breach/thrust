@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
 #include "exo_browser/src/node/node_thread.h"

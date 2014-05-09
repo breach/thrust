@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
 #ifndef EXO_BROWSER_BROWSER_UI_EXO_BROWSER_H_

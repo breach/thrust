@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
