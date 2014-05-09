@@ -1,10 +1,10 @@
 {
   "name": "exo_browser_shell",
-  "version": "0.5.6",
+  "version": "0.6.2",
   "main": "./index.js",
   "dependencies": {
     "async": "0.7.x",
-    "exo_browser": "0.5.x",
+    "exo_browser": "0.6.x",
     "express": "4.0.x",
     "body-parser": "1.0.x",
     "method-override": "1.0.x",

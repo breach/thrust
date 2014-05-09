@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
 #ifndef EXO_BROWSER_NODE_API_EXO_BROWSER_WRAP_H_
@@ -107,6 +107,17 @@ private:
                                v8::Persistent<v8::Function>* cb_p);
 
 
+  static void ShowFloating(const v8::FunctionCallbackInfo<v8::Value>& args);
+  /* TODO(spolu): Fix usage of (void*) */
+  void ShowFloatingTask(void* frame_w,
+                        int x, int y,
+                        int width, int height,
+                        v8::Persistent<v8::Function>* cb_p);
+
+  static void HideFloating(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void HideFloatingTask(v8::Persistent<v8::Function>* cb_p);
+
+
   static void AddPage(const v8::FunctionCallbackInfo<v8::Value>& args);
   /* TODO(spolu): Fix usage of (void*) */
   void AddPageTask(void* frame_w,
@@ -119,7 +130,6 @@ private:
   static void ShowPage(const v8::FunctionCallbackInfo<v8::Value>& args);
   void ShowPageTask(const std::string& name,
       v8::Persistent<v8::Function>* cb_p);
-
 
   /****************************************************************************/
   /*                              DISPATCHERS                                 */

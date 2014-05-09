@@ -11,6 +11,7 @@
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/size.h"
 #include "ui/gfx/point.h"
+#include "ipc/ipc_channel.h"
 #include "content/public/common/stop_find_action.h"
 #include "content/public/common/page_zoom.h"
 #include "content/public/browser/notification_observer.h"
@@ -77,6 +78,7 @@ public:
     NOTYPE_FRAME = 0,
     CONTROL_FRAME,
     PAGE_FRAME,
+    FLOATING_FRAME,
     FRAME_TYPE_COUNT
   };
 
@@ -211,6 +213,7 @@ public:
   virtual void DidStopLoading(
       content::RenderViewHost* render_view_host) OVERRIDE;
 
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;  
 
 private:
   /****************************************************************************/
@@ -243,11 +246,12 @@ private:
 
 
   // ### SetType
+  //
+  // Sets the frame type so that it's easily `recognizable'. Should only be 
+  // called by parent ExoBrowser.
   // ```
   // @type {FRAME_TYPE} the frame type
   // ```
-  // Sets the frame type so that it's easily `recognizable'. Should only be 
-  // called by parent ExoBrowser.
   void SetType(FRAME_TYPE type);
 
 
@@ -258,6 +262,7 @@ private:
   // platform specific Browser implementation.
   
   // ### PlatformSize
+  //
   // Retrieves the size of the WebContents view
   gfx::Size PlatformSize();
 

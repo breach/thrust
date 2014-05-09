@@ -70,7 +70,7 @@ var session = function(spec, my) {
       size: [1200, 768],
       icon_path: path.join(__dirname, '../shell.png')
     });
-    my.exo_browser.maximize();
+    //my.exo_browser.maximize();
     my.exo_browser.focus();
 
     my.exo_browser.set_title('ExoBrowser Shell');
@@ -134,9 +134,33 @@ var session = function(spec, my) {
       my.exo_browser.show_page(my.frame);
     });
 
+    /*
+    var floating_frame = api.exo_frame({
+      name: 'floating',
+      url: 'http://localhost',
+      session: my.exo_session_frame
+    });
+    var i = 0;
+    setInterval(function() {
+      i++;
+      my.exo_browser.show_floating(floating_frame, 100 * i, 100, 200 * i, 200 * i, function(err) {
+        console.log('FLOATING DONE');
+        setTimeout(function() {
+          my.exo_browser.hide_floating(function(err, frame) {
+            console.log(frame);
+            frame.kill();
+            console.log('HIDE FLOATING / KILL DONE');
+            if(global.gc)
+              global.gc();
+          });
+        }, 1000);
+      });
+    }, 2000);
+
     my.box = require('./box.js').box({
       session: that
     });
+    */
 
     my.exo_browser.on('frame_navigation_state', function(frame, state) {
       if(state.entries.length > 0) {

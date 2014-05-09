@@ -97,7 +97,6 @@ ExoBrowser::PlatformCreateWindow(
     const std::string& icon_path)
 {
   /* icon_path is ignore on OSX */
-  visible_page_ = NULL;
   NSRect initial_window_bounds =
       NSMakeRect(0, 0, width, height);
   NSRect content_rect = initial_window_bounds;
@@ -114,6 +113,9 @@ ExoBrowser::PlatformCreateWindow(
   [window setExoBrowser:this];
   [window_ setTitle:kWindowTitle];
   NSView* content = [window_ contentView];
+
+  //[content setWantsLayer:YES];
+  //[content setCanDrawSubviewsIntoLayer:YES];
 
   // Set the Browser window to participate in Lion Fullscreen mode. Set
   // Setting this flag has no effect on Snow Leopard or earlier.
@@ -139,6 +141,11 @@ ExoBrowser::PlatformCreateWindow(
   control_bottom_box_ = [[[NSView alloc] init] autorelease];
   horizontal_box_ = [[[NSView alloc] init] autorelease];
   pages_box_ = [[[NSView alloc] init] autorelease];
+  floating_box_ = NULL;
+
+  visible_page_ = NULL;
+  floating_frame_ = NULL;
+  floating_box_ = NULL;
 
   /* Vertical Layout */
   [control_top_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -147,7 +154,6 @@ ExoBrowser::PlatformCreateWindow(
   [content addSubview: horizontal_box_];
   [control_bottom_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
   [content addSubview: control_bottom_box_]; 
-
 
   NSDictionary *content_dict = 
     NSDictionaryOfVariableBindings(control_top_box_,
@@ -202,6 +208,7 @@ ExoBrowser::PlatformCreateWindow(
                           options:0
                           metrics:nil
                             views:content_dict]];
+
 
   /* Horizontal Layout */
   [control_left_box_ setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -430,6 +437,38 @@ ExoBrowser::PlatformUnsetControl(
   }
 }
 
+void
+ExoBrowser::PlatformShowFloating(
+    ExoFrame* frame,
+    int x, 
+    int y,
+    int width, 
+    int height)
+{
+  DCHECK(floating_frame_ == NULL);
+  WebContentsView* content_view = frame->web_contents_->GetView();
+  floating_frame_ = content_view->GetNativeView();
+
+  floating_box_ = [[[NSWindow alloc] initWithContentRect:NSMakeRect(x, y, width, height) 
+                                               styleMask:NSBorderlessWindowMask 
+                                                 backing:NSBackingStoreBuffered 
+                                                   defer:NO] autorelease];
+  [window_ addChildWindow:floating_box_ ordered:NSWindowAbove];
+
+  [[floating_box_ contentView] addSubview: floating_frame_];
+  [floating_frame_ setFrame: [[floating_box_ contentView] bounds]];
+  [floating_frame_ setNeedsDisplay:YES];
+}
+
+void
+ExoBrowser::PlatformHideFloating()
+{
+  DCHECK(floating_frame_ != NULL && floating_box_ != NULL);
+  [window_ removeChildWindow: floating_box_];
+  floating_box_ = NULL;
+  [floating_frame_ removeFromSuperview];
+  floating_frame_ = NULL;
+}
 
 void
 ExoBrowser::PlatformFocus()

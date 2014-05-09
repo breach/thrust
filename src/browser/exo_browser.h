@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
 #ifndef EXO_BROWSER_BROWSER_UI_EXO_BROWSER_H_
@@ -57,10 +57,11 @@ class ExoFrame;
 // ### ExoBrowser
 // 
 // This represents an ExoBrowser window. The ExoBrowser exposes to 
-// Javascript the ability to add Pages (stacked, one visible at a time) and
-// controls (pre-defined paramatrizable layout).
+// Javascript the ability to add Pages (stacked, one visible at a time),
+// Controls (pre-defined paramatrizable layout), and a Floating (floating
+// frame)
 //
-// Pages and Controls are both ExoFrames, which are simple wrapper around
+// Pages, Controls and Floating are ExoFrames, which are wrapper around
 // WebContents that are associated with a JS object.
 //
 // The pages frames are stacked with one visible at all time
@@ -75,7 +76,7 @@ class ExoFrame;
 //                          +|XXXXXXXXXXXXXX|
 //                           +--------------+
 // 
-// The control frames can be of only a limited set of predefined type. Each type
+// The Control frames can be of only a limited set of predefined type. Each type
 // correspond to a position on screen:
 //
 //                                   TOP
@@ -93,6 +94,18 @@ class ExoFrame;
 // As depicted in the diagram above, each control has exactly one dimension
 // (width for LEFT, RIGHT; height for TOP, BOTTOM) that can be programatically
 // set and updated.
+//
+// The Floating can be posisioned arbitrarily on the screen, only one at a time.
+//
+//                +------+-------------------------+---+
+//                |      +-------------------------+   |
+//                |      |XXXXXXXXXXXXXXXXXXXXXXXXX|   |
+//                |      |XXXXXX+--------------------+ |
+//                |      |XXXXXX|                    | |
+//                |      |XXXXXX|      FLOATING      | |
+//                |      |XXXXXX|                    | |
+//                |      |XXXXXX+--------------------+ |
+//                +------+-------------------------+---+
 //
 // The ExoBrowser initialization always come from Javascript. It is aware of its 
 // associated JS wrapper (used to dispatch callbacks).
@@ -183,6 +196,24 @@ public:
   // ```
   void UnsetControl(CONTROL_TYPE type);
 
+  // ### ShowFloating
+  // 
+  // Shows the floating with the specified position, size and options.
+  // ```
+  // @frame  {ExoFrame} the frame to add as control
+  // @x      {int} x position
+  // @y      {int} y position
+  // @width  {int} width
+  // @height {int} height
+  // ```
+  void ShowFloating(ExoFrame *frame,
+                    int x, int y,
+                    int width, int height);
+
+  // ### HideFloating
+  //
+  // Hides the floating if not already hidden
+  void HideFloating();
 
   // ### AddPage
   //
@@ -419,6 +450,18 @@ private:
   // Unset the designated control
   void PlatformUnsetControl(CONTROL_TYPE type, ExoFrame *frame);
 
+  // ### PlatformShowFloating
+  //
+  // Shows the floating frame with the provided positioning
+  void PlatformShowFloating(ExoFrame *frame,
+                            int x, int y,
+                            int width, int height);
+
+  // ### PlatformHideFloating
+  //
+  // Hides the floating frame
+  void PlatformHideFloating();
+
 
   // ### PlatformSize
   //
@@ -431,16 +474,16 @@ private:
   gfx::Point PlatformPosition();
 
 
-#if defined(OS_WIN) && !defined(USE_AURA)
-  static ATOM RegisterWindowClass();
-  static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-  static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
-#elif defined(TOOLKIT_GTK)
+#if defined(TOOLKIT_GTK)
   CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
   CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, 
                      GtkAccelGroup*, GObject*, guint, GdkModifierType);
   CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, 
                      GtkAccelGroup*, GObject*, guint, GdkModifierType);
+  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowCheckResize);
+  CHROMEGTK_CALLBACK_1(ExoBrowser, gboolean, OnFixedSizeRequest, 
+                       GtkRequisition*);
+#elif defined(OS_MACOSX)
 #endif
 
 
@@ -453,15 +496,14 @@ private:
 
   std::map<CONTROL_TYPE, ExoFrame*>             controls_;
   std::map<std::string, ExoFrame*>              pages_;
+  ExoFrame*                                     floating_;
 
   ExoBrowserWrap*                               wrapper_;
 
   bool                                          is_killed_;
 
-#if defined(OS_WIN) && !defined(USE_AURA)
-  WNDPROC                                       default_edit_wnd_proc_;
-  static HINSTANCE                              instance_handle_;
-#elif defined(TOOLKIT_GTK)
+#if defined(TOOLKIT_GTK)
+  GtkWidget*                                    fixed_;
   GtkWidget*                                    hbox_;
   GtkWidget*                                    vbox_;
 
@@ -471,6 +513,9 @@ private:
   GtkWidget*                                    control_bottom_box_;
 
   GtkWidget*                                    pages_box_;
+  GtkWidget*                                    floating_box_;
+  int                                           w_width_;
+  int                                           w_height_;
 #elif defined(OS_MACOSX)
   NSView*                                       control_left_box_;
   NSLayoutConstraint*                           control_left_constraint_;
@@ -482,8 +527,10 @@ private:
   NSLayoutConstraint*                           control_bottom_constraint_;
   NSView*                                       horizontal_box_;
   NSView*                                       pages_box_;
+  NSWindow*                                     floating_box_;
 #endif
   gfx::NativeView                               visible_page_;
+  gfx::NativeView                               floating_frame_;
 
   // A static container of all the open instances. 
   static std::vector<ExoBrowser*>               s_instances;

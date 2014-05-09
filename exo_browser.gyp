@@ -122,6 +122,7 @@
         'src/browser/exo_frame.h',
         'src/browser/exo_frame.cc',
         'src/browser/exo_frame_gtk.cc',
+        'src/browser/exo_frame_mac.mm',
         'src/browser/web_contents_view_delegate.h',
         'src/browser/web_contents_view_delegate_gtk.cc',
         'src/browser/web_contents_view_delegate_mac.mm',

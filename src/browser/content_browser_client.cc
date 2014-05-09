@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
@@ -69,6 +69,12 @@ ExoBrowserContentBrowserClient::AppendExtraCommandLineSwitches(
     CommandLine* command_line,
     int child_process_id) 
 {
+  /*
+  command_line->AppendSwitch(switches::kEnableThreadedCompositing);
+#if defined(OS_MACOSX)
+  command_line->AppendSwitch(switches::kUseCoreAnimation);
+#endif
+  */
 }
 
 void 

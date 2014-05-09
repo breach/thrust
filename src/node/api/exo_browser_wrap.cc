@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
 #define BUILDING_NODE_EXTENSION
@@ -186,6 +186,15 @@ ExoBrowserWrap::Init(
       String::NewFromUtf8(Isolate::GetCurrent(), "_unsetControl"),
       FunctionTemplate::New(Isolate::GetCurrent(), 
                             UnsetControl)->GetFunction());
+
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_showFloating"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            ShowFloating)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_hideFloating"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            HideFloating)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(
       String::NewFromUtf8(Isolate::GetCurrent(), "_setOpenURLCallback"),
@@ -661,6 +670,89 @@ ExoBrowserWrap::SetControlDimensionTask(
       base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
 }
 
+
+
+void 
+ExoBrowserWrap::ShowFloating(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope scope(Isolate::GetCurrent());
+
+  /* args[0]: frame */
+  Local<Object> frame_o = Local<Object>::Cast(args[0]);
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(frame_o);
+
+  /* args[1]: x */
+  int x = (Local<Integer>::Cast(args[1]))->Value();
+  /* args[2]: y */
+  int y = (Local<Integer>::Cast(args[2]))->Value();
+  /* args[3]: width */
+  int width = (Local<Integer>::Cast(args[3]))->Value();
+  /* args[4]: height */
+  int height = (Local<Integer>::Cast(args[4]))->Value();
+
+  /* args[5]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[5]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      /* TODO(spolu): Fix usage of (void*) */
+      base::Bind(&ExoBrowserWrap::ShowFloatingTask, browser_w, 
+                 (void*)frame_w, x, y, width, height, cb_p));
+}
+
+
+void
+ExoBrowserWrap::ShowFloatingTask(
+    void* frame_w,
+    int x,
+    int y,
+    int width,
+    int height,
+    Persistent<Function>* cb_p)
+{
+  if(browser_ != NULL && !browser_->is_killed())
+    browser_->ShowFloating(((ExoFrameWrap*)frame_w)->frame_, 
+                           x, y, 
+                           width, height);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
+}
+
+void 
+ExoBrowserWrap::HideFloating(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[1]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoBrowserWrap::HideFloatingTask, browser_w, cb_p));
+}
+
+
+void
+ExoBrowserWrap::HideFloatingTask(
+    Persistent<Function>* cb_p)
+{
+  if(browser_ != NULL && !browser_->is_killed())
+    browser_->HideFloating();
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoBrowserWrap::EmptyCallback, this, cb_p));
+}
 
 
 void 
