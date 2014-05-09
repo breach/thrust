@@ -69,6 +69,12 @@ ExoBrowserContentBrowserClient::AppendExtraCommandLineSwitches(
     CommandLine* command_line,
     int child_process_id) 
 {
+  /*
+  command_line->AppendSwitch(switches::kEnableThreadedCompositing);
+#if defined(OS_MACOSX)
+  command_line->AppendSwitch(switches::kUseCoreAnimation);
+#endif
+  */
 }
 
 void 

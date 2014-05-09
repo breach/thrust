@@ -517,8 +517,6 @@ private:
   int                                           w_width_;
   int                                           w_height_;
 #elif defined(OS_MACOSX)
-  NSView*                                       control_layer_;
-  NSView*                                       floating_layer_;
   NSView*                                       control_left_box_;
   NSLayoutConstraint*                           control_left_constraint_;
   NSView*                                       control_right_box_;
@@ -529,7 +527,7 @@ private:
   NSLayoutConstraint*                           control_bottom_constraint_;
   NSView*                                       horizontal_box_;
   NSView*                                       pages_box_;
-  NSView*                                       floating_box_;
+  NSWindow*                                     floating_box_;
 #endif
   gfx::NativeView                               visible_page_;
   gfx::NativeView                               floating_frame_;
