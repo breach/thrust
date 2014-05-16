@@ -1,16 +1,17 @@
 /*
  * ExoBrowser: api.js
  * 
- * (c) Copyright Stanislas Polu 2013. All rights reserved.
- * (see LICENSE file)
+ * Copyright (c) Stanislas Polu 2014. All rights reserved.
  *
  * @author: spolu
  *
  * @log:
- * 2013-09-26 spolu   ExoSession support
- * 2013-09-20 spolu   Move to `api/`
- * 2013-08-12 spolu   Add name to browser
- * 2013-08-11 spolu   Creation
+ * - 2014-05-14 spolu   Updated data_path on Linux (.`app_name`)
+ * - 2014-05-04 spolu   Floating Controller
+ * - 2013-09-26 spolu   ExoSession support
+ * - 2013-09-20 spolu   Move to `api/`
+ * - 2013-08-12 spolu   Add name to browser
+ * - 2013-08-11 spolu   Creation
  */
 var common = require('./common.js');
 var events = require('events');
@@ -52,7 +53,7 @@ exports.data_path = function(app_name) {
       if (!data_path) { 
         throw new Error("Couldn't find the base application data path"); 
       }
-      data_path = path.join(data_path, '.config', app_name);
+      data_path = path.join(data_path, '.' + app_name);
       break;
     }
     default: {

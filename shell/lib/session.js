@@ -1,15 +1,15 @@
 /*
  * ExoBrowser: session.js
  *
- * (c) Copyright Stanislas Polu 2013. All rights reserved.
+ * Copyright (c) Stanislas Polu 2014. All rights reserved.
  *
  * @author: spolu
  *
  * @log:
- * 2013-08-12 spolu   Creation
- * 2013-09-05 spolu   Fix #56
- * 2013-09-23 spolu   Simplification for Shell
- * 2013-10-14 spolu   Cookie Store integration #79
+ * - 2013-10-14 spolu   Cookie Store integration #79
+ * - 2013-09-23 spolu   Simplification for Shell
+ * - 2013-09-05 spolu   Fix #56
+ * - 2013-08-12 spolu   Creation
  */
 
 var events = require('events');
