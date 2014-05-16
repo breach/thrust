@@ -5,6 +5,7 @@
 #include "content/public/app/content_main.h"
 #include "v8/include/v8.h"
 #include "third_party/node/src/node.h"
+#include "third_party/node/src/force_modules.h"
 #include "exo_browser/src/app/main_delegate.h"
 #include <iostream>
 
