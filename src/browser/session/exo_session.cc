@@ -113,7 +113,7 @@ ExoSession::~ExoSession()
     devtools_delegate_->Stop();
 
   /* If we're here that means that ou JS wrapper has been reclaimed */
-  LOG(INFO) << "ExoSesion Destructor";
+  LOG(INFO) << "ExoSession Destructor";
 }
 
 GURL
