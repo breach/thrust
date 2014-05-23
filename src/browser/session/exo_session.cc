@@ -87,7 +87,7 @@ ExoSession::ExoSession(
   bool result = visitedlink_store_->Init();
   LOG(INFO) << "VisitedLink Init: " << result;
 
-  devtools_delegate_.reset(new ExoBrowserDevToolsDelegate(this));
+  devtools_delegate_ = new ExoBrowserDevToolsDelegate(this);
   
   ExoBrowserContentBrowserClient::Get()->RegisterExoSession(this);
 }
@@ -108,8 +108,8 @@ ExoSession::~ExoSession()
   if(url_request_getter_.get())
     url_request_getter_.get()->parent_ = NULL;
 
-  /* We also stop the DevToolsDelegate. */
-  if (devtools_delegate_)
+  /* We also stop the DevToolsDelegate. It will destroy the delegate object. */
+  if(devtools_delegate_)
     devtools_delegate_->Stop();
 
   /* If we're here that means that ou JS wrapper has been reclaimed */

@@ -17,11 +17,11 @@
 namespace exo_browser {
 
 class ExoBrowserWebContentsViewDelegate : 
-    public content::WebContentsViewDelegate,
-    public base::RefCountedThreadSafe<ExoBrowserWebContentsViewDelegate> {
+    public content::WebContentsViewDelegate {
  public:
   explicit ExoBrowserWebContentsViewDelegate(
       content::WebContents* web_contents);
+  virtual ~ExoBrowserWebContentsViewDelegate();
 
   // WebContentsViewDelegate Override.
   virtual void ShowContextMenu(
@@ -83,8 +83,6 @@ class ExoBrowserWebContentsViewDelegate :
 #endif
 
  private:
-  virtual ~ExoBrowserWebContentsViewDelegate();
-
   content::WebContents* web_contents_;
   content::ContextMenuParams params_;
 

@@ -92,7 +92,6 @@ var exo_session = function(spec, my) {
   my.path = spec.path || exports.data_path('exo_browser_api');
 
   my.cookie_handlers = {
-    load_all: null,                 /* load_all(cb_(cookies)) */
     load_for_key: null,             /* load_for_key(key, cb_(cookies)); */
     flush: null,                    /* flush(cb_()); */
     add: null,                      /* add(c); */

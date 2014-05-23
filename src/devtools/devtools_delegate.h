@@ -21,9 +21,8 @@ class ExoSession;
 class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
   explicit ExoBrowserDevToolsDelegate(ExoSession* session);
-  virtual ~ExoBrowserDevToolsDelegate();
 
-  // Stops http server.
+  // Stop (and destroy this)
   void Stop();
 
   // DevToolsHttpProtocolHandler::Delegate overrides.
@@ -45,6 +44,8 @@ class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   }
 
  private:
+  virtual ~ExoBrowserDevToolsDelegate();
+
   content::DevToolsHttpHandler* devtools_http_handler_;
   ExoSession*                   session_;
 

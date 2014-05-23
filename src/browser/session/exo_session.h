@@ -60,7 +60,7 @@ public:
   /* EXOFRAME / DEVTOOLS I/F                                                  */
   /****************************************************************************/
   ExoBrowserDevToolsDelegate* devtools_delegate() {
-    return devtools_delegate_.get();
+    return devtools_delegate_;
   }
 
   // ### GetDevToolsURL
@@ -152,7 +152,7 @@ private:
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
   scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 
-  scoped_ptr<ExoBrowserDevToolsDelegate>           devtools_delegate_;
+  ExoBrowserDevToolsDelegate*                      devtools_delegate_;
 
   ExoSessionWrap*                                  wrapper_;
 
