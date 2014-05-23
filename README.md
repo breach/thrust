@@ -51,7 +51,7 @@ See [Building the ExoBrowser](https://github.com/breach/exo_browser/wiki/Buildin
 
 See [ExoBrowser JS API Specification](https://github.com/breach/exo_browser/blob/master/API.md)
 
-### Get in Touch
+### Getting Involved
 
 - Mailing list: [breach-dev@googlegroups.com](https://groups.google.com/d/forum/breach-dev)
 - IRC Channel: #breach on Freenode

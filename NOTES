@@ -17,11 +17,15 @@
 :html_auth #106
   - User authorization API
 
-:hover_stack
-  - Hover Controllers
-
 
 DONE:
+>>v0.6<<
+- Add domain_key (eTLD+1) to cookie object exposed thorugh API
+- Bugfixes [fix #136]
+- FLOATING control support
+- Upgrade to Node 0.11.13 (v8: 3.24.35.22)
+- Upgrade to Chrome 34.0.1847.134 (v8: 3.24.35.33)
+
 
 >>v0.5<<
 - Context Menu API enhancement
