@@ -129,19 +129,21 @@ namespace exo_browser {
 ExoBrowserDevToolsDelegate::ExoBrowserDevToolsDelegate(ExoSession* session)
 : session_(session)
 {
-  LOG(INFO) << "DEVTOOLS DELEGATE CREATED";
+  LOG(INFO) << "ExoBrowserDevToolsDelegate Constructor";
   devtools_http_handler_ =
     DevToolsHttpHandler::Start(CreateSocketFactory(), std::string(), this);
 }
 
 ExoBrowserDevToolsDelegate::~ExoBrowserDevToolsDelegate() 
 {
+  LOG(INFO) << "ExoBrowserDevToolsDelegate Destructor";
 }
 
-void 
-ExoBrowserDevToolsDelegate::Stop() 
+void
+ExoBrowserDevToolsDelegate::Stop()
 {
-  // The call below destroys this.
+  LOG(INFO) << "ExoBrowserDevToolsDelegate Stop";
+  /* This call destroys this delegates. Be carefule double destroy. */
   devtools_http_handler_->Stop();
 }
 
