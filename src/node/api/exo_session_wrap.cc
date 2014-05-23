@@ -6,6 +6,8 @@
 #include "exo_browser/src/node/api/exo_session_wrap.h"
 
 #include "base/time/time.h"
+#include "url/gurl.h"
+#include "net/cookies/cookie_util.h"
 
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
@@ -24,6 +26,13 @@ ObjectFromCanonicalCookie(
     const net::CanonicalCookie& cc)
 {
   Local<Object> cookie_o = Object::New(Isolate::GetCurrent());
+
+  GURL url(cc.Source());
+  std::string domain_key(net::cookie_util::GetEffectiveDomain(url.scheme(),
+                                                              url.host()));
+
+  cookie_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "domain_key"),
+                String::NewFromUtf8(Isolate::GetCurrent(), domain_key.c_str()));
 
   cookie_o->Set(String::NewFromUtf8(Isolate::GetCurrent(), "source"),
                 String::NewFromUtf8(Isolate::GetCurrent(), cc.Source().c_str()));

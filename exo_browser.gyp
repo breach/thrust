@@ -1,11 +1,11 @@
-# Copyright (c) 2013 Stanislas Polu. All rights reserved.
+# Copyright (c) 2014 Stanislas Polu. All rights reserved.
 
 {
   'variables': {
     'exo_browser_product_name': 'ExoBrowser',
     'exo_browser_shell_code': 'shell/',
-    'exo_browser_version': '0.3.1599.50',
-    'ua_version': '20.0.1599.50',
+    'exo_browser_version': '0.6.1847.134',
+    'ua_version': '34.0.1847.134',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
