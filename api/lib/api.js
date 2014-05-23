@@ -178,7 +178,7 @@ var exo_session = function(spec, my) {
       flush: handlers.flush || null,
       add: handlers.add || null,
       remove: handlers.remove || null,
-      update_access_time: handlers.update_acccess_time || null,
+      update_access_time: handlers.update_access_time || null,
       force_keep_session_state: handlers.force_keep_session_state || null
     };
   };
