@@ -100,6 +100,18 @@ Index: build/common.gypi
            ['_type=="executable"', {
              'postbuilds': [
                {
+Index: ipc/ipc_message_start.h
+===================================================================
+--- ipc/ipc_message_start.h	(revision 270117)
++++ ipc/ipc_message_start.h	(working copy)
+@@ -50,6 +50,7 @@
+   AudioMsgStart,
+   MidiMsgStart,
+   ChromeMsgStart,
++  ExoBrowserMsgStart,
+   DragMsgStart,
+   PrintMsgStart,
+   SpellCheckMsgStart,
 Index: tools/gritsettings/resource_ids
 ===================================================================
 --- tools/gritsettings/resource_ids	(revision 270117)
