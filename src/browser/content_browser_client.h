@@ -36,7 +36,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
       const content::MainFunctionParams& parameters) OVERRIDE;
 
   virtual void AppendExtraCommandLineSwitches(
-      CommandLine* command_line,
+      base::CommandLine* command_line,
       int child_process_id) OVERRIDE;
 
   virtual void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
@@ -58,13 +58,15 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
 
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
 
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
 

@@ -31,10 +31,9 @@ namespace exo_browser {
 
 namespace {
 
-void 
+void
 uv_dummy_cb(
-    uv_async_t* handle, 
-    int status)
+    uv_async_t* handle)
 {
   /* Nothin to Do: This callback is used to yeield the thread to the original */
   /* message loop when locked in the `uv_run_loop` call.                      */

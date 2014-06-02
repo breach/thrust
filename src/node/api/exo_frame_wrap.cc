@@ -11,6 +11,7 @@
 #include "content/public/common/favicon_url.h"
 #include "content/public/common/context_menu_params.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_frame_host.h" 
 #include "content/public/browser/render_view_host.h" 
 #include "exo_browser/src/browser/exo_browser.h"
 #include "exo_browser/src/browser/exo_frame.h"
@@ -494,8 +495,12 @@ void
 ExoFrameWrap::UndoTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL)
-    frame_->web_contents_->GetRenderViewHost()->Undo();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->Undo();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -524,8 +529,12 @@ void
 ExoFrameWrap::RedoTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL)
-    frame_->web_contents_->GetRenderViewHost()->Redo();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->Redo();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -555,8 +564,12 @@ void
 ExoFrameWrap::CutSelectionTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL) 
-    frame_->web_contents_->GetRenderViewHost()->Cut();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->Cut();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -585,8 +598,12 @@ void
 ExoFrameWrap::CopySelectionTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL) 
-    frame_->web_contents_->GetRenderViewHost()->Copy();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->Copy();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -616,8 +633,12 @@ void
 ExoFrameWrap::PasteTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL)
-    frame_->web_contents_->GetRenderViewHost()->Paste();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->Paste();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -646,8 +667,12 @@ void
 ExoFrameWrap::DeleteSelectionTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL)
-    frame_->web_contents_->GetRenderViewHost()->Delete();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->Delete();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -676,8 +701,12 @@ void
 ExoFrameWrap::SelectAllTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL)
-    frame_->web_contents_->GetRenderViewHost()->SelectAll();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->SelectAll();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
@@ -707,8 +736,12 @@ void
 ExoFrameWrap::UnselectTask(
     Persistent<Function>* cb_p)
 {
-  if(frame_ != NULL)
-    frame_->web_contents_->GetRenderViewHost()->Unselect();
+  if(frame_ != NULL) {
+    content::RenderFrameHost* f = frame_->web_contents_->GetFocusedFrame();
+    if(f) {
+      f->Unselect();
+    }
+  }
 
   NodeThread::Get()->PostTask(
       FROM_HERE,

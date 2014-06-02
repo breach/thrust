@@ -226,7 +226,8 @@ ExoFrame::CaptureFrameImpl::Run()
       gfx::Rect(),
       view->GetViewBounds().size(),
       base::Bind(&ExoFrame::CaptureFrameImpl::CopyFromBackingStoreComplete, 
-                 this));
+                 this),
+      SkBitmap::kARGB_8888_Config);
 }
 
 void

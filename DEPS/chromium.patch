@@ -1,8 +1,8 @@
 Index: .gitignore
 ===================================================================
---- .gitignore	(revision 266018)
+--- .gitignore	(revision 270117)
 +++ .gitignore	(working copy)
-@@ -130,6 +130,7 @@
+@@ -137,6 +137,7 @@
  /content/test/data/plugin/
  /data
  /delegate_execute
@@ -10,7 +10,7 @@ Index: .gitignore
  /google_apis/gcm/gcm.xml
  /google_apis/internal
  /googleurl
-@@ -263,6 +264,7 @@
+@@ -284,6 +285,7 @@
  /third_party/mt19937ar
  /third_party/mtpd/source/
  /third_party/nacl_sdk_binaries/
@@ -20,7 +20,7 @@ Index: .gitignore
  /third_party/openssl
 Index: build/common.gypi
 ===================================================================
---- build/common.gypi	(revision 266018)
+--- build/common.gypi	(revision 270117)
 +++ build/common.gypi	(working copy)
 @@ -9,6 +9,19 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
@@ -42,16 +42,16 @@ Index: build/common.gypi
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -2113,7 +2126,7 @@
+@@ -2223,7 +2236,7 @@
      },
      'defines': [
        # Don't use deprecated V8 APIs anywhere.
 -      'V8_DEPRECATION_WARNINGS',
 +      # 'V8_DEPRECATION_WARNINGS',
+       # Temporary suppression until Blink code can be removed.
+       'BLINK_SCALE_FILTERS_AT_RECORD_TIME',
      ],
-     'conditions': [
-       ['(OS=="mac" or OS=="ios") and asan==1', {
-@@ -2971,6 +2984,16 @@
+@@ -3113,6 +3126,16 @@
      }],
      ['os_posix==1 and OS!="mac" and OS!="ios"', {
        'target_defaults': {
@@ -68,7 +68,7 @@ Index: build/common.gypi
          # Enable -Werror by default, but put it in a variable so it can
          # be disabled in ~/.gyp/include.gypi on the valgrind builders.
          'variables': {
-@@ -2981,7 +3004,7 @@
+@@ -3123,7 +3146,7 @@
            '_FILE_OFFSET_BITS=64',
          ],
          'cflags': [
@@ -77,7 +77,7 @@ Index: build/common.gypi
            '-pthread',
            '-fno-exceptions',
            '-fno-strict-aliasing',  # See http://crbug.com/32204
-@@ -4060,7 +4083,7 @@
+@@ -4266,7 +4289,7 @@
            'GCC_OBJC_CALL_CXX_CDTORS': 'YES',        # -fobjc-call-cxx-cdtors
            'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',      # -fvisibility=hidden
            'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
@@ -86,7 +86,7 @@ Index: build/common.gypi
            'GCC_VERSION': '4.2',
            'GCC_WARN_ABOUT_MISSING_NEWLINE': 'YES',  # -Wnewline-eof
            'USE_HEADERMAP': 'NO',
-@@ -4283,6 +4306,13 @@
+@@ -4487,6 +4510,13 @@
            ],
          },
          'target_conditions': [
@@ -100,23 +100,11 @@ Index: build/common.gypi
            ['_type=="executable"', {
              'postbuilds': [
                {
-Index: ipc/ipc_message_start.h
-===================================================================
---- ipc/ipc_message_start.h	(revision 266018)
-+++ ipc/ipc_message_start.h	(working copy)
-@@ -95,6 +95,7 @@
-   EmbeddedWorkerMsgStart,
-   EmbeddedWorkerContextMsgStart,
-   CastMsgStart,
-+  ExoBrowserMsgStart,
-   LastIPCMsgStart  // Must come last.
- };
- 
 Index: tools/gritsettings/resource_ids
 ===================================================================
---- tools/gritsettings/resource_ids	(revision 266018)
+--- tools/gritsettings/resource_ids	(revision 270117)
 +++ tools/gritsettings/resource_ids	(working copy)
-@@ -201,4 +201,9 @@
+@@ -199,4 +199,9 @@
      "includes": [30500],
    },
    # Resource ids starting at 31000 are reserved for projects built on Chromium.

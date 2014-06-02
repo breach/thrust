@@ -60,7 +60,8 @@ ExoBrowserNetworkDelegate::OnHeadersReceived(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     const net::HttpResponseHeaders* original_response_headers,
-    scoped_refptr<net::HttpResponseHeaders>* override_response_headers) 
+    scoped_refptr<net::HttpResponseHeaders>* override_response_headers,
+    GURL* allowed_unsafe_redirect_url)
 {
   return net::OK;
 }
@@ -122,7 +123,7 @@ ExoBrowserNetworkDelegate::OnCanGetCookies(
 {
   net::StaticCookiePolicy::Type policy_type = g_accept_all_cookies ?
       net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
-      net::StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
+      net::StaticCookiePolicy::BLOCK_ALL_THIRD_PARTY_COOKIES;
   net::StaticCookiePolicy policy(policy_type);
   int rv = policy.CanGetCookies(
       request.url(), request.first_party_for_cookies());
@@ -137,7 +138,7 @@ ExoBrowserNetworkDelegate::OnCanSetCookie(
 {
   net::StaticCookiePolicy::Type policy_type = g_accept_all_cookies ?
       net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
-      net::StaticCookiePolicy::BLOCK_SETTING_THIRD_PARTY_COOKIES;
+      net::StaticCookiePolicy::BLOCK_ALL_THIRD_PARTY_COOKIES;
   net::StaticCookiePolicy policy(policy_type);
   int rv = policy.CanSetCookie(
       request.url(), request.first_party_for_cookies());

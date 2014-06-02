@@ -158,7 +158,8 @@ ExoSession::GetRequestContext()
 
 net::URLRequestContextGetter* 
 ExoSession::CreateRequestContext(
-    ProtocolHandlerMap* protocol_handlers) 
+    ProtocolHandlerMap* protocol_handlers,
+    ProtocolHandlerScopedVector protocol_interceptors)
 {
   DCHECK(!url_request_getter_.get());
   url_request_getter_ = new ExoBrowserURLRequestContextGetter(
@@ -168,6 +169,7 @@ ExoSession::CreateRequestContext(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
+      protocol_interceptors.Pass(),
       ExoBrowserContentBrowserClient::Get()->browser_main_parts()->net_log());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
@@ -206,7 +208,8 @@ net::URLRequestContextGetter*
 ExoSession::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
-    ProtocolHandlerMap* protocol_handlers) 
+    ProtocolHandlerMap* protocol_handlers,
+    ProtocolHandlerScopedVector protocol_interceptors)
 {
   DCHECK(false);
   /* TODO(spolu): Add Support URLRequestContextGetter per StoragePartition. */
@@ -223,6 +226,7 @@ ExoSession::RequestMidiSysExPermission(
     int render_view_id,
     int bridge_id,
     const GURL& requesting_frame,
+    bool user_gesture,
     const MidiSysExPermissionCallback& callback) 
 {
   callback.Run(false);

@@ -66,7 +66,7 @@ ExoBrowserContentBrowserClient::CreateBrowserMainParts(
 
 void 
 ExoBrowserContentBrowserClient::AppendExtraCommandLineSwitches(
-    CommandLine* command_line,
+    base::CommandLine* command_line,
     int child_process_id) 
 {
   /*
@@ -121,11 +121,13 @@ ExoBrowserContentBrowserClient::OverrideWebkitPrefs(
 net::URLRequestContextGetter* 
 ExoBrowserContentBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
-    ProtocolHandlerMap* protocol_handlers) 
+    ProtocolHandlerMap* protocol_handlers,
+    ProtocolHandlerScopedVector protocol_interceptors)
 {
   ExoSession* session =
       ExoSessionForBrowserContext(content_browser_context);
-  return session->CreateRequestContext(protocol_handlers);
+  return session->CreateRequestContext(
+      protocol_handlers, protocol_interceptors.Pass());
 }
 
 net::URLRequestContextGetter*
@@ -133,12 +135,14 @@ ExoBrowserContentBrowserClient::CreateRequestContextForStoragePartition(
     BrowserContext* content_browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
-    ProtocolHandlerMap* protocol_handlers) 
+    ProtocolHandlerMap* protocol_handlers,
+    ProtocolHandlerScopedVector protocol_interceptors)
 {
   ExoSession* session =
       ExoSessionForBrowserContext(content_browser_context);
   return session->CreateRequestContextForStoragePartition(
-      partition_path, in_memory, protocol_handlers);
+      partition_path, in_memory, 
+      protocol_handlers, protocol_interceptors.Pass());
 }
 
 
@@ -153,7 +157,7 @@ ExoBrowserContentBrowserClient::IsHandledURL(
   // ExoBrowserURLRequestContextGetter::GetURLRequestContext().
   /* TODO(spolu): Check in sync */
   static const char* const kProtocolList[] = {
-      chrome::kBlobScheme,
+      kBlobScheme,
       kFileSystemScheme,
       kChromeUIScheme,
       kChromeDevToolsScheme,

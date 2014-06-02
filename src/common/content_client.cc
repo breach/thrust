@@ -8,13 +8,13 @@
 #include "base/strings/string_piece.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/user_agent.h"
 #include "exo_browser/src/common/switches.h"
 #include "grit/exo_browser_resources.h"
 #include "grit/webkit_resources.h"
 #include "grit/webkit_strings.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/common/user_agent/user_agent_util.h"
 
 namespace exo_browser {
 
@@ -27,7 +27,7 @@ ExoBrowserContentClient::GetUserAgent() const
 {
   std::string product = "Chrome/" UA_VERSION;
   product += " Breach";
-  return webkit_glue::BuildUserAgentFromProduct(product);
+  return content::BuildUserAgentFromProduct(product);
 }
 
 base::string16 
