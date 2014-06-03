@@ -20,11 +20,11 @@
 
 DONE:
 >>v0.6<<
+- Upgrade to Node 0.11.14 (v8: 3.25.30.0)
+- Upgrade to Chrome 35.0.1916.114 (v8: 3.25.28.16)
 - Add domain_key (eTLD+1) to cookie object exposed thorugh API
 - Bugfixes [fix #136]
 - FLOATING control support
-- Upgrade to Node 0.11.13 (v8: 3.24.35.22)
-- Upgrade to Chrome 34.0.1847.134 (v8: 3.24.35.33)
 
 
 >>v0.5<<
@@ -57,6 +57,9 @@ DONE:
 /******************************************************************************/
 
 build/gyp_chromium exo_browser/exo_browser.gyp -Ddisable_debugallocation=1
+
+# When receiving message: `The application cannot be opened because its executable is missing.`
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
 
 
 /******************************************************************************/
