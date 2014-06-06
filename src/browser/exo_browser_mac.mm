@@ -363,6 +363,8 @@ ExoBrowser::PlatformSetControl(
     NSRect rect = [container bounds];
     [web_view setFrame:rect];
     [container addSubview: web_view];
+
+    [web_view setNeedsDisplay:YES];
   }
 }
 
