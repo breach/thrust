@@ -220,6 +220,7 @@
           'sources/': [
             ['exclude', 'src/browser/exo_browser_gtk.cc'],
             ['exclude', 'src/browser/exo_frame_gtk.cc'],
+            ['exclude', 'src/browser/util/platform_util_common_linux.cc'],
           ],
           'conditions': [
             ['toolkit_views==1', {
@@ -429,6 +430,7 @@
               },
             },
           },
+          'msvs_large_pdb': 1,
         }],  # OS=="win"
         ['OS == "win" or toolkit_uses_gtk == 1', {
           'dependencies': [
