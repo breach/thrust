@@ -167,7 +167,7 @@ NodeThread::Run(
     argc = 3;
     args_vector.push_back(command_line->argv()[0]);
     args_vector.push_back(shell_path);
-    args_vector.push_back("--expose_gc");
+    args_vector.push_back("--expose-gc");
   }
 
   // Hack around with the argv pointer. Used for process.title = "blah".
