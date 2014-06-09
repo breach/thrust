@@ -876,9 +876,11 @@ var exo_frame = function(spec, my) {
       else {
         my.killed = true;
         my.ready = false;
-        delete my.internal;
-        that.removeAllListeners();
-        if(cb_) return cb_();
+        my.internal._detach(function() {
+          delete my.internal;
+          that.removeAllListeners();
+          if(cb_) return cb_();
+        });
       }
     });
   };

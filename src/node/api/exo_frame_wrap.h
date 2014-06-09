@@ -52,6 +52,9 @@ private:
   /****************************************************************************/
   /* WRAPPERS, TASKS */
   /****************************************************************************/
+  static void Detach(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DetachTask(v8::Persistent<v8::Function>* cb_p);
+
   static void LoadURL(const v8::FunctionCallbackInfo<v8::Value>& args);
   void LoadURLTask(const std::string& url,
                    v8::Persistent<v8::Function>* cb_p);

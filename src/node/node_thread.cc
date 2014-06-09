@@ -156,10 +156,9 @@ NodeThread::Run(
   else {
     /* Build Default 'shell/' arguments */
     std::string shell_path = path.AsUTF8Unsafe() + "/" + EXO_BROWSER_SHELL_CODE;
-    argc = 3;
+    argc = 2;
     args_vector.push_back(command_line->argv()[0]);
     args_vector.push_back(shell_path);
-    args_vector.push_back("--expose_gc");
   }
 
   // Hack around with the argv pointer. Used for process.title = "blah".

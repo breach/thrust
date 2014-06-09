@@ -104,6 +104,9 @@ ExoFrameWrap::Init(
 
   /* Prototype */
   tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_detach"),
+      FunctionTemplate::New(Isolate::GetCurrent(), Detach)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
       String::NewFromUtf8(Isolate::GetCurrent(), "_loadURL"),
       FunctionTemplate::New(Isolate::GetCurrent(), LoadURL)->GetFunction());
   tpl->PrototypeTemplate()->Set(
@@ -338,6 +341,41 @@ ExoFrameWrap::DeleteTask(
 /******************************************************************************/
 /* WRAPPERS, TASKS */
 /******************************************************************************/
+void 
+ExoFrameWrap::Detach(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[0]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::DetachTask, frame_w, cb_p));
+}
+
+
+void
+ExoFrameWrap::DetachTask(
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL) {
+    if(frame_ != NULL && frame_->parent() != NULL) {
+      DCHECK(!frame_->parent()->is_killed());
+      frame_->parent()->RemoveFrame(frame_->name());
+    }
+    delete frame_;
+    frame_ = NULL;
+  }
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
+}
 
 void 
 ExoFrameWrap::LoadURL(
