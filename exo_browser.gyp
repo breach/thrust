@@ -4,8 +4,8 @@
   'variables': {
     'exo_browser_product_name': 'ExoBrowser',
     'exo_browser_shell_code': 'shell/',
-    'exo_browser_version': '0.6.1847.134',
-    'ua_version': '34.0.1847.134',
+    'exo_browser_version': '0.6.1916',
+    'ua_version': '35.0.1916.114',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
