@@ -363,8 +363,7 @@ ExoBrowser::PlatformSetControl(
     NSRect rect = [container bounds];
     [web_view setFrame:rect];
     [container addSubview: web_view];
-
-    [web_view setNeedsDisplay:YES];
+    [container setNeedsDisplay:YES];
   }
 }
 
@@ -377,19 +376,24 @@ ExoBrowser::PlatformSetControlDimension(
   LOG(INFO) << "PlatformSetControlDimension: " 
             << type << " " << size;
 
+  NSView* container = nil;
   NSLayoutConstraint* constraint = nil;
   switch(type) {
     case LEFT_CONTROL: 
       constraint = control_left_constraint_;
+      container = control_left_box_;
       break;
     case RIGHT_CONTROL: 
       constraint = control_right_constraint_;
+      container = control_right_box_;
       break;
     case TOP_CONTROL: 
       constraint = control_top_constraint_;
+      container = control_top_box_;
       break;
     case BOTTOM_CONTROL: 
       constraint = control_bottom_constraint_;
+      container = control_bottom_box_;
       break;
     default:
       /* Nothing to do */
@@ -397,6 +401,7 @@ ExoBrowser::PlatformSetControlDimension(
   }
   if(constraint) {
     [constraint setConstant: size];
+    [container setNeedsDisplay:YES];
   }
 }
 
@@ -434,6 +439,7 @@ ExoBrowser::PlatformUnsetControl(
   if(container) {
     [container setSubviews:[NSArray array]];
     [constraint setConstant: 0];
+    [container setNeedsDisplay:YES];
   }
 }
 
