@@ -745,7 +745,7 @@ var exo_frame = function(spec, my) {
   //
   // Find text in frame html
   // ```
-  // @text      {string} the search test
+  // @text      {string} the search text
   // @forward   {boolean} search forward (backward otherwise)
   // @sensitive {boolean} case sensitive (insensitive otherwise)
   // @next      {boolean} followup request (first one otherwise)

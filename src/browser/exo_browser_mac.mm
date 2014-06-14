@@ -363,6 +363,7 @@ ExoBrowser::PlatformSetControl(
     NSRect rect = [container bounds];
     [web_view setFrame:rect];
     [container addSubview: web_view];
+    [web_view setNeedsDisplay:YES];
   }
 }
 
@@ -400,10 +401,6 @@ ExoBrowser::PlatformSetControlDimension(
   }
   if(constraint) {
     [constraint setConstant: size];
-    [[window_ contentView] setNeedsDisplay:YES];
-    if(visible_page_ != NULL) {
-      [visible_page_ setNeedsDisplay:YES];
-    }
   }
 }
 
@@ -441,7 +438,6 @@ ExoBrowser::PlatformUnsetControl(
   if(container) {
     [container setSubviews:[NSArray array]];
     [constraint setConstant: 0];
-    [[window_ contentView] setNeedsDisplay:YES];
   }
 }
 
