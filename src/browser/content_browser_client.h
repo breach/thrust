@@ -30,7 +30,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
   virtual ~ExoBrowserContentBrowserClient();
 
   /****************************************************************************/
-  /*                  CONTENTBROWSERCLIENT IMPLEMENTATION                     */
+  /* CONTENTBROWSERCLIENT IMPLEMENTATION                                      */
   /****************************************************************************/
   virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
@@ -45,8 +45,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 
-  /* TODO(spolu): Reintroduce AccessTokenStore */
-  //virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
 
   virtual std::string GetDefaultDownloadName() OVERRIDE;
 
@@ -97,7 +96,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* browser_context);
 
   /****************************************************************************/
-  /*                              ACCESSORS                                   */
+  /* ACCESSORS                                                                */
   /****************************************************************************/
   ExoBrowserResourceDispatcherHostDelegate* 
   resource_dispatcher_host_delegate() {
@@ -106,6 +105,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
   ExoBrowserMainParts* browser_main_parts() {
     return browser_main_parts_;
   }
+  ExoSession* system_session();
 
 
  private:
@@ -114,6 +114,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   ExoBrowserMainParts*      browser_main_parts_;
   std::vector<ExoSession*>  sessions_;
+  ExoSession*               system_session_;
 };
 
 } // namespace exo_browser

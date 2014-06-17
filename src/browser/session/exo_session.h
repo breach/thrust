@@ -53,6 +53,10 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE                                                         */
   /****************************************************************************/
+  // ### ExoSession
+  ExoSession(const bool off_the_record,
+             const std::string& path,
+             ExoSessionWrap* wrapper = NULL);
   // ### ~ExoSession
   virtual ~ExoSession();
 
@@ -137,10 +141,6 @@ private:
   /****************************************************************************/
   /* PRIVATE INTERFACE                                                        */
   /****************************************************************************/
-  // ### ExoSession
-  ExoSession(const bool off_the_record,
-             const std::string& path,
-             ExoSessionWrap* wrapper = NULL);
 
   /****************************************************************************/
   /* MEMBERS                                                                   */

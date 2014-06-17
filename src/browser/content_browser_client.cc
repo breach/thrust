@@ -26,6 +26,7 @@
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/web_contents_view_delegate_creator.h"
 #include "exo_browser/src/browser/session/exo_session.h"
+#include "exo_browser/src/geolocation/access_token_store.h"
 
 
 using namespace content;
@@ -45,7 +46,8 @@ ExoBrowserContentBrowserClient::Get()
 }
 
 ExoBrowserContentBrowserClient::ExoBrowserContentBrowserClient()
-  : browser_main_parts_(NULL)
+  : browser_main_parts_(NULL),
+    system_session_(NULL)
 {
   DCHECK(!g_browser_client);
   g_browser_client = this;
@@ -54,6 +56,10 @@ ExoBrowserContentBrowserClient::ExoBrowserContentBrowserClient()
 ExoBrowserContentBrowserClient::~ExoBrowserContentBrowserClient() 
 {
   g_browser_client = NULL;
+  if(system_session_ != NULL) {
+    delete system_session_;
+    system_session_ = NULL;
+  }
 }
 
 BrowserMainParts* 
@@ -84,6 +90,12 @@ ExoBrowserContentBrowserClient::ResourceDispatcherHostCreated()
       new ExoBrowserResourceDispatcherHostDelegate());
   ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
+}
+
+AccessTokenStore* 
+ExoBrowserContentBrowserClient::CreateAccessTokenStore()
+{ 
+  return new ExoBrowserAccessTokenStore();
 }
 
 std::string 
@@ -207,5 +219,15 @@ ExoBrowserContentBrowserClient::ExoSessionForBrowserContext(
   return NULL;
 }
 
+ExoSession* 
+ExoBrowserContentBrowserClient::system_session()
+{
+  if(system_session_ == NULL) {
+    /* We create an off the record session to be used by the content API. see */
+    /* ExoBrowserAccessTokenStore as an example.                              */
+    system_session_ = new ExoSession(true, "system_session", NULL);
+  }
+  return system_session_;
+}
 
 } // namespace exo_browser

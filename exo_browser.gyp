@@ -4,7 +4,7 @@
   'variables': {
     'exo_browser_product_name': 'ExoBrowser',
     'exo_browser_shell_code': 'shell/',
-    'exo_browser_version': '0.6.1916',
+    'exo_browser_version': '0.6.1916.114',
     'ua_version': '35.0.1916.114',
     'conditions': [
       ['OS=="linux"', {
@@ -124,6 +124,8 @@
         'src/browser/web_contents_view_delegate.h',
         'src/browser/web_contents_view_delegate_gtk.cc',
         'src/browser/web_contents_view_delegate_mac.mm',
+        'src/geolocation/access_token_store.cc',
+        'src/geolocation/access_token_store.h',
         'src/browser/dialog/javascript_dialog_manager.cc',
         'src/browser/dialog/javascript_dialog_manager.h',
         'src/browser/dialog/javascript_dialog_gtk.cc',
