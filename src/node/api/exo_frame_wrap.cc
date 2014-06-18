@@ -163,9 +163,13 @@ ExoFrameWrap::Init(
       FunctionTemplate::New(Isolate::GetCurrent(), Capture)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(
-      String::NewFromUtf8(Isolate::GetCurrent(), "_getDevToolsId"),
+      String::NewFromUtf8(Isolate::GetCurrent(), "_devToolsGetId"),
       FunctionTemplate::New(Isolate::GetCurrent(), 
-                            GetDevToolsId)->GetFunction());
+                            DevToolsGetId)->GetFunction());
+  tpl->PrototypeTemplate()->Set(
+      String::NewFromUtf8(Isolate::GetCurrent(), "_devToolsInspectElementAt"),
+      FunctionTemplate::New(Isolate::GetCurrent(), 
+                            DevToolsInspectElementAt)->GetFunction());
 
   tpl->PrototypeTemplate()->Set(
       String::NewFromUtf8(Isolate::GetCurrent(), "_zoom"),
@@ -963,7 +967,7 @@ ExoFrameWrap::CaptureCallback(
 }
 
 void
-ExoFrameWrap::GetDevToolsId(
+ExoFrameWrap::DevToolsGetId(
     const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   HandleScope handle_scope(Isolate::GetCurrent());
@@ -978,20 +982,57 @@ ExoFrameWrap::GetDevToolsId(
   ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&ExoFrameWrap::GetDevToolsIdTask, frame_w, id, cb_p));
+      base::Bind(&ExoFrameWrap::DevToolsGetIdTask, frame_w, id, cb_p));
 }
 
 void
-ExoFrameWrap::GetDevToolsIdTask(
+ExoFrameWrap::DevToolsGetIdTask(
     std::string* id,
     Persistent<Function>* cb_p)
 {
   if(frame_ != NULL)
-    (*id) = frame_->GetDevToolsId();
+    (*id) = frame_->DevToolsGetId();
 
   NodeThread::Get()->PostTask(
       FROM_HERE,
       base::Bind(&ExoFrameWrap::StringCallback, this, cb_p, id));
+}
+
+void
+ExoFrameWrap::DevToolsInspectElementAt(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  HandleScope handle_scope(Isolate::GetCurrent());
+
+  /* args[0]: x */
+  int x = (Local<Integer>::Cast(args[0]))->Value();
+  /* args[1]: y */
+  int y = (Local<Integer>::Cast(args[1]))->Value();
+
+  /* args[2]: cb_ */
+  Local<Function> cb = Local<Function>::Cast(args[2]);
+  Persistent<Function> *cb_p = new Persistent<Function>();
+  cb_p->Reset(Isolate::GetCurrent(), cb);
+
+  ExoFrameWrap* frame_w = ObjectWrap::Unwrap<ExoFrameWrap>(args.This());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::Bind(&ExoFrameWrap::DevToolsInspectElementAtTask, frame_w, 
+                 x, y, cb_p));
+}
+
+void
+ExoFrameWrap::DevToolsInspectElementAtTask(
+    int x,
+    int y,
+    Persistent<Function>* cb_p)
+{
+  if(frame_ != NULL)
+    frame_->DevToolsInspectElementAt(x, y);
+
+  NodeThread::Get()->PostTask(
+      FROM_HERE,
+      base::Bind(&ExoFrameWrap::EmptyCallback, this, cb_p));
 }
 
 void 

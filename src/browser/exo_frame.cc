@@ -191,13 +191,25 @@ ExoFrame::ZoomLevel() const
 }
 
 std::string
-ExoFrame::GetDevToolsId()
+ExoFrame::DevToolsGetId()
 {
   scoped_refptr<DevToolsAgentHost> agent_host = 
     DevToolsAgentHost::GetOrCreateFor(web_contents()->GetRenderViewHost());
 
   return agent_host->GetId();
 }
+
+void
+ExoFrame::DevToolsInspectElementAt(
+    int x,
+    int y)
+{
+  scoped_refptr<DevToolsAgentHost> agent_host = 
+    DevToolsAgentHost::GetOrCreateFor(web_contents()->GetRenderViewHost());
+
+  return agent_host->InspectElement(x, y);
+}
+
 
 ExoFrame::CaptureFrameImpl::CaptureFrameImpl(
     ExoFrame* parent,

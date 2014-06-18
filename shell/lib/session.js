@@ -119,7 +119,7 @@ var session = function(spec, my) {
         trigger: function() {
           my.exo_session_frame.get_dev_tools_url(function(url) {
             console.log('DEVTOOLS URL FRAME: ' + url);
-            my.frame.get_dev_tools_id(function(id) {
+            my.frame.dev_tools_get_id(function(id) {
               console.log('DEVTOOLS ID: ' + id);
             });
           });
