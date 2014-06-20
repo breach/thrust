@@ -86,15 +86,18 @@ private:
   /****************************************************************************/
   static void SetCookiesAddCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchCookiesAdd(const net::CanonicalCookie& cc);
+  void DispatchCookiesAdd(const net::CanonicalCookie& cc,
+                          unsigned int op_count);
 
   static void SetCookiesDeleteCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchCookiesDelete(const net::CanonicalCookie& cc);
+  void DispatchCookiesDelete(const net::CanonicalCookie& cc,
+                             unsigned int op_count);
 
   static void SetCookiesUpdateAccessTimeCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
-  void DispatchCookiesUpdateAccessTime(const net::CanonicalCookie& cc);
+  void DispatchCookiesUpdateAccessTime(const net::CanonicalCookie& cc,
+                                       unsigned int op_count);
 
   static void SetCookiesForceKeepSessionStateCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);

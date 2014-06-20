@@ -20,6 +20,7 @@
 
 DONE:
 >>v0.6<<
+- Cookies op_count
 - Upgrade to Node 0.11.14 (v8: 3.25.30.0)
 - Upgrade to Chrome 35.0.1916.114 (v8: 3.25.28.16)
 - Add domain_key (eTLD+1) to cookie object exposed thorugh API

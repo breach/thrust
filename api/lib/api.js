@@ -269,19 +269,19 @@ var exo_session = function(spec, my) {
         }
       });
 
-      my.internal._setCookiesAddCallback(function(cc) {
+      my.internal._setCookiesAddCallback(function(cc, op_count) {
         if(my.cookie_handlers.add) {
-          my.cookie_handlers.add(cc);
+          my.cookie_handlers.add(cc, op_count);
         }
       });
-      my.internal._setCookiesDeleteCallback(function(cc) {
+      my.internal._setCookiesDeleteCallback(function(cc, op_count) {
         if(my.cookie_handlers.remove) {
-          my.cookie_handlers.remove(cc);
+          my.cookie_handlers.remove(cc, op_count);
         }
       });
-      my.internal._setCookiesUpdateAccessTimeCallback(function(cc) {
+      my.internal._setCookiesUpdateAccessTimeCallback(function(cc, op_count) {
         if(my.cookie_handlers.update_access_time) {
-          my.cookie_handlers.update_access_time(cc);
+          my.cookie_handlers.update_access_time(cc, op_count);
         }
       });
       my.internal._setCookiesForceKeepSessionStateCallback(function(cc) {

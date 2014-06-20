@@ -446,7 +446,8 @@ ExoSessionWrap::SetCookiesAddCallback(
 
 void 
 ExoSessionWrap::DispatchCookiesAdd(
-    const net::CanonicalCookie& cc)
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
 {
   HandleScope scope(Isolate::GetCurrent());
 
@@ -459,9 +460,12 @@ ExoSessionWrap::DispatchCookiesAdd(
       Local<Function>::New(Isolate::GetCurrent(), cookies_add_cb_);
 
     Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+    Local<Integer> op_count_arg = Integer::New(Isolate::GetCurrent(), 
+                                               op_count);
 
-    Local<v8::Value> argv[1] = { cc_arg };
-    cb->Call(session_o, 1, argv);
+    Local<v8::Value> argv[2] = { cc_arg,
+                                 op_count_arg };
+    cb->Call(session_o, 2, argv);
   }
 }
 
@@ -480,7 +484,8 @@ ExoSessionWrap::SetCookiesDeleteCallback(
 
 void 
 ExoSessionWrap::DispatchCookiesDelete(
-    const net::CanonicalCookie& cc)
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
 {
   HandleScope scope(Isolate::GetCurrent());
 
@@ -493,9 +498,12 @@ ExoSessionWrap::DispatchCookiesDelete(
       Local<Function>::New(Isolate::GetCurrent(), cookies_delete_cb_);
 
     Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+    Local<Integer> op_count_arg = Integer::New(Isolate::GetCurrent(), 
+                                               op_count);
 
-    Local<v8::Value> argv[1] = { cc_arg };
-    cb->Call(session_o, 1, argv);
+    Local<v8::Value> argv[2] = { cc_arg,
+                                 op_count_arg };
+    cb->Call(session_o, 2, argv);
   }
 }
 
@@ -514,7 +522,8 @@ ExoSessionWrap::SetCookiesUpdateAccessTimeCallback(
 
 void 
 ExoSessionWrap::DispatchCookiesUpdateAccessTime(
-    const net::CanonicalCookie& cc)
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
 {
   HandleScope scope(Isolate::GetCurrent());
 
@@ -528,9 +537,12 @@ ExoSessionWrap::DispatchCookiesUpdateAccessTime(
                            cookies_update_access_time_cb_);
 
     Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+    Local<Integer> op_count_arg = Integer::New(Isolate::GetCurrent(), 
+                                               op_count);
 
-    Local<v8::Value> argv[1] = { cc_arg };
-    cb->Call(session_o, 1, argv);
+    Local<v8::Value> argv[2] = { cc_arg,
+                                 op_count_arg };
+    cb->Call(session_o, 2, argv);
   }
 }
 
