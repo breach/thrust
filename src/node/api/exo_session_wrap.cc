@@ -70,7 +70,8 @@ net::CanonicalCookie*
 CanonicalCookieFromObject(
     const Local<Object>& cookie_o)
 {
-  net::CanonicalCookie* cc = net::CanonicalCookie::Create(
+
+  net::CanonicalCookie* cc = new net::CanonicalCookie(
       GURL(*String::Utf8Value(
           cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
                                             "source"))->ToString())),
@@ -92,6 +93,9 @@ CanonicalCookieFromObject(
       base::Time::FromInternalValue(
         cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
                                           "expiry"))->ToNumber()->Value()),
+      base::Time::FromInternalValue(
+        cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
+                                          "last_access"))->ToNumber()->Value()),
       cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
                                         "secure"))->ToBoolean()->Value(),
       cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
@@ -99,14 +103,6 @@ CanonicalCookieFromObject(
       (net::CookiePriority)cookie_o->Get(
         String::NewFromUtf8(Isolate::GetCurrent(), 
                             "priority"))->ToInteger()->Value());
-
-  if(cc != NULL) {
-    cc->SetLastAccessDate(
-        base::Time::FromInternalValue(
-          cookie_o->Get(
-            String::NewFromUtf8(Isolate::GetCurrent(), 
-                                "last_access"))->ToNumber()->Value()));
-  }
 
   return cc;
 }

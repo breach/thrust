@@ -121,6 +121,7 @@ ExoBrowserNetworkDelegate::OnCanGetCookies(
     const net::URLRequest& request,
     const net::CookieList& cookie_list) 
 {
+  return true;
   net::StaticCookiePolicy::Type policy_type = g_accept_all_cookies ?
       net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
       net::StaticCookiePolicy::BLOCK_ALL_THIRD_PARTY_COOKIES;
@@ -136,6 +137,7 @@ ExoBrowserNetworkDelegate::OnCanSetCookie(
     const std::string& cookie_line,
     net::CookieOptions* options) 
 {
+  return true;
   net::StaticCookiePolicy::Type policy_type = g_accept_all_cookies ?
       net::StaticCookiePolicy::ALLOW_ALL_COOKIES :
       net::StaticCookiePolicy::BLOCK_ALL_THIRD_PARTY_COOKIES;

@@ -36,6 +36,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/browser/cookie_store_factory.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/net/network_delegate.h"
 #include "exo_browser/src/browser/session/exo_session.h"
@@ -114,11 +115,13 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     else {
       cookie_store = new net::CookieMonster(NULL, NULL);
     }
-    cookie_store->GetCookieMonster()->SetPersistSessionCookies(true);
+    //cookie_store->GetCookieMonster()->SetPersistSessionCookies(false);
     storage_->set_cookie_store(cookie_store);
 
+    /*
     const char* schemes[] = {"http", "https", "file", "app"};
     cookie_store->GetCookieMonster()->SetCookieableSchemes(schemes, 4);
+    */
           
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
         new net::DefaultServerBoundCertStore(NULL),
