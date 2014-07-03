@@ -70,7 +70,8 @@ net::CanonicalCookie*
 CanonicalCookieFromObject(
     const Local<Object>& cookie_o)
 {
-  net::CanonicalCookie* cc = net::CanonicalCookie::Create(
+
+  net::CanonicalCookie* cc = new net::CanonicalCookie(
       GURL(*String::Utf8Value(
           cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
                                             "source"))->ToString())),
@@ -92,6 +93,9 @@ CanonicalCookieFromObject(
       base::Time::FromInternalValue(
         cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
                                           "expiry"))->ToNumber()->Value()),
+      base::Time::FromInternalValue(
+        cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
+                                          "last_access"))->ToNumber()->Value()),
       cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
                                         "secure"))->ToBoolean()->Value(),
       cookie_o->Get(String::NewFromUtf8(Isolate::GetCurrent(), 
@@ -99,14 +103,6 @@ CanonicalCookieFromObject(
       (net::CookiePriority)cookie_o->Get(
         String::NewFromUtf8(Isolate::GetCurrent(), 
                             "priority"))->ToInteger()->Value());
-
-  if(cc != NULL) {
-    cc->SetLastAccessDate(
-        base::Time::FromInternalValue(
-          cookie_o->Get(
-            String::NewFromUtf8(Isolate::GetCurrent(), 
-                                "last_access"))->ToNumber()->Value()));
-  }
 
   return cc;
 }
@@ -446,7 +442,8 @@ ExoSessionWrap::SetCookiesAddCallback(
 
 void 
 ExoSessionWrap::DispatchCookiesAdd(
-    const net::CanonicalCookie& cc)
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
 {
   HandleScope scope(Isolate::GetCurrent());
 
@@ -459,9 +456,12 @@ ExoSessionWrap::DispatchCookiesAdd(
       Local<Function>::New(Isolate::GetCurrent(), cookies_add_cb_);
 
     Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+    Local<Integer> op_count_arg = Integer::New(Isolate::GetCurrent(), 
+                                               op_count);
 
-    Local<v8::Value> argv[1] = { cc_arg };
-    cb->Call(session_o, 1, argv);
+    Local<v8::Value> argv[2] = { cc_arg,
+                                 op_count_arg };
+    cb->Call(session_o, 2, argv);
   }
 }
 
@@ -480,7 +480,8 @@ ExoSessionWrap::SetCookiesDeleteCallback(
 
 void 
 ExoSessionWrap::DispatchCookiesDelete(
-    const net::CanonicalCookie& cc)
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
 {
   HandleScope scope(Isolate::GetCurrent());
 
@@ -493,9 +494,12 @@ ExoSessionWrap::DispatchCookiesDelete(
       Local<Function>::New(Isolate::GetCurrent(), cookies_delete_cb_);
 
     Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+    Local<Integer> op_count_arg = Integer::New(Isolate::GetCurrent(), 
+                                               op_count);
 
-    Local<v8::Value> argv[1] = { cc_arg };
-    cb->Call(session_o, 1, argv);
+    Local<v8::Value> argv[2] = { cc_arg,
+                                 op_count_arg };
+    cb->Call(session_o, 2, argv);
   }
 }
 
@@ -514,7 +518,8 @@ ExoSessionWrap::SetCookiesUpdateAccessTimeCallback(
 
 void 
 ExoSessionWrap::DispatchCookiesUpdateAccessTime(
-    const net::CanonicalCookie& cc)
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
 {
   HandleScope scope(Isolate::GetCurrent());
 
@@ -528,9 +533,12 @@ ExoSessionWrap::DispatchCookiesUpdateAccessTime(
                            cookies_update_access_time_cb_);
 
     Local<Object> cc_arg = ObjectFromCanonicalCookie(cc);
+    Local<Integer> op_count_arg = Integer::New(Isolate::GetCurrent(), 
+                                               op_count);
 
-    Local<v8::Value> argv[1] = { cc_arg };
-    cb->Call(session_o, 1, argv);
+    Local<v8::Value> argv[2] = { cc_arg,
+                                 op_count_arg };
+    cb->Call(session_o, 2, argv);
   }
 }
 

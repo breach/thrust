@@ -417,15 +417,14 @@ ExoBrowser::NavigationStateChanged(
 void 
 ExoBrowser::WebContentsCreated(
     WebContents* source_contents,
-    int64 source_frame_id,
+    int opener_render_frame_id,
     const base::string16& frame_name,
     const GURL& target_url,
     WebContents* new_contents) 
 {
   LOG(INFO) << "WebContentsCreated: " << target_url 
+            << "\nopener_render_frame_id: " << opener_render_frame_id
             << "\nframe_name: " << frame_name
-            << "\nsource_frame_id: " << source_frame_id
-            << "\nsource_frame_id: " << source_frame_id
             << "\nnew_contents: " <<  new_contents;
   /* TODO(spolu): Call into API if necessary */
 

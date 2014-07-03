@@ -9,6 +9,9 @@
 #if defined(OS_MACOSX)
 int ContentMain(int argc, const char** argv) {
   exo_browser::ExoBrowserMainDelegate delegate;
-  return content::ContentMain(argc, argv, &delegate);
+  content::ContentMainParams params(&delegate);
+  params.argc = argc;
+  params.argv = argv;
+  return content::ContentMain(params);
 }
 #endif // OS_MACOSX

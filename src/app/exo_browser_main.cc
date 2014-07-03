@@ -24,7 +24,11 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   content::InitializeSandboxInfo(&sandbox_info);
   exo_browser::ExoBrowserMainDelegate delegate;
-  return content::ContentMain(instance, &sandbox_info, &delegate);
+
+  content::ContentMainParams params(&delegate);
+  params.instance = instance;
+  params.sandbox_info = &sandbox_info;
+  return content::ContentMain(params);
 }
 
 #else
@@ -43,7 +47,10 @@ int main(int argc, const char** argv) {
   return ::ContentMain(argc, argv);
 #else
   exo_browser::ExoBrowserMainDelegate delegate;
-  return content::ContentMain(argc, argv, &delegate);
+  content::ContentMainParams params(&delegate);
+  params.argc = argc;
+  params.argv = argv;
+  return content::ContentMain(params);
 #endif  // OS_MACOSX
 }
 

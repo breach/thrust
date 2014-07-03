@@ -10,7 +10,5 @@ namespace switches {
 const char kExoBrowserDataPath[] = "data-path";
 // Prevents the launch of the default 'app/' and runs the in "raw" mode
 const char kExoBrowserRaw[] = "raw";
-// Dumps the 'shell/' in the current working directory 
-const char kExoBrowserDumpShell[] = "dump-shell";
 
 }  // namespace switches

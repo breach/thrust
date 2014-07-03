@@ -30,13 +30,13 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
   virtual ~ExoBrowserContentBrowserClient();
 
   /****************************************************************************/
-  /*                  CONTENTBROWSERCLIENT IMPLEMENTATION                     */
+  /* CONTENTBROWSERCLIENT IMPLEMENTATION                                      */
   /****************************************************************************/
   virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
 
   virtual void AppendExtraCommandLineSwitches(
-      CommandLine* command_line,
+      base::CommandLine* command_line,
       int child_process_id) OVERRIDE;
 
   virtual void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
@@ -45,8 +45,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 
-  /* TODO(spolu): Reintroduce AccessTokenStore */
-  //virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
 
   virtual std::string GetDefaultDownloadName() OVERRIDE;
 
@@ -58,13 +57,15 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
 
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
 
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
 
@@ -95,7 +96,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* browser_context);
 
   /****************************************************************************/
-  /*                              ACCESSORS                                   */
+  /* ACCESSORS                                                                */
   /****************************************************************************/
   ExoBrowserResourceDispatcherHostDelegate* 
   resource_dispatcher_host_delegate() {
@@ -104,6 +105,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
   ExoBrowserMainParts* browser_main_parts() {
     return browser_main_parts_;
   }
+  ExoSession* system_session();
 
 
  private:
@@ -112,6 +114,7 @@ class ExoBrowserContentBrowserClient : public content::ContentBrowserClient {
 
   ExoBrowserMainParts*      browser_main_parts_;
   std::vector<ExoSession*>  sessions_;
+  ExoSession*               system_session_;
 };
 
 } // namespace exo_browser

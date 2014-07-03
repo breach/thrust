@@ -156,10 +156,19 @@ public:
   // Retrieves the current Zoom Level
   double ZoomLevel() const;
 
-  // ### GetDevToolsURL
+  // ### DevToolsGetId
   //
   // Retrieves the devtools URL for this frame
-  std::string GetDevToolsId();
+  std::string DevToolsGetId();
+
+  // ### DevToolsInspectElementAt
+  //
+  // Triggers the inspection of the element at the given position
+  // ```
+  // @x {int} x-position
+  // @y {int} y-position
+  // ```
+  void DevToolsInspectElementAt(int x, int y);
 
   // ### type
   //

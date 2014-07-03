@@ -53,6 +53,10 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE                                                         */
   /****************************************************************************/
+  // ### ExoSession
+  ExoSession(const bool off_the_record,
+             const std::string& path,
+             ExoSessionWrap* wrapper = NULL);
   // ### ~ExoSession
   virtual ~ExoSession();
 
@@ -92,6 +96,7 @@ public:
       int render_view_id,
       int bridge_id,
       const GURL& requesting_frame,
+      bool user_gesture,
       const MidiSysExPermissionCallback& callback) OVERRIDE;
   virtual void CancelMidiSysExPermissionRequest(
       int render_process_id,
@@ -119,11 +124,13 @@ public:
   /* REQUEST CONTEXT GETTER HELPERS                                           */
   /****************************************************************************/
   net::URLRequestContextGetter* CreateRequestContext(
-      content::ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors);
 
   ExoSessionCookieStore* GetCookieStore();
   ExoSessionVisitedLinkStore* GetVisitedLinkStore();
@@ -134,10 +141,6 @@ private:
   /****************************************************************************/
   /* PRIVATE INTERFACE                                                        */
   /****************************************************************************/
-  // ### ExoSession
-  ExoSession(const bool off_the_record,
-             const std::string& path,
-             ExoSessionWrap* wrapper = NULL);
 
   /****************************************************************************/
   /* MEMBERS                                                                   */

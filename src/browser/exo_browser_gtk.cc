@@ -262,7 +262,6 @@ ExoBrowser::PlatformShowFloating(
   gtk_container_add(GTK_CONTAINER(floating_box_), floating_frame_);
   gtk_fixed_move(GTK_FIXED(fixed_), floating_box_, x, y);
   gtk_widget_set_size_request(floating_box_, width, height);
-  LOG(INFO) << "FLOATING SHOW DONE";
 }
 
 void
@@ -273,7 +272,6 @@ ExoBrowser::PlatformHideFloating()
   gtk_widget_set_size_request(floating_box_, 0, 0);
   gtk_fixed_move(GTK_FIXED(fixed_), floating_box_, 0, 0);
   floating_frame_ = NULL;
-  LOG(INFO) << "FLOATING HIDE DONE";
 }
 
 

@@ -52,6 +52,7 @@ private:
   virtual ~ExoSessionCookieStore();
 
   ExoSession*         parent_;
+  unsigned int        op_count_;
 
   friend class ExoSession;
 

@@ -4,8 +4,8 @@
   'variables': {
     'exo_browser_product_name': 'ExoBrowser',
     'exo_browser_shell_code': 'shell/',
-    'exo_browser_version': '0.6.1847.134',
-    'ua_version': '34.0.1847.134',
+    'exo_browser_version': '0.6.1916.114',
+    'ua_version': '35.0.1916.114',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
@@ -54,10 +54,8 @@
         '<(DEPTH)/ui/gfx/gfx.gyp:gfx',
         '<(DEPTH)/ui/gfx/gfx.gyp:gfx_geometry',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
-        '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/url/url.gyp:url_lib',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/common/user_agent/webkit_user_agent.gyp:user_agent',
         '<(DEPTH)/webkit/common/webkit_common.gyp:webkit_common',
         '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         '<(DEPTH)/components/components.gyp:visitedlink_browser',
@@ -126,6 +124,8 @@
         'src/browser/web_contents_view_delegate.h',
         'src/browser/web_contents_view_delegate_gtk.cc',
         'src/browser/web_contents_view_delegate_mac.mm',
+        'src/geolocation/access_token_store.cc',
+        'src/geolocation/access_token_store.h',
         'src/browser/dialog/javascript_dialog_manager.cc',
         'src/browser/dialog/javascript_dialog_manager.h',
         'src/browser/dialog/javascript_dialog_gtk.cc',
@@ -222,6 +222,7 @@
           'sources/': [
             ['exclude', 'src/browser/exo_browser_gtk.cc'],
             ['exclude', 'src/browser/exo_frame_gtk.cc'],
+            ['exclude', 'src/browser/util/platform_util_common_linux.cc'],
           ],
           'conditions': [
             ['toolkit_views==1', {
@@ -431,6 +432,7 @@
               },
             },
           },
+          'msvs_large_pdb': 1,
         }],  # OS=="win"
         ['OS == "win" or toolkit_uses_gtk == 1', {
           'dependencies': [

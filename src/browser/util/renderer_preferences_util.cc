@@ -85,6 +85,10 @@ UpdateFromSystemSettings(
     content::RendererPreferences* prefs) 
 {
 #if defined(TOOLKIT_GTK)
+  // Dividing GTK's cursor blink cycle time (in milliseconds) by this value
+  // yields an appropriate value for RendererPreferences::caret_blink_interval.
+  // This matches the logic in the WebKit GTK port.
+  const double kGtkCursorBlinkCycleFactor = 2000.0;
   const base::TimeDelta cursor_blink_time = gfx::GetCursorBlinkCycle();
   prefs->caret_blink_interval =
       cursor_blink_time.InMilliseconds() ?
@@ -93,18 +97,27 @@ UpdateFromSystemSettings(
 #elif defined(USE_DEFAULT_RENDER_THEME)
   prefs->focus_ring_color = SkColorSetRGB(0x4D, 0x90, 0xFE);
 
-#if !defined(OS_WIN)
+#if defined(OS_CHROMEOS)
   // This color is 0x544d90fe modulated with 0xffffff.
   prefs->active_selection_bg_color = SkColorSetRGB(0xCB, 0xE4, 0xFA);
   prefs->active_selection_fg_color = SK_ColorBLACK;
   prefs->inactive_selection_bg_color = SkColorSetRGB(0xEA, 0xEA, 0xEA);
   prefs->inactive_selection_fg_color = SK_ColorBLACK;
 #endif
-  // WebKit accepts a single parameter to control the interval over which the
-  // cursor is shown or hidden, so divide Views's time for the full cycle by two
-  // and then convert to seconds.
-  prefs->caret_blink_interval =
-      views::NativeTextfieldViews::kCursorBlinkCycleMs / 2.0 / 1000;
+
+#endif
+
+#if defined(TOOLKIT_VIEWS)
+  prefs->caret_blink_interval = views::Textfield::GetCaretBlinkMs() / 1000.0;
+#endif
+
+#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
+  views::LinuxUI* linux_ui = views::LinuxUI::instance();
+  if (linux_ui) {
+    // If we have a linux_ui object, set the caret blink interval regardless of
+    // whether we're in native theme mode.
+    prefs->caret_blink_interval = linux_ui->GetCursorBlinkInterval();
+  }
 #endif
 
 #if defined(OS_LINUX) || defined(OS_ANDROID)
@@ -116,6 +129,10 @@ UpdateFromSystemSettings(
   prefs->use_bitmaps = params.use_bitmaps;
   prefs->subpixel_rendering =
       GetRendererPreferencesSubpixelRenderingEnum(params.subpixel_rendering);
+#endif
+
+#if !defined(OS_MACOSX)
+  prefs->plugin_fullscreen_allowed = true;
 #endif
 }
 

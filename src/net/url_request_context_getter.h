@@ -39,6 +39,7 @@ class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors,
       net::NetLog* net_log);
 
   // net::URLRequestContextGetter implementation.
@@ -52,18 +53,19 @@ class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
   virtual ~ExoBrowserURLRequestContextGetter();
 
  private:
-  ExoSession*         parent_;
-  bool                ignore_certificate_errors_;
-  base::FilePath      base_path_;
-  base::MessageLoop*  io_loop_;
-  base::MessageLoop*  file_loop_;
-  net::NetLog*        net_log_;
+  ExoSession*                               parent_;
+  bool                                      ignore_certificate_errors_;
+  base::FilePath                            base_path_;
+  base::MessageLoop*                        io_loop_;
+  base::MessageLoop*                        file_loop_;
+  net::NetLog*                              net_log_;
 
-  scoped_ptr<net::ProxyConfigService> proxy_config_service_;
-  scoped_ptr<net::NetworkDelegate> network_delegate_;
+  scoped_ptr<net::ProxyConfigService>       proxy_config_service_;
+  scoped_ptr<net::NetworkDelegate>          network_delegate_;
   scoped_ptr<net::URLRequestContextStorage> storage_;
-  scoped_ptr<net::URLRequestContext> url_request_context_;
-  content::ProtocolHandlerMap protocol_handlers_;
+  scoped_ptr<net::URLRequestContext>        url_request_context_;
+  content::ProtocolHandlerMap               protocol_handlers_;
+  content::ProtocolHandlerScopedVector      protocol_interceptors_;
 
   friend class ExoSession;
 

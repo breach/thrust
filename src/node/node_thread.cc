@@ -31,10 +31,9 @@ namespace exo_browser {
 
 namespace {
 
-void 
+void
 uv_dummy_cb(
-    uv_async_t* handle, 
-    int status)
+    uv_async_t* handle)
 {
   /* Nothin to Do: This callback is used to yeield the thread to the original */
   /* message loop when locked in the `uv_run_loop` call.                      */
@@ -145,15 +144,7 @@ NodeThread::Run(
   int argc;
   char **argv;
 
-  if(command_line->HasSwitch(switches::kExoBrowserDumpShell)) {
-    /* Build Default 'app/dump.js' arguments */
-    std::string dump_path = path.AsUTF8Unsafe() + "/" + 
-                            EXO_BROWSER_SHELL_CODE + "dump.js";
-    argc = 2;
-    args_vector.push_back(command_line->argv()[0]);
-    args_vector.push_back(dump_path);
-  }
-  else if(command_line->HasSwitch(switches::kExoBrowserRaw)) {
+  if(command_line->HasSwitch(switches::kExoBrowserRaw)) {
     /* Extract argc, argv to pass it directly to Node */
     argc = command_line->argv().size() - 1;
     for(int i = 0; i < argc + 1; i ++) { 
@@ -165,10 +156,9 @@ NodeThread::Run(
   else {
     /* Build Default 'shell/' arguments */
     std::string shell_path = path.AsUTF8Unsafe() + "/" + EXO_BROWSER_SHELL_CODE;
-    argc = 3;
+    argc = 2;
     args_vector.push_back(command_line->argv()[0]);
     args_vector.push_back(shell_path);
-    args_vector.push_back("--expose_gc");
   }
 
   // Hack around with the argv pointer. Used for process.title = "blah".

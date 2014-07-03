@@ -36,6 +36,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/browser/cookie_store_factory.h"
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/net/network_delegate.h"
 #include "exo_browser/src/browser/session/exo_session.h"
@@ -68,13 +69,15 @@ ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     ProtocolHandlerMap* protocol_handlers,
+    ProtocolHandlerScopedVector protocol_interceptors,
     net::NetLog* net_log)
     : parent_(parent),
       ignore_certificate_errors_(ignore_certificate_errors),
       base_path_(base_path),
       io_loop_(io_loop),
       file_loop_(file_loop),
-      net_log_(net_log) 
+      net_log_(net_log),
+      protocol_interceptors_(protocol_interceptors.Pass())
 {
   // Must first be created on the UI thread.
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -105,15 +108,21 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 
+    scoped_refptr<net::CookieStore> cookie_store = NULL;
     if(parent_) {
-      storage_->set_cookie_store(
-          new net::CookieMonster(parent_->GetCookieStore(), NULL));
+      cookie_store = new net::CookieMonster(parent_->GetCookieStore(), NULL);
     }
     else {
-      storage_->set_cookie_store(
-          new net::CookieMonster(NULL, NULL));
+      cookie_store = new net::CookieMonster(NULL, NULL);
     }
+    //cookie_store->GetCookieMonster()->SetPersistSessionCookies(false);
+    storage_->set_cookie_store(cookie_store);
 
+    /*
+    const char* schemes[] = {"http", "https", "file", "app"};
+    cookie_store->GetCookieMonster()->SetCookieableSchemes(schemes, 4);
+    */
+          
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
         new net::DefaultServerBoundCertStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
@@ -204,7 +213,20 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
                 GetTaskRunnerWithShutdownBehavior(
                     base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
     DCHECK(set_protocol);
-    storage_->set_job_factory(job_factory.release());
+
+    // Set up interceptors in the reverse order.
+    scoped_ptr<net::URLRequestJobFactory> top_job_factory =
+        job_factory.PassAs<net::URLRequestJobFactory>();
+    for (ProtocolHandlerScopedVector::reverse_iterator i =
+             protocol_interceptors_.rbegin();
+         i != protocol_interceptors_.rend();
+         ++i) {
+      top_job_factory.reset(new net::ProtocolInterceptJobFactory(
+          top_job_factory.Pass(), make_scoped_ptr(*i)));
+    }
+    protocol_interceptors_.weak_clear();
+
+    storage_->set_job_factory(top_job_factory.release());
   }
 
   return url_request_context_.get();

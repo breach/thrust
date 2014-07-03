@@ -20,8 +20,9 @@
 using namespace content;
 
 
-// Receives notification that the window is closing so that it can start the
-// tear-down process. Is responsible for deleting itself when done.
+// ## ExoBrowserWindowDelegagte
+//
+//  Listens for event that the window should close.
 @interface ExoBrowserWindowDelegate : NSObject<NSWindowDelegate> {
  @private
   exo_browser::ExoBrowser* browser_;
@@ -39,17 +40,17 @@ using namespace content;
   return self;
 }
 
-/* TODO(spolu): update comment */
-// Called when the window is about to close. Perform the self-destruction
-// sequence by getting rid of the browser and removing it and the window from
-// the various global lists. By returning YES, we allow the window to be
-// removed from the screen.
+// ### windowShouldClose
+//
+// Called when the window is about to close. If this is user generated then
+// we trigger the browser kill.                                           
 - (BOOL)windowShouldClose:(id)window {
-  [window autorelease];
-  /* TODO(spolu): Adapt to ExoBrowser */
-  //browser_.is_closed_ = true;
-  [self release];
-
+  /* TODO(spolu): Check there is absolutely no leak here. Esp. in the case */
+  /* the windowShouldClose handler is due to a programmatic Kill().        */
+  if(!browser_->is_killed()) {
+    browser_->Kill();
+    [self release];
+  }
   return YES;
 }
 
@@ -114,23 +115,20 @@ ExoBrowser::PlatformCreateWindow(
   [window_ setTitle:kWindowTitle];
   NSView* content = [window_ contentView];
 
-  //[content setWantsLayer:YES];
-  //[content setCanDrawSubviewsIntoLayer:YES];
-
-  // Set the Browser window to participate in Lion Fullscreen mode. Set
-  // Setting this flag has no effect on Snow Leopard or earlier.
+  /* Set the Browser window to participate in Lion Fullscreen mode. Set */
+  /* Setting this flag has no effect on Snow Leopard or earlier.        */
   NSUInteger collectionBehavior = [window_ collectionBehavior];
   collectionBehavior |= NSWindowCollectionBehaviorFullScreenPrimary;
   [window_ setCollectionBehavior:collectionBehavior];
 
-  // Rely on the window delegate to clean us up rather than immediately
-  // releasing when the window gets closed. We use the delegate to do
-  // everything from the autorelease pool so the Browser isn't on the stack
-  // during cleanup (ie, a window close from javascript).
+  /* Rely on the window delegate to clean us up rather than immediately     */
+  /* releasing when the window gets closed. We use the delegate to do       */
+  /* everything from the autorelease pool so the Browser isn't on the stack */
+  /* during cleanup (ie, a window close from javascript).                   */
   [window_ setReleasedWhenClosed:NO];
 
-  // Create a window delegate to watch for when it's asked to go away. It will
-  // clean itself up so we don't need to hold a reference.
+  /* Create a window delegate to watch for when it's asked to go away. It */
+  /* will clean itself up so we don't need to hold a reference.           */
   ExoBrowserWindowDelegate* delegate =
       [[ExoBrowserWindowDelegate alloc] initWithExoBrowser:this];
   [window_ setDelegate:delegate];
@@ -365,6 +363,7 @@ ExoBrowser::PlatformSetControl(
     NSRect rect = [container bounds];
     [web_view setFrame:rect];
     [container addSubview: web_view];
+    [web_view setNeedsDisplay:YES];
   }
 }
 
@@ -377,19 +376,24 @@ ExoBrowser::PlatformSetControlDimension(
   LOG(INFO) << "PlatformSetControlDimension: " 
             << type << " " << size;
 
+  NSView* container = nil;
   NSLayoutConstraint* constraint = nil;
   switch(type) {
     case LEFT_CONTROL: 
       constraint = control_left_constraint_;
+      container = control_left_box_;
       break;
     case RIGHT_CONTROL: 
       constraint = control_right_constraint_;
+      container = control_right_box_;
       break;
     case TOP_CONTROL: 
       constraint = control_top_constraint_;
+      container = control_top_box_;
       break;
     case BOTTOM_CONTROL: 
       constraint = control_bottom_constraint_;
+      container = control_bottom_box_;
       break;
     default:
       /* Nothing to do */

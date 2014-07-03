@@ -269,19 +269,19 @@ var exo_session = function(spec, my) {
         }
       });
 
-      my.internal._setCookiesAddCallback(function(cc) {
+      my.internal._setCookiesAddCallback(function(cc, op_count) {
         if(my.cookie_handlers.add) {
-          my.cookie_handlers.add(cc);
+          my.cookie_handlers.add(cc, op_count);
         }
       });
-      my.internal._setCookiesDeleteCallback(function(cc) {
+      my.internal._setCookiesDeleteCallback(function(cc, op_count) {
         if(my.cookie_handlers.remove) {
-          my.cookie_handlers.remove(cc);
+          my.cookie_handlers.remove(cc, op_count);
         }
       });
-      my.internal._setCookiesUpdateAccessTimeCallback(function(cc) {
+      my.internal._setCookiesUpdateAccessTimeCallback(function(cc, op_count) {
         if(my.cookie_handlers.update_access_time) {
-          my.cookie_handlers.update_access_time(cc);
+          my.cookie_handlers.update_access_time(cc, op_count);
         }
       });
       my.internal._setCookiesForceKeepSessionStateCallback(function(cc) {
@@ -406,25 +406,26 @@ var exo_frame = function(spec, my) {
   //
   // #### _public_
   //
-  var set_context_menu_handler; /* set_context_menu_handler(hdlr) */
-  var load_url;                 /* load_url(url, [cb_]); */
-  var go_back_or_forward;       /* go_back_or_forward(offset, [cb_]); */
-  var reload;                   /* reload([cb_]); */
-  var stop;                     /* stop([cb_]); */ 
-  var undo;                     /* undo([cb_]); */
-  var redo;                     /* redo([cb_]); */
-  var cut_selection;            /* cut_selection([cb_]); */
-  var copy_selection;           /* copy_selection([cb_]); */
-  var paste;                    /* paste([cb_]); */
-  var delete_selection;         /* delete_selection([cb_]); */
-  var select_all;               /* select_all([cb_]); */
-  var unselect;                 /* unselect([cb_]); */
-  var focus;                    /* focus([cb_]); */
-  var find;                     /* find(text, forward, case, next, [cb_]); */
-  var find_stop;                /* find_stop(action, [cb_]); */
-  var capture;                  /* capture([cb_]); */
-  var zoom;                     /* zoom(zoom, [cb_]); */
-  var get_dev_tools_id;         /* get_dev_tools_id(cb_); */
+  var set_context_menu_handler;     /* set_context_menu_handler(hdlr) */
+  var load_url;                     /* load_url(url, [cb_]); */
+  var go_back_or_forward;           /* go_back_or_forward(offset, [cb_]); */
+  var reload;                       /* reload([cb_]); */
+  var stop;                         /* stop([cb_]); */ 
+  var undo;                         /* undo([cb_]); */
+  var redo;                         /* redo([cb_]); */
+  var cut_selection;                /* cut_selection([cb_]); */
+  var copy_selection;               /* copy_selection([cb_]); */
+  var paste;                        /* paste([cb_]); */
+  var delete_selection;             /* delete_selection([cb_]); */
+  var select_all;                   /* select_all([cb_]); */
+  var unselect;                     /* unselect([cb_]); */
+  var focus;                        /* focus([cb_]); */
+  var find;                         /* find(text, forward, case, next, [cb_]); */
+  var find_stop;                    /* find_stop(action, [cb_]); */
+  var capture;                      /* capture([cb_]); */
+  var zoom;                         /* zoom(zoom, [cb_]); */
+  var dev_tools_get_id;             /* dev_tools_get_id(cb_); */
+  var dev_tools_inspect_element_at; /* dev_tools_inspect_element_at(x, y, cb_); */
 
   var kill;                     /* kill(); */
 
@@ -745,7 +746,7 @@ var exo_frame = function(spec, my) {
   //
   // Find text in frame html
   // ```
-  // @text      {string} the search test
+  // @text      {string} the search text
   // @forward   {boolean} search forward (backward otherwise)
   // @sensitive {boolean} case sensitive (insensitive otherwise)
   // @next      {boolean} followup request (first one otherwise)
@@ -842,20 +843,41 @@ var exo_frame = function(spec, my) {
     });
   };
 
-  // ### get_dev_tools_id
+  // ### dev_tools_get_id
   //
   // Retrieves the DevTools Id for this frame. Must be used in conjonction with
   // the ExoSession DevTools URL
   // ```
   // @cb_ {function(id)} the async callback
   // ```
-  get_dev_tools_id = function(cb_) {
+  dev_tools_get_id = function(cb_) {
     pre(function(err) {
       if(err) {
         if(cb_) return cb_(err);
       }
       else {
-        my.internal._getDevToolsId(function(id) {
+        my.internal._devToolsGetId(function(id) {
+          if(cb_) return cb_(id);
+        });
+      }
+    });
+  };
+
+  // ### dev_tools_inspect_element_at
+  //
+  // Triggers the inspection of the element at the given position
+  // ```
+  // @x   {integer} the x-position
+  // @y   {integer} the y-position
+  // @cb_ {function(id)} the async callback
+  // ```
+  dev_tools_inspect_element_at = function(x, y, cb_) {
+    pre(function(err) {
+      if(err) {
+        if(cb_) return cb_(err);
+      }
+      else {
+        my.internal._devToolsInspectElementAt(x, y, function(id) {
           if(cb_) return cb_(id);
         });
       }
@@ -876,9 +898,11 @@ var exo_frame = function(spec, my) {
       else {
         my.killed = true;
         my.ready = false;
-        delete my.internal;
-        that.removeAllListeners();
-        if(cb_) return cb_();
+        my.internal._detach(function() {
+          delete my.internal;
+          that.removeAllListeners();
+          if(cb_) return cb_();
+        });
       }
     });
   };
@@ -998,7 +1022,8 @@ var exo_frame = function(spec, my) {
   common.method(that, 'find_stop', find_stop, _super);
   common.method(that, 'capture', capture, _super);
   common.method(that, 'zoom', zoom, _super);
-  common.method(that, 'get_dev_tools_id', get_dev_tools_id, _super);
+  common.method(that, 'dev_tools_get_id', dev_tools_get_id, _super);
+  common.method(that, 'dev_tools_inspect_element_at', dev_tools_inspect_element_at, _super);
 
   common.getter(that, 'url', my, 'url');
   common.getter(that, 'name', my, 'name');

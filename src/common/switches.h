@@ -11,7 +11,6 @@ namespace switches {
 
 extern const char kExoBrowserDataPath[];
 extern const char kExoBrowserRaw[];
-extern const char kExoBrowserDumpShell[];
 
 }  // namespace switches
 

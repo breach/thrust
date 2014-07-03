@@ -52,6 +52,9 @@ private:
   /****************************************************************************/
   /* WRAPPERS, TASKS */
   /****************************************************************************/
+  static void Detach(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DetachTask(v8::Persistent<v8::Function>* cb_p);
+
   static void LoadURL(const v8::FunctionCallbackInfo<v8::Value>& args);
   void LoadURLTask(const std::string& url,
                    v8::Persistent<v8::Function>* cb_p);
@@ -101,9 +104,13 @@ private:
                        bool suceeded,
                        const std::string& result);
 
-  static void GetDevToolsId(const v8::FunctionCallbackInfo<v8::Value>& args);
-  void GetDevToolsIdTask(std::string* id,
-                          v8::Persistent<v8::Function>* cb_p);
+  static void DevToolsGetId(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DevToolsGetIdTask(std::string* id,
+                         v8::Persistent<v8::Function>* cb_p);
+  static void DevToolsInspectElementAt(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  void DevToolsInspectElementAtTask(int x, int y, 
+                                    v8::Persistent<v8::Function>* cb_p);
 
   static void Zoom(const v8::FunctionCallbackInfo<v8::Value>& args);
   void ZoomTask(const content::PageZoom zoom,

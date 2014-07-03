@@ -14,7 +14,9 @@ namespace exo_browser {
   
 ExoSessionCookieStore::ExoSessionCookieStore(
     ExoSession* parent)
-: parent_(parent) {
+: parent_(parent),
+  op_count_(0) 
+{
 }
 
 ExoSessionCookieStore::~ExoSessionCookieStore()
@@ -74,7 +76,7 @@ ExoSessionCookieStore::AddCookie(
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoSessionWrap::DispatchCookiesAdd, 
-                   parent_->wrapper_, cc));
+                   parent_->wrapper_, cc, op_count_++));
 
   }
 }
@@ -87,7 +89,7 @@ ExoSessionCookieStore::UpdateCookieAccessTime(
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoSessionWrap::DispatchCookiesUpdateAccessTime, 
-                   parent_->wrapper_, cc));
+                   parent_->wrapper_, cc, op_count_++));
 
   }
 }
@@ -100,7 +102,7 @@ ExoSessionCookieStore::DeleteCookie(
     NodeThread::Get()->PostTask(
         FROM_HERE,
         base::Bind(&ExoSessionWrap::DispatchCookiesDelete, 
-                   parent_->wrapper_, cc));
+                   parent_->wrapper_, cc, op_count_++));
 
   }
 }

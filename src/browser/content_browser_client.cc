@@ -26,6 +26,7 @@
 #include "exo_browser/src/common/switches.h"
 #include "exo_browser/src/browser/web_contents_view_delegate_creator.h"
 #include "exo_browser/src/browser/session/exo_session.h"
+#include "exo_browser/src/geolocation/access_token_store.h"
 
 
 using namespace content;
@@ -45,7 +46,8 @@ ExoBrowserContentBrowserClient::Get()
 }
 
 ExoBrowserContentBrowserClient::ExoBrowserContentBrowserClient()
-  : browser_main_parts_(NULL)
+  : browser_main_parts_(NULL),
+    system_session_(NULL)
 {
   DCHECK(!g_browser_client);
   g_browser_client = this;
@@ -54,6 +56,10 @@ ExoBrowserContentBrowserClient::ExoBrowserContentBrowserClient()
 ExoBrowserContentBrowserClient::~ExoBrowserContentBrowserClient() 
 {
   g_browser_client = NULL;
+  if(system_session_ != NULL) {
+    delete system_session_;
+    system_session_ = NULL;
+  }
 }
 
 BrowserMainParts* 
@@ -66,7 +72,7 @@ ExoBrowserContentBrowserClient::CreateBrowserMainParts(
 
 void 
 ExoBrowserContentBrowserClient::AppendExtraCommandLineSwitches(
-    CommandLine* command_line,
+    base::CommandLine* command_line,
     int child_process_id) 
 {
   /*
@@ -84,6 +90,12 @@ ExoBrowserContentBrowserClient::ResourceDispatcherHostCreated()
       new ExoBrowserResourceDispatcherHostDelegate());
   ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
+}
+
+AccessTokenStore* 
+ExoBrowserContentBrowserClient::CreateAccessTokenStore()
+{ 
+  return new ExoBrowserAccessTokenStore();
 }
 
 std::string 
@@ -121,11 +133,13 @@ ExoBrowserContentBrowserClient::OverrideWebkitPrefs(
 net::URLRequestContextGetter* 
 ExoBrowserContentBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
-    ProtocolHandlerMap* protocol_handlers) 
+    ProtocolHandlerMap* protocol_handlers,
+    ProtocolHandlerScopedVector protocol_interceptors)
 {
   ExoSession* session =
       ExoSessionForBrowserContext(content_browser_context);
-  return session->CreateRequestContext(protocol_handlers);
+  return session->CreateRequestContext(
+      protocol_handlers, protocol_interceptors.Pass());
 }
 
 net::URLRequestContextGetter*
@@ -133,12 +147,14 @@ ExoBrowserContentBrowserClient::CreateRequestContextForStoragePartition(
     BrowserContext* content_browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
-    ProtocolHandlerMap* protocol_handlers) 
+    ProtocolHandlerMap* protocol_handlers,
+    ProtocolHandlerScopedVector protocol_interceptors)
 {
   ExoSession* session =
       ExoSessionForBrowserContext(content_browser_context);
   return session->CreateRequestContextForStoragePartition(
-      partition_path, in_memory, protocol_handlers);
+      partition_path, in_memory, 
+      protocol_handlers, protocol_interceptors.Pass());
 }
 
 
@@ -153,7 +169,7 @@ ExoBrowserContentBrowserClient::IsHandledURL(
   // ExoBrowserURLRequestContextGetter::GetURLRequestContext().
   /* TODO(spolu): Check in sync */
   static const char* const kProtocolList[] = {
-      chrome::kBlobScheme,
+      kBlobScheme,
       kFileSystemScheme,
       kChromeUIScheme,
       kChromeDevToolsScheme,
@@ -203,5 +219,15 @@ ExoBrowserContentBrowserClient::ExoSessionForBrowserContext(
   return NULL;
 }
 
+ExoSession* 
+ExoBrowserContentBrowserClient::system_session()
+{
+  if(system_session_ == NULL) {
+    /* We create an off the record session to be used by the content API. see */
+    /* ExoBrowserAccessTokenStore as an example.                              */
+    system_session_ = new ExoSession(true, "system_session", NULL);
+  }
+  return system_session_;
+}
 
 } // namespace exo_browser
