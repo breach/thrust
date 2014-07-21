@@ -1,0 +1,3 @@
+[submodule "vendor/brightray"]
+	path = vendor/brightray
+	url = https://github.com/brightray/brightray.git
