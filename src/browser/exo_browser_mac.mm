@@ -95,6 +95,7 @@ void
 ExoBrowser::PlatformCreateWindow(
     int width,
     int height,
+    const bool kiosk,
     const std::string& icon_path)
 {
   /* icon_path is ignore on OSX */
@@ -271,6 +272,22 @@ ExoBrowser::PlatformCreateWindow(
                           options:0
                           metrics:nil
                             views:horizontal_dict]];
+
+  // Handle kiosk mode
+  if(kiosk) {
+    // TODO: these might be a bit too restrictive
+    NSApplicationPresentationOptions options =
+      NSApplicationPresentationHideMenuBar |
+      NSApplicationPresentationHideDock |
+      NSApplicationPresentationDisableHideApplication |
+      NSApplicationPresentationDisableProcessSwitching |
+      NSApplicationPresentationDisableAppleMenu |
+      NSApplicationPresentationDisableForceQuit;
+
+    [NSApp setPresentationOptions:options];
+    [[_window contentView] enterFullScreenMode:
+      [NSScreen mainScreen] withOptions:nil];
+  }
 
   // show the window
   [window_ makeKeyAndOrderFront:nil];

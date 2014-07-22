@@ -394,7 +394,7 @@ private:
   // ### PlatformCreateWindow
   //
   // Creates the ExoBrowser window GUI.
-  void PlatformCreateWindow(int width, int height, 
+  void PlatformCreateWindow(int width, int height, const bool kiosk, 
                             const std::string& icon_path);
 
   // ### PlatformKill
