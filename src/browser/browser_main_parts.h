@@ -40,6 +40,10 @@ class ExoBrowserMainParts : public brightray::BrowserMainParts {
   // BrowserMainParts overrides.
   virtual void PreMainMessageLoopRun() OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
+#if defined(OS_MACOSX) 
+  virtual void PreMainMessageLoopStart() OVERRIDE; 
+  virtual void PostDestroyThreads() OVERRIDE;
+#endif
 
   net::NetLog* net_log() { 
     return net_log_.get(); 

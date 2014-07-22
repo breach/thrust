@@ -1,0 +1,90 @@
+/******************************************************************************/
+/* TODO */
+/******************************************************************************/
+
+>>v0.x<<
+:cleanser #90
+  - Reintroduce ClearDataForOrigin
+  - Ability to list Data
+  - Ideally: Storage for LocalData
+
+:print #108
+  - Printing Support
+
+:form_data #107
+  - Password, Form Data API
+
+:html_auth #106
+  - User authorization API
+
+
+DONE:
+>>v0.6<<
+- Cookies op_count
+- Upgrade to Node 0.11.14 (v8: 3.25.30.0)
+- Upgrade to Chrome 35.0.1916.114 (v8: 3.25.28.16)
+- Add domain_key (eTLD+1) to cookie object exposed thorugh API
+- Bugfixes [fix #136]
+- FLOATING control support
+
+
+>>v0.5<<
+- Context Menu API enhancement
+- Add the ability to run NodeJS only
+- Upgrade to Chrome 32.0.1700.68 (v8: 3.22.24.9)
+- Upgrade to Node 0.10.24 (v8: 3.22.24.9)
+- Fix DevTools I/F
+
+>>v0.4<<
+- Page Zoom API
+- Window Title & Context Menu API
+- DevTools API
+- File Upload/Download UI
+- Antialiasing
+- GTK Icon API
+
+>>v0.3<<:
+- Finish Cookie API: Load/LoadForKey/Flush
+- Check LoadForKey/Load merge is OK (null / '')
+- Cookie Deserialization
+- Expose VisitedLinks AddURL to JS (to add url from there)
+- Embed NeDB in Shell for Cookie Storage
+- Delete VisitedLinks / Cache / Local Storage JS API
+- Capture ExoFrame ScreenShot from API
+
+/******************************************************************************/
+/* v0.7 NOTES */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/* CHROMIUM RELATED BUILD TRICKS */
+/******************************************************************************/
+
+build/gyp_chromium exo_browser/exo_browser.gyp -Ddisable_debugallocation=1
+
+# When receiving message: `The application cannot be opened because its executable is missing.`
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
+
+
+/******************************************************************************/
+/* CHROMIUM URLS */
+/******************************************************************************/
+
+http://src.chromium.org/chrome/releases/
+http://omahaproxy.appspot.com/
+
+
+/******************************************************************************/
+/* NOTES ON CHROMIUM */
+/******************************************************************************/
+
+- Issue 159193: Move URLRequestContext getters from Profile into StoragePartition 
+https://code.google.com/p/chromium/issues/detail?id=159193#c28
+
+- Issue 330264: Tracking bug: Migrate BrowserPlugin to use RenderFrame Architecture
+https://code.google.com/p/chromium/issues/detail?id=330264
+
+- Issue 304341: Move frame specific functionality from RenderView(Host) to RenderFrame(Host)
+https://code.google.com/p/chromium/issues/detail?id=304341#c60
+

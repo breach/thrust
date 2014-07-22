@@ -19,6 +19,7 @@
 
 #include "src/common/switches.h"
 #include "src/browser/exo_browser.h"
+#include "src/browser/session/exo_session.h"
 #include "src/net/net_log.h"
 
 
@@ -53,7 +54,7 @@ brightray::BrowserContext*
 ExoBrowserMainParts::CreateBrowserContext() {
   if(system_session_ == NULL) {
     /* We create an off the record session to be used internally. */
-    system_session_ = new ExoSession(true, "system_session", NULL);
+    system_session_ = new ExoSession(true, "system_session");
   }
   return system_session_;
 }

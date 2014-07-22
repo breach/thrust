@@ -29,7 +29,7 @@
 	<key>NSPrincipalClass</key>
         <!-- <string>BRYApplication</string> -->
         <!-- <string>AtomApplication</string> -->
-	<string>NSApplication</string>
+	<string>ExoBrowserApplication</string>
 	<key>LSFileQuarantineEnabled</key>
 	<true/>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
