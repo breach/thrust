@@ -35,6 +35,7 @@ void
 ExoBrowser::PlatformCreateWindow(
     int width,
     int height,
+    const bool kiosk,
     const std::string& icon_path)
 {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
@@ -107,6 +108,10 @@ ExoBrowser::PlatformCreateWindow(
 
   // Finally, show the window.
   gtk_widget_show_all(GTK_WIDGET(window_));
+
+  // handle kiosk mode
+  if(kiosk)
+    gtk_window_fullscreen(window_);
 }
 
 

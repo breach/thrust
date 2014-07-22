@@ -4,6 +4,7 @@
 #include "exo_browser/src/browser/exo_browser.h"
 
 #include "base/auto_reset.h"
+#include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
@@ -77,7 +78,12 @@ ExoBrowser::CreateNew(
     const std::string& icon_path)
 {
   ExoBrowser* browser = new ExoBrowser(wrapper);
-  browser->PlatformCreateWindow(size.width(), size.height(), icon_path);
+  
+  // Handle kiosk mode
+  const bool kiosk = 
+    CommandLine::ForCurrentProcess()->HasSwitch(switches::kExoBrowserKiosk);
+
+  browser->PlatformCreateWindow(size.width(), size.height(), kiosk, icon_path);
 
   return browser;
 }

@@ -10,5 +10,7 @@ namespace switches {
 const char kExoBrowserDataPath[] = "data-path";
 // Prevents the launch of the default 'app/' and runs the in "raw" mode
 const char kExoBrowserRaw[] = "raw";
+// Launches ExoBrowser in fullscreen mode
+const char kExoBrowserKiosk[] = "kiosk";
 
 }  // namespace switches
