@@ -17,6 +17,7 @@
  
 *.mk
 *.Makefile
+*.pyc
 
 *.xcodeproj
 .DS_Store
