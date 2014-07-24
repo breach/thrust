@@ -26,7 +26,6 @@
 #include "src/browser/browser_main_parts.h"
 #include "src/browser/resource_dispatcher_host_delegate.h"
 #include "src/common/switches.h"
-#include "src/browser/web_contents_view_delegate_creator.h"
 #include "src/browser/session/exo_session.h"
 #include "src/geolocation/access_token_store.h"
 
@@ -87,11 +86,9 @@ WebContentsViewDelegate*
 ExoBrowserBrowserClient::GetWebContentsViewDelegate(
     WebContents* web_contents) 
 { 
-#if !defined(USE_AURA)
-  return CreateExoBrowserWebContentsViewDelegate(web_contents);
-#else
   return NULL;
-#endif
+  /* TODO(spolu): Reimplemenent with plugin */
+  //return CreateExoBrowserWebContentsViewDelegate(web_contents);
 }
 
 void 

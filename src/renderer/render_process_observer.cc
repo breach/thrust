@@ -2,16 +2,17 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/renderer/render_process_observer.h"
+#include "src/renderer/render_process_observer.h"
 
 #include "base/command_line.h"
 #include "content/public/common/content_client.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/test/layouttest_support.h"
-#include "exo_browser/src/common/messages.h"
-#include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/renderer/content_renderer_client.h"
+
+#include "src/common/messages.h"
+#include "src/common/switches.h"
+#include "src/renderer/renderer_client.h"
 
 using namespace content;
 

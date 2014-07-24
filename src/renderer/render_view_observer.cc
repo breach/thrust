@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/renderer/render_view_observer.h"
+#include "src/renderer/render_view_observer.h"
 
 #include "base/command_line.h"
 #include "third_party/WebKit/public/web/WebView.h"
@@ -11,8 +11,9 @@
 #include "third_party/WebKit/public/web/WebDraggableRegion.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_observer.h"
-#include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/common/messages.h"
+
+#include "src/common/switches.h"
+#include "src/common/messages.h"
 
 using namespace content;
 

@@ -250,14 +250,17 @@ FileSelectHelper::GetFileTypesFromAcceptType(
       // so we just have to add it to the list.
       base::FilePath::StringType ext(ascii_type.begin(), ascii_type.end());
       extensions->push_back(ext.substr(1));
-    } else {
-      if (ascii_type == "image/*")
+    } 
+    else {
+      /* TODO(spolu): FixMe */
+      /*
+      if (ascii_type == "image*")
         description_id = IDS_IMAGE_FILES;
-      else if (ascii_type == "audio/*")
+      else if (ascii_type == "audio*")
         description_id = IDS_AUDIO_FILES;
-      else if (ascii_type == "video/*")
+      else if (ascii_type == "video*")
         description_id = IDS_VIDEO_FILES;
-
+      */
       net::GetExtensionsForMimeType(ascii_type, extensions);
     }
 
@@ -276,9 +279,12 @@ FileSelectHelper::GetFileTypesFromAcceptType(
   //    "ehtml,shtml,htm,html" for "text/html". On Windows, the select file
   //    dialog uses the first extension in the list to form the description,
   //    like "EHTML Files". This is not what we want.
+  /* TODO(spolu): FixMe */
+  /*
   if (valid_type_count > 1 ||
       (valid_type_count == 1 && description_id == 0 && extensions->size() > 1))
     description_id = IDS_CUSTOM_FILES;
+  */
 
   if (description_id) {
     file_type->extension_description_overrides.push_back(

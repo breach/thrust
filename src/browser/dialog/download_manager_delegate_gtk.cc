@@ -4,9 +4,7 @@
 
 #include "src/browser/dialog/download_manager_delegate.h"
 
-#if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>
-#endif
 
 #include "base/bind.h"
 #include "base/file_util.h"
@@ -40,7 +38,7 @@ void ExoBrowserDownloadManagerDelegate::ChooseDownloadPath(
 
   parent_window = item->GetWebContents()->GetView()->GetTopLevelNativeWindow();
   dialog = gtk_file_chooser_dialog_new("Save File",
-                                       parent_window,
+                                       NULL,
                                        GTK_FILE_CHOOSER_ACTION_SAVE,
                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                        GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,

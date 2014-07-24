@@ -8,10 +8,9 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/shell/browser/shell_browser_context.h"
 
 #include "src/browser/session/exo_session.h"
-#include "src/browser/content_browser_client.h"
+#include "src/browser/browser_client.h"
 
 
 using namespace content;
@@ -47,7 +46,7 @@ ExoBrowserAccessTokenStore::LoadAccessTokens(
 
 void ExoBrowserAccessTokenStore::GetRequestContextOnUIThread() {
   system_request_context_ = 
-    ExoBrowserContentBrowserClient::Get()->system_session()->GetRequestContext();
+    ExoBrowserBrowserClient::Get()->system_session()->GetRequestContext();
 }
 
 void ExoBrowserAccessTokenStore::RespondOnOriginatingThread(

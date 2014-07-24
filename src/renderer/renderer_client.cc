@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/renderer/renderer_client.h"
+#include "src/renderer/renderer_client.h"
 
 #include "base/callback.h"
 #include "base/command_line.h"
@@ -11,15 +11,16 @@
 #include "third_party/WebKit/public/platform/WebMediaStreamCenter.h"
 #include "third_party/WebKit/public/web/WebPluginParams.h"
 #include "third_party/WebKit/public/web/WebView.h"
-#include "components/visitedlink/renderer/visitedlink_slave.h"
+#include "src/renderer/visitedlink/visitedlink_slave.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/test/layouttest_support.h"
-#include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/renderer/render_process_observer.h"
-#include "exo_browser/src/renderer/render_view_observer.h"
+
+#include "src/common/switches.h"
+#include "src/renderer/render_process_observer.h"
+#include "src/renderer/render_view_observer.h"
 
 using namespace content;
 

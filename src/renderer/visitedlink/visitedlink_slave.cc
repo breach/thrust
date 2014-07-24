@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "components/visitedlink/renderer/visitedlink_slave.h"
+#include "src/renderer/visitedlink/visitedlink_slave.h"
 
 #include "base/logging.h"
 #include "base/memory/shared_memory.h"
-#include "components/visitedlink/common/visitedlink_messages.h"
 #include "third_party/WebKit/public/web/WebView.h"
+
+#include "src/common/visitedlink/visitedlink_messages.h"
 
 using blink::WebView;
 

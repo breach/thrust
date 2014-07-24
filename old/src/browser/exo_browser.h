@@ -266,6 +266,16 @@ public:
   // Sets the ExoBrowser window title
   void SetTitle(const std::string& title) { PlatformSetTitle(title); }
 
+  // ### SetPosition
+  //
+  // Sets the ExoBrowser window position
+  void SetPosition(const gfx::Point& position) { PlatformSetPosition(position); }
+
+  // ### SetSize
+  //
+  // Sets the ExoBrowser window size
+  void SetPosition(const gfx::Size& size) { PlatformSetSize(size); }
+
 
   // ### Kill
   // 

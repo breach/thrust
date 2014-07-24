@@ -10,10 +10,14 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "ui/gfx/codec/png_codec.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_view.h"
+#include "content/public/browser/notification_details.h"
+#include "content/public/browser/notification_source.h"
+#include "content/public/browser/notification_types.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/common/renderer_preferences.h"
@@ -25,29 +29,77 @@
 #include "src/browser/dialog/javascript_dialog_manager.h"
 #include "src/browser/dialog/file_select_helper.h"
 #include "src/common/messages.h"
-#include "src/browser/exo_frame.h"
 
 using namespace content;
 
 namespace exo_browser {
 
-const int ExoBrowser::kDefaultWindowWidth = 800;
-const int ExoBrowser::kDefaultWindowHeight = 600;
-
 std::vector<ExoBrowser*> ExoBrowser::s_instances;
 
 
-ExoBrowser::ExoBrowser()
-  : window_(NULL),
-    floating_(NULL),
-    is_killed_(false)
+ExoBrowser::ExoBrowser(
+    WebContents* web_contents,
+    const gfx::Size& size,
+    const std::string& title,
+    const std::string& icon_path,
+    const bool has_frame)
+  : WebContentsObserver(web_contents),
+    is_closed_(false),
+    title_(title),
+    has_frame_(has_frame),
+    inspectable_web_contents_(
+        brightray::InspectableWebContents::Create(web_contents))
 {
+  web_contents->SetDelegate(this);
+  inspectable_web_contents()->SetDelegate(this);
+  WebContentsObserver::Observe(web_contents);
+
+  // Get notified of title updated message.
+  registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
+                 Source<WebContents>(web_contents));
+
+  /* Set the icon for the window before it gets displayed. We exceptionally */
+  /* allow IO on this thread (UI) to load the PNG image.                    */
+  base::ThreadRestrictions::SetIOAllowed(true);
+  gfx::Image icon;
+  base::FilePath p = base::FilePath::FromUTF8Unsafe(icon_path);
+  // Read the file from disk.
+  std::string file_contents;
+  if(!p.empty() && base::ReadFileToString(p, &file_contents)) {
+    // Decode the bitmap using WebKit's image decoder.
+    const unsigned char* data =
+      reinterpret_cast<const unsigned char*>(file_contents.data());
+    scoped_ptr<SkBitmap> decoded(new SkBitmap());
+    gfx::PNGCodec::Decode(data, file_contents.length(), decoded.get());
+    if(!decoded->empty()) {
+      icon_ = gfx::Image::CreateFrom1xBitmap(*decoded.release());
+    }
+    else {
+      icon_ = gfx::Image();
+    }
+  }
+  base::ThreadRestrictions::SetIOAllowed(false);
+
+  /*
+  renderer_preferences_util::UpdateFromSystemSettings(
+      web_contents_->GetMutableRendererPrefs());
+  web_contents_->GetRenderViewHost()->SyncRendererPrefs();
+   */
+  PlatformCreateWindow(size);
+
+
+  LOG(INFO) << "ExoBrowser Constructor [" << web_contents << "]";
   s_instances.push_back(this);
 }
 
 ExoBrowser::~ExoBrowser() 
 {
   LOG(INFO) << "ExoBrowser Destructor";
+
+  if(inspectable_web_contents_) {
+    inspectable_web_contents_.reset();
+  }
+
   PlatformCleanUp();
 
   for (size_t i = 0; i < s_instances.size(); ++i) {
@@ -59,246 +111,97 @@ ExoBrowser::~ExoBrowser()
 }
 
 
-void 
-ExoBrowser::Initialize() 
-{
-  PlatformInitialize(
-      gfx::Size(kDefaultWindowWidth, kDefaultWindowHeight));
-}
-
-
 ExoBrowser*
 ExoBrowser::CreateNew(
+    WebContents* web_contents,
     const gfx::Size& size,
-    const std::string& icon_path)
+    const std::string& title,
+    const std::string& icon_path,
+    const bool has_frame)
 {
-  ExoBrowser* browser = new ExoBrowser();
-  browser->PlatformCreateWindow(size.width(), size.height(), icon_path);
-
+  ExoBrowser *browser = new ExoBrowser(web_contents, size, 
+                                       title, icon_path, has_frame);
   return browser;
 }
 
+ExoBrowser*
+ExoBrowser::CreateNew(
+    const GURL& root_url,
+    const gfx::Size& size,
+    const std::string& title,
+    const std::string& icon_path,
+    const bool has_frame)
+{
+  WebContents::CreateParams create_params(
+      (BrowserContext*)ExoBrowserBrowserClient::Get()->system_session());
+  WebContents* web_contents = WebContents::Create(create_params);
+  
+  NavigationController::LoadURLParams params(root_url);
+  params.transition_type = PageTransitionFromInt(
+      PAGE_TRANSITION_TYPED | PAGE_TRANSITION_FROM_ADDRESS_BAR);
+  web_contents->GetController().LoadURLWithParams(params);
+
+  LOG(INFO) << "ExoFrame Constructor (web_contents created) [" 
+            << web_contents << "]";
+
+  return CreateNew(web_contents, size, title, icon_path, has_frame);
+}
+
+WebContents* 
+ExoBrowser::web_contents() const {
+  if (!inspectable_web_contents_)
+    return NULL;
+  return inspectable_web_contents()->GetWebContents();
+}
+
 void 
-ExoBrowser::KillAll() 
+ExoBrowser::CloseAll() 
 {
   std::vector<ExoBrowser*> open(s_instances);
   for (size_t i = 0; i < open.size(); ++i) {
-    open[i]->Kill();
+    open[i]->Close();
   }
-  base::MessageLoop::current()->RunUntilIdle();
-}
-
-
-ExoFrame* 
-ExoBrowser::FrameForWebContents(
-    const WebContents* web_contents)
-{
-  std::map<std::string, ExoFrame*>::iterator p_it;
-  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
-    if((p_it->second)->web_contents_ == web_contents) {
-      return (p_it->second);
-    }
-  }
-  std::map<CONTROL_TYPE, ExoFrame*>::iterator c_it;
-  for(c_it = controls_.begin(); c_it != controls_.end(); ++c_it) {
-    if((c_it->second)->web_contents_ == web_contents) {
-      return (c_it->second);
-    }
-  }
-  return NULL;
-}
-
-
-
-void 
-ExoBrowser::SetControl(
-    CONTROL_TYPE type,
-    ExoFrame* frame)
-{
-  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
-  if(it == controls_.end()) {
-    UnsetControl(type);
-  }
-  controls_[type] = frame;
-  frame->SetType(ExoFrame::CONTROL_FRAME);
-  frame->SetParent(this);
-  frame->web_contents_->WasShown();
-  PlatformSetControl(type, frame);
-}
-
-void
-ExoBrowser::UnsetControl(
-    CONTROL_TYPE type)
-{
-  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
-  if(it != controls_.end()) {
-    PlatformUnsetControl(it->first, it->second);
-    (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
-    (it->second)->SetParent(NULL);
-    (it->second)->web_contents_->WasHidden();
-    controls_.erase(it);
-  }
-}
-
-void
-ExoBrowser::SetControlDimension(
-    CONTROL_TYPE type,
-    int size)
-{
-  PlatformSetControlDimension(type, size);
-}
-
-void
-ExoBrowser::ShowFloating(
-    ExoFrame* frame,
-    int x, 
-    int y,
-    int width, 
-    int height)
-{
-  LOG(INFO) << "ShowFloating: " << floating_;
-  if(floating_ != NULL) {
-    HideFloating();
-  }
-  floating_ = frame;
-  floating_->SetType(ExoFrame::FLOATING_FRAME);
-  floating_->SetParent(this);
-  PlatformShowFloating(floating_, x, y, width, height);
-  floating_->web_contents_->WasShown();
 }
 
 void 
-ExoBrowser::HideFloating()
+ExoBrowser::SetTitle(
+    const std::string& title)
 {
-  if(floating_ != NULL) {
-    LOG(INFO) << "HideFloating: " << floating_;
-    floating_->SetType(ExoFrame::NOTYPE_FRAME);
-    floating_->SetParent(NULL);
-    PlatformHideFloating();
-    floating_->web_contents_->WasHidden();
-  }
-  floating_ = NULL;
-}
-
-
-void
-ExoBrowser::AddPage(
-    ExoFrame* frame)
-{
-  frame->SetType(ExoFrame::PAGE_FRAME);
-  frame->SetParent(this);
-  pages_[frame->name()] = frame;
-  PlatformAddPage(frame);
-}
-
-
-void 
-ExoBrowser::RemovePage(
-    const std::string& name)
-{
-  std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
-  if(it != pages_.end()) {
-    PlatformRemovePage(it->second);
-    (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
-    (it->second)->SetParent(NULL);
-    (it->second)->web_contents_->WasHidden();
-    pages_.erase(it);
-  }
-  /* Otherwise, nothing to do */
+  title_ = title;
+  PlatformSetTitle(title);
 }
 
 void
-ExoBrowser::ShowPage(
-    const std::string& name)
+ExoBrowser::Close()
 {
-  ExoFrame* page = NULL;
-  std::map<std::string, ExoFrame*>::iterator it = pages_.find(name);
-  if(it != pages_.end()) {
-    page = it->second;
-  }
-  if(page != NULL) {
-    PlatformShowPage(page);
-    page->web_contents_->WasShown();
-  }
-  std::map<std::string, ExoFrame*>::iterator p_it;
-  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
-    if(page != NULL && p_it->second != page) {
-      (p_it->second)->web_contents_->WasHidden();
-    }
-  }
-}
-
-
-void
-ExoBrowser::RemoveFrame(
-    const std::string& name)
-{
-  std::map<std::string, ExoFrame*>::iterator p_it;
-  for(p_it = pages_.begin(); p_it != pages_.end(); ++p_it) {
-    if((p_it->second)->name() == name) {
-      return RemovePage((p_it->second)->name());
-    }
-  }
-  std::map<CONTROL_TYPE, ExoFrame*>::iterator c_it;
-  for(c_it = controls_.begin(); c_it != controls_.end(); ++c_it) {
-    if((c_it->second)->name() == name) {
-      return UnsetControl(c_it->first);
-    }
-  }
-
-}
-
-
-void
-ExoBrowser::Kill()
-{
-  is_killed_ = true;
-  while(pages_.begin() != pages_.end()) {
-    RemovePage((pages_.begin()->second)->name());
-  }
-  while(controls_.begin() != controls_.end()) {
-    UnsetControl(controls_.begin()->first);
-  }
-  PlatformKill();
-
-  /*
-  NodeThread::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&ExoBrowserWrap::DispatchKill, wrapper_));
-  */
+  registrar_.RemoveAll();
+  is_closed_ = true;
+  PlatformClose();
 }
 
 
 WebContents* 
 ExoBrowser::OpenURLFromTab(
     WebContents* source,
-    const OpenURLParams& params) 
+    const content::OpenURLParams& params) 
 {
-  LOG(INFO) << "OpenURLFromTab: " << params.url;
-  ExoFrame* frame = FrameForWebContents(source);
-  if(frame) {
-    /* Relevant header files:                              */
-    /*  ui/base/window_open_disposition.h                  */
-    /*  content/public/common/page_transition_types_list.h */
+  if(params.disposition != CURRENT_TAB)
+    return NULL;
 
-    /* TODO(spolu): Use params.transition            */
-    /* TODO(spolu): Use params.referrer              */
-    /*
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchOpenURL, wrapper_, 
-                   params.url.spec(), params.disposition, frame->name()));
-    */
-  }
-  else {
-    /* This is used when a newly created WebContents is not yet assigned to  */
-    /* its fimal ExoFrame/ExoBrowser but needs a delegate to navigate to its */
-    /* targeted delegate. See ExoBrowser::WebContentsCreated.                */
-    source->GetController().LoadURL(
-        params.url, params.referrer, params.transition, std::string());
-  }
-  return NULL;
+  content::NavigationController::LoadURLParams load_url_params(params.url);
+  load_url_params.referrer = params.referrer;
+  load_url_params.transition_type = params.transition;
+  load_url_params.extra_headers = params.extra_headers;
+  load_url_params.should_replace_current_entry =
+      params.should_replace_current_entry;
+  load_url_params.is_renderer_initiated = params.is_renderer_initiated;
+  load_url_params.transferred_global_request_id =
+      params.transferred_global_request_id;
+
+  source->GetController().LoadURLWithParams(load_url_params);
+  return source;
 }
+
 
 void 
 ExoBrowser::RequestToLockMouse(
@@ -310,182 +213,22 @@ ExoBrowser::RequestToLockMouse(
   web_contents->GotResponseToLockMouseRequest(true);
 }
 
-void 
-ExoBrowser::CloseContents(
-    WebContents* source) 
-{
-  ExoFrame* frame = FrameForWebContents(source);
-  if(frame) {
-    /*
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchFrameClose, wrapper_, 
-                   frame->name()));
-    */
-  }
-}
-
 bool 
-ExoBrowser::PreHandleKeyboardEvent(
-    WebContents* source,
-    const NativeWebKeyboardEvent& event,
-    bool* is_keyboard_shortcut)
+ExoBrowser::CanOverscrollContent() const 
 {
-  ExoFrame* frame = FrameForWebContents(source);
-  if(frame) {
-    /*
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchFrameKeyboard, wrapper_, 
-                   frame->name(), event));
-    */
-  }
   return false;
 }
 
 void 
-ExoBrowser::HandleKeyboardEvent(
-    WebContents* source,
-    const NativeWebKeyboardEvent& event)
+ExoBrowser::CloseContents(
+    WebContents* source) 
 {
-  //LOG(INFO) << "HandleKeyboardEvent " << event.windowsKeyCode;
-}
-
-void 
-ExoBrowser::NavigationStateChanged(
-    const WebContents* source,
-    unsigned changed_flags)
-{
-  ExoFrame* frame = FrameForWebContents(source);
-  if(!frame) return;
-
-  /*
-  std::vector<ExoBrowserWrap::NavigationEntry> entries;
-
-  for(int i = 0; 
-      i < frame->web_contents()->GetController().GetEntryCount(); 
-      i++) {
-    content::NavigationEntry *entry =
-      frame->web_contents_->GetController().GetEntryAtIndex(i);
-
-    ExoBrowserWrap::NavigationEntry e;
-
-    e.url_ = entry->GetURL().spec();
-    e.virtual_url_ = entry->GetVirtualURL().spec();
-    e.title_ = UTF16ToUTF8(entry->GetTitle());
-    e.visible_ = 
-      (entry == frame->web_contents()->GetController().GetVisibleEntry());
-    e.timestamp_ = entry->GetTimestamp().ToInternalValue() / 1000;
-    e.id_ = entry->GetUniqueID();
-
-    switch(entry->GetPageType()) {
-      case content::PAGE_TYPE_ERROR:
-        e.type_ = "error";
-        break;
-      case content::PAGE_TYPE_INTERSTITIAL:
-        e.type_ = "interstitial";
-        break;
-      default:
-        e.type_ = "normal";
-        break;
-    }
-    switch(entry->GetSSL().security_style) {
-      case content::SECURITY_STYLE_UNAUTHENTICATED:
-        e.ssl_security_type_ = "unauthenticated";
-        break;
-      case content::SECURITY_STYLE_AUTHENTICATION_BROKEN:
-        e.ssl_security_type_ = "broken";
-        break;
-      case content::SECURITY_STYLE_AUTHENTICATED:
-        e.ssl_security_type_ = "authenticated";
-        break;
-      default:
-        e.ssl_security_type_ = "unknown";
-    }
-    e.ssl_cert_status_ = entry->GetSSL().cert_status;
-    e.ssl_content_status_ = entry->GetSSL().content_status;
-
-    entries.push_back(e);
+  if(inspectable_web_contents_) {
+    inspectable_web_contents_.reset();
   }
-  bool can_go_back = frame->web_contents()->GetController().CanGoBack();
-  bool can_go_forward = frame->web_contents()->GetController().CanGoForward();
-  */
-
-  if(frame) {
-    /*
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchNavigationState, wrapper_, 
-                   frame->name(), entries, can_go_back, can_go_forward));
-    */
-  }
+  Close();
 }
 
-void 
-ExoBrowser::WebContentsCreated(
-    WebContents* source_contents,
-    int opener_render_frame_id,
-    const base::string16& frame_name,
-    const GURL& target_url,
-    WebContents* new_contents) 
-{
-  LOG(INFO) << "WebContentsCreated: " << target_url 
-            << "\nopener_render_frame_id: " << opener_render_frame_id
-            << "\nframe_name: " << frame_name
-            << "\nnew_contents: " <<  new_contents;
-  /* TODO(spolu): Call into API if necessary */
-
-  /* We set this ExoBrowser as temporary WebContentsDelegate the            */
-  /* OpenURLForTab method may need to be called for some WebContents, esp.  */
-  /* when clicking on a link with `target="_blank"` and `rel="norerferrer"` */
-  /* This delegate will get overriden when the new ExoFrame is later        */
-  /* asynchronously added to an ExoBrowser.                                 */ 
-  new_contents->SetDelegate(this);
-
-}
-
-
-void 
-ExoBrowser::AddNewContents(
-    WebContents* source,
-    WebContents* new_contents,
-    WindowOpenDisposition disposition,
-    const gfx::Rect& initial_pos,
-    bool user_gesture,
-    bool* was_blocked) 
-{
-
-  LOG(INFO) << "AddNewContents: " << (was_blocked ? *was_blocked : false)
-            << "\nuser_gesture: " << user_gesture
-            << "\ndisposition: " << disposition
-            << "\nsource: " << source
-            << "\nsource url: " << source->GetVisibleURL()
-            << "\nnew_contents: " <<  new_contents
-            << "\nnew_contents url: " <<  new_contents->GetVisibleURL()
-            << "\nRenderProcessHost: " << new_contents->GetRenderProcessHost()
-            << "\nRenderViewHost: " << new_contents->GetRenderViewHost() 
-            << "\nView: " << new_contents->GetView()
-            << "\nWaiting Response: " << new_contents->IsWaitingForResponse()
-            << "\nInterstitial: " << new_contents->GetInterstitialPage();
-
-  ExoFrame* src_frame = FrameForWebContents(source);
-  DCHECK(src_frame != NULL);
-  if(src_frame) {
-    /* We generate a unique name for this new frame */
-    std::ostringstream oss;
-    static int pop_cnt = 0;
-    oss << src_frame->name() << "-" << (++pop_cnt);
-
-    ExoFrame* new_frame = new ExoFrame(oss.str(),
-                                       new_contents);
-    /*
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ExoBrowserWrap::DispatchFrameCreated, wrapper_, 
-                   src_frame->name(), disposition, initial_pos, new_frame));
-    */
-  }
-}
 
 JavaScriptDialogManager* 
 ExoBrowser::GetJavaScriptDialogManager() 
@@ -501,17 +244,15 @@ ExoBrowser::ActivateContents(
     WebContents* contents) 
 {
   LOG(INFO) << "Activate Content";
-  /* TODO(spolu): find WebContents ExoFrame's name */
-  /* TODO(spolu): Call into API */
+  /* TODO(spolu): Call into Platform */
 }
 
 void 
 ExoBrowser::DeactivateContents(
     WebContents* contents) 
 {
-  LOG(INFO) << "Dectivate Content";
-  /* TODO(spolu): find WebContents ExoFrame's name */
-  /* TODO(spolu): Call into API (blur) */
+  LOG(INFO) << "Deactivate Content";
+  /* TODO(spolu): Call into Platform */
 }
 
 void 
@@ -519,8 +260,15 @@ ExoBrowser::RendererUnresponsive(
     WebContents* source) 
 {
   LOG(INFO) << "RendererUnresponsive";
-  /* TODO(spolu): find WebContents ExoFrame's name */
-  /* TODO(spolu): Call into API */
+  /* TODO(spolu): Notify */
+}
+
+void 
+ExoBrowser::RendererResponsive(
+    WebContents* source) 
+{
+  LOG(INFO) << "RendererResponsive";
+  /* TODO(spolu): Notify */
 }
 
 void 
@@ -528,29 +276,7 @@ ExoBrowser::WorkerCrashed(
     WebContents* source) 
 {
   LOG(INFO) << "WorkerCrashed";
-  /* TODO(spolu): find WebContents ExoFrame's name */
-  /* TODO(spolu): Call into API */
-}
-
-void 
-ExoBrowser::FindReply(
-    WebContents* web_contents,
-    int request_id,
-    int number_of_matches,
-    const gfx::Rect& selection_rect,
-    int active_match_ordinal,
-    bool final_update)
-{
-  ExoFrame* frame = FrameForWebContents(web_contents);
-  if(!frame) return;
-
-  /*
-  NodeThread::Get()->PostTask(
-      FROM_HERE,
-      base::Bind(&ExoBrowserWrap::DispatchFindReply, wrapper_, 
-                 frame->name(), request_id, number_of_matches, selection_rect,
-                 active_match_ordinal, final_update));
-  */
+  /* TODO(spolu): Notify */
 }
 
 void 
@@ -568,6 +294,35 @@ ExoBrowser::EnumerateDirectory(
     const base::FilePath& path)
 {
   FileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
+}
+
+void 
+ExoBrowser::Observe(
+    int type,
+    const NotificationSource& source,
+    const NotificationDetails& details) 
+{
+  if (type == NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
+    std::pair<NavigationEntry*, bool>* title =
+        Details<std::pair<NavigationEntry*, bool>>(details).ptr();
+
+    if (title->first) {
+      std::string text = base::UTF16ToUTF8(title->first->GetTitle());
+      SetTitle(text);
+    }
+  }
+}
+
+bool 
+ExoBrowser::OnMessageReceived(
+    const IPC::Message& message) 
+{
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(ExoBrowser, message)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+
+  return handled;
 }
 
 } // namespace exo_browser

@@ -2,15 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "components/visitedlink/browser/visitedlink_event_listener.h"
+#include "src/browser/visitedlink/visitedlink_event_listener.h"
 
 #include "base/memory/shared_memory.h"
-#include "components/visitedlink/browser/visitedlink_delegate.h"
-#include "components/visitedlink/common/visitedlink_messages.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_widget_host.h"
+
+#include "src/browser/visitedlink/visitedlink_delegate.h"
+#include "src/common/visitedlink/visitedlink_messages.h"
 
 using base::Time;
 using base::TimeDelta;

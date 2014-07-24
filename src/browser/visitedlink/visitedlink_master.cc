@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "components/visitedlink/browser/visitedlink_master.h"
+#include "src/browser/visitedlink/visitedlink_master.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -24,11 +24,12 @@
 #include "base/rand_util.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
-#include "components/visitedlink/browser/visitedlink_delegate.h"
-#include "components/visitedlink/browser/visitedlink_event_listener.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "url/gurl.h"
+
+#include "src/browser/visitedlink/visitedlink_delegate.h"
+#include "src/browser/visitedlink/visitedlink_event_listener.h"
 
 using content::BrowserThread;
 

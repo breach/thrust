@@ -4,4 +4,4 @@
 
 // Multiply-included file, no traditional include guard.
 
-#include "components/visitedlink/common/visitedlink_messages.h"
+#include "src/common/visitedlink/visitedlink_messages.h"

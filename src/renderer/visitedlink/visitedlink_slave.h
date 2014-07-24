@@ -7,7 +7,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/shared_memory.h"
-#include "components/visitedlink/common/visitedlink_common.h"
+#include "src/common/visitedlink/visitedlink_common.h"
 #include "content/public/renderer/render_process_observer.h"
 
 namespace visitedlink {

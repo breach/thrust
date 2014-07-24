@@ -23,8 +23,6 @@
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"
 
-#include "src/browser/exo_frame.h"
-
 using namespace content;
 
 namespace {
@@ -150,8 +148,7 @@ ExoBrowserDevToolsDelegate::Stop()
 std::string 
 ExoBrowserDevToolsDelegate::GetDiscoveryPageHTML() 
 {
-  return ResourceBundle::GetSharedInstance().GetRawDataResource(
-      IDR_EXO_BROWSER_DEVTOOLS_DISCOVERY_PAGE).as_string();
+  return std::string("<html></html>");
 }
 
 bool 
@@ -186,10 +183,14 @@ ExoBrowserDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
       it != rvh_list.end(); ++it) {
     WebContents* web_contents = WebContents::FromRenderViewHost(*it);
     if(web_contents) {
+      /* TODO(spolu): FixMe */
+      /*
       ExoFrame* frame = ExoFrame::ExoFrameForWebContents(web_contents);
       if(frame->session() == session_) {
         targets.push_back(new Target(web_contents));
       }
+      */
+      targets.push_back(new Target(web_contents));
     }
   }
   callback.Run(targets);

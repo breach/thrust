@@ -12,7 +12,6 @@
 #include "content/public/browser/web_contents_view.h"
 
 #include "src/common/switches.h"
-#include "src/browser/dialog/javascript_dialog.h"
 
 using namespace content;
 
@@ -44,33 +43,9 @@ ExoBrowserJavaScriptDialogManager::RunJavaScriptDialog(
     return;
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  *did_suppress_message = false;
-
-  if (dialog_) {
-    /* One dialog at a time, please. */
-    *did_suppress_message = true;
-    return;
-  }
-
-  base::string16 new_message_text = net::FormatUrl(origin_url, accept_lang) +
-                              base::ASCIIToUTF16("\n\n") +
-                              message_text;
-  gfx::NativeWindow parent_window =
-      web_contents->GetView()->GetTopLevelNativeWindow();
-
-  dialog_.reset(new JavaScriptDialog(this,
-                                     parent_window,
-                                     javascript_message_type,
-                                     new_message_text,
-                                     default_prompt_text,
-                                     callback));
-#else
-  /* TODO(spolu): implement JavaScriptDialog for other platforms, */
-  /* and then drop this #if                                                 */
+  /* TODO(spolu): Expose to API */
   *did_suppress_message = true;
   return;
-#endif
 }
 
 void 
@@ -87,33 +62,9 @@ ExoBrowserJavaScriptDialogManager::RunBeforeUnloadDialog(
     return;
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  if (dialog_) {
-    // Seriously!?
-    callback.Run(true, base::string16());
-    return;
-  }
-
-  base::string16 new_message_text =
-      message_text +
-      base::ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
-
-  gfx::NativeWindow parent_window =
-      web_contents->GetView()->GetTopLevelNativeWindow();
-
-  dialog_.reset(new JavaScriptDialog(this,
-                                     parent_window,
-                                     JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
-                                     new_message_text,
-                                     /* default prompt_text */
-                                     base::string16(), 
-                                     callback));
-#else
-  /* TODO(spolu): implement JavaScriptDialog for other platforms, */
-  /* and then drop this #if                                       */
+  /* TODO(spolu): Expose to API */
   callback.Run(true, base::string16());
   return;
-#endif
 }
 
 
@@ -121,15 +72,7 @@ void
 ExoBrowserJavaScriptDialogManager::CancelActiveAndPendingDialogs(
     WebContents* web_contents) 
 {
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  if (dialog_) {
-    dialog_->Cancel();
-    dialog_.reset();
-  }
-#else
-  /* TODO(spolu): implement JavaScriptDialog for other platforms, */
-  /* and then drop this #if                                       */
-#endif
+  /* TODO(spolu): Expose to API */
 }
 
 void 
@@ -142,13 +85,7 @@ void
 ExoBrowserJavaScriptDialogManager::DialogClosed(
     JavaScriptDialog* dialog) 
 {
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  DCHECK_EQ(dialog, dialog_.get());
-  dialog_.reset();
-#else
-  /* TODO(spolu): implement JavaScriptDialog for other platforms, */
-  /* and then drop this #if                                       */
-#endif
+  /* TODO(spolu): Expose to API */
 }
 
 } // namespace exo_browser
