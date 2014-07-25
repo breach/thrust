@@ -27,10 +27,9 @@ using namespace content;
 
 namespace exo_browser {
 
-namespace {
+// static
+ExoBrowserMainParts* ExoBrowserMainParts::self_ = NULL;
 
-
-}  // namespace
 
 ExoBrowserMainParts::ExoBrowserMainParts()
   : system_session_(NULL)

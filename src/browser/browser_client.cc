@@ -34,12 +34,25 @@ using namespace content;
 
 namespace exo_browser {
 
+// static
+ExoBrowserBrowserClient* ExoBrowserBrowserClient::self_ = NULL;
+
+
 ExoBrowserBrowserClient::ExoBrowserBrowserClient()
 {
+  self_ = this;
 }
 
 ExoBrowserBrowserClient::~ExoBrowserBrowserClient() 
 {
+}
+
+// static
+ExoBrowserBrowserClient* 
+ExoBrowserBrowserClient::Get() 
+{
+  DCHECK(self_);
+  return self_;
 }
 
 std::string 

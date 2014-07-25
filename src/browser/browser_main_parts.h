@@ -52,7 +52,7 @@ class ExoBrowserMainParts : public brightray::BrowserMainParts {
  private:
   scoped_ptr<net::NetLog> net_log_;
 
-  static ExoBrowserMainParts* self_;
+  static ExoBrowserMainParts*        self_;
   ExoSession*                        system_session_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserMainParts);

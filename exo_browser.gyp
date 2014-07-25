@@ -172,6 +172,13 @@
             },
           ],
         }],
+        ['OS=="linux"', {
+          'link_settings': {
+            'libraries': [
+              '-lpthread -ldl -lm -lX11 -lXrandr -lXext -lgconf-2',
+            ],
+          },
+        }],
       ],
     },
     {

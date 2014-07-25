@@ -25,11 +25,11 @@ class ExoSession;
 
 class ExoBrowserBrowserClient : public brightray::BrowserClient {
  public:
-  // Gets the current instance.
-  static ExoBrowserBrowserClient* Get();
 
   ExoBrowserBrowserClient();
   virtual ~ExoBrowserBrowserClient();
+
+  static ExoBrowserBrowserClient* Get();
 
   /****************************************************************************/
   /* CONTENTBROWSERCLIENT IMPLEMENTATION                                      */
@@ -109,7 +109,8 @@ class ExoBrowserBrowserClient : public brightray::BrowserClient {
   scoped_ptr<ExoBrowserResourceDispatcherHostDelegate>
                             resource_dispatcher_host_delegate_;
 
-  std::vector<ExoSession*>  sessions_;
+  static ExoBrowserBrowserClient*    self_;
+  std::vector<ExoSession*>           sessions_;
 };
 
 } // namespace exo_browser
