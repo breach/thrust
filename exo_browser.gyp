@@ -55,6 +55,24 @@
       'src/browser/ui/views/frameless_view.h',
       'src/browser/ui/views/frameless_view.cc',
 
+      #Menu Views
+      'src/browser/ui/views/global_menu_bar_x11.h',
+      'src/browser/ui/views/global_menu_bar_x11.cc',
+      'src/browser/ui/views/menu_bar.h'
+      'src/browser/ui/views/menu_bar.cc',
+      'src/browser/ui/views/menu_delegate.h',
+      'src/browser/ui/views/menu_delegate.cc',
+      'src/browser/ui/views/menu_layout.h',
+      'src/browser/ui/views/menu_layout.cc',
+      #/Menu Views
+
+      #ui:cocoa:menu
+      'src/browser/ui/cocoa/event_processing_window.h',
+      'src/browser/ui/cocoa/event_processing_window.mm',
+      'src/browser/ui/cocoa/exo_menu_controller.h',
+      'src/browser/ui/cocoa/exo_menu_controller.mm',
+      #/ui:cocoa:menu
+
       'src/renderer/renderer_client.cc',
       'src/renderer/renderer_client.h',
       'src/renderer/render_process_observer.cc',
