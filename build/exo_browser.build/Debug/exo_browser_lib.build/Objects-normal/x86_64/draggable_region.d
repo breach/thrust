@@ -1,0 +1,21 @@
+dependencies: \
+  /Users/mhernandez/projects/breach/chromium/src/exo_browser/src/common/draggable_region.cc \
+  src/common/draggable_region.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/rect.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/rect.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/point.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/point_base.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/compiler_specific.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/build/build_config.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/gfx_export.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/point_f.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/vector2d_f.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/vector2d.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/basictypes.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/macros.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/port.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/rect_base.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/rect_f.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/size_f.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/size_base.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/geometry/size.h

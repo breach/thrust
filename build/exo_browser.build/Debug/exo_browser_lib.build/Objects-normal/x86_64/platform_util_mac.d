@@ -1,0 +1,34 @@
+dependencies: \
+  /Users/mhernandez/projects/breach/chromium/src/exo_browser/src/browser/util/platform_util_mac.mm \
+  src/browser/util/platform_util.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/strings/string16.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/base_export.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/basictypes.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/macros.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/compiler_specific.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/build/build_config.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/port.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/native_widget_types.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/logging.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/debug/debugger.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/gfx/gfx_export.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/files/file_path.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/containers/hash_tables.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/strings/string_piece.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/mac/mac_logging.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/mac/scoped_aedesc.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/strings/sys_string_conversions.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/base/l10n/l10n_util.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/strings/string_util.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/strings/string_util_posix.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/base/ui_base_export.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/ui/base/l10n/l10n_util_mac.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/url/gurl.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/memory/scoped_ptr.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/move.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/base/template_util.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/url/url_canon.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/url/url_export.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/url/url_parse.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/url/third_party/mozilla/url_parse.h \
+  vendor/brightray/vendor/download/libchromiumcontent/src/url/url_canon_stdstring.h
