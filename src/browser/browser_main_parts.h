@@ -37,6 +37,8 @@ class ExoBrowserMainParts : public brightray::BrowserMainParts {
   // Implementations of brightray::BrowserMainParts.
   virtual brightray::BrowserContext* CreateBrowserContext() OVERRIDE;
 
+  static void Startup();
+
   // BrowserMainParts overrides.
   virtual void PreMainMessageLoopRun() OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;

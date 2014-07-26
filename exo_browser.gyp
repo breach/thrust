@@ -165,9 +165,13 @@
               'destination': '<(PRODUCT_DIR)',
               'files': [
                 '<(libchromiumcontent_library_dir)/chromiumcontent.dll',
-                '<(libchromiumcontent_library_dir)/content_shell.pak',
-                '<(libchromiumcontent_library_dir)/icudtl.dat',
+                '<(libchromiumcontent_library_dir)/ffmpegsumo.dll',
+                '<(libchromiumcontent_library_dir)/libEGL.dll',
                 '<(libchromiumcontent_library_dir)/libGLESv2.dll',
+                '<(libchromiumcontent_resources_dir)/icudtl.dat',
+                '<(libchromiumcontent_resources_dir)/content_shell.pak',
+                '<(libchromiumcontent_resources_dir)/ui_resources_200_percent.pak',
+                '<(libchromiumcontent_resources_dir)/webkit_resources_200_percent.pak',
               ],
             },
           ],
@@ -178,6 +182,17 @@
               '-lpthread -ldl -lm -lX11 -lXrandr -lXext -lgconf-2',
             ],
           },
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': [
+                '<(libchromiumcontent_library_dir)/libchromiumcontent.so',
+                '<(libchromiumcontent_library_dir)/libffmpegsumo.so',
+                '<(libchromiumcontent_resources_dir)/icudtl.dat',
+                '<(libchromiumcontent_resources_dir)/content_shell.pak',
+              ],
+            },
+          ],
         }],
       ],
     },

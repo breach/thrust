@@ -90,6 +90,8 @@ ExoBrowser::PlatformCreateWindow(
 {
   window_.reset(new views::Widget());
 
+  LOG(INFO) << "Create Window: " << size.width() << "x" << size.height();
+
   gfx::Rect bounds(0, 0, size.width(), size.height());
   window_->AddObserver(this);
 
@@ -110,6 +112,7 @@ ExoBrowser::PlatformCreateWindow(
 
   window_->CenterWindow(bounds.size());
   Layout();
+  window_->Show();
 }
 
 void 

@@ -16,6 +16,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/browser/browser_thread.h"
 
 #include "src/common/switches.h"
 #include "src/browser/exo_browser.h"
@@ -58,12 +59,22 @@ ExoBrowserMainParts::CreateBrowserContext() {
   return system_session_;
 }
 
+void
+ExoBrowserMainParts::Startup()
+{
+  LOG(INFO) << "BAR!";
+  ExoBrowser::CreateNew(GURL("http://google.com"), 
+      gfx::Size(600, 400), std::string("test"), std::string(""), true);
+}
 
 void 
 ExoBrowserMainParts::PreMainMessageLoopRun() 
 {
   brightray::BrowserMainParts::PreMainMessageLoopRun();
   net_log_.reset(new ExoBrowserNetLog());
+
+  BrowserThread::PostTask(
+      BrowserThread::UI, FROM_HERE, base::Bind(&ExoBrowserMainParts::Startup));
 }
 
 void ExoBrowserMainParts::PostMainMessageLoopRun() 

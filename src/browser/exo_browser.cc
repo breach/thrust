@@ -284,7 +284,7 @@ ExoBrowser::RunFileChooser(
     WebContents* web_contents,
     const FileChooserParams& params)
 {
-  FileSelectHelper::RunFileChooser(web_contents, params);
+  //FileSelectHelper::RunFileChooser(web_contents, params);
 }
 
 void 
@@ -293,7 +293,7 @@ ExoBrowser::EnumerateDirectory(
     int request_id,
     const base::FilePath& path)
 {
-  FileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
+  //FileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
 }
 
 void 

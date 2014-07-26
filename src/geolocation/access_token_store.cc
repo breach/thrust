@@ -30,10 +30,6 @@ void
 ExoBrowserAccessTokenStore::LoadAccessTokens(
     const LoadAccessTokensCallbackType& callback) 
 {
-  AccessTokenSet access_token_set;
-  //access_token_set[GURL()] = base::ASCIIToUTF16("exo_browser");
-  callback.Run(access_token_set, system_request_context_.get());
-
   BrowserThread::PostTaskAndReply(
       BrowserThread::UI,
       FROM_HERE,
@@ -56,7 +52,6 @@ void ExoBrowserAccessTokenStore::RespondOnOriginatingThread(
   AccessTokenSet access_token_set;
   //access_token_set[GURL()] = base::ASCIIToUTF16("exo_browser");
   callback.Run(access_token_set, system_request_context_.get());
-  system_request_context_ = NULL;
 }
 
 void ExoBrowserAccessTokenStore::SaveAccessToken(
