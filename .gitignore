@@ -16,6 +16,7 @@
 *~
  
 *.mk
+Makefile
 *.Makefile
 *.pyc
 out
