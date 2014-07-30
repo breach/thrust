@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_CONTENT_BROWSER_H_
-#define EXO_BROWSER_BROWSER_CONTENT_BROWSER_H_
+#ifndef EXO_SHELL_BROWSER_CONTENT_BROWSER_H_
+#define EXO_SHELL_BROWSER_CONTENT_BROWSER_H_
 
 #include <string>
 #include <map>
@@ -15,21 +15,21 @@
 
 #include "brightray/browser/browser_client.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
-class ExoBrowserMainParts;
-class ExoBrowserContext;
-class ExoBrowserResourceDispatcherHostDelegate;
+class ExoShellMainParts;
+class ExoShellContext;
+class ExoShellResourceDispatcherHostDelegate;
 class RenderProcessHost;
 class ExoSession;
 
-class ExoBrowserBrowserClient : public brightray::BrowserClient {
+class ExoShellBrowserClient : public brightray::BrowserClient {
  public:
 
-  ExoBrowserBrowserClient();
-  virtual ~ExoBrowserBrowserClient();
+  ExoShellBrowserClient();
+  virtual ~ExoShellBrowserClient();
 
-  static ExoBrowserBrowserClient* Get();
+  static ExoShellBrowserClient* Get();
 
   /****************************************************************************/
   /* CONTENTBROWSERCLIENT IMPLEMENTATION                                      */
@@ -95,7 +95,7 @@ class ExoBrowserBrowserClient : public brightray::BrowserClient {
   /****************************************************************************/
   /* ACCESSORS                                                                */
   /****************************************************************************/
-  ExoBrowserResourceDispatcherHostDelegate* 
+  ExoShellResourceDispatcherHostDelegate* 
   resource_dispatcher_host_delegate() {
     return resource_dispatcher_host_delegate_.get();
   }
@@ -106,13 +106,13 @@ class ExoBrowserBrowserClient : public brightray::BrowserClient {
   virtual brightray::BrowserMainParts* OverrideCreateBrowserMainParts(
       const content::MainFunctionParams&) OVERRIDE;
 
-  scoped_ptr<ExoBrowserResourceDispatcherHostDelegate>
+  scoped_ptr<ExoShellResourceDispatcherHostDelegate>
                             resource_dispatcher_host_delegate_;
 
-  static ExoBrowserBrowserClient*    self_;
+  static ExoShellBrowserClient*    self_;
   std::vector<ExoSession*>           sessions_;
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_CONTENT_BROWSER_CLIENT_H_
+#endif // EXO_SHELL_BROWSER_CONTENT_BROWSER_CLIENT_H_

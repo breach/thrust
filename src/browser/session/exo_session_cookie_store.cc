@@ -9,7 +9,7 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
   
 ExoSessionCookieStore::ExoSessionCookieStore(
     ExoSession* parent,
@@ -153,4 +153,4 @@ ExoSessionCookieStore::SetForceKeepSessionState()
   */
 }
 
-}  // namespace exo_browser
+}  // namespace exo_shell

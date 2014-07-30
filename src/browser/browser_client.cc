@@ -32,36 +32,36 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 // static
-ExoBrowserBrowserClient* ExoBrowserBrowserClient::self_ = NULL;
+ExoShellBrowserClient* ExoShellBrowserClient::self_ = NULL;
 
 
-ExoBrowserBrowserClient::ExoBrowserBrowserClient()
+ExoShellBrowserClient::ExoShellBrowserClient()
 {
   self_ = this;
 }
 
-ExoBrowserBrowserClient::~ExoBrowserBrowserClient() 
+ExoShellBrowserClient::~ExoShellBrowserClient() 
 {
 }
 
 // static
-ExoBrowserBrowserClient* 
-ExoBrowserBrowserClient::Get() 
+ExoShellBrowserClient* 
+ExoShellBrowserClient::Get() 
 {
   DCHECK(self_);
   return self_;
 }
 
 std::string 
-ExoBrowserBrowserClient::GetApplicationLocale() {
+ExoShellBrowserClient::GetApplicationLocale() {
   return l10n_util::GetApplicationLocale("");
 }
 
 void 
-ExoBrowserBrowserClient::AppendExtraCommandLineSwitches(
+ExoShellBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line,
     int child_process_id) 
 {
@@ -74,38 +74,38 @@ ExoBrowserBrowserClient::AppendExtraCommandLineSwitches(
 }
 
 void 
-ExoBrowserBrowserClient::ResourceDispatcherHostCreated() 
+ExoShellBrowserClient::ResourceDispatcherHostCreated() 
 {
   resource_dispatcher_host_delegate_.reset(
-      new ExoBrowserResourceDispatcherHostDelegate());
+      new ExoShellResourceDispatcherHostDelegate());
   ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
 }
 
 AccessTokenStore* 
-ExoBrowserBrowserClient::CreateAccessTokenStore()
+ExoShellBrowserClient::CreateAccessTokenStore()
 { 
-  return new ExoBrowserAccessTokenStore();
+  return new ExoShellAccessTokenStore();
 }
 
 std::string 
-ExoBrowserBrowserClient::GetDefaultDownloadName() 
+ExoShellBrowserClient::GetDefaultDownloadName() 
 {
   return "download";
 }
 
 
 WebContentsViewDelegate* 
-ExoBrowserBrowserClient::GetWebContentsViewDelegate(
+ExoShellBrowserClient::GetWebContentsViewDelegate(
     WebContents* web_contents) 
 { 
   return NULL;
   /* TODO(spolu): Reimplemenent with plugin */
-  //return CreateExoBrowserWebContentsViewDelegate(web_contents);
+  //return CreateExoShellWebContentsViewDelegate(web_contents);
 }
 
 void 
-ExoBrowserBrowserClient::OverrideWebkitPrefs(
+ExoShellBrowserClient::OverrideWebkitPrefs(
     RenderViewHost* render_view_host,
     const GURL& url,
     WebPreferences* prefs) 
@@ -118,7 +118,7 @@ ExoBrowserBrowserClient::OverrideWebkitPrefs(
 }
 
 net::URLRequestContextGetter* 
-ExoBrowserBrowserClient::CreateRequestContext(
+ExoShellBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
     ProtocolHandlerMap* protocol_handlers,
     ProtocolHandlerScopedVector protocol_interceptors)
@@ -130,7 +130,7 @@ ExoBrowserBrowserClient::CreateRequestContext(
 }
 
 net::URLRequestContextGetter*
-ExoBrowserBrowserClient::CreateRequestContextForStoragePartition(
+ExoShellBrowserClient::CreateRequestContextForStoragePartition(
     BrowserContext* content_browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
@@ -146,14 +146,14 @@ ExoBrowserBrowserClient::CreateRequestContextForStoragePartition(
 
 
 bool 
-ExoBrowserBrowserClient::IsHandledURL(
+ExoShellBrowserClient::IsHandledURL(
     const GURL& url) 
 {
   if (!url.is_valid())
     return false;
   DCHECK_EQ(url.scheme(), StringToLowerASCII(url.scheme()));
   // Keep in sync with ProtocolHandlers added by
-  // ExoBrowserURLRequestContextGetter::GetURLRequestContext().
+  // ExoShellURLRequestContextGetter::GetURLRequestContext().
   /* TODO(spolu): Check in sync */
   static const char* const kProtocolList[] = {
       kBlobScheme,
@@ -171,7 +171,7 @@ ExoBrowserBrowserClient::IsHandledURL(
 }
 
 void 
-ExoBrowserBrowserClient::RegisterExoSession(
+ExoShellBrowserClient::RegisterExoSession(
     ExoSession* session)
 {
   LOG(INFO) << "Register Session";
@@ -179,7 +179,7 @@ ExoBrowserBrowserClient::RegisterExoSession(
 }
 
 void 
-ExoBrowserBrowserClient::UnRegisterExoSession(
+ExoShellBrowserClient::UnRegisterExoSession(
     ExoSession* session)
 {
   std::vector<ExoSession*>::iterator it;
@@ -194,7 +194,7 @@ ExoBrowserBrowserClient::UnRegisterExoSession(
 }
 
 ExoSession*
-ExoBrowserBrowserClient::ExoSessionForBrowserContext(
+ExoShellBrowserClient::ExoSessionForBrowserContext(
     BrowserContext* browser_context) 
 {
   std::vector<ExoSession*>::iterator it;
@@ -207,16 +207,16 @@ ExoBrowserBrowserClient::ExoSessionForBrowserContext(
 }
 
 ExoSession* 
-ExoBrowserBrowserClient::system_session()
+ExoShellBrowserClient::system_session()
 {
   return ((ExoSession*) browser_main_parts()->browser_context());
 }
 
 brightray::BrowserMainParts* 
-ExoBrowserBrowserClient::OverrideCreateBrowserMainParts(
+ExoShellBrowserClient::OverrideCreateBrowserMainParts(
     const content::MainFunctionParams&) 
 {
-  return new ExoBrowserMainParts();
+  return new ExoShellMainParts();
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

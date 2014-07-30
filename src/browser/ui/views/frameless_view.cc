@@ -9,9 +9,9 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 
-#include "src/browser/exo_browser.h"
+#include "src/browser/exo_shell.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
 
@@ -34,7 +34,7 @@ FramelessView::~FramelessView()
 
 void 
 FramelessView::Init(
-    ExoBrowser* parent, 
+    ExoShell* parent, 
     views::Widget* frame) 
 {
   parent_ = parent;
@@ -90,7 +90,7 @@ FramelessView::NonClientHitTest(
   // Check for possible draggable region in the client area for the frameless
   // window.
   /*
-  SkRegion* draggable_region = exo_browser_->draggable_region();
+  SkRegion* draggable_region = exo_shell_->draggable_region();
   if (draggable_region && draggable_region->contains(cursor.x(), cursor.y()))
     return HTCAPTION;
   */
@@ -150,4 +150,4 @@ FramelessView::GetClassName() const
   return kViewClassName;
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

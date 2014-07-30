@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_RENDERER_CONTENT_RENDERER_CLIENT_H_
-#define EXO_BROWSER_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#ifndef EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#define EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -20,16 +20,16 @@ class WebPlugin;
 struct WebPluginParams;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
-class ExoBrowserRenderProcessObserver;
+class ExoShellRenderProcessObserver;
 
-class ExoBrowserRendererClient : public content::ContentRendererClient {
+class ExoShellRendererClient : public content::ContentRendererClient {
  public:
-  static ExoBrowserRendererClient* Get();
+  static ExoShellRendererClient* Get();
 
-  ExoBrowserRendererClient();
-  virtual ~ExoBrowserRendererClient();
+  ExoShellRendererClient();
+  virtual ~ExoShellRendererClient();
 
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
@@ -47,10 +47,10 @@ class ExoBrowserRendererClient : public content::ContentRendererClient {
 
 
  private:
-  scoped_ptr<ExoBrowserRenderProcessObserver> observer_;
+  scoped_ptr<ExoShellRenderProcessObserver> observer_;
   scoped_ptr<visitedlink::VisitedLinkSlave>   visited_link_slave_;
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#endif // EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_

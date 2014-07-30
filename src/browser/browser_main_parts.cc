@@ -20,41 +20,41 @@
 #include "content/public/browser/browser_thread.h"
 
 #include "src/common/switches.h"
-#include "src/browser/exo_browser.h"
+#include "src/browser/exo_shell.h"
 #include "src/browser/session/exo_session.h"
 #include "src/net/net_log.h"
 #include "src/api/api_handler.h"
-#include "src/api/exo_browser_binding.h"
+#include "src/api/exo_shell_binding.h"
 
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 // static
-ExoBrowserMainParts* ExoBrowserMainParts::self_ = NULL;
+ExoShellMainParts* ExoShellMainParts::self_ = NULL;
 
 
-ExoBrowserMainParts::ExoBrowserMainParts()
+ExoShellMainParts::ExoShellMainParts()
   : system_session_(NULL)
 {
-  DCHECK(!self_) << "Cannot have two ExoBrowserBrowserMainParts";
+  DCHECK(!self_) << "Cannot have two ExoShellBrowserMainParts";
   self_ = this;
 }
 
-ExoBrowserMainParts::~ExoBrowserMainParts() {
+ExoShellMainParts::~ExoShellMainParts() {
 }
 
 // static
-ExoBrowserMainParts* 
-ExoBrowserMainParts::Get() 
+ExoShellMainParts* 
+ExoShellMainParts::Get() 
 {
   DCHECK(self_);
   return self_;
 }
 
 brightray::BrowserContext* 
-ExoBrowserMainParts::CreateBrowserContext() {
+ExoShellMainParts::CreateBrowserContext() {
   if(system_session_ == NULL) {
     /* We create an off the record session to be used internally. */
     /* This session has a dummy cookie store. Stores nothing.     */
@@ -64,31 +64,31 @@ ExoBrowserMainParts::CreateBrowserContext() {
 }
 
 void 
-ExoBrowserMainParts::PreMainMessageLoopRun() 
+ExoShellMainParts::PreMainMessageLoopRun() 
 {
   brightray::BrowserMainParts::PreMainMessageLoopRun();
-  net_log_.reset(new ExoBrowserNetLog());
+  net_log_.reset(new ExoShellNetLog());
 
   /* TODO(spolu): Get Path form command line */
   //CommandLine* command_line = CommandLine::ForCurrentProcess();
   
   base::FilePath path;
   base::GetTempDir(&path);
-  api_handler_.reset(new ApiHandler(path.Append("_exo_browser.sock")));
+  api_handler_.reset(new ApiHandler(path.Append("_exo_shell.sock")));
 
 
-  api_handler_->InstallBinding("exo_browser", 
-                               new ExoBrowserBindingFactory());
+  api_handler_->InstallBinding("shell", 
+                               new ExoShellBindingFactory());
 
   api_handler_->Start();
 
   /*
   BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE, base::Bind(&ExoBrowserMainParts::Startup));
+      BrowserThread::UI, FROM_HERE, base::Bind(&ExoShellMainParts::Startup));
   */
 }
 
-void ExoBrowserMainParts::PostMainMessageLoopRun() 
+void ExoShellMainParts::PostMainMessageLoopRun() 
 {
   brightray::BrowserMainParts::PostMainMessageLoopRun();
   /* system_session_ is cleaned up in the above call. */

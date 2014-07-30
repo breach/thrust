@@ -11,7 +11,7 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 ExoSessionVisitedLinkStore::ExoSessionVisitedLinkStore(
     ExoSession* parent)
@@ -57,4 +57,4 @@ ExoSessionVisitedLinkStore::RebuildTable(
   enumerator->OnComplete(true);
 }
 
-}  // namespace exo_browser
+}  // namespace exo_shell

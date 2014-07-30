@@ -44,7 +44,7 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
 
@@ -63,7 +63,7 @@ void InstallProtocolHandlers(net::URLRequestJobFactoryImpl* job_factory,
 
 }  // namespace
 
-ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
+ExoShellURLRequestContextGetter::ExoShellURLRequestContextGetter(
     ExoSession* parent,
     bool ignore_certificate_errors,
     const base::FilePath& base_path,
@@ -92,19 +92,19 @@ ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
         io_loop_->message_loop_proxy().get(), file_loop_));
 }
 
-ExoBrowserURLRequestContextGetter::~ExoBrowserURLRequestContextGetter() 
+ExoShellURLRequestContextGetter::~ExoShellURLRequestContextGetter() 
 {
 }
 
 net::URLRequestContext* 
-ExoBrowserURLRequestContextGetter::GetURLRequestContext() 
+ExoShellURLRequestContextGetter::GetURLRequestContext() 
 {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (!url_request_context_) {
     url_request_context_.reset(new net::URLRequestContext());
     url_request_context_->set_net_log(net_log_);
-    network_delegate_.reset(new ExoBrowserNetworkDelegate);
+    network_delegate_.reset(new ExoShellNetworkDelegate);
     url_request_context_->set_network_delegate(network_delegate_.get());
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
@@ -202,7 +202,7 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     // Keep ProtocolHandlers added in sync with
-    // ExoBrowserContentBrowserClient::IsHandledURL().
+    // ExoShellContentBrowserClient::IsHandledURL().
     InstallProtocolHandlers(job_factory.get(), &protocol_handlers_);
     bool set_protocol = job_factory->SetProtocolHandler(
         kDataScheme, new net::DataProtocolHandler);
@@ -234,15 +234,15 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-ExoBrowserURLRequestContextGetter::GetNetworkTaskRunner() const 
+ExoShellURLRequestContextGetter::GetNetworkTaskRunner() const 
 {
   return BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
 }
 
 net::HostResolver* 
-ExoBrowserURLRequestContextGetter::host_resolver() 
+ExoShellURLRequestContextGetter::host_resolver() 
 {
   return url_request_context_->host_resolver();
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

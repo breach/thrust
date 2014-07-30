@@ -37,33 +37,33 @@ using blink::WebRTCPeerConnectionHandler;
 using blink::WebRTCPeerConnectionHandlerClient;
 using blink::WebThemeEngine;
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
-ExoBrowserRendererClient* g_renderer_client;
+ExoShellRendererClient* g_renderer_client;
 }
 
-ExoBrowserRendererClient* 
-ExoBrowserRendererClient::Get() 
+ExoShellRendererClient* 
+ExoShellRendererClient::Get() 
 {
   return g_renderer_client;
 }
 
-ExoBrowserRendererClient::ExoBrowserRendererClient() 
+ExoShellRendererClient::ExoShellRendererClient() 
 {
   DCHECK(!g_renderer_client);
   g_renderer_client = this;
 }
 
-ExoBrowserRendererClient::~ExoBrowserRendererClient() 
+ExoShellRendererClient::~ExoShellRendererClient() 
 {
   g_renderer_client = NULL;
 }
 
 void 
-ExoBrowserRendererClient::RenderThreadStarted() 
+ExoShellRendererClient::RenderThreadStarted() 
 {
-  observer_.reset(new ExoBrowserRenderProcessObserver());
+  observer_.reset(new ExoShellRenderProcessObserver());
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave());
 #if defined(OS_MACOSX)
   // We need to call this once before the sandbox was initialized to cache the
@@ -76,14 +76,14 @@ ExoBrowserRendererClient::RenderThreadStarted()
 }
 
 void 
-ExoBrowserRendererClient::RenderViewCreated(
+ExoShellRendererClient::RenderViewCreated(
     RenderView* render_view) 
 {
-  new ExoBrowserRenderViewObserver(render_view);
+  new ExoShellRenderViewObserver(render_view);
 }
 
 bool 
-ExoBrowserRendererClient::OverrideCreatePlugin(
+ExoShellRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
     WebFrame* frame,
     const WebPluginParams& params,
@@ -99,7 +99,7 @@ ExoBrowserRendererClient::OverrideCreatePlugin(
 }
 
 unsigned long long 
-ExoBrowserRendererClient::VisitedLinkHash(
+ExoShellRendererClient::VisitedLinkHash(
     const char* canonical_url, 
     size_t length) 
 { 
@@ -107,7 +107,7 @@ ExoBrowserRendererClient::VisitedLinkHash(
 }
 
 bool 
-ExoBrowserRendererClient::IsLinkVisited(
+ExoShellRendererClient::IsLinkVisited(
     unsigned long long link_hash)
 {
   //LOG(INFO) << link_hash << " " << visited_link_slave_->IsVisited(link_hash);
@@ -115,4 +115,4 @@ ExoBrowserRendererClient::IsLinkVisited(
 }
 
 
-} // namespace exo_browser
+} // namespace exo_shell

@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_H_
-#define EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_H_
+#ifndef EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
+#define EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -15,17 +15,17 @@
 #include "src/browser/session/exo_session_cookie_store.h"
 #include "src/browser/session/exo_session_visitedlink_store.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 class DownloadManagerDelegate;
-class ExoBrowserDevToolsDelegate;
+class ExoShellDevToolsDelegate;
 class ResourceContext;
-class ExoBrowserURLRequestContextGetter;
-class ExoBrowserDownloadManagerDelegate;
+class ExoShellURLRequestContextGetter;
+class ExoShellDownloadManagerDelegate;
 
 // ### ExoSession
 //
-// The ExoSession is BrowserContext passed to an ExoBrowser to be used with all
+// The ExoSession is BrowserContext passed to an ExoShell to be used with all
 // its associated control and frames. A session represents the contextual 
 // parameters and data needed to render a web page:
 // - Whether or not Local HTML5 Storage is allowed or in-memory
@@ -58,7 +58,7 @@ public:
   /****************************************************************************/
   /* EXOFRAME / DEVTOOLS I/F                                                  */
   /****************************************************************************/
-  ExoBrowserDevToolsDelegate* devtools_delegate() {
+  ExoShellDevToolsDelegate* devtools_delegate() {
     return devtools_delegate_;
   }
 
@@ -145,19 +145,19 @@ private:
   base::FilePath                                   path_;
 
   scoped_ptr<ExoResourceContext>                   resource_context_;
-  scoped_ptr<ExoBrowserDownloadManagerDelegate>    download_manager_delegate_;
-  scoped_refptr<ExoBrowserURLRequestContextGetter> url_request_getter_;
+  scoped_ptr<ExoShellDownloadManagerDelegate>    download_manager_delegate_;
+  scoped_refptr<ExoShellURLRequestContextGetter> url_request_getter_;
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
   scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 
-  ExoBrowserDevToolsDelegate*                      devtools_delegate_;
+  ExoShellDevToolsDelegate*                      devtools_delegate_;
 
   friend class ExoSessionCookieStore;
-  friend class ExoBrowserDevToolsDelegate;
+  friend class ExoShellDevToolsDelegate;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSession);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_H_
+#endif // EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
