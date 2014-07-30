@@ -1,0 +1,40 @@
+// Copyright (c) 2014 Stanislas Polu.
+// See the LICENSE file.
+
+#include <sstream>
+#include <string>
+
+#include "src/api/exo_browser_binding.h"
+
+namespace exo_browser {
+
+ApiBinding::ApiBinding(
+    const std::string& type,
+    const unsigned int id)
+  : type_(type),
+    id_(id)
+{
+}
+
+ApiBinding::~ApiBinding()
+{
+}
+
+void
+ApiBinding::RemoteCall(
+    const std::string& method,
+    scoped_ptr<base::DictionaryValue> args,
+    const ApiHandler::ActionCallback& callback)
+{
+  /* TODO(spolu) */
+}
+
+void
+ApiBinding::Emit(
+    const std::string& type,
+    scoped_ptr<base::DictionaryValue> event)
+{
+  /* TODO(spolu) */
+}
+
+} // namespace exo_browser

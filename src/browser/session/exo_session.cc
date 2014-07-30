@@ -68,11 +68,12 @@ class ExoSession::ExoResourceContext : public content::ResourceContext {
 
 ExoSession::ExoSession(
     const bool off_the_record,
-    const std::string& path)
+    const std::string& path,
+    bool dummy_cookie_store)
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
   resource_context_(new ExoResourceContext),
-  cookie_store_(new ExoSessionCookieStore(this)),
+  cookie_store_(new ExoSessionCookieStore(this, dummy_cookie_store)),
   visitedlink_store_(new ExoSessionVisitedLinkStore(this))
 {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();

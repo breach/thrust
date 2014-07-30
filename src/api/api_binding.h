@@ -4,6 +4,15 @@
 #ifndef EXO_BROWSER_API_API_BINDING_H_
 #define EXO_BROWSER_API_API_BINDING_H_
 
+#include "base/memory/scoped_ptr.h"
+
+#include "src/api/api_handler.h"
+
+namespace base {
+class Value;
+class DictionaryValue;
+}
+
 namespace exo_browser {
 
 // ## ApiBinding
@@ -11,33 +20,36 @@ namespace exo_browser {
 // Exposes the interface of an object binded to the API
 class ApiBinding {
 public:
-  typedef base::Callback<void(std::string& error, Value* result)> 
-    MethodCallback;
-
   /****************************************************************************/
   /* VIRTUAL INTERFACE */
   /****************************************************************************/
-  virtual void LocalCall(std::string& method, 
-                         Value* args, const &MethodCallback callback) = 0;
+  virtual void LocalCall(const std::string& method, 
+                         scoped_ptr<base::DictionaryValue> args, 
+                         const ApiHandler::ActionCallback& callback) = 0;
+
+  virtual ~ApiBinding();
 
 protected:
   /****************************************************************************/
   /* PROTECTED INTERFACE */
   /****************************************************************************/
-  void RemoteCall(std::string& method, 
-                  Value* args, const &MethodCallback callback);
-  void Emit(std::string& type, Value* event);
+  void RemoteCall(const std::string& method, 
+                  scoped_ptr<base::DictionaryValue> args, 
+                  const ApiHandler::ActionCallback& callback);
+  void Emit(const std::string& type, 
+            scoped_ptr<base::DictionaryValue> event);
 
-  ApiBinding(const std::string& type);
+  ApiBinding(const std::string& type, 
+             const unsigned int id);
 
-private
-  virtual ~ApiBinding();
+private:
 
   std::string      type_;
-  std::string      id_;
+  unsigned int     id_;
 
   DISALLOW_COPY_AND_ASSIGN(ApiBinding);
 };
+
 
 // ## ApiBindingFactory
 //
@@ -46,8 +58,11 @@ class ApiBindingFactory {
 public:
   virtual ~ApiBindingFactory() {}
 
-  virtual ApiBinding* Create() = 0;
+  virtual ApiBinding* Create(const unsigned int id, 
+                             scoped_ptr<base::DictionaryValue> args) = 0;
 };
+
+
 
 } // namespace exo_browser
   

@@ -80,16 +80,20 @@
       'src/common/visitedlink/visitedlink_message_generator.cc',
       'src/common/visitedlink/visitedlink_message_generator.h',
       'src/common/visitedlink/visitedlink_messages.h',
-
       'src/browser/visitedlink/visitedlink_delegate.h',
       'src/browser/visitedlink/visitedlink_event_listener.cc',
       'src/browser/visitedlink/visitedlink_event_listener.h',
       'src/browser/visitedlink/visitedlink_master.cc',
       'src/browser/visitedlink/visitedlink_master.h',
-
       'src/renderer/visitedlink/visitedlink_slave.cc',
       'src/renderer/visitedlink/visitedlink_slave.h',
 
+      'src/api/api_handler.h',
+      'src/api/api_handler.cc',
+      'src/api/api_binding.h',
+      'src/api/api_binding.cc',
+      'src/api/exo_browser_binding.h',
+      'src/api/exo_browser_binding.cc',
     ],
     'framework_sources': [
       'src/common/library_main.cc',

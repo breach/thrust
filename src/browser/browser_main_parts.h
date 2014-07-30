@@ -23,6 +23,7 @@ struct MainFunctionParams;
 namespace exo_browser {
 
 class ExoSession;
+class ApiHandler;
 
 class ExoBrowserMainParts : public brightray::BrowserMainParts {
  public:
@@ -36,8 +37,6 @@ class ExoBrowserMainParts : public brightray::BrowserMainParts {
 
   // Implementations of brightray::BrowserMainParts.
   virtual brightray::BrowserContext* CreateBrowserContext() OVERRIDE;
-
-  static void Startup();
 
   // BrowserMainParts overrides.
   virtual void PreMainMessageLoopRun() OVERRIDE;
@@ -56,6 +55,7 @@ class ExoBrowserMainParts : public brightray::BrowserMainParts {
 
   static ExoBrowserMainParts*        self_;
   ExoSession*                        system_session_;
+  scoped_ptr<ApiHandler>             api_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoBrowserMainParts);
 };

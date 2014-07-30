@@ -29,7 +29,7 @@ typedef net::CookieMonster::PersistentCookieStore::LoadedCallback
 public:
   // ### ExoSessionCookieStore
   // We keep a pointer to the parent ExoSession to call into the JS API
-  ExoSessionCookieStore(ExoSession* parent);
+  ExoSessionCookieStore(ExoSession* parent, bool dummy = false);
 
   /****************************************************************************/
   /* COOKIE MONSTER PERSISTENT STORE IMPLEMENTATION                           */
@@ -52,6 +52,8 @@ private:
   virtual ~ExoSessionCookieStore();
 
   ExoSession*         parent_;
+  bool                dummy_;
+
   unsigned int        op_count_;
 
   friend class ExoSession;

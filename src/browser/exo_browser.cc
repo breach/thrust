@@ -100,6 +100,7 @@ ExoBrowser::~ExoBrowser()
     inspectable_web_contents_.reset();
   }
 
+  PlatformClose();
   PlatformCleanUp();
 
   for (size_t i = 0; i < s_instances.size(); ++i) {
@@ -175,8 +176,10 @@ void
 ExoBrowser::Close()
 {
   registrar_.RemoveAll();
-  is_closed_ = true;
-  PlatformClose();
+  if(!is_closed_) {
+    is_closed_ = true;
+    PlatformClose();
+  }
 }
 
 

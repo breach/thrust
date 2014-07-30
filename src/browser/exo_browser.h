@@ -77,7 +77,9 @@ public:
   // ```
   // @root_url  {GURL} the main document root url
   // @size      {Size} the initial size of the window
+  // @title     {string} the title to use
   // @icon_path {string} icon_path (no effect on OSX)
+  // @has_frame {boolean} has a frame
   // ```
   static ExoBrowser* CreateNew(
       const GURL& root_url,
@@ -116,6 +118,11 @@ public:
   /****************************************************************************/
   // ### ~ExoBrowser
   ~ExoBrowser();
+
+  // ### Show
+  //
+  // Initially show the window
+  void Show() { PlatformShow(); }
 
   // ### Focus
   //
@@ -294,6 +301,10 @@ private:
   // Creates the ExoBrowser window GUI.
   void PlatformCreateWindow(const gfx::Size& size);
 
+  // ### PlatformShow
+  //
+  // Initially Show the ExoBrowser window
+  void PlatformShow();
 
   // ### PlatformFocus
   //

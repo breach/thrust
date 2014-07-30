@@ -50,7 +50,8 @@ public:
   /****************************************************************************/
   // ### ExoSession
   ExoSession(const bool off_the_record,
-             const std::string& path);
+             const std::string& path,
+             bool dummy_cookie_store = false);
   // ### ~ExoSession
   virtual ~ExoSession();
 

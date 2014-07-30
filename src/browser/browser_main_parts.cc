@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "base/files/file_path.h"
+#include "base/file_util.h"
 #include "base/message_loop/message_loop.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_restrictions.h"
@@ -22,6 +23,8 @@
 #include "src/browser/exo_browser.h"
 #include "src/browser/session/exo_session.h"
 #include "src/net/net_log.h"
+#include "src/api/api_handler.h"
+#include "src/api/exo_browser_binding.h"
 
 
 using namespace content;
@@ -54,17 +57,10 @@ brightray::BrowserContext*
 ExoBrowserMainParts::CreateBrowserContext() {
   if(system_session_ == NULL) {
     /* We create an off the record session to be used internally. */
-    system_session_ = new ExoSession(true, "system_session");
+    /* This session has a dummy cookie store. Stores nothing.     */
+    system_session_ = new ExoSession(true, "system_session", true);
   }
   return system_session_;
-}
-
-void
-ExoBrowserMainParts::Startup()
-{
-  LOG(INFO) << "BAR!";
-  ExoBrowser::CreateNew(GURL("http://google.com"), 
-      gfx::Size(600, 400), std::string("test"), std::string(""), true);
 }
 
 void 
@@ -73,8 +69,23 @@ ExoBrowserMainParts::PreMainMessageLoopRun()
   brightray::BrowserMainParts::PreMainMessageLoopRun();
   net_log_.reset(new ExoBrowserNetLog());
 
+  /* TODO(spolu): Get Path form command line */
+  //CommandLine* command_line = CommandLine::ForCurrentProcess();
+  
+  base::FilePath path;
+  base::GetTempDir(&path);
+  api_handler_.reset(new ApiHandler(path.Append("_exo_browser.sock")));
+
+
+  api_handler_->InstallBinding("exo_browser", 
+                               new ExoBrowserBindingFactory());
+
+  api_handler_->Start();
+
+  /*
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE, base::Bind(&ExoBrowserMainParts::Startup));
+  */
 }
 
 void ExoBrowserMainParts::PostMainMessageLoopRun() 
