@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_UTIL_PLATFORM_UTIL_H_
-#define EXO_BROWSER_BROWSER_UTIL_PLATFORM_UTIL_H_
+#ifndef EXO_SHELL_BROWSER_UTIL_PLATFORM_UTIL_H_
+#define EXO_SHELL_BROWSER_UTIL_PLATFORM_UTIL_H_
 
 #include <string>
 
@@ -56,4 +56,4 @@ bool IsSwipeTrackingFromScrollEventsEnabled();
 
 }  // platform_util
 
-#endif // EXO_BROWSER_BROWSER_UTIL_PLATFORM_UTIL_H_
+#endif // EXO_SHELL_BROWSER_UTIL_PLATFORM_UTIL_H_

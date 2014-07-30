@@ -2,28 +2,28 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_RESOURCE_DISPATCHER_HOST_DELEGATE_H_
-#define EXO_BROWSER_BROWSER_RESOURCE_DISPATCHER_HOST_DELEGATE_H_
+#ifndef EXO_SHELL_BROWSER_RESOURCE_DISPATCHER_HOST_DELEGATE_H_
+#define EXO_SHELL_BROWSER_RESOURCE_DISPATCHER_HOST_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "content/public/browser/resource_dispatcher_host_delegate.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
-class ExoBrowserResourceDispatcherHostDelegate
+class ExoShellResourceDispatcherHostDelegate
     : public content::ResourceDispatcherHostDelegate {
  public:
-  ExoBrowserResourceDispatcherHostDelegate();
-  virtual ~ExoBrowserResourceDispatcherHostDelegate();
+  ExoShellResourceDispatcherHostDelegate();
+  virtual ~ExoShellResourceDispatcherHostDelegate();
 
   // ResourceDispatcherHostDelegate implementation.
   virtual content::ResourceDispatcherHostLoginDelegate* CreateLoginDelegate(
       net::AuthChallengeInfo* auth_info, 
       net::URLRequest* request) OVERRIDE;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserResourceDispatcherHostDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellResourceDispatcherHostDelegate);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_RESOURCE_DISPATCHER_HOST_DELEGATE_H_
+#endif // EXO_SHELL_BROWSER_RESOURCE_DISPATCHER_HOST_DELEGATE_H_

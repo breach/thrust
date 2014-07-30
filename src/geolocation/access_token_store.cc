@@ -15,46 +15,46 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserAccessTokenStore::ExoBrowserAccessTokenStore()
+ExoShellAccessTokenStore::ExoShellAccessTokenStore()
   : system_request_context_(NULL)
 {
 }
 
-ExoBrowserAccessTokenStore::~ExoBrowserAccessTokenStore() 
+ExoShellAccessTokenStore::~ExoShellAccessTokenStore() 
 {
 }
 
 void 
-ExoBrowserAccessTokenStore::LoadAccessTokens(
+ExoShellAccessTokenStore::LoadAccessTokens(
     const LoadAccessTokensCallbackType& callback) 
 {
   BrowserThread::PostTaskAndReply(
       BrowserThread::UI,
       FROM_HERE,
-      base::Bind(&ExoBrowserAccessTokenStore::GetRequestContextOnUIThread,
+      base::Bind(&ExoShellAccessTokenStore::GetRequestContextOnUIThread,
                  this),
-      base::Bind(&ExoBrowserAccessTokenStore::RespondOnOriginatingThread,
+      base::Bind(&ExoShellAccessTokenStore::RespondOnOriginatingThread,
                  this,
                  callback));
 }
 
-void ExoBrowserAccessTokenStore::GetRequestContextOnUIThread() {
+void ExoShellAccessTokenStore::GetRequestContextOnUIThread() {
   system_request_context_ = 
-    ExoBrowserBrowserClient::Get()->system_session()->GetRequestContext();
+    ExoShellBrowserClient::Get()->system_session()->GetRequestContext();
 }
 
-void ExoBrowserAccessTokenStore::RespondOnOriginatingThread(
+void ExoShellAccessTokenStore::RespondOnOriginatingThread(
     const LoadAccessTokensCallbackType& callback) {
   /* TODO(spolu): For now we provide a dummy value to prevent crash. We */
   /*              add proper tokens when relevant.                      */
   AccessTokenSet access_token_set;
-  //access_token_set[GURL()] = base::ASCIIToUTF16("exo_browser");
+  //access_token_set[GURL()] = base::ASCIIToUTF16("exo_shell");
   callback.Run(access_token_set, system_request_context_.get());
 }
 
-void ExoBrowserAccessTokenStore::SaveAccessToken(
+void ExoShellAccessTokenStore::SaveAccessToken(
     const GURL& server_url, const base::string16& access_token) {
   LOG(INFO) << "ExoBrwoserAccessTokenStore::SaveAccessToken: " 
             << server_url << " "

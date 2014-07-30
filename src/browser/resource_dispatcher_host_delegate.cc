@@ -12,20 +12,20 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserResourceDispatcherHostDelegate::
-  ExoBrowserResourceDispatcherHostDelegate() 
+ExoShellResourceDispatcherHostDelegate::
+  ExoShellResourceDispatcherHostDelegate() 
 {
 }
 
-ExoBrowserResourceDispatcherHostDelegate::
-~ExoBrowserResourceDispatcherHostDelegate() 
+ExoShellResourceDispatcherHostDelegate::
+~ExoShellResourceDispatcherHostDelegate() 
 {
 }
 
 ResourceDispatcherHostLoginDelegate*
-ExoBrowserResourceDispatcherHostDelegate::CreateLoginDelegate(
+ExoShellResourceDispatcherHostDelegate::CreateLoginDelegate(
     net::AuthChallengeInfo* auth_info, 
     net::URLRequest* request) 
 {
@@ -33,4 +33,4 @@ ExoBrowserResourceDispatcherHostDelegate::CreateLoginDelegate(
   return NULL;
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

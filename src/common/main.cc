@@ -15,7 +15,7 @@
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   content::InitializeSandboxInfo(&sandbox_info);
-  exo_browser::MainDelegate delegate;
+  exo_shell::MainDelegate delegate;
 
   content::ContentMainParams params(&delegate);
   params.instance = instance;
@@ -26,13 +26,13 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
 #elif defined(OS_MACOSX)
 
 int main(int argc, const char* argv[]) {
-  return ExoBrowserMain(argc, argv);
+  return ExoShellMain(argc, argv);
 }
 
 #else // OS_LINUX
 
 int main(int argc, const char* argv[]) {
-  exo_browser::MainDelegate delegate;
+  exo_shell::MainDelegate delegate;
   content::ContentMainParams params(&delegate);
   params.argc = argc;
   params.argv = argv;

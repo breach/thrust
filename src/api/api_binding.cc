@@ -4,9 +4,9 @@
 #include <sstream>
 #include <string>
 
-#include "src/api/exo_browser_binding.h"
+#include "src/api/exo_shell_binding.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 ApiBinding::ApiBinding(
     const std::string& type,
@@ -37,4 +37,4 @@ ApiBinding::Emit(
   /* TODO(spolu) */
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

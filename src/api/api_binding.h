@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_API_API_BINDING_H_
-#define EXO_BROWSER_API_API_BINDING_H_
+#ifndef EXO_SHELL_API_API_BINDING_H_
+#define EXO_SHELL_API_API_BINDING_H_
 
 #include "base/memory/scoped_ptr.h"
 
@@ -13,7 +13,7 @@ class Value;
 class DictionaryValue;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
 // ## ApiBinding
 //
@@ -64,6 +64,6 @@ public:
 
 
 
-} // namespace exo_browser
+} // namespace exo_shell
   
-#endif // EXO_BROWSER_API_API_BINDING_H_
+#endif // EXO_SHELL_API_API_BINDING_H_

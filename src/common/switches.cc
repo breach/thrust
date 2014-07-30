@@ -6,7 +6,7 @@
 
 namespace switches {
 
-// Makes ExoBrowser use the given path for its data directory.
-const char kExoBrowserDataPath[] = "data-path";
+// Makes ExoShell use the given path for its data directory.
+const char kExoShellDataPath[] = "data-path";
 
 }  // namespace switches

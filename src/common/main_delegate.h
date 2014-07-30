@@ -1,12 +1,12 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_COMMON_MAIN_DELEGATE_H_
-#define EXO_BROWSER_COMMON_MAIN_DELEGATE_H_
+#ifndef EXO_SHELL_COMMON_MAIN_DELEGATE_H_
+#define EXO_SHELL_COMMON_MAIN_DELEGATE_H_
 
 #include "brightray/common/main_delegate.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 class MainDelegate : public brightray::MainDelegate {
 public:
@@ -25,4 +25,4 @@ private:
 
 }
 
-#endif // EXO_BROWSER_COMMON_MAIN_DELEGATE_H_
+#endif // EXO_SHELL_COMMON_MAIN_DELEGATE_H_

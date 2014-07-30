@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_BROWSER_MAIN_PARTS_H_
-#define EXO_BROWSER_BROWSER_BROWSER_MAIN_PARTS_H_
+#ifndef EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
+#define EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
 
 #include "brightray/browser/browser_main_parts.h"
 
@@ -20,18 +20,18 @@ namespace content {
 struct MainFunctionParams;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
 class ExoSession;
 class ApiHandler;
 
-class ExoBrowserMainParts : public brightray::BrowserMainParts {
+class ExoShellMainParts : public brightray::BrowserMainParts {
  public:
 
-  explicit ExoBrowserMainParts();
-  virtual ~ExoBrowserMainParts();
+  explicit ExoShellMainParts();
+  virtual ~ExoShellMainParts();
 
-  static ExoBrowserMainParts* Get();
+  static ExoShellMainParts* Get();
 
   /* TODO(spolu) Add App object similar to atom-shell Browser. */
 
@@ -53,13 +53,13 @@ class ExoBrowserMainParts : public brightray::BrowserMainParts {
  private:
   scoped_ptr<net::NetLog> net_log_;
 
-  static ExoBrowserMainParts*        self_;
+  static ExoShellMainParts*        self_;
   ExoSession*                        system_session_;
   scoped_ptr<ApiHandler>             api_handler_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserMainParts);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellMainParts);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_BROWSER_MAIN_PARTS_H_
+#endif // EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_

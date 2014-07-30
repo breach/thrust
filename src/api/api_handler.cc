@@ -20,10 +20,10 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-const char kSocketBoundary[] = "--(Foo)++__EXO_BROWSER_BOUNDARY__++(Bar)--";
-const char kApiHandlerThreadName[] = "exo_browser_api_handler_thread";
+const char kSocketBoundary[] = "--(Foo)++__EXO_SHELL_BOUNDARY__++(Bar)--";
+const char kApiHandlerThreadName[] = "exo_shell_api_handler_thread";
 
 ApiHandler::ApiHandler(
     const base::FilePath& socket_path)
@@ -299,4 +299,4 @@ ApiHandler::ThreadTearDown()
 }
 
   
-} // namespace exo_browser
+} // namespace exo_shell

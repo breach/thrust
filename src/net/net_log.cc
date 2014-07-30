@@ -12,19 +12,19 @@
 #include "content/public/common/content_switches.h"
 #include "net/base/net_log_logger.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
 
 base::DictionaryValue* 
-GetExoBrowserConstants() 
+GetExoShellConstants() 
 {
   base::DictionaryValue* constants_dict = net::NetLogLogger::GetConstants();
 
   // Add a dictionary with client information
   base::DictionaryValue* dict = new base::DictionaryValue();
 
-  dict->SetString("name", "exo_browser");
+  dict->SetString("name", "exo_shell");
   dict->SetString("command_line",
                   CommandLine::ForCurrentProcess()->GetCommandLineString());
   constants_dict->Set("clientInfo", dict);
@@ -34,7 +34,7 @@ GetExoBrowserConstants()
 
 }  // namespace
 
-ExoBrowserNetLog::ExoBrowserNetLog() 
+ExoShellNetLog::ExoShellNetLog() 
 {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
 
@@ -58,18 +58,18 @@ ExoBrowserNetLog::ExoBrowserNetLog()
       LOG(ERROR) << "Could not open file " << log_path.value()
                  << " for net logging";
     } else {
-      scoped_ptr<base::Value> constants(GetExoBrowserConstants());
+      scoped_ptr<base::Value> constants(GetExoShellConstants());
       net_log_logger_.reset(new net::NetLogLogger(file, *constants));
       net_log_logger_->StartObserving(this);
     }
   }
 }
 
-ExoBrowserNetLog::~ExoBrowserNetLog() 
+ExoShellNetLog::~ExoShellNetLog() 
 {
   // Remove the observer we own before we're destroyed.
   if (net_log_logger_)
     RemoveThreadSafeObserver(net_log_logger_.get());
 }
 
-} // namespace exo_browser
+} // namespace exo_shell
