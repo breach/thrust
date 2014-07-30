@@ -23,11 +23,10 @@ ApiBinding* ExoShellBindingFactory::Create(
 }
 
 
-
 ExoShellBinding::ExoShellBinding(
     const unsigned int id, 
     scoped_ptr<base::DictionaryValue> args)
-  : ApiBinding("exo_shell", id)
+  : ApiBinding("shell", id)
 {
 
   std::string root_url = "http://google.com";
