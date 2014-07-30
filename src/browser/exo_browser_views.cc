@@ -68,8 +68,7 @@ class ExoBrowserClientView : public views::ClientView {
   virtual bool 
   CanClose() OVERRIDE 
   {
-    static_cast<ExoBrowser*>(contents_view())->Close();
-    return false;
+    return true;
   }
 
  private:
@@ -112,6 +111,11 @@ ExoBrowser::PlatformCreateWindow(
 
   window_->CenterWindow(bounds.size());
   Layout();
+}
+
+void 
+ExoBrowser::PlatformShow() 
+{
   window_->Show();
 }
 
@@ -143,6 +147,23 @@ ExoBrowser::PlatformMaximize()
   window_->Maximize();
 }
 
+void
+ExoBrowser::PlatformUnMaximize()
+{
+  window_->Restore();
+}
+
+void
+ExoBrowser::PlatformMinimize()
+{
+  window_->Minimize();
+}
+
+void
+ExoBrowser::PlatformRestore()
+{
+  window_->Restore();
+}
 
 gfx::Size
 ExoBrowser::PlatformSize()

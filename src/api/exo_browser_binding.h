@@ -4,25 +4,46 @@
 #ifndef EXO_BROWSER_API_EXO_BROWSER_BINDING_H_
 #define EXO_BROWSER_API_EXO_BROWSER_BINDING_H_
 
+#include "base/callback.h"
+
+#include "src/api/api_binding.h"
+
 namespace exo_browser {
 
-class ExoBrowserBinding : ApiBinding {
+class ExoBrowser;
+
+class ExoBrowserBinding : public ApiBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
-  ExoBrowserBinding();
+  ExoBrowserBinding(const unsigned int id, 
+                    scoped_ptr<base::DictionaryValue> args);
   ~ExoBrowserBinding();
 
-  void LocalCall(std::string& method, 
-                 Value* args, const &MethodCallback callback) OVERRIDE;
+  virtual void LocalCall(const std::string& method, 
+                         scoped_ptr<base::DictionaryValue> args, 
+                         const ApiHandler::ActionCallback& callback) OVERRIDE;
 
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
 
-private
-  ExoBrowser*   browser_;
+private:
+  scoped_ptr<ExoBrowser> browser_;
+};
+
+
+// ## ExoBrowserBindingFactory
+//
+// Factory object used to generate ExoBrowser bindings
+class ExoBrowserBindingFactory : public ApiBindingFactory {
+public:
+  ExoBrowserBindingFactory();
+  ~ExoBrowserBindingFactory();
+
+  ApiBinding* Create(const unsigned int id, 
+                     scoped_ptr<base::DictionaryValue> args) OVERRIDE;
 };
 
 } // namespace exo_browser
