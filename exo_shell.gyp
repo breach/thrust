@@ -112,6 +112,8 @@
       'src/api/api_binding.cc',
       'src/api/exo_shell_binding.h',
       'src/api/exo_shell_binding.cc',
+      'src/api/exo_session_binding.h',
+      'src/api/exo_session_binding.cc',
     ],
     'framework_sources': [
       'src/common/library_main.cc',
