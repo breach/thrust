@@ -32,7 +32,7 @@ class ExoShellBrowserClient : public brightray::BrowserClient {
   static ExoShellBrowserClient* Get();
 
   /****************************************************************************/
-  /* CONTENTBROWSERCLIENT IMPLEMENTATION                                      */
+  /* CONTENTBROWSERCLIENT IMPLEMENTATION */
   /****************************************************************************/
   virtual void AppendExtraCommandLineSwitches(
       base::CommandLine* command_line,
@@ -67,7 +67,7 @@ class ExoShellBrowserClient : public brightray::BrowserClient {
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
 
   /****************************************************************************/
-  /* EXOSESSION I/F                                                           */
+  /* EXOSESSION I/F */
   /****************************************************************************/
   // ### RegisterExoSession
   // ```
@@ -93,7 +93,7 @@ class ExoShellBrowserClient : public brightray::BrowserClient {
       content::BrowserContext* browser_context);
 
   /****************************************************************************/
-  /* ACCESSORS                                                                */
+  /* ACCESSORS */
   /****************************************************************************/
   ExoShellResourceDispatcherHostDelegate* 
   resource_dispatcher_host_delegate() {

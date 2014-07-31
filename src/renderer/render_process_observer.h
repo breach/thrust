@@ -25,9 +25,9 @@ class ExoShellRenderProcessObserver : public content::RenderProcessObserver {
   ExoShellRenderProcessObserver();
   virtual ~ExoShellRenderProcessObserver();
 
-  void SetMainWindow(content::RenderView* view);
-
-  // RenderProcessObserver implementation.
+  /****************************************************************************/
+  /* RENDERPROCESSOBSERVER IMPLEMENTATIO */
+  /****************************************************************************/
   virtual void WebKitInitialized() OVERRIDE;
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 

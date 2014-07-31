@@ -31,7 +31,9 @@ class ExoShellRendererClient : public content::ContentRendererClient {
   ExoShellRendererClient();
   virtual ~ExoShellRendererClient();
 
-  // ContentRendererClient implementation.
+  /****************************************************************************/
+  /* CONTENTRENDERERCLIENT IMPLEMENTATION */
+  /****************************************************************************/
   virtual void RenderThreadStarted() OVERRIDE;
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
 
@@ -48,7 +50,7 @@ class ExoShellRendererClient : public content::ContentRendererClient {
 
  private:
   scoped_ptr<ExoShellRenderProcessObserver> observer_;
-  scoped_ptr<visitedlink::VisitedLinkSlave>   visited_link_slave_;
+  scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 };
 
 } // namespace exo_shell

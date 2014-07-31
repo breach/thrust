@@ -9,6 +9,7 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/test/layouttest_support.h"
+#include "third_party/WebKit/public/web/WebCustomElement.h" 
 
 #include "src/common/messages.h"
 #include "src/common/switches.h"
@@ -19,7 +20,9 @@ using namespace content;
 namespace exo_shell {
 
 namespace {
+
 ExoShellRenderProcessObserver* g_instance = NULL;
+ 
 }
 
 // static
@@ -43,16 +46,8 @@ ExoShellRenderProcessObserver::~ExoShellRenderProcessObserver()
 }
 
 void 
-ExoShellRenderProcessObserver::SetMainWindow(
-    RenderView* view) 
-{
-  return;
-}
-
-void 
 ExoShellRenderProcessObserver::WebKitInitialized() 
 {
-  return;
 }
 
 bool 
