@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_RENDERER_CONTENT_RENDERER_CLIENT_H_
-#define EXO_BROWSER_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#ifndef EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#define EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -17,21 +17,28 @@ class VisitedLinkSlave;
 namespace blink {
 class WebFrame;
 class WebPlugin;
+class WebPluginContainer;
 struct WebPluginParams;
 }
 
-namespace exo_browser {
+namespace extensions {
+class Dispatcher;
+}
 
-class ExoBrowserRenderProcessObserver;
+namespace exo_shell {
 
-class ExoBrowserRendererClient : public content::ContentRendererClient {
+class ExoShellRenderProcessObserver;
+
+class ExoShellRendererClient : public content::ContentRendererClient {
  public:
-  static ExoBrowserRendererClient* Get();
+  static ExoShellRendererClient* Get();
 
-  ExoBrowserRendererClient();
-  virtual ~ExoBrowserRendererClient();
+  ExoShellRendererClient();
+  virtual ~ExoShellRendererClient();
 
-  // ContentRendererClient implementation.
+  /****************************************************************************/
+  /* CONTENTRENDERERCLIENT IMPLEMENTATION */
+  /****************************************************************************/
   virtual void RenderThreadStarted() OVERRIDE;
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
 
@@ -40,6 +47,14 @@ class ExoBrowserRendererClient : public content::ContentRendererClient {
       blink::WebFrame* frame,
       const blink::WebPluginParams& params,
       blink::WebPlugin** plugin) OVERRIDE;
+  virtual bool AllowBrowserPlugin(
+      blink::WebPluginContainer* container) OVERRIDE;
+
+  virtual void DidCreateScriptContext(
+      blink::WebFrame* frame, 
+      v8::Handle<v8::Context> context, 
+      int extension_group,
+      int world_id) OVERRIDE;
 
   virtual unsigned long long VisitedLinkHash(const char* canonical_url,         
                                              size_t length) OVERRIDE;           
@@ -47,10 +62,11 @@ class ExoBrowserRendererClient : public content::ContentRendererClient {
 
 
  private:
-  scoped_ptr<ExoBrowserRenderProcessObserver> observer_;
-  scoped_ptr<visitedlink::VisitedLinkSlave>   visited_link_slave_;
+  scoped_ptr<ExoShellRenderProcessObserver> observer_;
+  scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
+  scoped_ptr<extensions::Dispatcher>        extension_dispatcher_;
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#endif // EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_

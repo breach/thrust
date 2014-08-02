@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_DEVTOOLS_DELEGATE_H_
-#define EXO_BROWSER_DEVTOOLS_DELEGATE_H_
+#ifndef EXO_SHELL_DEVTOOLS_DELEGATE_H_
+#define EXO_SHELL_DEVTOOLS_DELEGATE_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -14,13 +14,13 @@ class BrowserContext;
 class DevToolsHttpHandler;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
 class ExoSession;
 
-class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
+class ExoShellDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit ExoBrowserDevToolsDelegate(ExoSession* session);
+  explicit ExoShellDevToolsDelegate(ExoSession* session);
 
   // Stop (and destroy this)
   void Stop();
@@ -44,14 +44,14 @@ class ExoBrowserDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   }
 
  private:
-  virtual ~ExoBrowserDevToolsDelegate();
+  virtual ~ExoShellDevToolsDelegate();
 
   content::DevToolsHttpHandler* devtools_http_handler_;
   ExoSession*                   session_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserDevToolsDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellDevToolsDelegate);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_DEVTOOLS_DELEGATE_H_
+#endif // EXO_SHELL_DEVTOOLS_DELEGATE_H_

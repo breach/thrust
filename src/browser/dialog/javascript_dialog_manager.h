@@ -2,23 +2,23 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
-#define EXO_BROWSER_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#ifndef EXO_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#define EXO_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
 
 #include "base/callback_forward.h"
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 class JavaScriptDialog;
 
-class ExoBrowserJavaScriptDialogManager : 
+class ExoShellJavaScriptDialogManager : 
     public content::JavaScriptDialogManager {
  public:
-  ExoBrowserJavaScriptDialogManager();
-  virtual ~ExoBrowserJavaScriptDialogManager();
+  ExoShellJavaScriptDialogManager();
+  virtual ~ExoShellJavaScriptDialogManager();
 
   // JavaScriptDialogManager overrides
   virtual void RunJavaScriptDialog(
@@ -62,9 +62,9 @@ class ExoBrowserJavaScriptDialogManager :
 
   base::Closure dialog_request_callback_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserJavaScriptDialogManager);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellJavaScriptDialogManager);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#endif // EXO_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_

@@ -58,11 +58,8 @@ DONE:
 
 
 /******************************************************************************/
-/* CHROMIUM RELATED BUILD TRICKS */
+/* BUILD TRICKS */
 /******************************************************************************/
-
-build/gyp_chromium exo_browser/exo_browser.gyp -Ddisable_debugallocation=1
-
 # When receiving message: `The application cannot be opened because its executable is missing.`
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
 
@@ -70,7 +67,6 @@ build/gyp_chromium exo_browser/exo_browser.gyp -Ddisable_debugallocation=1
 /******************************************************************************/
 /* CHROMIUM URLS */
 /******************************************************************************/
-
 http://src.chromium.org/chrome/releases/
 http://omahaproxy.appspot.com/
 
@@ -78,7 +74,6 @@ http://omahaproxy.appspot.com/
 /******************************************************************************/
 /* NOTES ON CHROMIUM */
 /******************************************************************************/
-
 - Issue 159193: Move URLRequestContext getters from Profile into StoragePartition 
 https://code.google.com/p/chromium/issues/detail?id=159193#c28
 

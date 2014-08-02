@@ -9,6 +9,7 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/test/layouttest_support.h"
+#include "third_party/WebKit/public/web/WebCustomElement.h" 
 
 #include "src/common/messages.h"
 #include "src/common/switches.h"
@@ -16,55 +17,49 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
-ExoBrowserRenderProcessObserver* g_instance = NULL;
+
+ExoShellRenderProcessObserver* g_instance = NULL;
+ 
 }
 
 // static
-ExoBrowserRenderProcessObserver* 
-ExoBrowserRenderProcessObserver::GetInstance() 
+ExoShellRenderProcessObserver* 
+ExoShellRenderProcessObserver::GetInstance() 
 {
   return g_instance;
 }
 
-ExoBrowserRenderProcessObserver::ExoBrowserRenderProcessObserver()
+ExoShellRenderProcessObserver::ExoShellRenderProcessObserver()
 {
   CHECK(!g_instance);
   g_instance = this;
   RenderThread::Get()->AddObserver(this);
 }
 
-ExoBrowserRenderProcessObserver::~ExoBrowserRenderProcessObserver() 
+ExoShellRenderProcessObserver::~ExoShellRenderProcessObserver() 
 {
   CHECK(g_instance == this);
   g_instance = NULL;
 }
 
 void 
-ExoBrowserRenderProcessObserver::SetMainWindow(
-    RenderView* view) 
+ExoShellRenderProcessObserver::WebKitInitialized() 
 {
-  return;
-}
-
-void 
-ExoBrowserRenderProcessObserver::WebKitInitialized() 
-{
-  return;
 }
 
 bool 
-ExoBrowserRenderProcessObserver::OnControlMessageReceived(
+ExoShellRenderProcessObserver::OnControlMessageReceived(
     const IPC::Message& message) 
 {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(ExoBrowserRenderProcessObserver, message)
+  IPC_BEGIN_MESSAGE_MAP(ExoShellRenderProcessObserver, message)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
   return handled;
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

@@ -11,13 +11,13 @@
 
 #include "src/browser/mac/browser_application_mac.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 void 
-ExoBrowserMainParts::PreMainMessageLoopStart() 
+ExoShellMainParts::PreMainMessageLoopStart() 
 {
   // Force the NSApplication subclass to be used.
-  NSApplication* application = [ExoBrowserApplication sharedApplication];
+  NSApplication* application = [ExoShellApplication sharedApplication];
 
   // Prevent Cocoa from turning command-line arguments into
   // |-application:openFiles:|, since we already handle them directly.
@@ -26,8 +26,8 @@ ExoBrowserMainParts::PreMainMessageLoopStart()
 }
 
 void 
-ExoBrowserMainParts::PostDestroyThreads() {
-  [[ExoBrowserApplication sharedApplication] setDelegate:nil];
+ExoShellMainParts::PostDestroyThreads() {
+  [[ExoShellApplication sharedApplication] setDelegate:nil];
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

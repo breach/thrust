@@ -15,18 +15,18 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserJavaScriptDialogManager::ExoBrowserJavaScriptDialogManager() 
+ExoShellJavaScriptDialogManager::ExoShellJavaScriptDialogManager() 
 {
 }
 
-ExoBrowserJavaScriptDialogManager::~ExoBrowserJavaScriptDialogManager() 
+ExoShellJavaScriptDialogManager::~ExoShellJavaScriptDialogManager() 
 {
 }
 
 void 
-ExoBrowserJavaScriptDialogManager::RunJavaScriptDialog(
+ExoShellJavaScriptDialogManager::RunJavaScriptDialog(
     WebContents* web_contents,
     const GURL& origin_url,
     const std::string& accept_lang,
@@ -49,7 +49,7 @@ ExoBrowserJavaScriptDialogManager::RunJavaScriptDialog(
 }
 
 void 
-ExoBrowserJavaScriptDialogManager::RunBeforeUnloadDialog(
+ExoShellJavaScriptDialogManager::RunBeforeUnloadDialog(
     WebContents* web_contents,
     const base::string16& message_text,
     bool is_reload,
@@ -69,23 +69,23 @@ ExoBrowserJavaScriptDialogManager::RunBeforeUnloadDialog(
 
 
 void 
-ExoBrowserJavaScriptDialogManager::CancelActiveAndPendingDialogs(
+ExoShellJavaScriptDialogManager::CancelActiveAndPendingDialogs(
     WebContents* web_contents) 
 {
   /* TODO(spolu): Expose to API */
 }
 
 void 
-ExoBrowserJavaScriptDialogManager::WebContentsDestroyed(
+ExoShellJavaScriptDialogManager::WebContentsDestroyed(
     WebContents* web_contents) 
 {
 }
 
 void 
-ExoBrowserJavaScriptDialogManager::DialogClosed(
+ExoShellJavaScriptDialogManager::DialogClosed(
     JavaScriptDialog* dialog) 
 {
   /* TODO(spolu): Expose to API */
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

@@ -1,17 +1,18 @@
 var net = require('net');
 
 var action_id = 0;
-var BOUNDARY = "--(Foo)++__EXO_BROWSER_BOUNDARY__++(Bar)--";
+var BOUNDARY = "--(Foo)++__EXO_SHELL_BOUNDARY__++(Bar)--";
 
-var client = net.connect({ path: '/tmp/_exo_browser.sock' }, function() {
+var client = net.connect({ path: '/tmp/_exo_shell.sock' }, function() {
   console.log('Connected');
 
   var a = {
     _id: ++action_id,
     _action: "create",
-    _type: "exo_browser",
+    _type: "shell",
     _args: {
-      title: "ExoBrowser TEST",
+      root_url: "file:///home/spolu/src/exo_shell/test.html",
+      title: "ExoShell TEST",
       size: {
         width: 800,
         height: 700

@@ -15,7 +15,7 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 gfx::Size
 ExoFrame::PlatformSize()
@@ -25,5 +25,5 @@ ExoFrame::PlatformSize()
   return gfx::Size(frame.size.width, frame.size.height);
 }
 
-} // namespace exo_browser
+} // namespace exo_shell
 

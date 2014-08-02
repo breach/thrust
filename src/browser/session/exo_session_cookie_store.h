@@ -1,12 +1,12 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
-#define EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
+#ifndef EXO_SHELL_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
+#define EXO_SHELL_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
 
 #include "net/cookies/cookie_monster.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 class ExoSession;
 
@@ -61,6 +61,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(ExoSessionCookieStore);
 };
   
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
+#endif // EXO_SHELL_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_

@@ -17,20 +17,20 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserRenderViewObserver::ExoBrowserRenderViewObserver(
+ExoShellRenderViewObserver::ExoShellRenderViewObserver(
     RenderView* render_view)
     : RenderViewObserver(render_view) 
 {
 }
 
 bool 
-ExoBrowserRenderViewObserver::OnMessageReceived(
+ExoShellRenderViewObserver::OnMessageReceived(
     const IPC::Message& message) 
 {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(ExoBrowserRenderViewObserver, message)
+  IPC_BEGIN_MESSAGE_MAP(ExoShellRenderViewObserver, message)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -38,7 +38,7 @@ ExoBrowserRenderViewObserver::OnMessageReceived(
 }
 
 void 
-ExoBrowserRenderViewObserver::DidClearWindowObject(
+ExoShellRenderViewObserver::DidClearWindowObject(
     blink::WebFrame* frame,
     int world_id) 
 {
@@ -46,10 +46,10 @@ ExoBrowserRenderViewObserver::DidClearWindowObject(
 }
 
 void
-ExoBrowserRenderViewObserver::DraggableRegionsChanged(
+ExoShellRenderViewObserver::DraggableRegionsChanged(
     blink::WebFrame* frame) 
 {
   return;
 }
 
-}  // namespace exo_browser
+}  // namespace exo_shell

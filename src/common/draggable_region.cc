@@ -4,7 +4,7 @@
 
 #include "src/common/draggable_region.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 DraggableRegion::DraggableRegion()
     : draggable(false) {

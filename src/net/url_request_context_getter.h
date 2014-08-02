@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
-#define EXO_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#ifndef EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#define EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -26,13 +26,13 @@ class ProxyConfigService;
 class URLRequestContextStorage;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
 class ExoSession;
 
-class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
+class ExoShellURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
-  ExoBrowserURLRequestContextGetter(
+  ExoShellURLRequestContextGetter(
       ExoSession* parent,
       bool ignore_certificate_errors,
       const base::FilePath& base_path,
@@ -50,7 +50,7 @@ class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
   net::HostResolver* host_resolver();
 
  protected:
-  virtual ~ExoBrowserURLRequestContextGetter();
+  virtual ~ExoShellURLRequestContextGetter();
 
  private:
   ExoSession*                               parent_;
@@ -69,9 +69,9 @@ class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
 
   friend class ExoSession;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserURLRequestContextGetter);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellURLRequestContextGetter);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#endif // EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_

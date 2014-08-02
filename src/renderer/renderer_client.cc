@@ -8,9 +8,15 @@
 #include "base/command_line.h"
 #include "base/debug/debugger.h"
 #include "v8/include/v8.h"
+#include "third_party/WebKit/public/platform/WebURL.h"
+#include "third_party/WebKit/public/platform/WebURLError.h"
+#include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/platform/WebMediaStreamCenter.h"
 #include "third_party/WebKit/public/web/WebPluginParams.h"
+#include "third_party/WebKit/public/web/WebElement.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
+#include "third_party/WebKit/public/web/WebPluginContainer.h"
 #include "src/renderer/visitedlink/visitedlink_slave.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
@@ -21,6 +27,7 @@
 #include "src/common/switches.h"
 #include "src/renderer/render_process_observer.h"
 #include "src/renderer/render_view_observer.h"
+#include "src/renderer/extensions/dispatcher.h"
 
 using namespace content;
 
@@ -37,34 +44,40 @@ using blink::WebRTCPeerConnectionHandler;
 using blink::WebRTCPeerConnectionHandlerClient;
 using blink::WebThemeEngine;
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
-ExoBrowserRendererClient* g_renderer_client;
+
+ExoShellRendererClient* g_renderer_client;
+
+const char kWebViewTagName[] = "WEBVIEW";
+
 }
 
-ExoBrowserRendererClient* 
-ExoBrowserRendererClient::Get() 
+ExoShellRendererClient* 
+ExoShellRendererClient::Get() 
 {
   return g_renderer_client;
 }
 
-ExoBrowserRendererClient::ExoBrowserRendererClient() 
+ExoShellRendererClient::ExoShellRendererClient() 
 {
   DCHECK(!g_renderer_client);
   g_renderer_client = this;
 }
 
-ExoBrowserRendererClient::~ExoBrowserRendererClient() 
+ExoShellRendererClient::~ExoShellRendererClient() 
 {
   g_renderer_client = NULL;
 }
 
 void 
-ExoBrowserRendererClient::RenderThreadStarted() 
+ExoShellRendererClient::RenderThreadStarted() 
 {
-  observer_.reset(new ExoBrowserRenderProcessObserver());
+  observer_.reset(new ExoShellRenderProcessObserver());
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave());
+  if (!extension_dispatcher_)
+    extension_dispatcher_.reset(new extensions::Dispatcher());
 #if defined(OS_MACOSX)
   // We need to call this once before the sandbox was initialized to cache the
   // value.
@@ -73,17 +86,18 @@ ExoBrowserRendererClient::RenderThreadStarted()
 
   RenderThread* thread = RenderThread::Get();
   thread->AddObserver(visited_link_slave_.get());
+  thread->AddObserver(extension_dispatcher_.get());
 }
 
 void 
-ExoBrowserRendererClient::RenderViewCreated(
+ExoShellRendererClient::RenderViewCreated(
     RenderView* render_view) 
 {
-  new ExoBrowserRenderViewObserver(render_view);
+  new ExoShellRenderViewObserver(render_view);
 }
 
 bool 
-ExoBrowserRendererClient::OverrideCreatePlugin(
+ExoShellRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
     WebFrame* frame,
     const WebPluginParams& params,
@@ -98,8 +112,46 @@ ExoBrowserRendererClient::OverrideCreatePlugin(
   return false;
 }
 
+bool 
+ExoShellRendererClient::AllowBrowserPlugin(
+    blink::WebPluginContainer* container) 
+{
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kEnableBrowserPluginForAllViewTypes))
+    return true;
+
+  // If this |BrowserPlugin| <object> in the |container| is not inside a
+  // <webview>/<adview> shadowHost, we disable instantiating this plugin. This
+  // is to discourage and prevent developers from accidentally attaching
+  // <object> directly in apps.
+  //
+  // Note that this check below does *not* ensure any security, it is still
+  // possible to bypass this check.
+  // TODO(lazyboy): http://crbug.com/178663, Ensure we properly disallow
+  // instantiating BrowserPlugin outside of the <webview>/<adview> shim.
+  if (container->element().isNull())
+    return false;
+
+  if (container->element().shadowHost().isNull())
+    return false;
+
+  blink::WebString tag_name = container->element().shadowHost().tagName();
+  return tag_name.equals(blink::WebString::fromUTF8(kWebViewTagName));
+}
+
+void 
+ExoShellRendererClient::DidCreateScriptContext(
+    blink::WebFrame* frame, 
+    v8::Handle<v8::Context> context, 
+    int extension_group,
+    int world_id) {
+  extension_dispatcher_->DidCreateScriptContext(frame, context, 
+                                                extension_group, 
+                                                world_id);
+}
+
 unsigned long long 
-ExoBrowserRendererClient::VisitedLinkHash(
+ExoShellRendererClient::VisitedLinkHash(
     const char* canonical_url, 
     size_t length) 
 { 
@@ -107,7 +159,7 @@ ExoBrowserRendererClient::VisitedLinkHash(
 }
 
 bool 
-ExoBrowserRendererClient::IsLinkVisited(
+ExoShellRendererClient::IsLinkVisited(
     unsigned long long link_hash)
 {
   //LOG(INFO) << link_hash << " " << visited_link_slave_->IsVisited(link_hash);
@@ -115,4 +167,4 @@ ExoBrowserRendererClient::IsLinkVisited(
 }
 
 
-} // namespace exo_browser
+} // namespace exo_shell

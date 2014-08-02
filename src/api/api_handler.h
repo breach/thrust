@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_API_API_HANDLER_H_
-#define EXO_BROWSER_API_API_HANDLER_H_
+#ifndef EXO_SHELL_API_API_HANDLER_H_
+#define EXO_SHELL_API_API_HANDLER_H_
 
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
@@ -23,7 +23,7 @@ class StreamListenSocketFactory;
 class UnixDomainSocket;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
 class ApiBinding;
 class ApiBindingFactory;
@@ -112,4 +112,4 @@ private:
 
 }
 
-#endif // EXO_BROWSER_API_API_HANDLER_H_
+#endif // EXO_SHELL_API_API_HANDLER_H_

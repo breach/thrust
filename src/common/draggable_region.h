@@ -7,7 +7,7 @@
 
 #include "ui/gfx/rect.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 struct DraggableRegion {
   bool draggable;
