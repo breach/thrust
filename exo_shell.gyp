@@ -10,6 +10,9 @@
       'src/browser/resources/win/resource.h',
       'src/common/main.cc',
     ],
+    'js_sources': [
+      'src/renderer/extensions/resources/web_view.js',
+    ],
     'lib_sources': [
       'src/common/main_delegate.cc',
       'src/common/main_delegate.h',
@@ -100,6 +103,8 @@
       'src/renderer/extensions/module_system.cc',
       'src/renderer/extensions/context.h',
       'src/renderer/extensions/context.cc',
+      'src/renderer/extensions/dispatcher.h',
+      'src/renderer/extensions/dispatcher.cc',
 
       'src/geolocation/access_token_store.cc',
       'src/geolocation/access_token_store.h',
@@ -245,6 +250,7 @@
       'target_name': '<(project_name)_lib',
       'type': 'static_library',
       'dependencies': [
+        '<(project_name)_js',
         'vendor/brightray/brightray.gyp:brightray',
       ],
       'sources': [
@@ -285,6 +291,24 @@
             ['exclude', '_win\.(cc|h)$'],
           ],
         }],
+      ],
+    },
+    {
+      'target_name': '<(project_name)_js',
+      'type': 'none',
+      'actions': [
+        {
+          'inputs': [
+            'src/renderer/extensions/resources/web_view.js',
+          ],
+          'outputs': [
+            'src/renderer/extensions/resources/web_view.js.bin',
+          ],
+          'action_name': 'xxd web_view.js',
+          'action': ['xxd', '-i', 
+          'src/renderer/extensions/resources/web_view.js',
+          'src/renderer/extensions/resources/web_view.js.bin'],
+        },
       ],
     },
   ],

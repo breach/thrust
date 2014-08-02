@@ -8,9 +8,15 @@
 #include "base/command_line.h"
 #include "base/debug/debugger.h"
 #include "v8/include/v8.h"
+#include "third_party/WebKit/public/platform/WebURL.h"
+#include "third_party/WebKit/public/platform/WebURLError.h"
+#include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/platform/WebMediaStreamCenter.h"
 #include "third_party/WebKit/public/web/WebPluginParams.h"
+#include "third_party/WebKit/public/web/WebElement.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
+#include "third_party/WebKit/public/web/WebPluginContainer.h"
 #include "src/renderer/visitedlink/visitedlink_slave.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
@@ -21,6 +27,7 @@
 #include "src/common/switches.h"
 #include "src/renderer/render_process_observer.h"
 #include "src/renderer/render_view_observer.h"
+#include "src/renderer/extensions/dispatcher.h"
 
 using namespace content;
 
@@ -40,7 +47,11 @@ using blink::WebThemeEngine;
 namespace exo_shell {
 
 namespace {
+
 ExoShellRendererClient* g_renderer_client;
+
+const char kWebViewTagName[] = "WEBVIEW";
+
 }
 
 ExoShellRendererClient* 
@@ -65,6 +76,8 @@ ExoShellRendererClient::RenderThreadStarted()
 {
   observer_.reset(new ExoShellRenderProcessObserver());
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave());
+  if (!extension_dispatcher_)
+    extension_dispatcher_.reset(new extensions::Dispatcher());
 #if defined(OS_MACOSX)
   // We need to call this once before the sandbox was initialized to cache the
   // value.
@@ -73,6 +86,7 @@ ExoShellRendererClient::RenderThreadStarted()
 
   RenderThread* thread = RenderThread::Get();
   thread->AddObserver(visited_link_slave_.get());
+  thread->AddObserver(extension_dispatcher_.get());
 }
 
 void 
@@ -96,6 +110,44 @@ ExoShellRendererClient::OverrideCreatePlugin(
         switches::kEnableBrowserPluginForAllViewTypes);
   }
   return false;
+}
+
+bool 
+ExoShellRendererClient::AllowBrowserPlugin(
+    blink::WebPluginContainer* container) 
+{
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kEnableBrowserPluginForAllViewTypes))
+    return true;
+
+  // If this |BrowserPlugin| <object> in the |container| is not inside a
+  // <webview>/<adview> shadowHost, we disable instantiating this plugin. This
+  // is to discourage and prevent developers from accidentally attaching
+  // <object> directly in apps.
+  //
+  // Note that this check below does *not* ensure any security, it is still
+  // possible to bypass this check.
+  // TODO(lazyboy): http://crbug.com/178663, Ensure we properly disallow
+  // instantiating BrowserPlugin outside of the <webview>/<adview> shim.
+  if (container->element().isNull())
+    return false;
+
+  if (container->element().shadowHost().isNull())
+    return false;
+
+  blink::WebString tag_name = container->element().shadowHost().tagName();
+  return tag_name.equals(blink::WebString::fromUTF8(kWebViewTagName));
+}
+
+void 
+ExoShellRendererClient::DidCreateScriptContext(
+    blink::WebFrame* frame, 
+    v8::Handle<v8::Context> context, 
+    int extension_group,
+    int world_id) {
+  extension_dispatcher_->DidCreateScriptContext(frame, context, 
+                                                extension_group, 
+                                                world_id);
 }
 
 unsigned long long 
