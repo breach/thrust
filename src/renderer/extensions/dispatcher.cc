@@ -6,10 +6,25 @@
 
 #include "base/callback.h"
 #include "base/command_line.h"
+#include "content/public/renderer/render_thread.h"
+#include "content/public/renderer/render_view.h"
+#include "content/public/renderer/v8_value_converter.h"
+#include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURLRequest.h"
+#include "third_party/WebKit/public/web/WebCustomElement.h"
+#include "third_party/WebKit/public/web/WebDataSource.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
+#include "third_party/WebKit/public/web/WebScopedUserGesture.h"
+#include "third_party/WebKit/public/web/WebSecurityPolicy.h"
+#include "third_party/WebKit/public/web/WebUserGestureIndicator.h"
+#include "third_party/WebKit/public/web/WebView.h"
 
-#include "src/renderer/extensions/local_source_map.h"
+#include "src/renderer/extensions/context.h"
+#include "src/renderer/extensions/module_system.h"
+#include "src/renderer/extensions/document_custom_bindings.h"
 
-using base::UserMetricsAction;
 using blink::WebDataSource;
 using blink::WebDocument;
 using blink::WebFrame;
@@ -24,8 +39,7 @@ using content::RenderView;
 namespace extensions {
 
 Dispatcher::Dispatcher()
-  : is_webkit_initialized_(false),
-    source_map_(new LocalSourceMap())
+  : is_webkit_initialized_(false)
 {
   RenderThread::Get()->RegisterExtension(SafeBuiltins::CreateV8Extension());
   PopulateSourceMap();
@@ -37,11 +51,25 @@ Dispatcher::~Dispatcher() {
 void 
 Dispatcher::PopulateSourceMap() 
 {
+
   /*
-  source_map_.RegisterSource("webview", IDR_WEBVIEW_CUSTOM_BINDINGS_JS);
+#include "./resources/test_view.js.bin"
+  std::string test_view_src((char*)test_view_js, test_view_js_len);
+  LOG(INFO) << test_view_src;
+  source_map_.RegisterSource("testview", test_view_src);
+   */
+
+  //source_map_.RegisterSource("webView", IDR_WEB_VIEW_JS);
+#include "./resources/web_view.js.bin"
+  std::string web_view_src(
+      (char*)src_renderer_extensions_resources_web_view_js,
+      src_renderer_extensions_resources_web_view_js_len);
+  source_map_.RegisterSource("webView", web_view_src);
+
+  /*
   // Note: webView not webview so that this doesn't interfere with the
   // chrome.webview API bindings.
-  source_map_.RegisterSource("webView", IDR_WEB_VIEW_JS);
+  //source_map_.RegisterSource("webview", IDR_WEBVIEW_CUSTOM_BINDINGS_JS);
   source_map_.RegisterSource("webViewExperimental",
                              IDR_WEB_VIEW_EXPERIMENTAL_JS);
   source_map_.RegisterSource("webViewRequest",
@@ -74,7 +102,6 @@ Dispatcher::DidCreateScriptContext(
 
   // Enable natives in startup.
   ModuleSystem::NativesEnabledScope natives_enabled_scope(module_system);
-
   RegisterNativeHandlers(module_system, context);
 
   /*
@@ -106,12 +133,99 @@ Dispatcher::DidCreateScriptContext(
           manifest_version, send_request_disabled)));
   */
 
-  AddOrRemoveBindingsForContext(context);
-
   module_system->Require("webView");
-  //module_system->Require("webViewExperimental");
+  LOG(INFO) << "Module requires called!";
 
-  VLOG(1) << "Num tracked contexts: " << v8_context_set_.size();
+  //VLOG(1) << "Num tracked contexts: " << v8_context_set_.size();
+}
+
+// NOTE: please use the naming convention "foo_natives" for these.
+void 
+Dispatcher::RegisterNativeHandlers(
+    ModuleSystem* module_system,
+    Context* context) 
+{
+  module_system->RegisterNativeHandler("document_natives",
+      scoped_ptr<NativeHandler>(
+          new DocumentCustomBindings(context)));
+  /*
+  module_system->RegisterNativeHandler("event_natives",
+      scoped_ptr<NativeHandler>(EventBindings::Create(this, context)));
+  module_system->RegisterNativeHandler("messaging_natives",
+      scoped_ptr<NativeHandler>(MessagingBindings::Get(this, context)));
+  */
+  /*
+  module_system->RegisterNativeHandler("apiDefinitions",
+      scoped_ptr<NativeHandler>(new ApiDefinitionsNatives(this, context)));
+  module_system->RegisterNativeHandler("sendRequest",
+      scoped_ptr<NativeHandler>(
+          new SendRequestNatives(this, request_sender_.get(), context)));
+  module_system->RegisterNativeHandler("setIcon",
+      scoped_ptr<NativeHandler>(
+          new SetIconNatives(this, request_sender_.get(), context)));
+  module_system->RegisterNativeHandler("activityLogger",
+      scoped_ptr<NativeHandler>(new APIActivityLogger(this, context)));
+  module_system->RegisterNativeHandler("renderViewObserverNatives",
+      scoped_ptr<NativeHandler>(new RenderViewObserverNatives(this, context)));
+
+  // Natives used by multiple APIs.
+  module_system->RegisterNativeHandler("file_system_natives",
+      scoped_ptr<NativeHandler>(new FileSystemNatives(context)));
+
+  // Custom bindings.
+  module_system->RegisterNativeHandler("app",
+      scoped_ptr<NativeHandler>(new AppBindings(this, context)));
+  module_system->RegisterNativeHandler("app_runtime",
+      scoped_ptr<NativeHandler>(
+          new AppRuntimeCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("app_window_natives",
+      scoped_ptr<NativeHandler>(
+          new AppWindowCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("blob_natives",
+      scoped_ptr<NativeHandler>(new BlobNativeHandler(context)));
+  module_system->RegisterNativeHandler("context_menus",
+      scoped_ptr<NativeHandler>(
+          new ContextMenusCustomBindings(this, context)));
+  module_system->RegisterNativeHandler(
+      "css_natives", scoped_ptr<NativeHandler>(new CssNativeHandler(context)));
+  module_system->RegisterNativeHandler("sync_file_system",
+      scoped_ptr<NativeHandler>(
+          new SyncFileSystemCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("file_browser_handler",
+      scoped_ptr<NativeHandler>(new FileBrowserHandlerCustomBindings(
+          this, context)));
+  module_system->RegisterNativeHandler("file_browser_private",
+      scoped_ptr<NativeHandler>(new FileBrowserPrivateCustomBindings(
+          this, context)));
+  module_system->RegisterNativeHandler("i18n",
+      scoped_ptr<NativeHandler>(
+          new I18NCustomBindings(this, context)));
+  module_system->RegisterNativeHandler(
+      "id_generator",
+      scoped_ptr<NativeHandler>(new IdGeneratorCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("mediaGalleries",
+      scoped_ptr<NativeHandler>(
+          new MediaGalleriesCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("page_actions",
+      scoped_ptr<NativeHandler>(
+          new PageActionsCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("page_capture",
+      scoped_ptr<NativeHandler>(
+          new PageCaptureCustomBindings(this, context)));
+  module_system->RegisterNativeHandler(
+      "pepper_request_natives",
+      scoped_ptr<NativeHandler>(new PepperRequestNatives(context)));
+  module_system->RegisterNativeHandler("runtime",
+      scoped_ptr<NativeHandler>(new RuntimeCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("tabs",
+      scoped_ptr<NativeHandler>(new TabsCustomBindings(this, context)));
+  module_system->RegisterNativeHandler("webstore",
+      scoped_ptr<NativeHandler>(new WebstoreBindings(this, context)));
+#if defined(ENABLE_WEBRTC)
+  module_system->RegisterNativeHandler("cast_streaming_natives",
+      scoped_ptr<NativeHandler>(new CastStreamingNativeHandler(context)));
+#endif
+  */
 }
 
 void 
@@ -146,17 +260,6 @@ Dispatcher::DidCreateDocumentElement(
   /*
   content_watcher_->DidCreateDocumentElement(frame);
   */
-}
-
-bool 
-Dispatcher::OnControlMessageReceived(
-    const IPC::Message& message) 
-{
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(Dispatcher, message)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-  return handled;
 }
 
 void 

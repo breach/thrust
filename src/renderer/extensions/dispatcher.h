@@ -5,6 +5,15 @@
 #ifndef EXO_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
 #define EXO_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
 
+#include "base/basictypes.h"
+#include "base/compiler_specific.h"
+#include "base/files/file_path.h"
+#include "base/memory/scoped_ptr.h"
+#include "ipc/ipc_platform_file.h"
+#include "content/public/renderer/render_process_observer.h"
+
+#include "src/renderer/extensions/local_source_map.h"
+
 namespace blink {
 class WebFrame;
 class WebSecurityOrigin;
@@ -22,6 +31,8 @@ class RenderThread;
 namespace extensions {
 
 class LocalSourceMap;
+class ModuleSystem;
+class Context;
 
 // ### Dispatcher
 //
@@ -44,7 +55,6 @@ public:
   /****************************************************************************/
   /* RENDERPROCESSOBSERVER API */
   /****************************************************************************/
-  virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
   virtual void WebKitInitialized() OVERRIDE;
   virtual void IdleNotification() OVERRIDE;
   virtual void OnRenderProcessShutdown() OVERRIDE;
@@ -53,7 +63,10 @@ private:
   /****************************************************************************/
   /* INTERNAL API */
   /****************************************************************************/
+  void PopulateSourceMap();
   void EnableCustomElementWhiteList();
+  void RegisterNativeHandlers(ModuleSystem* module_system,
+                              Context* context);
 
   bool                    is_webkit_initialized_;
   LocalSourceMap          source_map_;
@@ -61,6 +74,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Dispatcher);
 };
 
-}  // namespace extensions
+} // namespace extensions
 
-#endif EXO_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
+#endif // EXO_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_

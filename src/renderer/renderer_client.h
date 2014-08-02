@@ -17,7 +17,12 @@ class VisitedLinkSlave;
 namespace blink {
 class WebFrame;
 class WebPlugin;
+class WebPluginContainer;
 struct WebPluginParams;
+}
+
+namespace extensions {
+class Dispatcher;
 }
 
 namespace exo_shell {
@@ -42,6 +47,14 @@ class ExoShellRendererClient : public content::ContentRendererClient {
       blink::WebFrame* frame,
       const blink::WebPluginParams& params,
       blink::WebPlugin** plugin) OVERRIDE;
+  virtual bool AllowBrowserPlugin(
+      blink::WebPluginContainer* container) OVERRIDE;
+
+  virtual void DidCreateScriptContext(
+      blink::WebFrame* frame, 
+      v8::Handle<v8::Context> context, 
+      int extension_group,
+      int world_id) OVERRIDE;
 
   virtual unsigned long long VisitedLinkHash(const char* canonical_url,         
                                              size_t length) OVERRIDE;           
@@ -51,6 +64,7 @@ class ExoShellRendererClient : public content::ContentRendererClient {
  private:
   scoped_ptr<ExoShellRenderProcessObserver> observer_;
   scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
+  scoped_ptr<extensions::Dispatcher>        extension_dispatcher_;
 };
 
 } // namespace exo_shell

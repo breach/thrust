@@ -11,6 +11,7 @@ var client = net.connect({ path: '/tmp/_exo_shell.sock' }, function() {
     _action: "create",
     _type: "shell",
     _args: {
+      root_url: "file:///home/spolu/src/exo_shell/test.html",
       title: "ExoShell TEST",
       size: {
         width: 800,
