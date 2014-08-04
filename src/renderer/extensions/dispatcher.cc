@@ -278,7 +278,8 @@ Dispatcher::IdleNotification()
 void 
 Dispatcher::EnableCustomElementWhiteList()
 {
-  blink::WebCustomElement::addEmbedderCustomElementName("frame");
+  blink::WebCustomElement::addEmbedderCustomElementName("browser-plugin"); 
+  blink::WebCustomElement::addEmbedderCustomElementName("webview");
 }
 
 void 
