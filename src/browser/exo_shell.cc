@@ -188,6 +188,12 @@ ExoShell::Move(int x, int y)
 	PlatformMove(x, y);
 }
 
+void
+ExoShell::Resize(int width, int height)
+{
+	PlatformResize(width, height);
+}
+
 WebContents* 
 ExoShell::OpenURLFromTab(
     WebContents* source,
