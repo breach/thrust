@@ -9,7 +9,7 @@
 #include "base/message_loop/message_pump_mac.h"
 
 @interface ExoShellApplication : NSApplication<CrAppProtocol,
-                                                 CrAppControlProtocol> {
+                                               CrAppControlProtocol> {
  @private
   BOOL handlingSendEvent_;
 }
@@ -24,4 +24,4 @@
 
 @end
 
-#define // EXO_SHELL_BROWSER_MAC_EXO_SHELL_APPLICATION_MAC_H_
+#endif // EXO_SHELL_BROWSER_MAC_EXO_SHELL_APPLICATION_MAC_H_

@@ -4,6 +4,8 @@
 #ifndef EXO_SHELL_API_API_HANDLER_H_
 #define EXO_SHELL_API_API_HANDLER_H_
 
+#include <map>
+
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 

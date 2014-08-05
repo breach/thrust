@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "src/browser/browser_application_mac.h"
+#include "src/browser/mac/application_mac.h"
 
 #include "base/auto_reset.h"
 #include "url/gurl.h"

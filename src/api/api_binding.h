@@ -4,7 +4,10 @@
 #ifndef EXO_SHELL_API_API_BINDING_H_
 #define EXO_SHELL_API_API_BINDING_H_
 
+#include <map>
+
 #include "base/memory/scoped_ptr.h"
+#include "base/values.h"
 
 #include "src/api/api_handler.h"
 
