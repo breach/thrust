@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Stanislas Polu.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/exo_frame.h"
+#include "src/browser/exo_frame.h"
 
 #include "base/logging.h"
 #import "base/mac/scoped_nsobject.h"
@@ -15,7 +15,7 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 gfx::Size
 ExoFrame::PlatformSize()
@@ -25,5 +25,5 @@ ExoFrame::PlatformSize()
   return gfx::Size(frame.size.width, frame.size.height);
 }
 
-} // namespace exo_browser
+} // namespace exo_shell
 

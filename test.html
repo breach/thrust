@@ -1,0 +1,16 @@
+<html>
+  <body>
+    Yo!
+    <webview id="test"></webview>
+    <script>
+      console.log('TEST: ' + window.TEST);
+      onload = function() {
+        setTimeout(function() {
+          console.log('TEST: ' + window.TEST);
+          console.log(document.querySelector('#test'));
+          console.log(document.querySelector('#test').test());
+        }, 200);
+      }
+    </script>
+  </body>
+</html>

@@ -2,21 +2,32 @@
 // Copyright (c) 2012 The Chromium Authors. 
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/browser_main_parts.h"
+#include "src/browser/browser_main_parts.h"
 
 #import <Cocoa/Cocoa.h>
 
 #include "base/mac/bundle_locations.h"
 #include "base/mac/scoped_nsobject.h"
-#include "exo_browser/src/browser/browser_application_mac.h"
 
-namespace exo_browser {
+#include "src/browser/mac/browser_application_mac.h"
+
+namespace exo_shell {
 
 void 
-ExoBrowserMainParts::PreMainMessageLoopStart() 
+ExoShellMainParts::PreMainMessageLoopStart() 
 {
   // Force the NSApplication subclass to be used.
-  [BrowserCrApplication sharedApplication];
+  NSApplication* application = [ExoShellApplication sharedApplication];
+
+  // Prevent Cocoa from turning command-line arguments into
+  // |-application:openFiles:|, since we already handle them directly.
+  [[NSUserDefaults standardUserDefaults]
+      setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
 }
 
-} // namespace exo_browser
+void 
+ExoShellMainParts::PostDestroyThreads() {
+  [[ExoShellApplication sharedApplication] setDelegate:nil];
+}
+
+} // namespace exo_shell

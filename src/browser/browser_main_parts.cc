@@ -2,10 +2,11 @@
 // Copyright (c) 2012 The Chromium Authors. 
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/browser_main_parts.h"
+#include "src/browser/browser_main_parts.h"
 
 #include "base/bind.h"
 #include "base/files/file_path.h"
+#include "base/file_util.h"
 #include "base/message_loop/message_loop.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_restrictions.h"
@@ -13,98 +14,87 @@
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
 #include "url/gurl.h"
-#include "grit/net_resources.h"
-#include "ui/base/resource/resource_bundle.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
-#include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/browser/exo_browser.h"
-#include "exo_browser/src/net/net_log.h"
-#include "exo_browser/src/node/node_thread.h"
+#include "content/public/browser/browser_thread.h"
+
+#include "src/common/switches.h"
+#include "src/browser/exo_shell.h"
+#include "src/browser/session/exo_session.h"
+#include "src/net/net_log.h"
+#include "src/api/api_handler.h"
+#include "src/api/exo_shell_binding.h"
+#include "src/api/exo_session_binding.h"
 
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-namespace {
+// static
+ExoShellMainParts* ExoShellMainParts::self_ = NULL;
 
 
-base::StringPiece 
-PlatformResourceProvider(
-    int key) 
+ExoShellMainParts::ExoShellMainParts()
+  : system_session_(NULL)
 {
-  if (key == IDR_DIR_HEADER_HTML) {
-    base::StringPiece html_data =
-        ui::ResourceBundle::GetSharedInstance().GetRawDataResource(
-            IDR_DIR_HEADER_HTML);
-    return html_data;
+  DCHECK(!self_) << "Cannot have two ExoShellBrowserMainParts";
+  self_ = this;
+}
+
+ExoShellMainParts::~ExoShellMainParts() {
+}
+
+// static
+ExoShellMainParts* 
+ExoShellMainParts::Get() 
+{
+  DCHECK(self_);
+  return self_;
+}
+
+brightray::BrowserContext* 
+ExoShellMainParts::CreateBrowserContext() {
+  if(system_session_ == NULL) {
+    /* We create an off the record session to be used internally. */
+    /* This session has a dummy cookie store. Stores nothing.     */
+    system_session_ = new ExoSession(true, "system_session", true);
   }
-  return base::StringPiece();
-}
-
-}  // namespace
-
-ExoBrowserMainParts::ExoBrowserMainParts(
-    const MainFunctionParams& parameters)
-    : BrowserMainParts(), 
-      parameters_(parameters), 
-      run_message_loop_(true) 
-{
-}
-
-ExoBrowserMainParts::~ExoBrowserMainParts() {
-}
-
-int
-ExoBrowserMainParts::PreCreateThreads()
-{
-  /* We create the NodeThread which will host NodeJS */
-  NodeThread::Get()->Start();
-  return 0;
-}
-
-#if !defined(OS_MACOSX)
-void 
-ExoBrowserMainParts::PreMainMessageLoopStart()
-{
-}
-#endif
-
-void 
-ExoBrowserMainParts::PostMainMessageLoopStart() 
-{
+  return system_session_;
 }
 
 void 
-ExoBrowserMainParts::PreEarlyInitialization() 
+ExoShellMainParts::PreMainMessageLoopRun() 
 {
+  brightray::BrowserMainParts::PreMainMessageLoopRun();
+  net_log_.reset(new ExoShellNetLog());
+
+  /* TODO(spolu): Get Path form command line */
+  //CommandLine* command_line = CommandLine::ForCurrentProcess();
+  
+  base::FilePath path;
+  base::GetTempDir(&path);
+  api_handler_.reset(new ApiHandler(path.Append("_exo_shell.sock")));
+
+
+  api_handler_->InstallBinding("shell", new ExoShellBindingFactory());
+  api_handler_->InstallBinding("session", new ExoSessionBindingFactory());
+
+  api_handler_->Start();
+
+  /*
+  BrowserThread::PostTask(
+      BrowserThread::UI, FROM_HERE, base::Bind(&ExoShellMainParts::Startup));
+  */
 }
 
-void 
-ExoBrowserMainParts::PreMainMessageLoopRun() 
+void ExoShellMainParts::PostMainMessageLoopRun() 
 {
-  net_log_.reset(new ExoBrowserNetLog());
+  brightray::BrowserMainParts::PostMainMessageLoopRun();
+  /* system_session_ is cleaned up in the above call. */
 
-  ExoBrowser::Initialize();
-  net::NetModule::SetResourceProvider(PlatformResourceProvider);
-
-  if(parameters_.ui_task) {
-    parameters_.ui_task->Run();
-    delete parameters_.ui_task;
-    run_message_loop_ = false;
-  }
-}
-
-bool ExoBrowserMainParts::MainMessageLoopRun(int* result_code)  
-{
-  return !run_message_loop_;
-}
-
-void ExoBrowserMainParts::PostMainMessageLoopRun() 
-{
-  /* TODO(spolu): Cleanup Remaining ExoSession? */
+  /* TODO(spolu): Cleanup Remaining ExoSessions? */
 }
 
 }  // namespace

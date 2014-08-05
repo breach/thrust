@@ -1,18 +1,17 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 //
-#include "exo_browser/src/browser/session/exo_session_visitedlink_store.h"
+#include "src/browser/session/exo_session_visitedlink_store.h"
 
 #include "url/gurl.h"
-#include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/public/browser/browser_thread.h"
-#include "exo_browser/src/browser/session/exo_session.h"
-#include "exo_browser/src/node/api/exo_session_wrap.h"
-#include "exo_browser/src/node/node_thread.h"
+
+#include "src/browser/session/exo_session.h"
+#include "src/browser/visitedlink/visitedlink_master.h"
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 ExoSessionVisitedLinkStore::ExoSessionVisitedLinkStore(
     ExoSession* parent)
@@ -58,4 +57,4 @@ ExoSessionVisitedLinkStore::RebuildTable(
   enumerator->OnComplete(true);
 }
 
-}  // namespace exo_browser
+}  // namespace exo_shell

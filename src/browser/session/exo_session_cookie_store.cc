@@ -1,20 +1,21 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/session/exo_session_cookie_store.h"
+#include "src/browser/session/exo_session_cookie_store.h"
 
 #include "content/public/browser/browser_thread.h"
-#include "exo_browser/src/browser/session/exo_session.h"
-#include "exo_browser/src/node/api/exo_session_wrap.h"
-#include "exo_browser/src/node/node_thread.h"
+
+#include "src/browser/session/exo_session.h"
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
   
 ExoSessionCookieStore::ExoSessionCookieStore(
-    ExoSession* parent)
+    ExoSession* parent,
+    bool dummy)
 : parent_(parent),
+  dummy_(dummy),
   op_count_(0) 
 {
 }
@@ -29,6 +30,14 @@ ExoSessionCookieStore::Load(
     const LoadedCallback& loaded_callback)
 {
   LOG(INFO) << "Load";
+
+  if(dummy_) {
+    std::vector<net::CanonicalCookie*> ccs;
+    content::BrowserThread::PostTask(
+        content::BrowserThread::IO, FROM_HERE,
+        base::Bind(loaded_callback, ccs));
+  }
+  /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -36,6 +45,7 @@ ExoSessionCookieStore::Load(
                    parent_->wrapper_, loaded_callback));
 
   }
+  */
 }
 
 void 
@@ -44,6 +54,14 @@ ExoSessionCookieStore::LoadCookiesForKey(
     const LoadedCallback& loaded_callback)
 {
   LOG(INFO) << "LoadCookiesForKey: '" << key << "'";
+
+  if(dummy_) {
+    std::vector<net::CanonicalCookie*> ccs;
+    content::BrowserThread::PostTask(
+        content::BrowserThread::IO, FROM_HERE,
+        base::Bind(loaded_callback, ccs));
+  }
+  /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -51,6 +69,7 @@ ExoSessionCookieStore::LoadCookiesForKey(
                    parent_->wrapper_, key, loaded_callback));
 
   }
+  */
 }
 
 void 
@@ -58,6 +77,12 @@ ExoSessionCookieStore::Flush(
     const base::Closure& callback)
 {
   LOG(INFO) << "Flush";
+
+  if(dummy_) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::IO, FROM_HERE, callback);
+  }
+  /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -65,6 +90,7 @@ ExoSessionCookieStore::Flush(
                    parent_->wrapper_, callback));
 
   }
+  */
 }
 
 
@@ -72,6 +98,7 @@ void
 ExoSessionCookieStore::AddCookie(
     const net::CanonicalCookie& cc)
 {
+  /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -79,12 +106,14 @@ ExoSessionCookieStore::AddCookie(
                    parent_->wrapper_, cc, op_count_++));
 
   }
+  */
 }
 
 void 
 ExoSessionCookieStore::UpdateCookieAccessTime(
     const net::CanonicalCookie& cc)
 {
+  /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -92,12 +121,14 @@ ExoSessionCookieStore::UpdateCookieAccessTime(
                    parent_->wrapper_, cc, op_count_++));
 
   }
+  */
 }
 
 void 
 ExoSessionCookieStore::DeleteCookie(
     const net::CanonicalCookie& cc)
 {
+  /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -105,11 +136,13 @@ ExoSessionCookieStore::DeleteCookie(
                    parent_->wrapper_, cc, op_count_++));
 
   }
+  */
 }
 
 void 
 ExoSessionCookieStore::SetForceKeepSessionState()
 {
+  /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
@@ -117,6 +150,7 @@ ExoSessionCookieStore::SetForceKeepSessionState()
                    parent_->wrapper_));
 
   }
+  */
 }
 
-}  // namespace exo_browser
+}  // namespace exo_shell

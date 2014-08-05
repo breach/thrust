@@ -2,64 +2,59 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/geolocation/access_token_store.h"
+#include "src/geolocation/access_token_store.h"
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/shell/browser/shell_browser_context.h"
-#include "exo_browser/src/browser/session/exo_session.h"
-#include "exo_browser/src/browser/content_browser_client.h"
+
+#include "src/browser/session/exo_session.h"
+#include "src/browser/browser_client.h"
 
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserAccessTokenStore::ExoBrowserAccessTokenStore()
+ExoShellAccessTokenStore::ExoShellAccessTokenStore()
   : system_request_context_(NULL)
 {
 }
 
-ExoBrowserAccessTokenStore::~ExoBrowserAccessTokenStore() 
+ExoShellAccessTokenStore::~ExoShellAccessTokenStore() 
 {
 }
 
 void 
-ExoBrowserAccessTokenStore::LoadAccessTokens(
+ExoShellAccessTokenStore::LoadAccessTokens(
     const LoadAccessTokensCallbackType& callback) 
 {
-  AccessTokenSet access_token_set;
-  access_token_set[GURL()] = base::ASCIIToUTF16("exo_browser");
-  callback.Run(access_token_set, system_request_context_.get());
-
   BrowserThread::PostTaskAndReply(
       BrowserThread::UI,
       FROM_HERE,
-      base::Bind(&ExoBrowserAccessTokenStore::GetRequestContextOnUIThread,
+      base::Bind(&ExoShellAccessTokenStore::GetRequestContextOnUIThread,
                  this),
-      base::Bind(&ExoBrowserAccessTokenStore::RespondOnOriginatingThread,
+      base::Bind(&ExoShellAccessTokenStore::RespondOnOriginatingThread,
                  this,
                  callback));
 }
 
-void ExoBrowserAccessTokenStore::GetRequestContextOnUIThread() {
+void ExoShellAccessTokenStore::GetRequestContextOnUIThread() {
   system_request_context_ = 
-    ExoBrowserContentBrowserClient::Get()->system_session()->GetRequestContext();
+    ExoShellBrowserClient::Get()->system_session()->GetRequestContext();
 }
 
-void ExoBrowserAccessTokenStore::RespondOnOriginatingThread(
+void ExoShellAccessTokenStore::RespondOnOriginatingThread(
     const LoadAccessTokensCallbackType& callback) {
   /* TODO(spolu): For now we provide a dummy value to prevent crash. We */
   /*              add proper tokens when relevant.                      */
   AccessTokenSet access_token_set;
-  access_token_set[GURL()] = base::ASCIIToUTF16("exo_browser");
+  //access_token_set[GURL()] = base::ASCIIToUTF16("exo_shell");
   callback.Run(access_token_set, system_request_context_.get());
-  system_request_context_ = NULL;
 }
 
-void ExoBrowserAccessTokenStore::SaveAccessToken(
+void ExoShellAccessTokenStore::SaveAccessToken(
     const GURL& server_url, const base::string16& access_token) {
   LOG(INFO) << "ExoBrwoserAccessTokenStore::SaveAccessToken: " 
             << server_url << " "

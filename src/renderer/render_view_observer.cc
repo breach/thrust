@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/renderer/render_view_observer.h"
+#include "src/renderer/render_view_observer.h"
 
 #include "base/command_line.h"
 #include "third_party/WebKit/public/web/WebView.h"
@@ -11,25 +11,26 @@
 #include "third_party/WebKit/public/web/WebDraggableRegion.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_observer.h"
-#include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/common/messages.h"
+
+#include "src/common/switches.h"
+#include "src/common/messages.h"
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserRenderViewObserver::ExoBrowserRenderViewObserver(
+ExoShellRenderViewObserver::ExoShellRenderViewObserver(
     RenderView* render_view)
     : RenderViewObserver(render_view) 
 {
 }
 
 bool 
-ExoBrowserRenderViewObserver::OnMessageReceived(
+ExoShellRenderViewObserver::OnMessageReceived(
     const IPC::Message& message) 
 {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(ExoBrowserRenderViewObserver, message)
+  IPC_BEGIN_MESSAGE_MAP(ExoShellRenderViewObserver, message)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -37,7 +38,7 @@ ExoBrowserRenderViewObserver::OnMessageReceived(
 }
 
 void 
-ExoBrowserRenderViewObserver::DidClearWindowObject(
+ExoShellRenderViewObserver::DidClearWindowObject(
     blink::WebFrame* frame,
     int world_id) 
 {
@@ -45,10 +46,10 @@ ExoBrowserRenderViewObserver::DidClearWindowObject(
 }
 
 void
-ExoBrowserRenderViewObserver::DraggableRegionsChanged(
+ExoShellRenderViewObserver::DraggableRegionsChanged(
     blink::WebFrame* frame) 
 {
   return;
 }
 
-}  // namespace exo_browser
+}  // namespace exo_shell
