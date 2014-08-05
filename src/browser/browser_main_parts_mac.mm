@@ -9,7 +9,7 @@
 #include "base/mac/bundle_locations.h"
 #include "base/mac/scoped_nsobject.h"
 
-#include "src/browser/mac/browser_application_mac.h"
+#include "src/browser/mac/application_mac.h"
 
 namespace exo_shell {
 
@@ -17,7 +17,7 @@ void
 ExoShellMainParts::PreMainMessageLoopStart() 
 {
   // Force the NSApplication subclass to be used.
-  NSApplication* application = [ExoShellApplication sharedApplication];
+  [ExoShellApplication sharedApplication];
 
   // Prevent Cocoa from turning command-line arguments into
   // |-application:openFiles:|, since we already handle them directly.

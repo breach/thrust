@@ -103,12 +103,6 @@ ExoShellRendererClient::OverrideCreatePlugin(
     const WebPluginParams& params,
     WebPlugin** plugin) {
   std::string mime_type = params.mimeType.utf8();
-  if (mime_type == content::kBrowserPluginMimeType) {
-    // Allow browser plugin in content_shell only if it is forced by flag.
-    // Returning true here disables the plugin.
-    return !CommandLine::ForCurrentProcess()->HasSwitch(
-        switches::kEnableBrowserPluginForAllViewTypes);
-  }
   return false;
 }
 
@@ -116,10 +110,6 @@ bool
 ExoShellRendererClient::AllowBrowserPlugin(
     blink::WebPluginContainer* container) 
 {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-        switches::kEnableBrowserPluginForAllViewTypes))
-    return true;
-
   // If this |BrowserPlugin| <object> in the |container| is not inside a
   // <webview>/<adview> shadowHost, we disable instantiating this plugin. This
   // is to discourage and prevent developers from accidentally attaching

@@ -134,12 +134,9 @@ function registerBrowserPluginElement() {
   };
 
   console.log('BROWSER-PLUGIN REGISTERED');
-  var BrowserPlugin =
+  WebViewInternal.BrowserPlugin =
       DocumentNatives.RegisterElement('browser-plugin', {extends: 'object',
                                                          prototype: proto});
-  console.log('TOTO');
-  console.log(BrowserPlugin);
-
   delete proto.createdCallback;
   delete proto.attachedCallback;
   delete proto.detachedCallback;

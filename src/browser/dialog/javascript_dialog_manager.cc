@@ -81,11 +81,12 @@ ExoShellJavaScriptDialogManager::WebContentsDestroyed(
 {
 }
 
+/*
 void 
 ExoShellJavaScriptDialogManager::DialogClosed(
     JavaScriptDialog* dialog) 
 {
-  /* TODO(spolu): Expose to API */
 }
+*/
 
 } // namespace exo_shell

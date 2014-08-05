@@ -5,10 +5,14 @@
   'variables': {
     'project_name': 'exo_shell',
     'product_name': 'ExoShell',
+    'framework_name': 'ExoShell Framework',
     'app_sources': [
       'src/browser/resources/win/exo_shell.rc',
       'src/browser/resources/win/resource.h',
       'src/common/main.cc',
+    ],
+    'bundle_sources': [
+      'src/browser/resources/mac/exo_shell.icns',
     ],
     'js_sources': [
       'src/renderer/extensions/resources/web_view.js',
@@ -138,6 +142,18 @@
   'includes': [
     'vendor/brightray/brightray.gypi',
   ],
+  'target_defaults': {
+    'includes': [
+       # Rules for excluding e.g. foo_win.cc from the build on non-Windows.
+      'filename_rules.gypi',
+    ],
+    'configurations': {
+      'Debug': {
+        'defines': [ 'DEBUG' ],
+        'cflags': [ '-g', '-O0' ],
+      },
+    },
+  },
   'targets': [
     {
       'target_name': '<(project_name)',
@@ -161,14 +177,19 @@
           ],
           'xcode_settings': {
             'INFOPLIST_FILE': 'src/browser/resources/mac/Info.plist',
-            'LD_RUNPATH_SEARCH_PATHS': '@executable_path/../Frameworks',
+            'LD_RUNPATH_SEARCH_PATHS': [
+              '@executable_path/../Frameworks',
+            ],
           },
+          'mac_bundle_resources': [
+            '<@(bundle_sources)',
+          ],
           'copies': [
             {
               'destination': '<(PRODUCT_DIR)/<(product_name).app/Contents/Frameworks',
               'files': [
                 '<(PRODUCT_DIR)/<(product_name) Helper.app',
-                '<(PRODUCT_DIR)/<(product_name).framework',
+                '<(PRODUCT_DIR)/<(framework_name).framework',
               ],
             },
           ],
@@ -240,6 +261,8 @@
       ],
       'include_dirs': [
         '.',
+      'chromium_src',
+      'vendor/brightray',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -250,28 +273,17 @@
         'vendor/brightray/brightray.gyp:brightray',
       ],
       'conditions': [
-        ['OS!="linux"', {
-          'sources/': [
-            ['exclude', '/linux/'],
-            ['exclude', '_linux\.(cc|h)$'],
-          ],
-        }],
-        ['OS!="mac"', {
-          'sources/': [
-            ['exclude', '/mac/'],
-            ['exclude', '_mac\.(mm|h)$'],
-          ],
-        },{
-          'sources/': [
-            ['exclude', '/views/'],
-            ['exclude', '_views\.(cc|h)$'],
-          ],
-        }],
-        ['OS!="win"', {
-          'sources/': [
-            ['exclude', '/win/'],
-            ['exclude', '_win\.(cc|h)$'],
-          ],
+         ['OS=="linux"', {
+           'link_settings': {
+             'ldflags': [
+              # Make binary search for libraries under current directory, so we
+              # don't have to manually set $LD_LIBRARY_PATH:
+              # http://serverfault.com/questions/279068/cant-find-so-in-the-same-directory-as-the-executable
+               '-rpath \$$ORIGIN',
+              # Make native module dynamic loading work.
+               '-rdynamic',
+             ],
+           },
         }],
       ],
     },
@@ -299,7 +311,7 @@
       'targets': [
         {
           'target_name': '<(project_name)_framework',
-          'product_name': '<(product_name)',
+          'product_name': '<(framework_name)',
           'type': 'shared_library',
           'dependencies': [
             '<(project_name)_lib',
@@ -307,22 +319,41 @@
           'sources': [
             '<@(framework_sources)',
           ],
+          'include_dirs': [
+            '.',
+            'vendor',
+            '<(libchromiumcontent_include_dir)',
+          ],
+          'export_dependent_settings': [
+            '<(project_name)_lib',
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
+              '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
+            ],
+          },
           'mac_bundle': 1,
           'mac_bundle_resources': [
             '<(libchromiumcontent_resources_dir)/content_shell.pak',
             '<(libchromiumcontent_resources_dir)/icudtl.dat',
           ],
           'xcode_settings': {
-            'LIBRARY_SEARCH_PATHS': '<(libchromiumcontent_library_dir)',
-            'LD_DYLIB_INSTALL_NAME': '@rpath/<(product_name).framework/<(product_name)',
-            'LD_RUNPATH_SEARCH_PATHS': '@loader_path/Libraries',
+            'INFOPLIST_FILE': 'src/common/resources/mac/Info.plist',
+            'LIBRARY_SEARCH_PATHS': [
+              '<(libchromiumcontent_library_dir)',
+            ],
+            'LD_DYLIB_INSTALL_NAME': '@rpath/<(framework_name).framework/<(framework_name)',
+            'LD_RUNPATH_SEARCH_PATHS': [
+              '@loader_path/Libraries',
+            ],
             'OTHER_LDFLAGS': [
               '-ObjC',
             ],
           },
           'copies': [
             {
-              'destination': '<(PRODUCT_DIR)/<(product_name).framework/Versions/A/Libraries',
+              'destination': '<(PRODUCT_DIR)/<(framework_name).framework/Versions/A/Libraries',
               'files': [
                 '<(libchromiumcontent_library_dir)/ffmpegsumo.so',
                 '<(libchromiumcontent_library_dir)/libchromiumcontent.dylib',
@@ -334,14 +365,11 @@
               'postbuild_name': 'Add symlinks for framework subdirectories',
               'action': [
                 'tools/mac/create-framework-subdir-symlinks.sh',
-                '<(product_name)',
+                '<(framework_name)',
                 'Libraries',
                 'Frameworks',
               ],
             },
-          ],
-          'export_dependent_settings': [
-            '<(project_name)_lib',
           ],
         },
         {
@@ -354,10 +382,15 @@
           'sources': [
             '<@(app_sources)',
           ],
+          'include_dirs': [
+            '.',
+          ],
           'mac_bundle': 1,
           'xcode_settings': {
             'INFOPLIST_FILE': 'src/renderer/resources/mac/Info.plist',
-            'LD_RUNPATH_SEARCH_PATHS': '@executable_path/../../../../Frameworks',
+            'LD_RUNPATH_SEARCH_PATHS': [
+              '@executable_path/../../..',
+            ],
           },
         },
       ],
