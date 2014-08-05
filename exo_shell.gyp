@@ -11,6 +11,9 @@
       'src/browser/resources/win/resource.h',
       'src/common/main.cc',
     ],
+    'bundle_sources': [
+      'src/browser/resources/mac/exo_shell.icns',
+    ],
     'js_sources': [
       'src/renderer/extensions/resources/web_view.js',
     ],
@@ -192,8 +195,13 @@
           ],
           'xcode_settings': {
             'INFOPLIST_FILE': 'src/browser/resources/mac/Info.plist',
-            'LD_RUNPATH_SEARCH_PATHS': '@executable_path/../Frameworks',
+            'LD_RUNPATH_SEARCH_PATHS': [
+              '@executable_path/../Frameworks',
+            ],
           },
+          'mac_bundle_resources': [
+            '<@(bundle_sources)',
+          ],
           'copies': [
             {
               'destination': '<(PRODUCT_DIR)/<(product_name).app/Contents/Frameworks',
