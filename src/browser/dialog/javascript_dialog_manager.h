@@ -12,7 +12,7 @@
 
 namespace exo_shell {
 
-class JavaScriptDialog;
+//class JavaScriptDialog;
 
 class ExoShellJavaScriptDialogManager : 
     public content::JavaScriptDialogManager {
@@ -44,7 +44,7 @@ class ExoShellJavaScriptDialogManager :
       content::WebContents* web_contents) OVERRIDE;
 
   // Called by the JavaScriptDialog when it closes.
-  void DialogClosed(JavaScriptDialog* dialog);
+  // void DialogClosed(JavaScriptDialog* dialog);
 
   // Used for content_browsertests.
   void set_dialog_request_callback(const base::Closure& callback) {
@@ -54,7 +54,7 @@ class ExoShellJavaScriptDialogManager :
  private:
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   // The dialog being shown. No queueing.
-  scoped_ptr<JavaScriptDialog> dialog_;
+  // scoped_ptr<JavaScriptDialog> dialog_;
 #else
   /* TODO(spolu): implement JavaScriptDialog for other platforms, */
   /* and then drop this #if                                       */

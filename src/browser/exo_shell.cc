@@ -10,6 +10,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/threading/thread_restrictions.h"
 #include "ui/gfx/codec/png_codec.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"

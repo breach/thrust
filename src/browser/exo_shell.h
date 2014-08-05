@@ -14,7 +14,6 @@
 #include "ui/gfx/size.h"
 #include "ui/gfx/point.h"
 #include "ui/gfx/image/image.h"
-#include "ui/views/widget/widget.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -24,6 +23,7 @@
 #include "vendor/brightray/browser/inspectable_web_contents_impl.h"
 
 #if defined(USE_AURA)
+#include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/widget/widget_observer.h"
 #endif

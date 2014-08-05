@@ -1,9 +1,11 @@
+// Copyright (c) 2014 Michael Hernandez
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) 2013 GitHub, Inc. All rights reserved.
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by the MIT license that can be
 // found in the LICENSE file.
 
-#import "src/browser/ui/cocoa/atom_menu_controller.h"
+#import "src/browser/ui/cocoa/exo_menu_controller.h"
 
 #include "base/logging.h"
 #include "base/strings/sys_string_conversions.h"
@@ -15,21 +17,24 @@
 
 namespace {
 
-bool isLeftButtonEvent(NSEvent* event) {
+bool 
+isLeftButtonEvent(NSEvent* event) {
   NSEventType type = [event type];
   return type == NSLeftMouseDown ||
     type == NSLeftMouseDragged ||
     type == NSLeftMouseUp;
 }
 
-bool isRightButtonEvent(NSEvent* event) {
+bool 
+isRightButtonEvent(NSEvent* event) {
   NSEventType type = [event type];
   return type == NSRightMouseDown ||
     type == NSRightMouseDragged ||
     type == NSRightMouseUp;
 }
 
-bool isMiddleButtonEvent(NSEvent* event) {
+bool 
+isMiddleButtonEvent(NSEvent* event) {
   if ([event buttonNumber] != 2)
     return false;
 
@@ -39,7 +44,8 @@ bool isMiddleButtonEvent(NSEvent* event) {
     type == NSOtherMouseUp;
 }
 
-int EventFlagsFromNSEventWithModifiers(NSEvent* event, NSUInteger modifiers) {
+int 
+EventFlagsFromNSEventWithModifiers(NSEvent* event, NSUInteger modifiers) {
   int flags = 0;
   flags |= (modifiers & NSAlphaShiftKeyMask) ? ui::EF_CAPS_LOCK_DOWN : 0;
   flags |= (modifiers & NSShiftKeyMask) ? ui::EF_SHIFT_DOWN : 0;
@@ -53,19 +59,20 @@ int EventFlagsFromNSEventWithModifiers(NSEvent* event, NSUInteger modifiers) {
 }
 
 // Retrieves a bitsum of ui::EventFlags from NSEvent.
-int EventFlagsFromNSEvent(NSEvent* event) {
+int 
+EventFlagsFromNSEvent(NSEvent* event) {
   NSUInteger modifiers = [event modifierFlags];
   return EventFlagsFromNSEventWithModifiers(event, modifiers);
 }
 
 }  // namespace
 
-@interface AtomMenuController (Private)
+@interface ExoMenuController (Private)
 - (void)addSeparatorToMenu:(NSMenu*)menu
                    atIndex:(int)index;
 @end
 
-@implementation AtomMenuController
+@implementation ExoMenuController
 
 @synthesize model = model_;
 
@@ -107,10 +114,12 @@ int EventFlagsFromNSEvent(NSEvent* event) {
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 
   const int count = model->GetItemCount();
+  LOG(INFO) << "there are items:  " << count;
   for (int index = 0; index < count; index++) {
     if (model->GetTypeAt(index) == ui::MenuModel::TYPE_SEPARATOR)
       [self addSeparatorToMenu:menu atIndex:index];
     else
+      LOG(INFO) << "Adding item to menu";
       [self addItemToMenu:menu atIndex:index fromModel:model];
   }
 
@@ -232,7 +241,9 @@ int EventFlagsFromNSEvent(NSEvent* event) {
 }
 
 - (NSMenu*)menu {
+  LOG(INFO) << "Trying to parse menu";
   if (!menu_ && model_) {
+    LOG(INFO) << "we are building from model";
     menu_.reset([[self menuFromModel:model_] retain]);
     [menu_ setDelegate:self];
   }

@@ -1,10 +1,12 @@
+// Copyright (c) 2014 Michael Hernandez
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) 2013 GitHub, Inc. All rights reserved.
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by the MIT license that can be
 // found in the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_UI_COCOA_ATOM_MENU_CONTROLLER_H_
-#define EXO_BROWSER_BROWSER_UI_COCOA_ATOM_MENU_CONTROLLER_H_
+#ifndef EXO_BROWSER_BROWSER_UI_COCOA_EXO_MENU_CONTROLLER_H_
+#define EXO_BROWSER_BROWSER_UI_COCOA_EXO_MENU_CONTROLLER_H_
 
 #import <Cocoa/Cocoa.h>
 
@@ -21,7 +23,7 @@ class MenuModel;
 // allow for hierarchical menus). The tag is the index into that model for
 // that particular item. It is important that the model outlives this object
 // as it only maintains weak references.
-@interface AtomMenuController : NSObject<NSMenuDelegate> {
+@interface ExoMenuController : NSObject<NSMenuDelegate> {
  @protected
   ui::MenuModel* model_;  // weak
   base::scoped_nsobject<NSMenu> menu_;
@@ -57,12 +59,12 @@ class MenuModel;
 @end
 
 // Exposed only for unit testing, do not call directly.
-@interface AtomMenuController (PrivateExposedForTesting)
+@interface ExoMenuController (PrivateExposedForTesting)
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item;
 @end
 
 // Protected methods that subclassers can override.
-@interface AtomMenuController (Protected)
+@interface ExoMenuController (Protected)
 - (void)addItemToMenu:(NSMenu*)menu
               atIndex:(NSInteger)index
             fromModel:(ui::MenuModel*)model;

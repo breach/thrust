@@ -59,8 +59,8 @@ class ExoShellClientView : public views::ClientView {
  public:
   ExoShellClientView(
       views::Widget* widget,
-      ExoShell* contents_view)
-      : views::ClientView(widget, contents_view) 
+      ExoShell* shell)
+      : views::ClientView(widget, shell) 
   {
   }
   virtual ~ExoShellClientView() {}
@@ -135,10 +135,12 @@ ExoShell::PlatformSetTitle(
 void
 ExoShell::PlatformFocus(bool focus)
 {
-  if (focus)
+  if(focus) {
     window_->Activate();
-  else
+  }
+  else {
     window_->Deactivate();
+  }
 }
 
 void
