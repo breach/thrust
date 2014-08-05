@@ -51,9 +51,9 @@ class ExoShellJavaScriptDialogManager;
 
 
 // ### ExoShell
-// 
+//
 // This represents an ExoShell window. The ExoShell window opens on a
-// root_url provided at creation. The window exposes only one webcontents 
+// root_url provided at creation. The window exposes only one webcontents
 // with support for the <exoframe> tag.
 //
 // The ExoShell lives on the BrowserThread::UI thread
@@ -67,7 +67,7 @@ class ExoShell : public brightray::DefaultWebContentsDelegate,
 #endif
                    public content::NotificationObserver {
 public:
-  
+
   /****************************************************************************/
   /* STATIC INTERFACE */
   /****************************************************************************/
@@ -130,22 +130,22 @@ public:
   void Focus(bool focus) { PlatformFocus(focus); }
 
   // ### Maximize
-  // 
+  //
   // Maximize the ExoShell window
   void Maximize() { PlatformMaximize(); }
 
   // ### UnMaximize
-  // 
+  //
   // UnMaximize the ExoShell window
   void UnMaximize() { PlatformUnMaximize(); }
 
   // ### Minimize
-  // 
+  //
   // Minimize the ExoShell window
   void Minimize() { PlatformMinimize(); }
 
   // ### Restore
-  // 
+  //
   // Restore the ExoShell window
   void Restore() { PlatformRestore(); }
 
@@ -156,9 +156,14 @@ public:
 
 
   // ### Close
-  // 
+  //
   // Closes the ExoShell window and reclaim underlying WebContents
   void Close();
+
+  // ### Move
+  //
+  // Moves the ExoShell window and reclaim underlying WebContents
+  void Move(int x, int y);
 
 
   // ### is_closed
@@ -175,6 +180,8 @@ public:
   //
   // Retrieves the native Window position
   gfx::Point position() { return PlatformPosition(); }
+
+  void move(int x, int y) { PlatformMove(x, y); }
 
   // ### web_contents
   //
@@ -195,7 +202,7 @@ public:
 
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
 
-  virtual content::JavaScriptDialogManager* 
+  virtual content::JavaScriptDialogManager*
     GetJavaScriptDialogManager() OVERRIDE;
 
   virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
@@ -214,7 +221,7 @@ public:
   /****************************************************************************/
   /* WEBCONTENTSOBSERVER IMPLEMENTATION                                       */
   /****************************************************************************/
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;  
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE; 
 
   /****************************************************************************/
   /* NOTIFICATIONOBSERFVER IMPLEMENTATION */
@@ -322,16 +329,16 @@ private:
   void PlatformUnMaximize();
 
   // ### PlatformMinimize
-  // 
+  //
   // Minimize the ExoShell window
   void PlatformMinimize();
 
   // ### PlatformRestore
-  // 
+  //
   // Restore the ExoShell window
   void PlatformRestore();
 
-  // ### PlatformSetTitle 
+  // ### PlatformSetTitle
   //
   // Set the title of ExoShell window.
   void PlatformSetTitle(const std::string& title);
@@ -351,6 +358,11 @@ private:
   //
   // Retrieves the position of the ExoShell window.
   gfx::Point PlatformPosition();
+  //
+  // ### PlatformMove
+  //
+  // Retrieves the position of the ExoShell window.
+  void PlatformMove(int x, int y);
 
 
   /****************************************************************************/
@@ -371,7 +383,7 @@ private:
 
   scoped_ptr<brightray::InspectableWebContents> inspectable_web_contents_;
 
-  // A static container of all the open instances. 
+  // A static container of all the open instances.
   static std::vector<ExoShell*>               s_instances;
 
   DISALLOW_COPY_AND_ASSIGN(ExoShell);

@@ -182,6 +182,11 @@ ExoShell::Close()
   }
 }
 
+void
+ExoShell::Move(int x, int y)
+{
+	PlatformMove(x, y);
+}
 
 WebContents* 
 ExoShell::OpenURLFromTab(
