@@ -162,9 +162,13 @@ public:
 
   // ### Move
   //
-  // Moves the ExoShell window and reclaim underlying WebContents
+  // Moves the ExoShell window
   void Move(int x, int y);
 
+  // ### Resize
+  //
+  // Resizes the ExoShell window
+  void Resize(int width, int height);
 
   // ### is_closed
   //
@@ -181,7 +185,15 @@ public:
   // Retrieves the native Window position
   gfx::Point position() { return PlatformPosition(); }
 
+  // ### WindowMove
+  //
+  // Moves Window
   void move(int x, int y) { PlatformMove(x, y); }
+
+  // ### ResizeWindow
+  //
+  // Resizes Window
+  void resize(int width, int height) { PlatformResize(width, height); }
 
   // ### web_contents
   //
@@ -361,9 +373,13 @@ private:
   //
   // ### PlatformMove
   //
-  // Retrieves the position of the ExoShell window.
+  // Moves the position of the ExoShell window.
   void PlatformMove(int x, int y);
 
+  // ### PlatformResize
+  //
+  // Resize the ExoShell window.
+  void PlatformResize(int width, int height);
 
   /****************************************************************************/
   /* MEMBERS */

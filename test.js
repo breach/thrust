@@ -44,7 +44,7 @@ client.on('data', function(data) {
         client.write(JSON.stringify(a) + "\n" + BOUNDARY);
 
 		setTimeout(function() {
-			var a = {
+			var move = {
 			  _id: ++action_id,
 			  _action: "call",
 			  _target: action._result._target,
@@ -54,7 +54,20 @@ client.on('data', function(data) {
 				y: 0
 			  }
 			};
-			client.write(JSON.stringify(a) + "\n" + BOUNDARY);
+
+			var resize = {
+			  _id: ++action_id,
+			  _action: "call",
+			  _target: action._result._target,
+			  _method: "resize",
+			  _args: {
+				width: 100,
+				height: 300
+			  }
+			};
+
+			client.write(JSON.stringify(move) + "\n" + BOUNDARY);
+			client.write(JSON.stringify(resize) + "\n" + BOUNDARY);
 		}, 3000);
       }
     }

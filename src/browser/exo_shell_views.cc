@@ -187,6 +187,16 @@ ExoShell::PlatformMove(int x, int y)
 	window_->SetBounds(bounds);
 }
 
+void
+ExoShell::PlatformResize(int width, int height)
+{
+	gfx::Point origin = window_->GetWindowBoundsInScreen().origin();
+
+	gfx::Rect bounds(origin.x(), origin.y(), width, height);
+
+	window_->SetBounds(bounds);
+}
+
 void 
 ExoShell::OnWidgetActivationChanged(
     views::Widget* widget, 
