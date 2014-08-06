@@ -185,16 +185,6 @@ public:
   // Retrieves the native Window position
   gfx::Point position() { return PlatformPosition(); }
 
-  // ### WindowMove
-  //
-  // Moves Window
-  void move(int x, int y) { PlatformMove(x, y); }
-
-  // ### ResizeWindow
-  //
-  // Resizes Window
-  void resize(int width, int height) { PlatformResize(width, height); }
-
   // ### web_contents
   //
   // Returns the underlying web_contents
