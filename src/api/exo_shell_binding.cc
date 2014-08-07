@@ -93,6 +93,21 @@ ExoShellBinding::LocalCall(
     args->GetString("title", &title);
     shell_->SetTitle(title);
   }
+  else if(method.compare("move") == 0) {
+	int x, y;
+	args->GetInteger("x", &x);
+	args->GetInteger("y", &y);
+
+	shell_->Move(x, y);
+  }
+  else if(method.compare("resize") == 0) {
+	int width, height;
+	args->GetInteger("width", &width);
+	args->GetInteger("height", &height);
+
+	LOG(INFO) << "calling shell_->Resize(" << width << ", " << height << ")";
+	shell_->Resize(width, height);
+  }
   else if(method.compare("close") == 0) {
     shell_->Close();
   }

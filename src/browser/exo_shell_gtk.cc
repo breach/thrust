@@ -305,6 +305,16 @@ ExoShell::PlatformPosition()
   return gfx::Point(x, y);
 }
 
+void
+ExoShell::PlatformMove(int x, int y)
+{
+  gtk_window_move(window_, x, y);
+}
+
+void ExoShell::PlatformResize(int width, int height)
+{
+}
+
 gboolean 
 ExoShell::OnFixedSizeRequest(
     GtkWidget* fixed,

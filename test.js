@@ -42,6 +42,33 @@ client.on('data', function(data) {
           _args: {}
         };
         client.write(JSON.stringify(a) + "\n" + BOUNDARY);
+
+		setTimeout(function() {
+			var move = {
+			  _id: ++action_id,
+			  _action: "call",
+			  _target: action._result._target,
+			  _method: "move",
+			  _args: {
+				x: 0,
+				y: 0
+			  }
+			};
+
+			var resize = {
+			  _id: ++action_id,
+			  _action: "call",
+			  _target: action._result._target,
+			  _method: "resize",
+			  _args: {
+				width: 100,
+				height: 300
+			  }
+			};
+
+			client.write(JSON.stringify(move) + "\n" + BOUNDARY);
+			client.write(JSON.stringify(resize) + "\n" + BOUNDARY);
+		}, 3000);
       }
     }
   }
