@@ -221,7 +221,8 @@ ExoShell::PlatformResize(int width, int height) {
   frame.origin.y += height; // add the new height
   frame.size.width = width;
   frame.size.height = height;
-  [window_ setFrame: frame display: YES];
+  [window_ setFrame:frame
+            display:YES];
 }
 
 } // namespace exo_shell
