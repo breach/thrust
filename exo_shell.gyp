@@ -201,6 +201,7 @@
           },
           'mac_bundle_resources': [
             '<@(bundle_sources)',
+            '<(libchromiumcontent_resources_dir)/icudtl.dat',
           ],
           'copies': [
             {
