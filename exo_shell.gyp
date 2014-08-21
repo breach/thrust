@@ -80,6 +80,15 @@
       'src/browser/ui/cocoa/exo_menu_controller.mm',
       #/ui:cocoa:menu
 
+      #exo:menu
+      'src/browser/exo_menu.cc',
+      'src/browser/exo_menu.h',
+      'src/browser/exo_menu_mac.h',
+      'src/browser/exo_menu_mac.mm',
+      #/exo:menu
+
+
+
       'src/renderer/renderer_client.cc',
       'src/renderer/renderer_client.h',
       'src/renderer/render_process_observer.cc',
@@ -144,6 +153,9 @@
       'src/api/exo_shell_binding.cc',
       'src/api/exo_session_binding.h',
       'src/api/exo_session_binding.cc',
+      #exo menu api
+      'src/api/exo_menu_binding.h',
+      'src/api/exo_menu_binding.cc',
     ],
     'framework_sources': [
       'src/common/library_main.cc',
