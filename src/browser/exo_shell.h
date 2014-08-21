@@ -46,6 +46,7 @@ struct FileChooserParams;
 
 namespace exo_shell {
 
+class ExoSession;
 class ExoShellDevToolsFrontend;
 class ExoShellJavaScriptDialogManager;
 
@@ -58,14 +59,14 @@ class ExoShellJavaScriptDialogManager;
 //
 // The ExoShell lives on the BrowserThread::UI thread
 class ExoShell : public brightray::DefaultWebContentsDelegate,
-                   public brightray::InspectableWebContentsDelegate,
-                   public content::WebContentsObserver,
+                 public brightray::InspectableWebContentsDelegate,
+                 public content::WebContentsObserver,
 #if defined(USE_AURA)
-                   public views::WidgetDelegateView,
-                   public views::WidgetObserver,
+                 public views::WidgetDelegateView,
+                 public views::WidgetObserver,
 #elif defined(OS_MACOSX)
 #endif
-                   public content::NotificationObserver {
+                 public content::NotificationObserver {
 public:
 
   /****************************************************************************/
@@ -82,6 +83,7 @@ public:
   // @has_frame {boolean} has a frame
   // ```
   static ExoShell* CreateNew(
+      ExoSession* session,
       const GURL& root_url,
       const gfx::Size& size,
       const std::string& title,

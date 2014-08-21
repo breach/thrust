@@ -8,7 +8,7 @@
 
 namespace exo_shell {
 
-ApiBinding::ApiBinding(
+APIBinding::APIBinding(
     const std::string& type,
     const unsigned int id)
   : type_(type),
@@ -16,21 +16,21 @@ ApiBinding::ApiBinding(
 {
 }
 
-ApiBinding::~ApiBinding()
+APIBinding::~APIBinding()
 {
 }
 
 void
-ApiBinding::RemoteCall(
+APIBinding::RemoteCall(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
-    const ApiHandler::ActionCallback& callback)
+    const API::ActionCallback& callback)
 {
   /* TODO(spolu) */
 }
 
 void
-ApiBinding::Emit(
+APIBinding::Emit(
     const std::string& type,
     scoped_ptr<base::DictionaryValue> event)
 {

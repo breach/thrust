@@ -62,6 +62,11 @@
       'src/browser/ui/views/frameless_view.h',
       'src/browser/ui/views/frameless_view.cc',
 
+      'src/browser/webview/webview.h',
+      'src/browser/webview/webview.cc',
+      'src/browser/webview/webview_constants.h',
+      'src/browser/webview/webview_constants.cc',
+
       'src/renderer/renderer_client.cc',
       'src/renderer/renderer_client.h',
       'src/renderer/render_process_observer.cc',
@@ -118,8 +123,10 @@
       'src/renderer/visitedlink/visitedlink_slave.cc',
       'src/renderer/visitedlink/visitedlink_slave.h',
 
-      'src/api/api_handler.h',
-      'src/api/api_handler.cc',
+      'src/api/api.h',
+      'src/api/api.cc',
+      'src/api/api_server.h',
+      'src/api/api_server.cc',
       'src/api/api_binding.h',
       'src/api/api_binding.cc',
       'src/api/exo_shell_binding.h',

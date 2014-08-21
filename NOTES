@@ -17,8 +17,15 @@
 :html_auth #106
   - User authorization API
 
+:webview
+  - Webview support
+
 
 DONE:
+>>v0.7<<
+- Remove NodeJS & JSON RPCish API
+- Upgrade to Chrome 36.0.x.x
+
 >>v0.6<<
 - Cookies op_count
 - Upgrade to Node 0.11.14 (v8: 3.25.30.0)
@@ -53,8 +60,12 @@ DONE:
 - Capture ExoFrame ScreenShot from API
 
 /******************************************************************************/
-/* v0.7 NOTES */
+/* v0.7 Implementation NOTES */
 /******************************************************************************/
+- [x] Add object registry to api_handler
+- [x] Move server out of api_handler and make api_handler live in BROWSER_THREAD
+- [ ] Expose api_handler methods through messages (to call from webview wrapper)
+- [ ] Add Register webviews in API + binding
 
 
 /******************************************************************************/

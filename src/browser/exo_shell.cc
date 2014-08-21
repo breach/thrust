@@ -128,14 +128,17 @@ ExoShell::CreateNew(
 
 ExoShell*
 ExoShell::CreateNew(
+    ExoSession* session,
     const GURL& root_url,
     const gfx::Size& size,
     const std::string& title,
     const std::string& icon_path,
     const bool has_frame)
 {
-  WebContents::CreateParams create_params(
-      (BrowserContext*)ExoShellBrowserClient::Get()->system_session());
+  if(session == NULL) {
+    session = ExoShellBrowserClient::Get()->system_session();
+  }
+  WebContents::CreateParams create_params((BrowserContext*)session);
   WebContents* web_contents = WebContents::Create(create_params);
   
   NavigationController::LoadURLParams params(root_url);

@@ -9,7 +9,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 
-#include "src/api/api_handler.h"
+#include "src/api/api.h"
 
 namespace base {
 class Value;
@@ -18,31 +18,31 @@ class DictionaryValue;
 
 namespace exo_shell {
 
-// ## ApiBinding
+// ## APIBinding
 //
 // Exposes the interface of an object binded to the API
-class ApiBinding {
+class APIBinding {
 public:
   /****************************************************************************/
   /* VIRTUAL INTERFACE */
   /****************************************************************************/
-  virtual void LocalCall(const std::string& method, 
-                         scoped_ptr<base::DictionaryValue> args, 
-                         const ApiHandler::ActionCallback& callback) = 0;
+  virtual void CallLocalMethod(const std::string& method, 
+                               scoped_ptr<base::DictionaryValue> args, 
+                               const API::ActionCallback& callback) = 0;
 
-  virtual ~ApiBinding();
+  virtual ~APIBinding();
 
 protected:
   /****************************************************************************/
   /* PROTECTED INTERFACE */
   /****************************************************************************/
-  void RemoteCall(const std::string& method, 
-                  scoped_ptr<base::DictionaryValue> args, 
-                  const ApiHandler::ActionCallback& callback);
+  void CallRemoteMethod(const std::string& method, 
+                        scoped_ptr<base::DictionaryValue> args, 
+                        const API::ActionCallback& callback);
   void Emit(const std::string& type, 
             scoped_ptr<base::DictionaryValue> event);
 
-  ApiBinding(const std::string& type, 
+  APIBinding(const std::string& type, 
              const unsigned int id);
 
 private:
@@ -50,19 +50,35 @@ private:
   std::string      type_;
   unsigned int     id_;
 
-  DISALLOW_COPY_AND_ASSIGN(ApiBinding);
+  DISALLOW_COPY_AND_ASSIGN(APIBinding);
 };
 
 
-// ## ApiBindingFactory
+// ## APIBindingFactory
 //
 // Factory object used to generate typed binding objects
-class ApiBindingFactory {
+class APIBindingFactory {
 public:
-  virtual ~ApiBindingFactory() {}
+  virtual ~APIBindingFactory() {}
 
-  virtual ApiBinding* Create(const unsigned int id, 
+  virtual APIBinding* Create(const unsigned int id, 
                              scoped_ptr<base::DictionaryValue> args) = 0;
+};
+
+// ## APIBindingRemote
+//
+// APIBindingRemote Interface to call remote object methods and emit events.
+// Remote implementations can be installed through the API::SetRemote method 
+// and only one remote is associated with a given binding
+class APIBindingRemote {
+public:
+  virtual ~APIBindingRemote() {}
+
+  virtual void CallMethod(const std::string method,
+                          scoped_ptr<base::DictionaryValue> args,
+                          const API::MethodCallback& callback) = 0;
+  virtual void EmitEvent(const std::string type,
+                         scoped_ptr<base::DictionaryValue> event) = 0;
 };
 
 

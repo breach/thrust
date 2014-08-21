@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "src/api/api_handler.h"
+#include "src/api/api_server.h"
 
 #include "base/bind.h"
 #include "base/callback.h"
@@ -23,39 +23,40 @@ using namespace content;
 namespace exo_shell {
 
 const char kSocketBoundary[] = "--(Foo)++__EXO_SHELL_BOUNDARY__++(Bar)--";
-const char kApiHandlerThreadName[] = "exo_shell_api_handler_thread";
+const char kAPIServerThreadName[] = "exo_shell_api_server_thread";
 
-ApiHandler::ApiHandler(
+APIServer::APIServer(
+    API* api,
     const base::FilePath& socket_path)
-  : socket_path_(socket_path),
-    next_binding_id_(0)
+  : api_(api),
+    socket_path_(socket_path)
 {
 }
 
 void 
-ApiHandler::Start()
+APIServer::Start()
 {
   if(thread_)
     return;
-  thread_.reset(new base::Thread(kApiHandlerThreadName));
+  thread_.reset(new base::Thread(kAPIServerThreadName));
 
   BrowserThread::PostTask(
       BrowserThread::FILE, FROM_HERE,
-      base::Bind(&ApiHandler::StartHandlerThread, this));
+      base::Bind(&APIServer::StartHandlerThread, this));
 }
 
 void 
-ApiHandler::Stop() {
+APIServer::Stop() {
   if (!thread_)
     return;
   BrowserThread::PostTaskAndReply(
       BrowserThread::FILE, FROM_HERE,
-      base::Bind(&ApiHandler::StopHandlerThread, this),
-      base::Bind(&ApiHandler::ResetHandlerThread, this));
+      base::Bind(&APIServer::StopHandlerThread, this),
+      base::Bind(&APIServer::ResetHandlerThread, this));
 }
 
 void
-ApiHandler::InstallBinding(
+APIServer::InstallBinding(
     const std::string& type,
     ApiBindingFactory* factory)
 {
@@ -64,7 +65,7 @@ ApiHandler::InstallBinding(
 
 
 void 
-ApiHandler::DidAccept(
+APIServer::DidAccept(
     net::StreamListenSocket* server,                          
     scoped_ptr<net::StreamListenSocket> connection)
 {
@@ -73,7 +74,7 @@ ApiHandler::DidAccept(
 }
 
 void 
-ApiHandler::DidRead(
+APIServer::DidRead(
     net::StreamListenSocket* connection,
     const char* data,
     int len)
@@ -84,7 +85,7 @@ ApiHandler::DidRead(
 }
 
 void 
-ApiHandler::DidClose(
+APIServer::DidClose(
     net::StreamListenSocket* sock)
 {
   LOG(INFO) << "Close";
@@ -93,7 +94,7 @@ ApiHandler::DidClose(
 
 
 void
-ApiHandler::ReplyToAction(
+APIServer::ReplyToAction(
     const unsigned int id,
     const std::string& error, 
     scoped_ptr<base::Value> result)
@@ -101,12 +102,12 @@ ApiHandler::ReplyToAction(
   /* Runs on UI Thread. */
   thread_->message_loop()->PostTask(
       FROM_HERE,
-      base::Bind(&ApiHandler::SendReply, this, 
+      base::Bind(&APIServer::SendReply, this, 
                  id, error, base::Passed(result.Pass())));
 }
 
 void
-ApiHandler::PerformAction(
+APIServer::PerformAction(
     std::string action,
     unsigned int id,
     scoped_ptr<base::DictionaryValue> args,
@@ -123,50 +124,38 @@ ApiHandler::PerformAction(
   LOG(INFO) << "type: " << type;
   LOG(INFO) << "method: " << target;
 
-  if(action.compare("create") == 0 && 
-     type.length() > 0 && factories_[type]) {
-    /* We call into the binding factory to create the binding. This will */
-    /* trigger the creation of a local object.                           */
-    int target = ++next_binding_id_;
-    bindings_[target] = factories_[type]->Create(target, args.Pass());
-
+  if(action.compare("create") == 0 && type.length()) {
+    unsigned int target = api_->Create(type, args.Pass());
     base::DictionaryValue* res = new base::DictionaryValue;
     res->SetInteger("_target", target);
     ReplyToAction(id, std::string(""),  
                   scoped_ptr<base::Value>(res).Pass());
   }
-  else if(action.compare("call") == 0 && 
-          target > 0 && bindings_[target]) {
-    /* We route the request to the right binding. */
-    bindings_[target]->LocalCall(method, args.Pass(), 
-                                 base::Bind(&ApiHandler::ReplyToAction, this, id));
+  else if(action.compare("call") == 0 && target > 0) {
+    api_->CallMethod(target, method,
+                     base::Bind(&APIServer::ReplyToAction, this, id));
   }
-  else if(action.compare("delete") == 0 && 
-          target > 0 && bindings_[target]) {
-    LOG(INFO) << "REMOVING BINDING: " << target;
-    /* We call the destructor of the binding which is in charge of */
-    /* cleaning up all local objects associated with it.           */
-    delete bindings_[target];
-    bindings_.erase(target);
+  else if(action.compare("delete") == 0 && target > 0) {
+    api_->Delete(target);
 
     scoped_ptr<base::Value> null;
     null.reset(base::Value::CreateNullValue());
     ReplyToAction(id, std::string(""), null.Pass());
   }
   else {
-    LOG(INFO) << "Action ignored: " << id;
+    LOG(INFO) << "[API_SERVER] IGNORED: " << action << " " << id;
   }
 }
 
 
 
 void
-ApiHandler::SendReply(
+APIServer::SendReply(
   const unsigned int id,
   const std::string& error, 
   scoped_ptr<base::Value> result)
 {
-  /* Runs on ApiHandler Thread. */
+  /* Runs on APIServer Thread. */
   base::DictionaryValue action;
   action.SetString("_action", "reply");
   action.SetInteger("_id", id);
@@ -183,9 +172,9 @@ ApiHandler::SendReply(
 }
 
 void
-ApiHandler::ProcessData()
+APIServer::ProcessData()
 {
-  /* Runs on ApiHandler Thread. */
+  /* Runs on APIServer Thread. */
   size_t pos;
   while((pos = acc_.find(kSocketBoundary)) != std::string::npos) {
     std::string raw = acc_.substr(0, pos);
@@ -218,7 +207,7 @@ ApiHandler::ProcessData()
 
     BrowserThread::PostTask(
         BrowserThread::UI, FROM_HERE,
-        base::Bind(&ApiHandler::PerformAction, this, 
+        base::Bind(&APIServer::PerformAction, this, 
                    _action, _id, base::Passed(_args.Pass()), _target, _type, _method));
   }
 }
@@ -226,14 +215,14 @@ ApiHandler::ProcessData()
 
 
 bool 
-ApiHandler::UserCanConnectCallback(
+APIServer::UserCanConnectCallback(
     uid_t user_id, 
     gid_t group_id) {
   return true;
 }
 
 void 
-ApiHandler::DeleteSocketFile()
+APIServer::DeleteSocketFile()
 {
   base::DeleteFile(socket_path_, false /* not recursive */);
 }
@@ -241,7 +230,7 @@ ApiHandler::DeleteSocketFile()
 
 
 void 
-ApiHandler::StartHandlerThread() 
+APIServer::StartHandlerThread() 
 {
   /* Runs on FILE thread. */
   base::Thread::Options options;
@@ -249,23 +238,23 @@ ApiHandler::StartHandlerThread()
   if (!thread_->StartWithOptions(options)) {
     BrowserThread::PostTask(
         BrowserThread::UI, FROM_HERE,
-        base::Bind(&ApiHandler::ResetHandlerThread, this));
+        base::Bind(&APIServer::ResetHandlerThread, this));
     return;
   }
 
   thread_->message_loop()->PostTask(
       FROM_HERE,
-      base::Bind(&ApiHandler::ThreadInit, this));
+      base::Bind(&APIServer::ThreadInit, this));
 }
 
 void 
-ApiHandler::ResetHandlerThread() 
+APIServer::ResetHandlerThread() 
 {
   thread_.reset();
 }
 
 void 
-ApiHandler::StopHandlerThread() 
+APIServer::StopHandlerThread() 
 {
   /* Runs on FILE thread to make sure that it is serialized against */
   /* {Start|Stop}HandlerThread and to allow calling pthread_join.   */
@@ -273,13 +262,13 @@ ApiHandler::StopHandlerThread()
     return;
   thread_->message_loop()->PostTask(
       FROM_HERE,
-      base::Bind(&ApiHandler::ThreadTearDown, this));
+      base::Bind(&APIServer::ThreadTearDown, this));
   // Thread::Stop joins the thread.
   thread_->Stop();
 }
 
 void 
-ApiHandler::ThreadInit() 
+APIServer::ThreadInit() 
 {
   LOG(INFO) << "Cleaning up: " << socket_path_.value();
   DeleteSocketFile();
@@ -288,14 +277,13 @@ ApiHandler::ThreadInit()
   /* Runs on the handler thread */
   socket_ = net::UnixDomainSocket::CreateAndListen(
       socket_path_.value(), this, 
-      base::Bind(&ApiHandler::UserCanConnectCallback, this));
+      base::Bind(&APIServer::UserCanConnectCallback, this));
 }
 
 void 
-ApiHandler::ThreadTearDown() 
+APIServer::ThreadTearDown() 
 {
   /* Runs on the handler thread */
-  //server_ = NULL;
 }
 
   
