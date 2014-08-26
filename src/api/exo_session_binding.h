@@ -21,7 +21,8 @@ public:
                     scoped_ptr<base::DictionaryValue> args);
   ~ExoSessionBinding();
 
-  virtual void LocalCall(const std::string& method, 
+  virtual void LocalCall(ApiHandler* handler,
+                         const std::string& method, 
                          scoped_ptr<base::DictionaryValue> args, 
                          const ApiHandler::ActionCallback& callback) OVERRIDE;
 

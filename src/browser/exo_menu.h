@@ -29,11 +29,6 @@
 namespace exo_shell {
 // ### ExoMenu
 //
-// This represents an ExoMenu window. The ExoMenu window opens on a
-// root_url provided at creation. The window exposes only one webcontents
-// with support for the <exoframe> tag.
-//
-// The ExoMenu lives on the BrowserThread::UI thread
 class ExoMenu : public ui::SimpleMenuModel::Delegate {
 
 public:
@@ -85,9 +80,10 @@ public:
   //                        int command_id,
   //                        const base::string16& label,
   //                        int group_id);
-  // void InsertSubMenuAt(int index,
-  //                      int command_id,
-  //                      const base::string16& label);
+void InsertSubMenuAt(int index,
+                           int command_id,
+                           const base::string16& label,
+                           ExoMenu* menu);
   // void SetSublabel(int index, const base::string16& sublabel);
   // void Clear();
   int GetIndexOfCommandId(int command_id);

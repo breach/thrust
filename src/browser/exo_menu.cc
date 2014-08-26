@@ -103,6 +103,14 @@ ExoMenu::MenuWillShow(ui::SimpleMenuModel* source) {
 
 }
 
+void
+ExoMenu::InsertSubMenuAt(int index,
+                           int command_id,
+                           const base::string16& label,
+                           ExoMenu* menu) {
+  menu->parent_ = this;
+  model_->InsertSubMenuAt(index, command_id, label, menu->model_.get());
+}
 // void AttachToWindow(Window* window) const{
 
 // }

@@ -138,7 +138,8 @@ ApiHandler::PerformAction(
   else if(action.compare("call") == 0 && 
           target > 0 && bindings_[target]) {
     /* We route the request to the right binding. */
-    bindings_[target]->LocalCall(method, args.Pass(), 
+    //GetBindingByTargetID(target)
+    GetBindingByTargetID(target)->LocalCall(this, method, args.Pass(), 
                                  base::Bind(&ApiHandler::ReplyToAction, this, id));
   }
   else if(action.compare("delete") == 0 && 
@@ -298,5 +299,10 @@ ApiHandler::ThreadTearDown()
   //server_ = NULL;
 }
 
+ApiBinding*
+ApiHandler::GetBindingByTargetID(unsigned int target_id) {
+  return bindings_[target_id];
+}
   
 } // namespace exo_shell
+
