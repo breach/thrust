@@ -26,7 +26,8 @@ public:
   /****************************************************************************/
   /* VIRTUAL INTERFACE */
   /****************************************************************************/
-  virtual void LocalCall(const std::string& method, 
+  virtual void LocalCall(ApiHandler* handler,
+                         const std::string& method, 
                          scoped_ptr<base::DictionaryValue> args, 
                          const ApiHandler::ActionCallback& callback) = 0;
 

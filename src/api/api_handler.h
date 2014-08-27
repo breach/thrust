@@ -57,6 +57,8 @@ public:
   void InstallBinding(const std::string& type,
                       ApiBindingFactory* factory);
 
+  ApiBinding* GetBindingByTargetID(unsigned int target_id);
+
   /****************************************************************************/
   /* STREAMLISTENSOCKET::DELEGATE INTERFACE */
   /****************************************************************************/

@@ -62,6 +62,38 @@
       'src/browser/ui/views/frameless_view.h',
       'src/browser/ui/views/frameless_view.cc',
 
+      #Menu Views
+      'src/browser/ui/views/global_menu_bar_x11.h',
+      'src/browser/ui/views/global_menu_bar_x11.cc',
+      'src/browser/ui/views/menu_bar.h'
+      'src/browser/ui/views/menu_bar.cc',
+      'src/browser/ui/views/menu_delegate.h',
+      'src/browser/ui/views/menu_delegate.cc',
+      'src/browser/ui/views/menu_layout.h',
+      'src/browser/ui/views/menu_layout.cc',
+      #/Menu Views
+
+      #Accelerators
+      'src/browser/ui/accelerator_util.h',
+      'src/browser/ui/accelerator_util.cc',
+      #/Accelerators
+
+      #ui:cocoa:menu
+      'src/browser/ui/cocoa/event_processing_window.h',
+      'src/browser/ui/cocoa/event_processing_window.mm',
+      'src/browser/ui/cocoa/exo_menu_controller.h',
+      'src/browser/ui/cocoa/exo_menu_controller.mm',
+      #/ui:cocoa:menu
+
+      #exo:menu
+      'src/browser/exo_menu.cc',
+      'src/browser/exo_menu.h',
+      'src/browser/exo_menu_mac.h',
+      'src/browser/exo_menu_mac.mm',
+      #/exo:menu
+
+
+
       'src/renderer/renderer_client.cc',
       'src/renderer/renderer_client.h',
       'src/renderer/render_process_observer.cc',
@@ -126,6 +158,9 @@
       'src/api/exo_shell_binding.cc',
       'src/api/exo_session_binding.h',
       'src/api/exo_session_binding.cc',
+      #exo menu api
+      'src/api/exo_menu_binding.h',
+      'src/api/exo_menu_binding.cc',
     ],
     'framework_sources': [
       'src/common/library_main.cc',

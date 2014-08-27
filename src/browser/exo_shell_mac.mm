@@ -130,6 +130,7 @@ ExoShell::PlatformCreateWindow(
 
   [view setFrame:[[window_ contentView] bounds]];
   [[window_ contentView] addSubview:view];
+
 }
 
 void 
