@@ -141,7 +141,7 @@ api = TestClient(a, function (err, action) {
           console.log("Main Menu ID", mainMenuId)
           console.log("Sub Menu ID", id)
           api.send(createMenuItem(0, id), function () {
-            api.send(createMenuItem(1, id), function () {
+            api.send(createSeperator(1, id), function () {
               api.send(createMenuItem(2, id), function() {
                 api.send(insertSubMenuAt(0, mainMenuId, id),
                   function () {
@@ -163,7 +163,7 @@ api = TestClient(a, function (err, action) {
           console.log("Main Menu ID", mainMenuId)
           console.log("Sub Menu ID", id)
           api.send(createMenuItem(0, id), function () {
-            api.send(createMenuItem(1, id), function () {
+            api.send(createSeperator(1, id), function () {
               api.send(createMenuItem(2, id), function() {
                 api.send(insertSubMenuAt(1, firstSubmenuId, id),
                   function () {
@@ -195,7 +195,7 @@ function insertSubMenuAt(index, targetId, subMenuId) {
   }
 }
 
-function createMenuItem(index, targetId) {
+function createMenuItem(index, targetId, label) {
     var insertItemAt = {
       _action: "call",
       _target: targetId,
@@ -203,8 +203,20 @@ function createMenuItem(index, targetId) {
       _args: {
         index: index,
         command_id:0,
-        label: "menuItem"+index
+        label: (label || "menuItem"+index)
       }
     }
     return insertItemAt;
+}
+
+function createSeperator(index, targetId) {
+  var insertSeperatorAt = {
+    _action: "call",
+    _target: targetId,
+    _method: "insertSeperatorAt",
+    _args: {
+      index: index
+    }
+  }
+  return insertSeperatorAt;
 }

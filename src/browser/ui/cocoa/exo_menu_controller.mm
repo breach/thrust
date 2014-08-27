@@ -44,6 +44,7 @@ isMiddleButtonEvent(NSEvent* event) {
     type == NSOtherMouseUp;
 }
 
+
 int 
 EventFlagsFromNSEventWithModifiers(NSEvent* event, NSUInteger modifiers) {
   int flags = 0;
@@ -74,6 +75,7 @@ EventFlagsFromNSEvent(NSEvent* event) {
 
 @implementation ExoMenuController
 
+
 @synthesize model = model_;
 
 - (id)init {
@@ -91,7 +93,6 @@ EventFlagsFromNSEvent(NSEvent* event) {
 
 - (void)dealloc {
   [menu_ setDelegate:nil];
-
   // Close the menu if it is still open. This could happen if a tab gets closed
   // while its context menu is still open.
   [self cancel];
@@ -114,12 +115,10 @@ EventFlagsFromNSEvent(NSEvent* event) {
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 
   const int count = model->GetItemCount();
-  LOG(INFO) << "there are items:  " << count;
   for (int index = 0; index < count; index++) {
     if (model->GetTypeAt(index) == ui::MenuModel::TYPE_SEPARATOR)
       [self addSeparatorToMenu:menu atIndex:index];
     else
-      LOG(INFO) << "Adding item to menu";
       [self addItemToMenu:menu atIndex:index fromModel:model];
   }
 
@@ -176,6 +175,7 @@ EventFlagsFromNSEvent(NSEvent* event) {
     // in validation of the menu items.
     [item setTag:index];
     [item setTarget:self];
+    [item setAction:@selector(itemSelected:)];
     NSValue* modelObject = [NSValue valueWithPointer:model];
     [item setRepresentedObject:modelObject];  // Retains |modelObject|.
     ui::Accelerator accelerator;
@@ -189,14 +189,31 @@ EventFlagsFromNSEvent(NSEvent* event) {
             platformAccelerator->modifier_mask()];
       }
     }
+    SEL action = [item action];
+    if (action != @selector(itemSelected:)) {
+      LOG(WARNING) << "Item action failed to be set";
+    } else {
+      LOG(INFO) << "Item action was properly set";
+    }
+  }
+  BOOL enabled = [item isEnabled];
+  if (enabled == YES) {
+    LOG(INFO) << "ITEM IS ENABLED";
+  } else {
+    LOG(WARNING) << "ITEM IS NOT ENABLED";
   }
   [menu insertItem:item atIndex:index];
 }
-
+- (BOOL)validateMenuItem:(NSMenuItem *)item {
+    NSLog(@"Hello");
+    return NO;
+}
 // Called before the menu is to be displayed to update the state (enabled,
 // radio, etc) of each item in the menu. Also will update the title if
 // the item is marked as "dynamic".
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item {
+  NSLog(@"Hello1");
+  return NO;
   SEL action = [item action];
   if (action != @selector(itemSelected:))
     return NO;
@@ -237,13 +254,11 @@ EventFlagsFromNSEvent(NSEvent* event) {
   if (model) {
     int event_flags = EventFlagsFromNSEvent([NSApp currentEvent]);
     model->ActivatedAt(modelIndex, event_flags);
-  }
+  } 
 }
 
 - (NSMenu*)menu {
-  LOG(INFO) << "Trying to parse menu";
   if (!menu_ && model_) {
-    LOG(INFO) << "we are building from model";
     menu_.reset([[self menuFromModel:model_] retain]);
     [menu_ setDelegate:self];
   }

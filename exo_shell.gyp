@@ -73,6 +73,11 @@
       'src/browser/ui/views/menu_layout.cc',
       #/Menu Views
 
+      #Accelerators
+      'src/browser/ui/accelerator_util.h',
+      'src/browser/ui/accelerator_util.cc',
+      #/Accelerators
+
       #ui:cocoa:menu
       'src/browser/ui/cocoa/event_processing_window.h',
       'src/browser/ui/cocoa/event_processing_window.mm',

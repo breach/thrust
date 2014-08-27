@@ -116,6 +116,8 @@ ExoMenu::SetApplicationMenu(ExoMenu* base_menu)
 
 void
 ExoMenu::SendActionToFirstResponder(const std::string& action) {
+  LOG(INFO) << "First Responder Called";
+  LOG(INFO) << "ACTION::" << action;
   SEL selector = NSSelectorFromString(base::SysUTF8ToNSString(action));
   [NSApp sendAction:selector to:nil from:[NSApp mainMenu]];
 }

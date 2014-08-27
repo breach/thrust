@@ -101,13 +101,17 @@ ExoMenuBinding::LocalCall(
     args->GetInteger("index", &index);
     args->GetInteger("command_id", &command_id);
     args->GetString("label", &label);
+    
     UTF8ToUTF16(label.c_str(), label.length(), &s16_label);
-
+    LOG(INFO) << "LABEL::" << label;
+    LOG(INFO) << "LABEL`::" << s16_label;
     menu_->InsertItemAt(index, command_id, s16_label);
+    LOG(INFO) << "LABEL``::OUT::" << menu_.get()->model_->GetLabelAt(index);
   }
   else if(method.compare("insertSeperatorAt") == 0) {
     int index;
     args->GetInteger("index", &index);
+    LOG(INFO) << "Inserting Menu Item Seperator";
     menu_->InsertSeparatorAt(index);
   } else if (method.compare("insertSubMenuAt") == 0) {
     int index, command_id, submenu_id;
