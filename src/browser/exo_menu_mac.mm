@@ -66,51 +66,11 @@ ExoMenu::SetApplicationMenu(ExoMenu* base_menu)
   //[NSApp setMainMenu:[menu_controller menu]];
   //menu->Popup();
   // Ensure the menu_controller_ is destroyed after main menu is set.
-  //menu_controller.swap(menu->menu_controller_);
 
-  NSApplication *app = [NSApplication sharedApplication];
+  //NSApplication *app = [NSApplication sharedApplication];
 
-
-
-  [app setMainMenu:[menu_controller menu]]; // for ExoMenu
-
-  // NSMenu *mainMenu = [[NSMenu alloc] initWithTitle: @"MainMenu"];
-  // NSMenuItem *item1 = [[NSMenuItem alloc] initWithTitle:@"Item1" action:NULL keyEquivalent:@""];
-  // NSMenuItem *item2 = [[NSMenuItem alloc] initWithTitle:@"Item2" action:NULL keyEquivalent:@""];
-
-
-
-  // NSMenu *subMenu1 = [[NSMenu alloc] initWithTitle:@"File"];
-
-  // NSMenuItem *sItem1 = [[NSMenuItem alloc] initWithTitle:@"Open" action:NULL keyEquivalent:@""];
-  // NSMenuItem *sItem2 = [[NSMenuItem alloc] initWithTitle:@"New" action:NULL keyEquivalent:@""];
-
-  // [subMenu1 insertItem:sItem1 atIndex:0];
-  // [subMenu1 insertItem:sItem2 atIndex:1];
-
-  // [item2 setSubmenu: subMenu1];
-
-  // //NSMenu *m = [[NSMenu alloc] initWithTitle:@""];
-  // //[mainMenu setSubmenu:m forItem:item1];
-  // //[mainMenu insertItem:item1 atIndex:0];
-  // //item1 = [m addItemWithTitle:@"Test Item1"
-  //            // action: nil
-  //            // keyEquivalent:@""];
-  // NSMenu *subMenu2 = [[NSMenu alloc] initWithTitle:@""];
-
-  // NSMenuItem *s2Item1 = [[NSMenuItem alloc] initWithTitle:@"Exit" action:NULL keyEquivalent:@""];
-  // NSMenuItem *s2Item2 = [[NSMenuItem alloc] initWithTitle:@"He232" action:NULL keyEquivalent:@""];
-
-  // [subMenu2 insertItem:s2Item1 atIndex:0];
-  // [subMenu2 insertItem:s2Item2 atIndex:1];
-
-  // [item1 setSubmenu: subMenu2];
-
-  // [mainMenu insertItem:item1 atIndex:0];
-  // [mainMenu insertItem:item2 atIndex:1];
-
-  // [app setMainMenu: mainMenu];
-
+  [NSApp setMainMenu:[menu_controller menu]]; // for ExoMenu
+  menu_controller.swap(menu->menu_controller_);
    
 }
 

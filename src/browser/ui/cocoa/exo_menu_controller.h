@@ -40,7 +40,7 @@ class MenuModel;
 // Builds a NSMenu from the pre-built model (must not be nil). Changes made
 // to the contents of the model after calling this will not be noticed.
 - (id)initWithModel:(ui::MenuModel*)model;
-
+- (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item;
 // Programmatically close the constructed menu.
 - (void)cancel;
 
@@ -59,9 +59,9 @@ class MenuModel;
 @end
 
 // Exposed only for unit testing, do not call directly.
-@interface ExoMenuController (PrivateExposedForTesting)
-- (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item;
-@end
+// @interface ExoMenuController (PrivateExposedForTesting)
+// - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item;
+// @end
 
 // Protected methods that subclassers can override.
 @interface ExoMenuController (Protected)

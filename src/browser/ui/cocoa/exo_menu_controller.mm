@@ -145,7 +145,7 @@ EventFlagsFromNSEvent(NSEvent* event) {
       [[NSMenuItem alloc] initWithTitle:label
                                  action:@selector(itemSelected:)
                           keyEquivalent:@""]);
-
+  [item setTarget: self];
   // If the menu item has an icon, set it.
   gfx::Image icon;
   if (model->GetIconAt(index, &icon) && !icon.IsEmpty())
@@ -174,8 +174,8 @@ EventFlagsFromNSEvent(NSEvent* event) {
     // model. Setting the target to |self| allows this class to participate
     // in validation of the menu items.
     [item setTag:index];
-    [item setTarget:self];
-    [item setAction:@selector(itemSelected:)];
+    
+    //[item setAction:@selector(itemSelected:)];
     NSValue* modelObject = [NSValue valueWithPointer:model];
     [item setRepresentedObject:modelObject];  // Retains |modelObject|.
     ui::Accelerator accelerator;
@@ -195,6 +195,13 @@ EventFlagsFromNSEvent(NSEvent* event) {
     } else {
       LOG(INFO) << "Item action was properly set";
     }
+    [item setTarget:self];
+      
+    if ([item target] == self) {
+      LOG(INFO) << "Item target is self";
+    } else {
+      LOG(WARNING) << "ITEM target is not self";
+    }
   }
   BOOL enabled = [item isEnabled];
   if (enabled == YES) {
@@ -202,18 +209,23 @@ EventFlagsFromNSEvent(NSEvent* event) {
   } else {
     LOG(WARNING) << "ITEM IS NOT ENABLED";
   }
+
+  BOOL menuRespondsToSelector = [self respondsToSelector:@selector(itemSelected:)];
+  if (menuRespondsToSelector) {
+    LOG(INFO) << "This class responds to selector";
+  } else {
+    LOG(WARNING) << "This class does not respond to selector";
+  }
+
   [menu insertItem:item atIndex:index];
 }
-- (BOOL)validateMenuItem:(NSMenuItem *)item {
-    NSLog(@"Hello");
-    return NO;
-}
+
 // Called before the menu is to be displayed to update the state (enabled,
 // radio, etc) of each item in the menu. Also will update the title if
 // the item is marked as "dynamic".
+// TODO(@miketheprogrammer) Repair this function to properly use the model
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item {
   NSLog(@"Hello1");
-  return NO;
   SEL action = [item action];
   if (action != @selector(itemSelected:))
     return NO;
@@ -224,10 +236,10 @@ EventFlagsFromNSEvent(NSEvent* event) {
           [[(id)item representedObject] pointerValue]);
   DCHECK(model);
   if (model) {
-    BOOL checked = model->IsItemCheckedAt(modelIndex);
+    //BOOL checked = model->IsItemCheckedAt(modelIndex);
     DCHECK([(id)item isKindOfClass:[NSMenuItem class]]);
-    [(id)item setState:(checked ? NSOnState : NSOffState)];
-    [(id)item setHidden:(!model->IsVisibleAt(modelIndex))];
+    //[(id)item setState:(checked ? NSOnState : NSOffState)];
+    //[(id)item setHidden:(!model->IsVisibleAt(modelIndex))];
     if (model->IsItemDynamicAt(modelIndex)) {
       // Update the label and the icon.
       NSString* label =
@@ -238,7 +250,8 @@ EventFlagsFromNSEvent(NSEvent* event) {
       model->GetIconAt(modelIndex, &icon);
       [(id)item setImage:icon.IsEmpty() ? nil : icon.ToNSImage()];
     }
-    return model->IsEnabledAt(modelIndex);
+    return YES;
+    //return model->IsEnabledAt(modelIndex);
   }
   return NO;
 }
@@ -246,6 +259,7 @@ EventFlagsFromNSEvent(NSEvent* event) {
 // Called when the user chooses a particular menu item. |sender| is the menu
 // item chosen.
 - (void)itemSelected:(id)sender {
+  LOG(INFO) << "EventHandler::(SEL)itemSelected::CALLED_WITH" << [sender title];
   NSInteger modelIndex = [sender tag];
   ui::MenuModel* model =
       static_cast<ui::MenuModel*>(
