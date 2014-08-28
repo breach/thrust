@@ -26,8 +26,22 @@ var TestClient = function (args, callback) {
       this._stack[this._currentIndex] = callback;
       this._socket.write(JSON.stringify(args) + "\n" + api._boundary);
     },
+    _delegates: [],
+    registerDelegate: function(delegate) {
+      this._delegates.push(delegate);
+    },
+    _delegate: function (reply) {
+      for (var i = 0; i < this._delegates.length; i += 1) {
+        var delegate = this._delegates[i];
+        if (delegate.handle(reply)) return true;
+      }
+      console.warn("Unhandled Event");
+      return false;
+    },
     _handle: function (reply) {
-
+      if (reply._action == 'event') {
+        this._delegate(reply);
+      }
       if (reply._id) this._stack[reply._id](null, reply);
       // Implement this obejct as an event emitterl
       //else this.emit('')
@@ -181,6 +195,31 @@ api = TestClient(a, function (err, action) {
   }
 });
 
+function UICommandFactory () {
+  var current_index = 0;
+  var command_ids_funcs_map = {}
+  
+  var api = function (handler) {
+    current_index += 1;
+    command_ids_funcs_map[current_index] = handler;
+    return current_index;
+  }
+  api.handle = function (reply) {
+    var handler = command_ids_funcs_map[reply._id];
+    if (handler) {
+      setImmediate(handler.bind(null, reply));
+      return true;
+    }
+    return false;
+  }
+  return api;
+}
+
+UICommandFactory = new UICommandFactory();
+api.registerDelegate(UICommandFactory);
+
+
+
 function insertSubMenuAt(index, targetId, subMenuId) {
   return {
     _action: "call",
@@ -188,7 +227,7 @@ function insertSubMenuAt(index, targetId, subMenuId) {
     _method: "insertSubMenuAt",
     _args: {
       index: index,
-      command_id: 0,
+      command_id: UICommandFactory(console.log.bind(null,"CommandFactory:")),
       label: "SubMenu"+index,
       submenu_id: subMenuId
     }
@@ -202,7 +241,7 @@ function createMenuItem(index, targetId, label) {
       _method: "insertItemAt",
       _args: {
         index: index,
-        command_id:0,
+        command_id:UICommandFactory(console.log.bind(null,"CommandFactory:")),
         label: (label || "menuItem"+index)
       }
     }

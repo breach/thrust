@@ -26,6 +26,8 @@
 #include "ui/views/widget/widget_observer.h"
 #endif
 
+#include "src/api/api_binding.h"
+
 namespace exo_shell {
 // ### ExoMenu
 //
@@ -97,6 +99,7 @@ void InsertSubMenuAt(int index,
  protected:
  private:
   DISALLOW_COPY_AND_ASSIGN(ExoMenu);
+  
 protected:
 
 

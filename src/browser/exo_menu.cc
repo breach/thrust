@@ -40,7 +40,6 @@ ExoMenu::ExoMenu()
     : model_(new ui::SimpleMenuModel(this)) {
 }
 ExoMenu::~ExoMenu() {
-
 }
 
 void 
@@ -56,24 +55,24 @@ ExoMenu::InsertSeparatorAt(int index) {
 
 bool 
 ExoMenu::IsCommandIdChecked(int command_id) const {
-  return false;
+  return true;
 }
 
 bool 
 ExoMenu::IsCommandIdEnabled(int command_id) const {
-  return false;
+  return true;
 }
 
 bool 
 ExoMenu::IsCommandIdVisible(int command_id) const {
-  return false;
+  return true;
 }
 
 bool 
 ExoMenu::GetAcceleratorForCommandId(
         int command_id
     ,   ui::Accelerator* accelerator) {
-  return false;
+  return true;
 }
 
 bool 
@@ -95,7 +94,7 @@ ExoMenu::GetSublabelForCommandId(int command_id) const {
 
 void 
 ExoMenu::ExecuteCommand(int command_id, int event_flags) {
-
+  LOG(INFO) << "Executing Command (" << command_id << ") with flags (" <<event_flags << ")";
 }
 
 void 

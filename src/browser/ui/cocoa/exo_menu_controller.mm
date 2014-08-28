@@ -236,10 +236,10 @@ EventFlagsFromNSEvent(NSEvent* event) {
           [[(id)item representedObject] pointerValue]);
   DCHECK(model);
   if (model) {
-    //BOOL checked = model->IsItemCheckedAt(modelIndex);
+    BOOL checked = model->IsItemCheckedAt(modelIndex);
     DCHECK([(id)item isKindOfClass:[NSMenuItem class]]);
-    //[(id)item setState:(checked ? NSOnState : NSOffState)];
-    //[(id)item setHidden:(!model->IsVisibleAt(modelIndex))];
+    [(id)item setState:(checked ? NSOnState : NSOffState)];
+    [(id)item setHidden:(!model->IsVisibleAt(modelIndex))];
     if (model->IsItemDynamicAt(modelIndex)) {
       // Update the label and the icon.
       NSString* label =
@@ -250,8 +250,7 @@ EventFlagsFromNSEvent(NSEvent* event) {
       model->GetIconAt(modelIndex, &icon);
       [(id)item setImage:icon.IsEmpty() ? nil : icon.ToNSImage()];
     }
-    return YES;
-    //return model->IsEnabledAt(modelIndex);
+    return model->IsEnabledAt(modelIndex);
   }
   return NO;
 }
