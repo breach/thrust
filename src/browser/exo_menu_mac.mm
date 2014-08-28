@@ -21,9 +21,8 @@ using namespace content;
 
 namespace exo_shell {
 
-ExoMenuMac::ExoMenuMac(ApiBinding* binding)
-  : ExoMenu(binding){
-  binding_ = binding;
+ExoMenuMac::ExoMenuMac()
+{
 }
 
 void 
