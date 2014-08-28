@@ -76,7 +76,7 @@ ExoShellMainParts::PreMainMessageLoopRun()
   
   base::FilePath path;
   base::GetTempDir(&path);
-  api_handler_.reset(new ApiHandler(path.Append("_exo_shell.sock")));
+  api_handler_ = new ApiHandler(path.Append("_exo_shell.sock"));
 
 
   api_handler_->InstallBinding("shell", new ExoShellBindingFactory());
