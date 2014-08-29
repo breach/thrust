@@ -189,32 +189,9 @@ EventFlagsFromNSEvent(NSEvent* event) {
             platformAccelerator->modifier_mask()];
       }
     }
-    SEL action = [item action];
-    if (action != @selector(itemSelected:)) {
-      LOG(WARNING) << "Item action failed to be set";
-    } else {
-      LOG(INFO) << "Item action was properly set";
-    }
-    [item setTarget:self];
-      
-    if ([item target] == self) {
-      LOG(INFO) << "Item target is self";
-    } else {
-      LOG(WARNING) << "ITEM target is not self";
-    }
-  }
-  BOOL enabled = [item isEnabled];
-  if (enabled == YES) {
-    LOG(INFO) << "ITEM IS ENABLED";
-  } else {
-    LOG(WARNING) << "ITEM IS NOT ENABLED";
-  }
 
-  BOOL menuRespondsToSelector = [self respondsToSelector:@selector(itemSelected:)];
-  if (menuRespondsToSelector) {
-    LOG(INFO) << "This class responds to selector";
-  } else {
-    LOG(WARNING) << "This class does not respond to selector";
+    [item setTarget:self];
+    
   }
 
   [menu insertItem:item atIndex:index];
@@ -225,7 +202,6 @@ EventFlagsFromNSEvent(NSEvent* event) {
 // the item is marked as "dynamic".
 // TODO(@miketheprogrammer) Repair this function to properly use the model
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item {
-  NSLog(@"Hello1");
   SEL action = [item action];
   if (action != @selector(itemSelected:))
     return NO;
@@ -258,7 +234,6 @@ EventFlagsFromNSEvent(NSEvent* event) {
 // Called when the user chooses a particular menu item. |sender| is the menu
 // item chosen.
 - (void)itemSelected:(id)sender {
-  LOG(INFO) << "EventHandler::(SEL)itemSelected::CALLED_WITH" << [sender title];
   NSInteger modelIndex = [sender tag];
   ui::MenuModel* model =
       static_cast<ui::MenuModel*>(

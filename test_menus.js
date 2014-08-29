@@ -40,7 +40,7 @@ var TestClient = function (args, callback) {
     },
     _handle: function (reply) {
       if (reply._action == 'event') {
-        this._delegate(reply);
+        if (this._delegate(reply)) return;
       }
       if (reply._id) this._stack[reply._id](null, reply);
       // Implement this obejct as an event emitterl

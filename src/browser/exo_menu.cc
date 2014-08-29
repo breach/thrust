@@ -36,8 +36,9 @@ using namespace content;
 
 namespace exo_shell {
 
-ExoMenu::ExoMenu()
+  ExoMenu::ExoMenu(ApiBinding* binding)
     : model_(new ui::SimpleMenuModel(this)) {
+      binding_ = binding;
 }
 ExoMenu::~ExoMenu() {
 }
@@ -95,6 +96,7 @@ ExoMenu::GetSublabelForCommandId(int command_id) const {
 void 
 ExoMenu::ExecuteCommand(int command_id, int event_flags) {
   LOG(INFO) << "Executing Command (" << command_id << ") with flags (" <<event_flags << ")";
+  binding_->RegisterEventForCollection((unsigned)command_id);
 }
 
 void 

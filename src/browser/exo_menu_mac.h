@@ -16,7 +16,7 @@ namespace exo_shell {
 
 class ExoMenuMac : public ExoMenu {
 public:
-  ExoMenuMac();
+  ExoMenuMac(ApiBinding* binding);
 
   virtual void Popup() OVERRIDE;
 

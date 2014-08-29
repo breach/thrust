@@ -87,6 +87,12 @@ private:
   void SendReply(const unsigned id,
                  const std::string& error,
                  scoped_ptr<base::Value> result);
+                     
+ void EmitEvent(const unsigned int id,
+                    const std::string& error);
+ 
+ void SendEvent(const unsigned id,
+                const std::string& error);
   void ProcessData();
 
   bool UserCanConnectCallback(uid_t user_id, gid_t group_id);
@@ -98,6 +104,7 @@ private:
   void ThreadInit();
   void ThreadTearDown();
 
+  void ProcessEvents();
   /* The thread used by the API handler to run server socket. */
   scoped_ptr<base::Thread>                  thread_;
 

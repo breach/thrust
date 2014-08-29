@@ -15,7 +15,7 @@
 #include "net/socket/socket_descriptor.h"
 #include "net/socket/unix_domain_socket_posix.h"
 #include "content/public/browser/browser_thread.h"
-
+#include "base/time/time.h"
 #include "src/api/api_binding.h"
 
 using namespace content;
@@ -42,6 +42,10 @@ ApiHandler::Start()
   BrowserThread::PostTask(
       BrowserThread::FILE, FROM_HERE,
       base::Bind(&ApiHandler::StartHandlerThread, this));
+  
+  BrowserThread::PostTask(
+                          BrowserThread::FILE, FROM_HERE,
+                          base::Bind(&ApiHandler::ProcessEvents, this));
 }
 
 void 
@@ -104,6 +108,7 @@ ApiHandler::ReplyToAction(
       base::Bind(&ApiHandler::SendReply, this, 
                  id, error, base::Passed(result.Pass())));
 }
+
 
 void
 ApiHandler::PerformAction(
@@ -304,5 +309,51 @@ ApiHandler::GetBindingByTargetID(unsigned int target_id) {
   return bindings_[target_id];
 }
   
+  void ApiHandler::ProcessEvents() {
+    //LOG(INFO) << "Processing Events";
+    for (auto& binding: bindings_) {
+      while ( !binding.second->GetRegisteredEvents().empty()) {
+        const unsigned int i = binding.second->GetRegisteredEvents().back();
+        binding.second->GetRegisteredEvents().pop_back();
+        LOG(INFO) << "Event " << i << " Caught";
+        SendEvent((const unsigned)i, std::string(""));
+      }
+    }
+    BrowserThread::PostDelayedTask(BrowserThread::UI,
+                                   FROM_HERE,
+                                   base::Bind(&ApiHandler::ProcessEvents, this),
+                                   base::TimeDelta::FromMilliseconds(10));
+  }
+  void
+  ApiHandler::EmitEvent(
+                            const unsigned int id,
+                            const std::string& error)
+  {
+    /* Runs on UI Thread. */
+    thread_->message_loop()->PostTask(
+                                      FROM_HERE,
+                                      base::Bind(&ApiHandler::SendEvent, this,
+                                                 id, error));
+  }
+
+  void
+  ApiHandler::SendEvent(
+                        const unsigned int id,
+                        const std::string& error)
+  {
+    /* Runs on ApiHandler Thread. */
+    base::DictionaryValue action;
+    action.SetString("_action", "event");
+    action.SetInteger("_id", id);
+    action.SetString("_error", error);
+    
+    std::string payload;
+    base::JSONWriter::Write(&action, &payload);
+    payload += "\n" + std::string(kSocketBoundary) + "\n";
+    
+    if(conn_) {
+      conn_->Send(payload);
+    }
+  }
 } // namespace exo_shell
 

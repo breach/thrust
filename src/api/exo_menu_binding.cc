@@ -32,7 +32,7 @@ ExoMenuBinding::ExoMenuBinding(
   : ApiBinding("shell", id)
 {
   LOG(INFO) << "ExoMenuBinding Constructor";
-  ExoMenu *menu = new ExoMenu();
+  ExoMenu *menu = new ExoMenu(this);
   menu_.reset(menu);
 }
 
@@ -111,28 +111,22 @@ ExoMenuBinding::LocalCall(
   else if(method.compare("insertSeperatorAt") == 0) {
     int index;
     args->GetInteger("index", &index);
-    LOG(INFO) << "Inserting Menu Item Seperator";
     menu_->InsertSeparatorAt(index);
   } else if (method.compare("insertSubMenuAt") == 0) {
     int index, command_id, submenu_id;
     base::string16 s16_label;
     std::string label;
-    LOG(INFO) << "No error yet1";
     args->GetInteger("index", &index);
     args->GetInteger("command_id", &command_id);
     args->GetInteger("submenu_id", &submenu_id);
     args->GetString("label", &label);
 
-    LOG(INFO) << "No error yet2";
     UTF8ToUTF16(label.c_str(), label.length(), &s16_label);
 
-    LOG(INFO) << "Attempting to get Menu @ " << submenu_id;
     ApiBinding* binding = handler->GetBindingByTargetID(submenu_id);
-    LOG(INFO) << "Attempting to dynamically cast binding to subclass";
     if (binding != NULL) {    
       try {
         ExoMenuBinding* submenu = static_cast<ExoMenuBinding*>(binding);
-        LOG(INFO) << "No error yet3";
         menu_->InsertSubMenuAt(index, 
                             command_id,
                             s16_label,
@@ -145,7 +139,6 @@ ExoMenuBinding::LocalCall(
     }
 
   }
-  LOG(INFO) << "No error yet4";
   handler = NULL;
   callback.Run(std::string(""), 
                scoped_ptr<base::Value>(res).Pass());

@@ -38,7 +38,7 @@ public:
   /* PUBLIC INTERFACE */
   /****************************************************************************/
   // ### ~ExoMenu
-  ExoMenu();
+  ExoMenu(ApiBinding* binding);
   ~ExoMenu();
 
 
@@ -96,6 +96,8 @@ void InsertSubMenuAt(int index,
   // bool IsItemCheckedAt(int index) const;
   // bool IsEnabledAt(int index) const;
   // bool IsVisibleAt(int index) const;
+  
+  ApiBinding* binding_;
  protected:
  private:
   DISALLOW_COPY_AND_ASSIGN(ExoMenu);
