@@ -52,6 +52,7 @@ ExoSessionBinding::~ExoSessionBinding()
 
   void
 ExoSessionBinding::LocalCall(
+    ApiHandler* handler,
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
     const ApiHandler::ActionCallback& callback)
@@ -60,6 +61,8 @@ ExoSessionBinding::LocalCall(
 
   LOG(INFO) << "CALL " << method;
 
+  handler = NULL;
+  
   callback.Run(std::string(""), 
                scoped_ptr<base::Value>(res).Pass());
 }

@@ -26,6 +26,7 @@
 #include "src/api/api_handler.h"
 #include "src/api/exo_shell_binding.h"
 #include "src/api/exo_session_binding.h"
+#include "src/api/exo_menu_binding.h"
 
 
 using namespace content;
@@ -75,12 +76,12 @@ ExoShellMainParts::PreMainMessageLoopRun()
   
   base::FilePath path;
   base::GetTempDir(&path);
-  api_handler_.reset(new ApiHandler(path.Append("_exo_shell.sock")));
+  api_handler_ = new ApiHandler(path.Append("_exo_shell.sock"));
 
 
   api_handler_->InstallBinding("shell", new ExoShellBindingFactory());
   api_handler_->InstallBinding("session", new ExoSessionBindingFactory());
-
+  api_handler_->InstallBinding("menu", new ExoMenuBindingFactory());
   api_handler_->Start();
 
   /*

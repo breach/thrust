@@ -1,25 +1,27 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_API_EXO_SESSION_BINDING_H_
-#define EXO_SHELL_API_EXO_SESSION_BINDING_H_
+#ifndef EXO_SHELL_API_EXO_MENU_BINDING_H_
+#define EXO_SHELL_API_EXO_MENU_BINDING_H_
 
 #include "base/callback.h"
 
 #include "src/api/api_binding.h"
-
+#include "ui/base/models/simple_menu_model.h"
+#include "src/browser/exo_shell.h"
+#include <map>
 namespace exo_shell {
 
-class ExoSession;
+class ExoMenu;
 
-class ExoSessionBinding : public ApiBinding {
+class ExoMenuBinding : public ApiBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
-  ExoSessionBinding(const unsigned int id, 
+  ExoMenuBinding(const unsigned int id, 
                     scoped_ptr<base::DictionaryValue> args);
-  ~ExoSessionBinding();
+  ~ExoMenuBinding();
 
   virtual void LocalCall(ApiHandler* handler,
                          const std::string& method, 
@@ -29,19 +31,21 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
+  ExoMenu* GetMenu();
 
 private:
-  scoped_ptr<ExoSession> session_;
+   scoped_ptr<ExoMenu> menu_;
+   scoped_ptr<ExoShell> shell_;
 };
 
 
-// ## ExoSessionBindingFactory
+// ## ExoShellBindingFactory
 //
-// Factory object used to generate ExoSession bindings
-class ExoSessionBindingFactory : public ApiBindingFactory {
+// Factory object used to generate ExoShell bindings
+class ExoMenuBindingFactory : public ApiBindingFactory {
 public:
-  ExoSessionBindingFactory();
-  ~ExoSessionBindingFactory();
+  ExoMenuBindingFactory();
+  ~ExoMenuBindingFactory();
 
   ApiBinding* Create(const unsigned int id, 
                      scoped_ptr<base::DictionaryValue> args) OVERRIDE;
@@ -49,4 +53,4 @@ public:
 
 } // namespace exo_shell
   
-#endif // EXO_SHELL_API_EXO_SESSION_BINDING_H_
+#endif // EXO_SHELL_API_API_BINDING_H_

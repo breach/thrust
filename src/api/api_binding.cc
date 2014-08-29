@@ -36,5 +36,17 @@ ApiBinding::Emit(
 {
   /* TODO(spolu) */
 }
+  
+void
+ApiBinding::RegisterEventForCollection(unsigned int id)
+{
+  event_ids.push_back(id);
+}
+
+std::vector<unsigned int>&
+ApiBinding::GetRegisteredEvents()
+{
+  return event_ids;
+}
 
 } // namespace exo_shell

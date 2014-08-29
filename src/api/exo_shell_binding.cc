@@ -61,6 +61,7 @@ ExoShellBinding::~ExoShellBinding()
 
   void
 ExoShellBinding::LocalCall(
+    ApiHandler* handler,
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
     const ApiHandler::ActionCallback& callback)
@@ -123,6 +124,8 @@ ExoShellBinding::LocalCall(
     res->SetInteger("position.y", shell_->position().y());
   }
 
+  handler = NULL;
+  
   callback.Run(std::string(""), 
                scoped_ptr<base::Value>(res).Pass());
 }

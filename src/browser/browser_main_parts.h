@@ -55,7 +55,7 @@ class ExoShellMainParts : public brightray::BrowserMainParts {
 
   static ExoShellMainParts*        self_;
   ExoSession*                        system_session_;
-  scoped_ptr<ApiHandler>             api_handler_;
+  scoped_refptr<ApiHandler>             api_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoShellMainParts);
 };

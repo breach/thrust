@@ -10,7 +10,7 @@
 #include "base/values.h"
 
 #include "src/api/api_handler.h"
-
+#include <vector>
 namespace base {
 class Value;
 class DictionaryValue;
@@ -26,12 +26,16 @@ public:
   /****************************************************************************/
   /* VIRTUAL INTERFACE */
   /****************************************************************************/
-  virtual void LocalCall(const std::string& method, 
+  virtual void LocalCall(ApiHandler* handler,
+                         const std::string& method, 
                          scoped_ptr<base::DictionaryValue> args, 
                          const ApiHandler::ActionCallback& callback) = 0;
 
   virtual ~ApiBinding();
-
+  
+  void RegisterEventForCollection(unsigned int id);
+  std::vector<unsigned int>& GetRegisteredEvents();
+  
 protected:
   /****************************************************************************/
   /* PROTECTED INTERFACE */
@@ -45,11 +49,12 @@ protected:
   ApiBinding(const std::string& type, 
              const unsigned int id);
 
+  
 private:
 
   std::string      type_;
   unsigned int     id_;
-
+  std::vector<unsigned int> event_ids;
   DISALLOW_COPY_AND_ASSIGN(ApiBinding);
 };
 
