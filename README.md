@@ -1,16 +1,16 @@
-ExoBrowser
-==========
+ExoShell
+========
 
-The ExoBrowser is a scriptable platform designed to ease the experimentation 
+The ExoShell is a scriptable platform designed to ease the experimentation 
 with new concepts for the Web Browser.
 
-The ExoBrowser exposes its API (parts of the Chromium Content API + 
+The ExoShell exposes its API (parts of the Chromium Content API + 
 a Simple View Model) in Javascript and enables the implementation of a fully 
 functional browser entirely out of it (as a Javascript/HTML/CSS app)
 
-The ExoBrowser is used by Breach.
+The ExoShell is used by Breach.
 
-#### The ExoBrowser Architecture
+#### The ExoShell Architecture
 
 ```
 [Chromium Architecture]
@@ -26,7 +26,7 @@ The ExoBrowser is used by Breach.
 
 `vs.`
 
-[ExoBrowser Architecture]
+[ExoShell Architecture]
 
              (Platform)                  #   (Browser Implementation)
                                          #
@@ -35,7 +35,7 @@ The ExoBrowser is used by Breach.
                    +---------+--------+  #
                              |           #
 +----------------+ +---------+--------+  #  +-----------------------+
-|  Content API   +-+ ExoBrowser (C++) |  #  |  Web Views (HTML/JS)  |
+|  Content API   +-+  ExoShell (C++)  |  #  |  Web Views (HTML/JS)  |
 +----+-----------+ +--------------+---+  #  +-----------------------+
      |                   (JS API) |      #             | (TCP)      
 +----+---+  +----+ +--------------|---+  #  +-----------------------+
@@ -45,11 +45,11 @@ The ExoBrowser is used by Breach.
 
 ### Getting the Source Code & Building the ExoBrowser
 
-See [Building the ExoBrowser](https://github.com/breach/exo_browser/wiki/Building-the-ExoBrowser)
+See [Building the ExoShell](https://github.com/breach/exo_shell/wiki/Building-the-ExoBrowser)
 
-### Hacking with the ExoBrowser
+### Hacking with the ExoShell
 
-See [ExoBrowser JS API Specification](https://github.com/breach/exo_browser/blob/master/API.md)
+See [ExoShell JS API Specification](https://github.com/breach/exo_shell/blob/master/API.md)
 
 ### Getting Involved
 
