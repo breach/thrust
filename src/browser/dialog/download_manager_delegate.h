@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
-#define EXO_BROWSER_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
+#ifndef EXO_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
+#define EXO_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
@@ -14,13 +14,13 @@ namespace content {
 class DownloadManager;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
-class ExoBrowserDownloadManagerDelegate
+class ExoShellDownloadManagerDelegate
     : public content::DownloadManagerDelegate {
  public:
-  ExoBrowserDownloadManagerDelegate();
-  virtual ~ExoBrowserDownloadManagerDelegate();
+  ExoShellDownloadManagerDelegate();
+  virtual ~ExoShellDownloadManagerDelegate();
 
   void SetDownloadManager(content::DownloadManager* manager);
 
@@ -53,13 +53,13 @@ class ExoBrowserDownloadManagerDelegate
   content::DownloadManager*                               download_manager_;
   base::FilePath                                          default_download_path_;
   bool                                                    suppress_prompting_;
-  base::WeakPtrFactory<ExoBrowserDownloadManagerDelegate> weak_ptr_factory_; 
+  base::WeakPtrFactory<ExoShellDownloadManagerDelegate> weak_ptr_factory_; 
 
-  friend class base::RefCountedThreadSafe<ExoBrowserDownloadManagerDelegate>;
+  friend class base::RefCountedThreadSafe<ExoShellDownloadManagerDelegate>;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserDownloadManagerDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellDownloadManagerDelegate);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
+#endif // EXO_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_

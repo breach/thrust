@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_H_
-#define EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_H_
+#ifndef EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
+#define EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -10,21 +10,22 @@
 #include "net/url_request/url_request_job_factory.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
-#include "exo_browser/src/browser/session/exo_session_cookie_store.h"
-#include "exo_browser/src/browser/session/exo_session_visitedlink_store.h"
+#include "brightray/browser/browser_context.h"
 
-namespace exo_browser {
+#include "src/browser/session/exo_session_cookie_store.h"
+#include "src/browser/session/exo_session_visitedlink_store.h"
 
-class ExoSessionWrap;
+namespace exo_shell {
+
 class DownloadManagerDelegate;
-class ExoBrowserDevToolsDelegate;
+class ExoShellDevToolsDelegate;
 class ResourceContext;
-class ExoBrowserURLRequestContextGetter;
-class ExoBrowserDownloadManagerDelegate;
+class ExoShellURLRequestContextGetter;
+class ExoShellDownloadManagerDelegate;
 
 // ### ExoSession
 //
-// The ExoSession is BrowserContext passed to an ExoBrowser to be used with all
+// The ExoSession is BrowserContext passed to an ExoShell to be used with all
 // its associated control and frames. A session represents the contextual 
 // parameters and data needed to render a web page:
 // - Whether or not Local HTML5 Storage is allowed or in-memory
@@ -42,13 +43,7 @@ class ExoBrowserDownloadManagerDelegate;
 // see http://www.w3.org/TR/webstorage/
 // - SessionStorage not impacted
 // - LocalStorage can be expired / deleted by user so semantics are not too off
-//
-// The ExoSession initialization comes from Javascript. It is aware of its
-// associated JS wrapper (used to call handlers, dispatch callbacks, ...)
-//
-// The ExoSession lives on the BrowserThread::UI thread, and should therefore
-// PostTask on the NodeJS thread to communicate with its wrapper.
-class ExoSession : public content::BrowserContext {
+class ExoSession : public brightray::BrowserContext {
 public:
   /****************************************************************************/
   /* PUBLIC INTERFACE                                                         */
@@ -56,14 +51,14 @@ public:
   // ### ExoSession
   ExoSession(const bool off_the_record,
              const std::string& path,
-             ExoSessionWrap* wrapper = NULL);
+             bool dummy_cookie_store = false);
   // ### ~ExoSession
   virtual ~ExoSession();
 
   /****************************************************************************/
   /* EXOFRAME / DEVTOOLS I/F                                                  */
   /****************************************************************************/
-  ExoBrowserDevToolsDelegate* devtools_delegate() {
+  ExoShellDevToolsDelegate* devtools_delegate() {
     return devtools_delegate_;
   }
 
@@ -150,22 +145,19 @@ private:
   base::FilePath                                   path_;
 
   scoped_ptr<ExoResourceContext>                   resource_context_;
-  scoped_ptr<ExoBrowserDownloadManagerDelegate>    download_manager_delegate_;
-  scoped_refptr<ExoBrowserURLRequestContextGetter> url_request_getter_;
+  scoped_ptr<ExoShellDownloadManagerDelegate>    download_manager_delegate_;
+  scoped_refptr<ExoShellURLRequestContextGetter> url_request_getter_;
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
   scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 
-  ExoBrowserDevToolsDelegate*                      devtools_delegate_;
+  ExoShellDevToolsDelegate*                      devtools_delegate_;
 
-  ExoSessionWrap*                                  wrapper_;
-
-  friend class ExoSessionWrap;
   friend class ExoSessionCookieStore;
-  friend class ExoBrowserDevToolsDelegate;
+  friend class ExoShellDevToolsDelegate;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSession);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_SESSION_EXO_SESSION_H_
+#endif // EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_

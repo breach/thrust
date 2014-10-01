@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/devtools/devtools_delegate.h"
+#include "src/devtools/devtools_delegate.h"
 
 #include <vector>
 
@@ -20,10 +20,8 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
-#include "grit/exo_browser_resources.h"
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "exo_browser/src/browser/exo_frame.h"
 
 using namespace content;
 
@@ -124,61 +122,60 @@ Target::Close() const
 
 }  // namespace
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserDevToolsDelegate::ExoBrowserDevToolsDelegate(ExoSession* session)
+ExoShellDevToolsDelegate::ExoShellDevToolsDelegate(ExoSession* session)
 : session_(session)
 {
-  LOG(INFO) << "ExoBrowserDevToolsDelegate Constructor";
+  LOG(INFO) << "ExoShellDevToolsDelegate Constructor";
   devtools_http_handler_ =
     DevToolsHttpHandler::Start(CreateSocketFactory(), std::string(), this);
 }
 
-ExoBrowserDevToolsDelegate::~ExoBrowserDevToolsDelegate() 
+ExoShellDevToolsDelegate::~ExoShellDevToolsDelegate() 
 {
-  LOG(INFO) << "ExoBrowserDevToolsDelegate Destructor";
+  LOG(INFO) << "ExoShellDevToolsDelegate Destructor";
 }
 
 void
-ExoBrowserDevToolsDelegate::Stop()
+ExoShellDevToolsDelegate::Stop()
 {
-  LOG(INFO) << "ExoBrowserDevToolsDelegate Stop";
+  LOG(INFO) << "ExoShellDevToolsDelegate Stop";
   /* This call destroys this delegates. Be carefule double destroy. */
   devtools_http_handler_->Stop();
 }
 
 std::string 
-ExoBrowserDevToolsDelegate::GetDiscoveryPageHTML() 
+ExoShellDevToolsDelegate::GetDiscoveryPageHTML() 
 {
-  return ResourceBundle::GetSharedInstance().GetRawDataResource(
-      IDR_EXO_BROWSER_DEVTOOLS_DISCOVERY_PAGE).as_string();
+  return std::string("<html></html>");
 }
 
 bool 
-ExoBrowserDevToolsDelegate::BundlesFrontendResources() 
+ExoShellDevToolsDelegate::BundlesFrontendResources() 
 {
   return true;
 }
 
 base::FilePath 
-ExoBrowserDevToolsDelegate::GetDebugFrontendDir() 
+ExoShellDevToolsDelegate::GetDebugFrontendDir() 
 {
   return base::FilePath();
 }
 
 std::string 
-ExoBrowserDevToolsDelegate::GetPageThumbnailData(const GURL& url) 
+ExoShellDevToolsDelegate::GetPageThumbnailData(const GURL& url) 
 {
   return std::string();
 }
 
 scoped_ptr<DevToolsTarget>
-ExoBrowserDevToolsDelegate::CreateNewTarget(const GURL& url) {
+ExoShellDevToolsDelegate::CreateNewTarget(const GURL& url) {
   return scoped_ptr<DevToolsTarget>();
 }
 
 void 
-ExoBrowserDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
+ExoShellDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   TargetList targets;
   std::vector<RenderViewHost*> rvh_list =
     content::DevToolsAgentHost::GetValidRenderViewHosts();
@@ -186,10 +183,14 @@ ExoBrowserDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
       it != rvh_list.end(); ++it) {
     WebContents* web_contents = WebContents::FromRenderViewHost(*it);
     if(web_contents) {
+      /* TODO(spolu): FixMe */
+      /*
       ExoFrame* frame = ExoFrame::ExoFrameForWebContents(web_contents);
       if(frame->session() == session_) {
         targets.push_back(new Target(web_contents));
       }
+      */
+      targets.push_back(new Target(web_contents));
     }
   }
   callback.Run(targets);
@@ -197,10 +198,10 @@ ExoBrowserDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
 
 
 scoped_ptr<net::StreamListenSocket>
-ExoBrowserDevToolsDelegate::CreateSocketForTethering(
+ExoShellDevToolsDelegate::CreateSocketForTethering(
     net::StreamListenSocket::Delegate* delegate,
     std::string* name) {
   return scoped_ptr<net::StreamListenSocket>(); 
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

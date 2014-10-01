@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/util/platform_util.h"
+#include "src/browser/util/platform_util.h"
 
 #include "base/logging.h"
 #include "ui/aura/window.h"

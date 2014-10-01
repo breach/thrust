@@ -2,29 +2,30 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/resource_dispatcher_host_delegate.h"
+#include "src/browser/resource_dispatcher_host_delegate.h"
 
 #include "base/command_line.h"
-#include "exo_browser/src/common/switches.h"
 /* TODO(spolu): introduce ShellLogin Dialog (see content) */
 //#include "content/shell/shell_login_dialog.h"
 
+#include "src/common/switches.h"
+
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-ExoBrowserResourceDispatcherHostDelegate::
-  ExoBrowserResourceDispatcherHostDelegate() 
+ExoShellResourceDispatcherHostDelegate::
+  ExoShellResourceDispatcherHostDelegate() 
 {
 }
 
-ExoBrowserResourceDispatcherHostDelegate::
-~ExoBrowserResourceDispatcherHostDelegate() 
+ExoShellResourceDispatcherHostDelegate::
+~ExoShellResourceDispatcherHostDelegate() 
 {
 }
 
 ResourceDispatcherHostLoginDelegate*
-ExoBrowserResourceDispatcherHostDelegate::CreateLoginDelegate(
+ExoShellResourceDispatcherHostDelegate::CreateLoginDelegate(
     net::AuthChallengeInfo* auth_info, 
     net::URLRequest* request) 
 {
@@ -32,4 +33,4 @@ ExoBrowserResourceDispatcherHostDelegate::CreateLoginDelegate(
   return NULL;
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

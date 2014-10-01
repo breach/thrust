@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_RENDERER_RENDER_PROCESS_OBSERVER_H_
-#define EXO_BROWSER_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#ifndef EXO_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#define EXO_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -16,26 +16,26 @@ namespace content {
 class RenderView;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
-class ExoBrowserRenderProcessObserver : public content::RenderProcessObserver {
+class ExoShellRenderProcessObserver : public content::RenderProcessObserver {
  public:
-  static ExoBrowserRenderProcessObserver* GetInstance();
+  static ExoShellRenderProcessObserver* GetInstance();
 
-  ExoBrowserRenderProcessObserver();
-  virtual ~ExoBrowserRenderProcessObserver();
+  ExoShellRenderProcessObserver();
+  virtual ~ExoShellRenderProcessObserver();
 
-  void SetMainWindow(content::RenderView* view);
-
-  // RenderProcessObserver implementation.
+  /****************************************************************************/
+  /* RENDERPROCESSOBSERVER IMPLEMENTATIO */
+  /****************************************************************************/
   virtual void WebKitInitialized() OVERRIDE;
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserRenderProcessObserver);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellRenderProcessObserver);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#endif // EXO_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_

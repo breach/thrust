@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/dialog/download_manager_delegate.h"
+#include "src/browser/dialog/download_manager_delegate.h"
 
 #include <AppKit/NSSavePanel.h>
 #include <Foundation/NSURL.h>
@@ -22,9 +22,9 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-void ExoBrowserDownloadManagerDelegate::ChooseDownloadPath(
+void ExoShellDownloadManagerDelegate::ChooseDownloadPath(
     uint32 download_id,
     const DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) {
@@ -49,4 +49,4 @@ void ExoBrowserDownloadManagerDelegate::ChooseDownloadPath(
                DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

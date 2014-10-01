@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_UI_DIALOG_FILE_SELECT_HELPER_H_
-#define EXO_BROWSER_BROWSER_UI_DIALOG_FILE_SELECT_HELPER_H_
+#ifndef EXO_SHELL_BROWSER_UI_DIALOG_FILE_SELECT_HELPER_H_
+#define EXO_SHELL_BROWSER_UI_DIALOG_FILE_SELECT_HELPER_H_
 
 #include <map>
 #include <vector>
@@ -25,7 +25,7 @@ namespace ui {
 struct SelectedFileInfo;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
 // This class handles file-selection requests coming from WebUI elements
 // (via the extensions::ExtensionHost class). It implements both the
@@ -161,6 +161,6 @@ class FileSelectHelper
   DISALLOW_COPY_AND_ASSIGN(FileSelectHelper);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_UI_DIALOG_FILE_SELECT_HELPER_H_
+#endif // EXO_SHELL_BROWSER_UI_DIALOG_FILE_SELECT_HELPER_H_
