@@ -209,5 +209,21 @@ ExoShell::PlatformPosition()
       NSHeight([screen frame]) - frame.origin.y - frame.size.height);
 }
 
+void
+ExoShell::PlatformMove(int x, int y) {
+  NSScreen* screen = [[NSScreen screens] objectAtIndex:0];
+  [window_ setFrameTopLeftPoint:NSMakePoint(x, NSHeight([screen frame]) - y)];
+}
+
+void
+ExoShell::PlatformResize(int width, int height) {
+  NSRect frame = [window_ frame];
+  frame.origin.y += frame.size.height; // remove the old height
+  frame.origin.y -= height; // add the new height
+  frame.size.width = width;
+  frame.size.height = height;
+  [window_ setFrame:frame
+            display:YES];
+}
 
 } // namespace exo_shell
