@@ -24,6 +24,7 @@ namespace exo_shell {
 
 class APIBinding;
 class APIBindingFactory;
+class APIBindingRemote;
 
 class API {
 public:
@@ -78,6 +79,7 @@ private:
   /* PRIVATE INTERFACE */
   /****************************************************************************/
 
+  static API*                               self_;
   unsigned int                              next_binding_id_;
   std::map<std::string, APIBindingFactory*> factories_;
   std::map<unsigned int, APIBinding*>       bindings_;

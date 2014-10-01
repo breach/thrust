@@ -23,7 +23,8 @@
 #include "src/browser/exo_shell.h"
 #include "src/browser/session/exo_session.h"
 #include "src/net/net_log.h"
-#include "src/api/api_handler.h"
+#include "src/api/api.h"
+#include "src/api/api_server.h"
 #include "src/api/exo_shell_binding.h"
 #include "src/api/exo_session_binding.h"
 
@@ -41,6 +42,7 @@ ExoShellMainParts::ExoShellMainParts()
 {
   DCHECK(!self_) << "Cannot have two ExoShellBrowserMainParts";
   self_ = this;
+  api_ = new API();
 }
 
 ExoShellMainParts::~ExoShellMainParts() {
@@ -72,16 +74,14 @@ ExoShellMainParts::PreMainMessageLoopRun()
 
   /* TODO(spolu): Get Path form command line */
   //CommandLine* command_line = CommandLine::ForCurrentProcess();
+  //
+  api_->InstallBinding("shell", new ExoShellBindingFactory());
+  api_->InstallBinding("session", new ExoSessionBindingFactory());
   
   base::FilePath path;
   base::GetTempDir(&path);
-  api_handler_.reset(new ApiHandler(path.Append("_exo_shell.sock")));
-
-
-  api_handler_->InstallBinding("shell", new ExoShellBindingFactory());
-  api_handler_->InstallBinding("session", new ExoSessionBindingFactory());
-
-  api_handler_->Start();
+  api_server_.reset(new APIServer(api_, path.Append("_exo_shell.sock")));
+  api_server_->Start();
 
   /*
   BrowserThread::PostTask(

@@ -37,7 +37,6 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/layout/fill_layout.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
 #include "vendor/brightray/browser/inspectable_web_contents_view.h"
 
 #if defined(USE_X11)

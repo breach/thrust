@@ -28,7 +28,7 @@ public:
   /****************************************************************************/
   virtual void CallLocalMethod(const std::string& method, 
                                scoped_ptr<base::DictionaryValue> args, 
-                               const API::ActionCallback& callback) = 0;
+                               const API::MethodCallback& callback) = 0;
 
   virtual ~APIBinding();
 
@@ -38,7 +38,7 @@ protected:
   /****************************************************************************/
   void CallRemoteMethod(const std::string& method, 
                         scoped_ptr<base::DictionaryValue> args, 
-                        const API::ActionCallback& callback);
+                        const API::MethodCallback& callback);
   void Emit(const std::string& type, 
             scoped_ptr<base::DictionaryValue> event);
 

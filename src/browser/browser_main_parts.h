@@ -23,7 +23,8 @@ struct MainFunctionParams;
 namespace exo_shell {
 
 class ExoSession;
-class ApiHandler;
+class API;
+class APIServer;
 
 class ExoShellMainParts : public brightray::BrowserMainParts {
  public:
@@ -53,9 +54,11 @@ class ExoShellMainParts : public brightray::BrowserMainParts {
  private:
   scoped_ptr<net::NetLog> net_log_;
 
-  static ExoShellMainParts*        self_;
+  static ExoShellMainParts*          self_;
   ExoSession*                        system_session_;
-  scoped_ptr<ApiHandler>             api_handler_;
+
+  API*                               api_;
+  scoped_ptr<APIServer>              api_server_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoShellMainParts);
 };
