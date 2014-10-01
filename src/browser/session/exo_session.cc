@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/session/exo_session.h"
+#include "src/browser/session/exo_session.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -14,17 +14,16 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/browser/devtools_http_handler.h"
 
-#include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/net/url_request_context_getter.h"
-#include "exo_browser/src/browser/dialog/download_manager_delegate.h"
-#include "exo_browser/src/browser/browser_main_parts.h"
-#include "exo_browser/src/browser/content_browser_client.h"
-#include "exo_browser/src/devtools/devtools_delegate.h"
-#include "exo_browser/src/node/api/exo_session_wrap.h"
+#include "src/common/switches.h"
+#include "src/net/url_request_context_getter.h"
+#include "src/browser/dialog/download_manager_delegate.h"
+#include "src/browser/browser_main_parts.h"
+#include "src/browser/browser_client.h"
+#include "src/devtools/devtools_delegate.h"
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 /******************************************************************************/
 /*                             RESOURCE CONTEXT                               */
@@ -53,12 +52,12 @@ class ExoSession::ExoResourceContext : public content::ResourceContext {
   }
 
   void set_url_request_context_getter(
-      ExoBrowserURLRequestContextGetter* getter) {
+      ExoShellURLRequestContextGetter* getter) {
     getter_ = getter;
   }
 
  private:
-  ExoBrowserURLRequestContextGetter* getter_;
+  ExoShellURLRequestContextGetter* getter_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoResourceContext);
 };
@@ -70,13 +69,12 @@ class ExoSession::ExoResourceContext : public content::ResourceContext {
 ExoSession::ExoSession(
     const bool off_the_record,
     const std::string& path,
-    ExoSessionWrap* wrapper)
+    bool dummy_cookie_store)
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
   resource_context_(new ExoResourceContext),
-  cookie_store_(new ExoSessionCookieStore(this)),
-  visitedlink_store_(new ExoSessionVisitedLinkStore(this)),
-  wrapper_(wrapper)
+  cookie_store_(new ExoSessionCookieStore(this, dummy_cookie_store)),
+  visitedlink_store_(new ExoSessionVisitedLinkStore(this))
 {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kIgnoreCertificateErrors)) {
@@ -87,9 +85,9 @@ ExoSession::ExoSession(
   bool result = visitedlink_store_->Init();
   LOG(INFO) << "VisitedLink Init: " << result;
 
-  devtools_delegate_ = new ExoBrowserDevToolsDelegate(this);
+  devtools_delegate_ = new ExoShellDevToolsDelegate(this);
   
-  ExoBrowserContentBrowserClient::Get()->RegisterExoSession(this);
+  ExoShellBrowserClient::Get()->RegisterExoSession(this);
 }
 
 
@@ -101,7 +99,7 @@ ExoSession::~ExoSession()
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
-  ExoBrowserContentBrowserClient::Get()->UnRegisterExoSession(this);
+  ExoShellBrowserClient::Get()->UnRegisterExoSession(this);
   /* We remove ourselves from the CookieStore as it may oulive us but we dont */
   /* want it to call into the API anymore.                                    */
   cookie_store_->parent_ = NULL;
@@ -140,7 +138,7 @@ ExoSession::GetDownloadManagerDelegate()
 {
   if (!download_manager_delegate_.get()) {
     DownloadManager* manager = BrowserContext::GetDownloadManager(this);
-    download_manager_delegate_.reset(new ExoBrowserDownloadManagerDelegate());
+    download_manager_delegate_.reset(new ExoShellDownloadManagerDelegate());
     download_manager_delegate_->SetDownloadManager(manager);
   }
   return download_manager_delegate_.get();
@@ -162,7 +160,7 @@ ExoSession::CreateRequestContext(
     ProtocolHandlerScopedVector protocol_interceptors)
 {
   DCHECK(!url_request_getter_.get());
-  url_request_getter_ = new ExoBrowserURLRequestContextGetter(
+  url_request_getter_ = new ExoShellURLRequestContextGetter(
       this,
       ignore_certificate_errors_,
       GetPath(),
@@ -170,7 +168,7 @@ ExoSession::CreateRequestContext(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
       protocol_interceptors.Pass(),
-      ExoBrowserContentBrowserClient::Get()->browser_main_parts()->net_log());
+      ExoShellMainParts::Get()->net_log());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
@@ -290,4 +288,4 @@ ExoSession::GetVisitedLinkStore()
   return visitedlink_store_.get();
 }
 
-}  // namespace exo_browser
+}  // namespace exo_shell

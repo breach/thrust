@@ -10,11 +10,11 @@
 #include "content/public/common/page_state.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_platform_file.h"
-#include "extensions/common/draggable_region.h"
+#include "src/common/draggable_region.h"
 
-#define IPC_MESSAGE_START ExoBrowserMsgStart
+#define IPC_MESSAGE_START ExoShellMsgStart
 
-IPC_STRUCT_TRAITS_BEGIN(extensions::DraggableRegion)
+IPC_STRUCT_TRAITS_BEGIN(exo_shell::DraggableRegion)
   IPC_STRUCT_TRAITS_MEMBER(draggable)
   IPC_STRUCT_TRAITS_MEMBER(bounds)
 IPC_STRUCT_TRAITS_END()

@@ -2,23 +2,23 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
-#define EXO_BROWSER_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#ifndef EXO_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#define EXO_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
 
 #include "base/callback_forward.h"
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
-class JavaScriptDialog;
+//class JavaScriptDialog;
 
-class ExoBrowserJavaScriptDialogManager : 
+class ExoShellJavaScriptDialogManager : 
     public content::JavaScriptDialogManager {
  public:
-  ExoBrowserJavaScriptDialogManager();
-  virtual ~ExoBrowserJavaScriptDialogManager();
+  ExoShellJavaScriptDialogManager();
+  virtual ~ExoShellJavaScriptDialogManager();
 
   // JavaScriptDialogManager overrides
   virtual void RunJavaScriptDialog(
@@ -44,7 +44,7 @@ class ExoBrowserJavaScriptDialogManager :
       content::WebContents* web_contents) OVERRIDE;
 
   // Called by the JavaScriptDialog when it closes.
-  void DialogClosed(JavaScriptDialog* dialog);
+  // void DialogClosed(JavaScriptDialog* dialog);
 
   // Used for content_browsertests.
   void set_dialog_request_callback(const base::Closure& callback) {
@@ -54,7 +54,7 @@ class ExoBrowserJavaScriptDialogManager :
  private:
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   // The dialog being shown. No queueing.
-  scoped_ptr<JavaScriptDialog> dialog_;
+  // scoped_ptr<JavaScriptDialog> dialog_;
 #else
   /* TODO(spolu): implement JavaScriptDialog for other platforms, */
   /* and then drop this #if                                       */
@@ -62,9 +62,9 @@ class ExoBrowserJavaScriptDialogManager :
 
   base::Closure dialog_request_callback_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserJavaScriptDialogManager);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellJavaScriptDialogManager);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#endif // EXO_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_

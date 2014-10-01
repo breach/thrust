@@ -2,11 +2,9 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/browser/dialog/download_manager_delegate.h"
+#include "src/browser/dialog/download_manager_delegate.h"
 
-#if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>
-#endif
 
 #include "base/bind.h"
 #include "base/file_util.h"
@@ -22,9 +20,9 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
-void ExoBrowserDownloadManagerDelegate::ChooseDownloadPath(
+void ExoShellDownloadManagerDelegate::ChooseDownloadPath(
     uint32 download_id,
     const DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) {
@@ -40,7 +38,7 @@ void ExoBrowserDownloadManagerDelegate::ChooseDownloadPath(
 
   parent_window = item->GetWebContents()->GetView()->GetTopLevelNativeWindow();
   dialog = gtk_file_chooser_dialog_new("Save File",
-                                       parent_window,
+                                       NULL,
                                        GTK_FILE_CHOOSER_ACTION_SAVE,
                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                        GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -62,5 +60,5 @@ void ExoBrowserDownloadManagerDelegate::ChooseDownloadPath(
                DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
 }
 
-} // namespace exo_browser
+} // namespace exo_shell
 

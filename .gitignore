@@ -14,7 +14,15 @@
 
 .*.swp
 *~
+ 
+*.mk
+Makefile
+*.Makefile
+*.pyc
+out
 
 *.xcodeproj
 .DS_Store
 npm-debug.log
+
+src/common/chrome_version.h

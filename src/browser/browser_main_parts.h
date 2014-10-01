@@ -2,17 +2,15 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_BROWSER_BROWSER_MAIN_PARTS_H_
-#define EXO_BROWSER_BROWSER_BROWSER_MAIN_PARTS_H_
+#ifndef EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
+#define EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
+
+#include "brightray/browser/browser_main_parts.h"
 
 #include "base/basictypes.h"
 #include "base/threading/thread.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_main_parts.h"
-
-namespace base {
-class Thread;
-}
 
 namespace net {
 class NetLog;
@@ -22,25 +20,32 @@ namespace content {
 struct MainFunctionParams;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
-class NodeThread;
+class ExoSession;
+class API;
+class APIServer;
 
-class ExoBrowserMainParts : public content::BrowserMainParts {
+class ExoShellMainParts : public brightray::BrowserMainParts {
  public:
 
-  explicit ExoBrowserMainParts(
-      const content::MainFunctionParams& parameters);
-  virtual ~ExoBrowserMainParts();
+  explicit ExoShellMainParts();
+  virtual ~ExoShellMainParts();
+
+  static ExoShellMainParts* Get();
+
+  /* TODO(spolu) Add App object similar to atom-shell Browser. */
+
+  // Implementations of brightray::BrowserMainParts.
+  virtual brightray::BrowserContext* CreateBrowserContext() OVERRIDE;
 
   // BrowserMainParts overrides.
-  virtual int PreCreateThreads() OVERRIDE;
-  virtual void PreEarlyInitialization() OVERRIDE;
-  virtual void PreMainMessageLoopStart() OVERRIDE;
-  virtual void PostMainMessageLoopStart() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;
-  virtual bool MainMessageLoopRun(int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
+#if defined(OS_MACOSX) 
+  virtual void PreMainMessageLoopStart() OVERRIDE; 
+  virtual void PostDestroyThreads() OVERRIDE;
+#endif
 
   net::NetLog* net_log() { 
     return net_log_.get(); 
@@ -49,13 +54,15 @@ class ExoBrowserMainParts : public content::BrowserMainParts {
  private:
   scoped_ptr<net::NetLog> net_log_;
 
-  // For running content_browsertests.
-  const content::MainFunctionParams& parameters_;
-  bool run_message_loop_;
+  static ExoShellMainParts*          self_;
+  ExoSession*                        system_session_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserMainParts);
+  API*                               api_;
+  scoped_ptr<APIServer>              api_server_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExoShellMainParts);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif  // EXO_BROWSER_BROWSER_BROWSER_MAIN_PARTS_H_
+#endif // EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
