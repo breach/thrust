@@ -55,11 +55,12 @@ class Target : public content::DevToolsTarget {
   explicit Target(WebContents* web_contents);
 
   virtual std::string GetId() const OVERRIDE { return id_; }
+  virtual std::string GetParentId() const OVERRIDE { return std::string(); }
   virtual std::string GetType() const OVERRIDE { return kTargetTypePage; }
   virtual std::string GetTitle() const OVERRIDE { return title_; }
   virtual std::string GetDescription() const OVERRIDE { return std::string(); }
-  virtual GURL GetUrl() const OVERRIDE { return url_; }
-  virtual GURL GetFaviconUrl() const OVERRIDE { return favicon_url_; }
+  virtual GURL GetURL() const OVERRIDE { return url_; }
+  virtual GURL GetFaviconURL() const OVERRIDE { return favicon_url_; }
   virtual base::TimeTicks GetLastActivityTime() const OVERRIDE {
     return last_activity_time_;
   }
@@ -95,7 +96,7 @@ Target::Target(
     favicon_url_ = entry->GetFavicon().url;
   last_activity_time_ = web_contents->GetLastActiveTime();
 }
-
+ 
 bool 
 Target::Activate() const 
 {
@@ -129,7 +130,8 @@ ExoShellDevToolsDelegate::ExoShellDevToolsDelegate(ExoSession* session)
 {
   LOG(INFO) << "ExoShellDevToolsDelegate Constructor";
   devtools_http_handler_ =
-    DevToolsHttpHandler::Start(CreateSocketFactory(), std::string(), this);
+    DevToolsHttpHandler::Start(CreateSocketFactory(), std::string(), this,
+                               base::FilePath());
 }
 
 ExoShellDevToolsDelegate::~ExoShellDevToolsDelegate() 

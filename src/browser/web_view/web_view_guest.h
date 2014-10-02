@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_WEBVIEW_WEBVIEW_H_
-#define EXO_SHELL_BROWSER_WEBVIEW_WEBVIEW_H_
+#ifndef EXO_SHELL_BROWSER_WEBVIEW_WEB_VIEW_GUEST_H_
+#define EXO_SHELL_BROWSER_WEBVIEW_WEB_VIEW_GUEST_H_
 
 #include <queue>
 
@@ -17,21 +17,21 @@
 
 struct RendererContentSettingRules;
 
-// ## WebView
+// ## WebViewGuest
 //
 // Browser-side API implementation for the <webview> tag. It's in charge of
 // maintaining the association between the guest WebContents and the embedder
 // WebContents. Receives events issued from the guest and realys them to the
 // embedder.
 //
-// A WebView is also a WebContentsObserver on the guest WebContents of the
-// associated <webview> tag. WebView is created on attachment. That is, when a 
+// A WebViewGuest is also a WebContentsObserver on the guest WebContents of the
+// associated <webview> tag. WebViewGuest is created on attachment. That is, when a 
 // guest WebContents is associated with a particular embedder WebContents. 
 // This happens on either initial navigation or through the use of the New 
 // Window API, when a new window is attached to a particular <webview>.
-class WebView : public content::BrowserPluginGuestDelegate,
-                public content::NotificationObserver,
-                public content::WebContentsObserver {
+class WebViewGuest : public content::BrowserPluginGuestDelegate,
+                     public content::NotificationObserver,
+                     public content::WebContentsObserver {
 public:
 
   class Event {
@@ -51,10 +51,11 @@ public:
   /****************************************************************************/
   /* STATIC API */
   /****************************************************************************/
-  static WebView* Create(content::WebContents* guest_web_contents);
+  static WebViewGuest* Create(int guest_instance_id,
+                              content::WebContents* guest_web_contents);
 
-  static WebView* From(int embedder_process_id, int instance_id);
-  static WebView* FromWebContents(content::WebContents* web_contents);
+  static WebViewGuest* From(int embedder_process_id, int instance_id);
+  static WebViewGuest* FromWebContents(content::WebContents* web_contents);
 
   // Returns guestview::kInstanceIDNone if |contents| does not correspond to a
   // WebViewGuest.
@@ -114,7 +115,7 @@ public:
   /* WEBVIEW API */
   /****************************************************************************/
   // Set the zoom factor.
-  virtual void SetZoom(double zoom_factor) OVERRIDE;
+  void SetZoom(double zoom_factor);
 
   // Returns the current zoom factor.
   double GetZoom();
@@ -156,8 +157,9 @@ public:
   int embedder_render_process_id() const { return embedder_render_process_id_; }
 
  protected:
-  WebView(content::WebContents* guest_web_contents);
-  virtual ~WebView();
+  WebViewGuest(int guest_instance_id,
+               content::WebContents* guest_web_contents);
+  virtual ~WebViewGuest();
 
   // Dispatches an event |event_name| to the embedder with the |event| fields.
   void DispatchEvent(Event* event);
@@ -225,9 +227,9 @@ public:
 
   // This is used to ensure pending tasks will not fire after this object is
   // destroyed.
-  base::WeakPtrFactory<WebView> weak_ptr_factory_;
+  base::WeakPtrFactory<WebViewGuest> weak_ptr_factory_;
 
-  DISALLOW_COPY_AND_ASSIGN(WebView);
+  DISALLOW_COPY_AND_ASSIGN(WebViewGuest);
 };
 
-#endif // EXO_SHELL_BROWSER_WEBVIEW_WEBVIEW_H_
+#endif // EXO_SHELL_BROWSER_WEBVIEW_WEB_VIEW_GUEST_H_

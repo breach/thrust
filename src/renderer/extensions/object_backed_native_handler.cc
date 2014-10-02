@@ -11,7 +11,7 @@
 #include "base/memory/linked_ptr.h"
 #include "v8/include/v8.h"
 
-#include "src/renderer/extensions/context.h"
+#include "src/renderer/extensions/script_context.h"
 
 namespace extensions {
 
@@ -20,11 +20,11 @@ namespace {
 const char* kHandlerFunction = "handler_function";
 }  // namespace
 
-ObjectBackedNativeHandler::ObjectBackedNativeHandler(
-    Context* context)
-    : context_(context),
-      object_template_(v8::ObjectTemplate::New(
-          context->v8_context()->GetIsolate())) {
+ObjectBackedNativeHandler::ObjectBackedNativeHandler(ScriptContext* context)
+    : router_data_(context->v8_context()->GetIsolate()),
+      context_(context),
+      object_template_(
+          v8::ObjectTemplate::New(context->v8_context()->GetIsolate())) {
 }
 
 ObjectBackedNativeHandler::~ObjectBackedNativeHandler() {
@@ -61,16 +61,15 @@ void ObjectBackedNativeHandler::RouteFunction(
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope context_scope(context_->v8_context());
 
-  v8::Persistent<v8::Object> data(isolate, v8::Object::New(isolate));
-  v8::Local<v8::Object> local_data = v8::Local<v8::Object>::New(isolate, data);
-  local_data->Set(
+  v8::Local<v8::Object> data = v8::Object::New(isolate);
+  data->Set(
       v8::String::NewFromUtf8(isolate, kHandlerFunction),
       v8::External::New(isolate, new HandlerFunction(handler_function)));
   v8::Handle<v8::FunctionTemplate> function_template =
-      v8::FunctionTemplate::New(isolate, Router, local_data);
+      v8::FunctionTemplate::New(isolate, Router, data);
   object_template_.NewHandle(isolate)
       ->Set(isolate, name.c_str(), function_template);
-  router_data_.push_back(UnsafePersistent<v8::Object>(&data));
+  router_data_.Append(data);
 }
 
 v8::Isolate* ObjectBackedNativeHandler::GetIsolate() const {
@@ -84,17 +83,16 @@ void ObjectBackedNativeHandler::Invalidate() {
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope context_scope(context_->v8_context());
 
-  for (RouterData::iterator it = router_data_.begin();
-       it != router_data_.end(); ++it) {
-    v8::Handle<v8::Object> data = it->newLocal(isolate);
+  for (size_t i = 0; i < router_data_.Size(); i++) {
+    v8::Handle<v8::Object> data = router_data_.Get(i);
     v8::Handle<v8::Value> handler_function_value =
         data->Get(v8::String::NewFromUtf8(isolate, kHandlerFunction));
     CHECK(!handler_function_value.IsEmpty());
     delete static_cast<HandlerFunction*>(
         handler_function_value.As<v8::External>()->Value());
     data->Delete(v8::String::NewFromUtf8(isolate, kHandlerFunction));
-    it->dispose();
   }
+  router_data_.Clear();
   object_template_.reset();
   context_ = NULL;
   NativeHandler::Invalidate();

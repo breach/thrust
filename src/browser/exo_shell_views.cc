@@ -98,7 +98,6 @@ ExoShell::PlatformCreateWindow(
   params.bounds = bounds;
   params.delegate = this;
   params.type = views::Widget::InitParams::TYPE_WINDOW;
-  params.top_level = true;
   params.remove_standard_frame = !has_frame_;
 
   window_->Init(params);

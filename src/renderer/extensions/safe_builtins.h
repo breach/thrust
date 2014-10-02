@@ -8,7 +8,7 @@
 #include "v8/include/v8.h"
 
 namespace extensions {
-class Context;
+class ScriptContext;
 
 // A collection of safe builtin objects, in that they won't be tained by
 // extensions overriding methods on them.
@@ -17,7 +17,7 @@ class SafeBuiltins {
   // Creates the v8::Extension which manages SafeBuiltins instances.
   static v8::Extension* CreateV8Extension();
 
-  explicit SafeBuiltins(Context* context);
+  explicit SafeBuiltins(ScriptContext* context);
 
   virtual ~SafeBuiltins();
 
@@ -38,7 +38,7 @@ class SafeBuiltins {
   v8::Local<v8::Object> GetString() const;
 
  private:
-  Context* context_;
+  ScriptContext* context_;
 };
 
 } //  namespace extensions

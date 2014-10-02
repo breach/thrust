@@ -12,7 +12,7 @@ namespace exo_shell {
 
 class ExoSession;
 
-class ExoSessionBinding : public ApiBinding {
+class ExoSessionBinding : public APIBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
@@ -21,9 +21,10 @@ public:
                     scoped_ptr<base::DictionaryValue> args);
   ~ExoSessionBinding();
 
-  virtual void LocalCall(const std::string& method, 
-                         scoped_ptr<base::DictionaryValue> args, 
-                         const ApiHandler::ActionCallback& callback) OVERRIDE;
+  virtual void CallLocalMethod(
+      const std::string& method, 
+      scoped_ptr<base::DictionaryValue> args, 
+      const API::MethodCallback& callback) OVERRIDE;
 
   /****************************************************************************/
   /* PUBLIC INTERFACE */
@@ -37,12 +38,12 @@ private:
 // ## ExoSessionBindingFactory
 //
 // Factory object used to generate ExoSession bindings
-class ExoSessionBindingFactory : public ApiBindingFactory {
+class ExoSessionBindingFactory : public APIBindingFactory {
 public:
   ExoSessionBindingFactory();
   ~ExoSessionBindingFactory();
 
-  ApiBinding* Create(const unsigned int id, 
+  APIBinding* Create(const unsigned int id, 
                      scoped_ptr<base::DictionaryValue> args) OVERRIDE;
 };
 

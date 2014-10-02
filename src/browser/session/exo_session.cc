@@ -72,6 +72,7 @@ ExoSession::ExoSession(
     bool dummy_cookie_store)
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
+  guest_manager_(NULL),
   resource_context_(new ExoResourceContext),
   cookie_store_(new ExoSessionCookieStore(this, dummy_cookie_store)),
   visitedlink_store_(new ExoSessionVisitedLinkStore(this))
@@ -157,7 +158,7 @@ ExoSession::GetRequestContext()
 net::URLRequestContextGetter* 
 ExoSession::CreateRequestContext(
     ProtocolHandlerMap* protocol_handlers,
-    ProtocolHandlerScopedVector protocol_interceptors)
+    URLRequestInterceptorScopedVector request_interceptors)
 {
   DCHECK(!url_request_getter_.get());
   url_request_getter_ = new ExoShellURLRequestContextGetter(
@@ -167,7 +168,7 @@ ExoSession::CreateRequestContext(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
-      protocol_interceptors.Pass(),
+      request_interceptors.Pass(),
       ExoShellMainParts::Get()->net_log());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
@@ -207,7 +208,7 @@ ExoSession::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers,
-    ProtocolHandlerScopedVector protocol_interceptors)
+    URLRequestInterceptorScopedVector request_interceptors)
 {
   DCHECK(false);
   /* TODO(spolu): Add Support URLRequestContextGetter per StoragePartition. */
@@ -216,56 +217,14 @@ ExoSession::CreateRequestContextForStoragePartition(
   return NULL;
 }
 
-
-
-void 
-ExoSession::RequestMidiSysExPermission(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    const GURL& requesting_frame,
-    bool user_gesture,
-    const MidiSysExPermissionCallback& callback) 
+BrowserPluginGuestManager* 
+ExoSession::GetGuestManager() 
 {
-  callback.Run(false);
-}
-
-
-void 
-ExoSession::CancelMidiSysExPermissionRequest(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    const GURL& requesting_frame)
-{
-}
-
-void 
-ExoSession::RequestProtectedMediaIdentifierPermission(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    int group_id,
-    const GURL& requesting_frame,
-    const ProtectedMediaIdentifierPermissionCallback& callback) 
-{
-  callback.Run(true);
-}
-
-void 
-ExoSession::CancelProtectedMediaIdentifierPermissionRequests(
-    int group_id) 
-{
+  return guest_manager_;
 }
 
 quota::SpecialStoragePolicy* 
 ExoSession::GetSpecialStoragePolicy() 
-{
-  return NULL;
-}
-
-GeolocationPermissionContext*
-ExoSession::GetGeolocationPermissionContext()  
 {
   return NULL;
 }

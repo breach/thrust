@@ -126,20 +126,20 @@ FramelessView::UpdateWindowTitle()
 }
 
 gfx::Size 
-FramelessView::GetPreferredSize() 
+FramelessView::GetPreferredSize() const
 {
   return frame_->non_client_view()->GetWindowBoundsForClientBounds(
       gfx::Rect(frame_->client_view()->GetPreferredSize())).size();
 }
 
 gfx::Size 
-FramelessView::GetMinimumSize() 
+FramelessView::GetMinimumSize() const
 {
   return parent_->GetMinimumSize();
 }
 
 gfx::Size 
-FramelessView::GetMaximumSize() 
+FramelessView::GetMaximumSize() const
 {
   return parent_->GetMaximumSize();
 }

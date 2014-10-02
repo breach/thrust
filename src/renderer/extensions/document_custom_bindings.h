@@ -8,11 +8,12 @@
 #include "src/renderer/extensions/object_backed_native_handler.h"
 
 namespace extensions {
+class ScriptContext;
 
 // Implements custom bindings for document-level operations.
 class DocumentCustomBindings : public ObjectBackedNativeHandler {
  public:
-  DocumentCustomBindings(Context* context);
+  DocumentCustomBindings(ScriptContext* context);
 
  private:
   // Registers the provided element as a custom element in Blink.

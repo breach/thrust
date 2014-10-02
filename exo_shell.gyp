@@ -62,10 +62,10 @@
       'src/browser/ui/views/frameless_view.h',
       'src/browser/ui/views/frameless_view.cc',
 
-      'src/browser/webview/webview.h',
-      'src/browser/webview/webview.cc',
-      'src/browser/webview/webview_constants.h',
-      'src/browser/webview/webview_constants.cc',
+      'src/browser/web_view/web_view_guest.h',
+      'src/browser/web_view/web_view_guest.cc',
+      'src/browser/web_view/web_view_constants.h',
+      'src/browser/web_view/web_view_constants.cc',
 
       'src/renderer/renderer_client.cc',
       'src/renderer/renderer_client.h',
@@ -92,8 +92,8 @@
       'src/renderer/extensions/console.cc',
       'src/renderer/extensions/module_system.h',
       'src/renderer/extensions/module_system.cc',
-      'src/renderer/extensions/context.h',
-      'src/renderer/extensions/context.cc',
+      'src/renderer/extensions/script_context.h',
+      'src/renderer/extensions/script_context.cc',
       'src/renderer/extensions/dispatcher.h',
       'src/renderer/extensions/dispatcher.cc',
 

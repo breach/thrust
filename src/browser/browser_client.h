@@ -11,7 +11,6 @@
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/content_browser_client.h"
-#include "content/public/browser/web_contents_view.h"
 
 #include "brightray/browser/browser_client.h"
 
@@ -55,14 +54,14 @@ class ExoShellBrowserClient : public brightray::BrowserClient {
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector protocol_interceptors) OVERRIDE;
 
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector protocol_interceptors) OVERRIDE;
 
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
 

@@ -121,7 +121,7 @@ net::URLRequestContextGetter*
 ExoShellBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
     ProtocolHandlerMap* protocol_handlers,
-    ProtocolHandlerScopedVector protocol_interceptors)
+    URLRequestInterceptorScopedVector protocol_interceptors)
 {
   ExoSession* session =
       ExoSessionForBrowserContext(content_browser_context);
@@ -135,7 +135,7 @@ ExoShellBrowserClient::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers,
-    ProtocolHandlerScopedVector protocol_interceptors)
+    URLRequestInterceptorScopedVector protocol_interceptors)
 {
   ExoSession* session =
       ExoSessionForBrowserContext(content_browser_context);
@@ -156,12 +156,12 @@ ExoShellBrowserClient::IsHandledURL(
   // ExoShellURLRequestContextGetter::GetURLRequestContext().
   /* TODO(spolu): Check in sync */
   static const char* const kProtocolList[] = {
-      kBlobScheme,
-      kFileSystemScheme,
+      url::kBlobScheme,
+      url::kFileSystemScheme,
       kChromeUIScheme,
       kChromeDevToolsScheme,
-      kDataScheme,
-      kFileScheme,
+      url::kDataScheme,
+      url::kFileScheme,
   };
   for (size_t i = 0; i < arraysize(kProtocolList); ++i) {
     if (url.scheme() == kProtocolList[i])

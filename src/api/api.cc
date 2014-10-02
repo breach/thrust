@@ -14,8 +14,6 @@
 
 #include "src/api/api_binding.h"
 
-using namespace content;
-
 namespace exo_shell {
 
 // static
@@ -94,7 +92,7 @@ API::CallMethod(
   if(target > 0 && bindings_[target]) {
     LOG(INFO) << "[API] CALL: " << target << " " << method;
     /* We route the request to the right binding. */
-    bindings_[target]->LocalCall(method, args.Pass(), callback);
+    bindings_[target]->CallLocalMethod(method, args.Pass(), callback);
   }
 }
 
@@ -108,3 +106,4 @@ API::SetRemote(
   }
 }
 
+} // namespace exo_browser

@@ -55,15 +55,6 @@ APIServer::Stop() {
       base::Bind(&APIServer::ResetHandlerThread, this));
 }
 
-void
-APIServer::InstallBinding(
-    const std::string& type,
-    ApiBindingFactory* factory)
-{
-  factories_[type] = factory;
-}
-
-
 void 
 APIServer::DidAccept(
     net::StreamListenSocket* server,                          
@@ -132,7 +123,7 @@ APIServer::PerformAction(
                   scoped_ptr<base::Value>(res).Pass());
   }
   else if(action.compare("call") == 0 && target > 0) {
-    api_->CallMethod(target, method,
+    api_->CallMethod(target, method, args.Pass(),
                      base::Bind(&APIServer::ReplyToAction, this, id));
   }
   else if(action.compare("delete") == 0 && target > 0) {

@@ -2,13 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "src/browser/webview/webview.h"
+#include "src/browser/web_view/web_view_guest.h"
 
 #include "base/lazy_instance.h"
 #include "net/base/escape.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/browser/host_zoom_map.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_source.h"
@@ -16,25 +18,25 @@
 #include "content/public/browser/resource_request_details.h"
 #include "content/public/common/page_zoom.h"
 
-#include "src/browser/webview/webview_constants.h"
+#include "src/browser/web_view/web_view_constants.h"
 
 using content::WebContents;
 
 namespace {
 
-// <embedder_process_id, guest_instance_id> => WebView*
-typedef std::map<std::pair<int, int>, WebView*> EmbedderWebViewMap;
-static base::LazyInstance<EmbedderWebViewMap> embedder_webview_map =
+// <embedder_process_id, guest_instance_id> => WebViewGuest*
+typedef std::map<std::pair<int, int>, WebViewGuest*> EmbedderWebViewGuestMap;
+static base::LazyInstance<EmbedderWebViewGuestMap> embedder_webview_map =
     LAZY_INSTANCE_INITIALIZER;
 
-// WebContents* => WebView*
-typedef std::map<WebContents*, WebView*> WebContentsWebViewMap;
-static base::LazyInstance<WebContentsWebViewMap> webcontents_webview_map =
+// WebContents* => WebViewGuest*
+typedef std::map<WebContents*, WebViewGuest*> WebContentsWebViewGuestMap;
+static base::LazyInstance<WebContentsWebViewGuestMap> webcontents_webview_map =
     LAZY_INSTANCE_INITIALIZER;
 
 }  // namespace
 
-WebView::Event::Event(
+WebViewGuest::Event::Event(
     const std::string& name,
     scoped_ptr<base::DictionaryValue> args)
   : name_(name),
@@ -42,24 +44,25 @@ WebView::Event::Event(
 {
 }
 
-WebView::Event::~Event() 
+WebViewGuest::Event::~Event() 
 {
 }
 
 scoped_ptr<base::DictionaryValue> 
-WebView::Event::GetArguments() 
+WebViewGuest::Event::GetArguments() 
 {
   return args_.Pass();
 }
 
-WebView::WebView(
+WebViewGuest::WebViewGuest(
+    int guest_instance_id,
     WebContents* guest_web_contents)
 : WebContentsObserver(guest_web_contents),
   guest_web_contents_(guest_web_contents),
   embedder_web_contents_(NULL),
   embedder_render_process_id_(0),
   browser_context_(guest_web_contents->GetBrowserContext()),
-  guest_instance_id_(guest_web_contents->GetEmbeddedInstanceID()),
+  guest_instance_id_(guest_instance_id),
   view_instance_id_(webview::kInstanceIDNone),
   weak_ptr_factory_(this) 
 {
@@ -76,41 +79,42 @@ WebView::WebView(
 }
 
 // static
-WebView* 
-WebView::Create(
+WebViewGuest* 
+WebViewGuest::Create(
+    int guest_instance_id,
     WebContents* guest_web_contents)
 {
-  return new WebView(guest_web_contents);
+  return new WebViewGuest(guest_instance_id, guest_web_contents);
 }
 
 // static
-WebView* 
-WebView::FromWebContents(
+WebViewGuest* 
+WebViewGuest::FromWebContents(
     WebContents* web_contents) 
 {
-  WebContentsWebViewMap* webview_map = webcontents_webview_map.Pointer();
-  WebContentsWebViewMap::iterator it = webview_map->find(web_contents);
+  WebContentsWebViewGuestMap* webview_map = webcontents_webview_map.Pointer();
+  WebContentsWebViewGuestMap::iterator it = webview_map->find(web_contents);
   return it == webview_map->end() ? NULL : it->second;
 }
 
 // static
-WebView* 
-WebView::From(
+WebViewGuest* 
+WebViewGuest::From(
     int embedder_process_id, 
     int guest_instance_id) 
 {
-  EmbedderWebViewMap* guest_map = embedder_webview_map.Pointer();
-  EmbedderWebViewMap::iterator it = guest_map->find(
+  EmbedderWebViewGuestMap* guest_map = embedder_webview_map.Pointer();
+  EmbedderWebViewGuestMap::iterator it = guest_map->find(
       std::make_pair(embedder_process_id, guest_instance_id));
   return it == guest_map->end() ? NULL : it->second;
 }
 
 // static.
 int 
-WebView::GetViewInstanceId(
+WebViewGuest::GetViewInstanceId(
     WebContents* contents) 
 {
-  WebView* guest = FromWebContents(contents);
+  WebViewGuest* guest = FromWebContents(contents);
   if(!guest)
     return webview::kInstanceIDNone;
 
@@ -118,7 +122,7 @@ WebView::GetViewInstanceId(
 }
 
 void 
-WebView::Attach(
+WebViewGuest::Attach(
     content::WebContents* embedder_web_contents,
     const base::DictionaryValue& args) 
 {
@@ -130,7 +134,7 @@ WebView::Attach(
   std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
   embedder_webview_map.Get().insert(std::make_pair(key, this));
 
-  // WebView::Attach is called prior to initialization (and initial
+  // WebViewGuest::Attach is called prior to initialization (and initial
   // navigation) of the guest in the content layer in order to permit mapping
   // the necessary associations between the <*view> element and its guest. This
   // is needed by the <webview> WebRequest API to allow intercepting resource
@@ -145,11 +149,11 @@ WebView::Attach(
 
   base::MessageLoop::current()->PostTask(
       FROM_HERE,
-      base::Bind(&WebView::SendQueuedEvents,
+      base::Bind(&WebViewGuest::SendQueuedEvents,
                  weak_ptr_factory_.GetWeakPtr()));
 }
 
-WebView::~WebView() 
+WebViewGuest::~WebViewGuest() 
 {
   std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
   embedder_webview_map.Get().erase(key);
@@ -163,7 +167,7 @@ WebView::~WebView()
 }
 
 void 
-WebView::Observe(int type,
+WebViewGuest::Observe(int type,
     const content::NotificationSource& source,
     const content::NotificationDetails& details) 
 {
@@ -197,37 +201,38 @@ WebView::Observe(int type,
 }
 
 void 
-WebView::SetZoom(
+WebViewGuest::SetZoom(
     double zoom_factor) 
 {
   double zoom_level = content::ZoomFactorToZoomLevel(zoom_factor);
-  guest_web_contents()->SetZoomLevel(zoom_level);
+  content::HostZoomMap::SetZoomLevel(guest_web_contents(), zoom_level);
 
   /*
   scoped_ptr<base::DictionaryValue> args(new base::DictionaryValue());
   args->SetDouble(webview::kOldZoomFactor, current_zoom_factor_);
   args->SetDouble(webview::kNewZoomFactor, zoom_factor);
-  DispatchEvent(new GuestView::Event(webview::kEventZoomChange, args.Pass()));
+  DispatchEvent(
+      new GuestViewBase::Event(webview::kEventZoomChange, args.Pass()));
   */
 
   current_zoom_factor_ = zoom_factor;
 }
 
 double 
-WebView::GetZoom() 
+WebViewGuest::GetZoom() 
 {
   return current_zoom_factor_;
 }
 
 void 
-WebView::Go(
+WebViewGuest::Go(
     int relative_index) 
 {
   guest_web_contents()->GetController().GoToOffset(relative_index);
 }
 
 void 
-WebView::Reload() 
+WebViewGuest::Reload() 
 {
   // TODO(fsamuel): Don't check for repost because we don't want to show
   // Chromium's repost warning. We might want to implement a separate API
@@ -236,14 +241,14 @@ WebView::Reload()
 }
 
 void 
-WebView::Stop() 
+WebViewGuest::Stop() 
 {
   guest_web_contents()->Stop();
 }
 
 
 void 
-WebView::DispatchEvent(
+WebViewGuest::DispatchEvent(
     Event* event) 
 {
   if (!attached()) {
@@ -270,7 +275,7 @@ WebView::DispatchEvent(
 }
 
 void 
-WebView::SendQueuedEvents() 
+WebViewGuest::SendQueuedEvents() 
 {
   if (!attached())
     return;

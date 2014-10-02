@@ -20,7 +20,7 @@
 
 namespace extensions {
 
-class Context;
+class ScriptContext;
 
 // A module system for JS similar to node.js' require() function.
 // Each module has three variables in the global scope:
@@ -70,7 +70,7 @@ class ModuleSystem : public ObjectBackedNativeHandler {
   };
 
   // |source_map| is a weak pointer.
-  ModuleSystem(Context* context, SourceMap* source_map);
+  ModuleSystem(ScriptContext* context, SourceMap* source_map);
   virtual ~ModuleSystem();
 
   // Require the specified module. This is the equivalent of calling
@@ -142,7 +142,7 @@ class ModuleSystem : public ObjectBackedNativeHandler {
   }
 
  protected:
-  friend class Context;
+  friend class ScriptContext;
   virtual void Invalidate() OVERRIDE;
 
  private:
@@ -195,7 +195,7 @@ class ModuleSystem : public ObjectBackedNativeHandler {
   // provided function.
   void CreateFunctionWrapper(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-  Context* context_;
+  ScriptContext* context_;
 
   // A map from module names to the JS source for that module. GetSource()
   // performs a lookup on this map.

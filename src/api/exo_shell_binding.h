@@ -12,18 +12,19 @@ namespace exo_shell {
 
 class ExoShell;
 
-class ExoShellBinding : public ApiBinding {
+class ExoShellBinding : public APIBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
   ExoShellBinding(const unsigned int id, 
-                    scoped_ptr<base::DictionaryValue> args);
+                  scoped_ptr<base::DictionaryValue> args);
   ~ExoShellBinding();
 
-  virtual void LocalCall(const std::string& method, 
-                         scoped_ptr<base::DictionaryValue> args, 
-                         const ApiHandler::ActionCallback& callback) OVERRIDE;
+  virtual void CallLocalMethod(
+      const std::string& method, 
+      scoped_ptr<base::DictionaryValue> args, 
+      const API::MethodCallback& callback) OVERRIDE;
 
   /****************************************************************************/
   /* PUBLIC INTERFACE */
@@ -37,12 +38,12 @@ private:
 // ## ExoShellBindingFactory
 //
 // Factory object used to generate ExoShell bindings
-class ExoShellBindingFactory : public ApiBindingFactory {
+class ExoShellBindingFactory : public APIBindingFactory {
 public:
   ExoShellBindingFactory();
   ~ExoShellBindingFactory();
 
-  ApiBinding* Create(const unsigned int id, 
+  APIBinding* Create(const unsigned int id, 
                      scoped_ptr<base::DictionaryValue> args) OVERRIDE;
 };
 

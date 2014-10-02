@@ -15,7 +15,7 @@ ExoSessionBindingFactory::~ExoSessionBindingFactory()
 {
 }
 
-ApiBinding* ExoSessionBindingFactory::Create(
+APIBinding* ExoSessionBindingFactory::Create(
     const unsigned int id,
     scoped_ptr<base::DictionaryValue> args)
 {
@@ -26,7 +26,7 @@ ApiBinding* ExoSessionBindingFactory::Create(
 ExoSessionBinding::ExoSessionBinding(
     const unsigned int id, 
     scoped_ptr<base::DictionaryValue> args)
-  : ApiBinding("session", id)
+  : APIBinding("session", id)
 {
 
   bool off_the_record = true;
@@ -50,11 +50,11 @@ ExoSessionBinding::~ExoSessionBinding()
 }
 
 
-  void
-ExoSessionBinding::LocalCall(
+void
+ExoSessionBinding::CallLocalMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
-    const ApiHandler::ActionCallback& callback)
+    const API::MethodCallback& callback)
 {
   base::DictionaryValue* res = new base::DictionaryValue;
 

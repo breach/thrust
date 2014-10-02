@@ -4,8 +4,18 @@
 #ifndef EXO_SHELL_API_API_SERVER_H_
 #define EXO_SHELL_API_API_SERVER_H_
 
+#include "base/memory/ref_counted.h"
+#include "base/memory/scoped_ptr.h"
+
+#include "net/socket/stream_listen_socket.h"
+#include "net/socket/socket_descriptor.h"
+#include "net/socket/unix_domain_socket_posix.h"
+#include "base/files/file_path.h"
+
 namespace base {
 class Thread;
+class Value;
+class DictionaryValue;
 }
 
 namespace net {
@@ -19,7 +29,7 @@ class API;
 
 class APIServer : public net::StreamListenSocket::Delegate,
                   public base::RefCountedThreadSafe<APIServer> {
-
+public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/

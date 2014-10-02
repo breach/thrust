@@ -15,7 +15,7 @@ class VisitedLinkSlave;
 }    
 
 namespace blink {
-class WebFrame;
+class WebLocalFrame;
 class WebPlugin;
 class WebPluginContainer;
 struct WebPluginParams;
@@ -44,11 +44,9 @@ class ExoShellRendererClient : public content::ContentRendererClient {
 
   virtual bool OverrideCreatePlugin(
       content::RenderFrame* render_frame,
-      blink::WebFrame* frame,
+      blink::WebLocalFrame* frame,
       const blink::WebPluginParams& params,
       blink::WebPlugin** plugin) OVERRIDE;
-  virtual bool AllowBrowserPlugin(
-      blink::WebPluginContainer* container) OVERRIDE;
 
   virtual void DidCreateScriptContext(
       blink::WebFrame* frame, 

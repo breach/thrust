@@ -86,46 +86,21 @@ public:
           const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
 
-  virtual void RequestMidiSysExPermission(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      const MidiSysExPermissionCallback& callback) OVERRIDE;
-  virtual void CancelMidiSysExPermissionRequest(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame) OVERRIDE;
-
-  virtual void RequestProtectedMediaIdentifierPermission(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      int group_id,
-      const GURL& requesting_frame,
-      const ProtectedMediaIdentifierPermissionCallback& callback) OVERRIDE;
-  virtual void CancelProtectedMediaIdentifierPermissionRequests(
-      int group_id) OVERRIDE;
-
-  virtual content::GeolocationPermissionContext*
-      GetGeolocationPermissionContext() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
-
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
+  virtual content::BrowserPluginGuestManager* GetGuestManager() OVERRIDE;
 
   /****************************************************************************/
   /* REQUEST CONTEXT GETTER HELPERS                                           */
   /****************************************************************************/
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors);
+      content::URLRequestInterceptorScopedVector request_interceptors);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors);
+      content::URLRequestInterceptorScopedVector request_interceptors);
 
   ExoSessionCookieStore* GetCookieStore();
   ExoSessionVisitedLinkStore* GetVisitedLinkStore();
@@ -144,13 +119,14 @@ private:
   bool                                             ignore_certificate_errors_;
   base::FilePath                                   path_;
 
+  content::BrowserPluginGuestManager*              guest_manager_;
   scoped_ptr<ExoResourceContext>                   resource_context_;
-  scoped_ptr<ExoShellDownloadManagerDelegate>    download_manager_delegate_;
-  scoped_refptr<ExoShellURLRequestContextGetter> url_request_getter_;
+  scoped_ptr<ExoShellDownloadManagerDelegate>      download_manager_delegate_;
+  scoped_refptr<ExoShellURLRequestContextGetter>   url_request_getter_;
   scoped_refptr<ExoSessionCookieStore>             cookie_store_;
   scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
 
-  ExoShellDevToolsDelegate*                      devtools_delegate_;
+  ExoShellDevToolsDelegate*                        devtools_delegate_;
 
   friend class ExoSessionCookieStore;
   friend class ExoShellDevToolsDelegate;

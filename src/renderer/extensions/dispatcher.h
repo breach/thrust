@@ -32,7 +32,7 @@ namespace extensions {
 
 class LocalSourceMap;
 class ModuleSystem;
-class Context;
+class ScriptContext;
 
 // ### Dispatcher
 //
@@ -66,7 +66,7 @@ private:
   void PopulateSourceMap();
   void EnableCustomElementWhiteList();
   void RegisterNativeHandlers(ModuleSystem* module_system,
-                              Context* context);
+                              ScriptContext* context);
 
   bool                    is_webkit_initialized_;
   LocalSourceMap          source_map_;

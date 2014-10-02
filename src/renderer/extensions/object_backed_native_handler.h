@@ -10,21 +10,22 @@
 
 #include "base/bind.h"
 #include "base/memory/linked_ptr.h"
-#include "v8/include/v8.h"
 
 #include "src/renderer/extensions/native_handler.h"
 #include "src/renderer/extensions/scoped_persistent.h"
-#include "src/renderer/extensions/unsafe_persistent.h"
+
+#include "v8/include/v8-util.h"
+#include "v8/include/v8.h"
 
 namespace extensions {
-class Context;
+class ScriptContext;
 
 // An ObjectBackedNativeHandler is a factory for JS objects with functions on
 // them that map to native C++ functions. Subclasses should call RouteFunction()
 // in their constructor to define functions on the created JS objects.
 class ObjectBackedNativeHandler : public NativeHandler {
  public:
-  explicit ObjectBackedNativeHandler(Context* context);
+  explicit ObjectBackedNativeHandler(ScriptContext* context);
   virtual ~ObjectBackedNativeHandler();
 
   // Create an object with bindings to the native functions defined through
@@ -43,7 +44,7 @@ class ObjectBackedNativeHandler : public NativeHandler {
   void RouteFunction(const std::string& name,
                      const HandlerFunction& handler_function);
 
-  Context* context() const { return context_; }
+  ScriptContext* context() const { return context_; }
 
   virtual void Invalidate() OVERRIDE;
 
@@ -65,16 +66,10 @@ class ObjectBackedNativeHandler : public NativeHandler {
   // So, we use v8::Objects here to hold that data, effectively refcounting
   // the data. When |this| is destroyed we remove the base::Bound function from
   // the object to indicate that it shoudn't be called.
-  //
-  // Storing UnsafePersistents is safe here, because the corresponding
-  // Persistent handle is created in RouteFunction(), and it keeps the data
-  // pointed by the UnsafePersistent alive. It's not made weak or disposed, and
-  // nobody else has access to it. The Persistent is then disposed in
-  // Invalidate().
-  typedef std::vector<UnsafePersistent<v8::Object> > RouterData;
+  typedef v8::PersistentValueVector<v8::Object> RouterData;
   RouterData router_data_;
 
-  Context* context_;
+  ScriptContext* context_;
 
   ScopedPersistent<v8::ObjectTemplate> object_template_;
 

@@ -16,7 +16,6 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
 
 using namespace content;
 
@@ -36,7 +35,7 @@ void ExoShellDownloadManagerDelegate::ChooseDownloadPath(
   gfx::NativeWindow parent_window;
   std::string base_name = base::FilePath(suggested_path).BaseName().value();
 
-  parent_window = item->GetWebContents()->GetView()->GetTopLevelNativeWindow();
+  parent_window = item->GetWebContents()->GetTopLevelNativeWindow();
   dialog = gtk_file_chooser_dialog_new("Save File",
                                        NULL,
                                        GTK_FILE_CHOOSER_ACTION_SAVE,

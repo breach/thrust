@@ -3,6 +3,9 @@
 /******************************************************************************/
 
 >>v0.x<<
+:webview
+  - Webview support
+
 :cleanser #90
   - Reintroduce ClearDataForOrigin
   - Ability to list Data
@@ -17,14 +20,12 @@
 :html_auth #106
   - User authorization API
 
-:webview
-  - Webview support
-
 
 DONE:
 >>v0.7<<
 - Remove NodeJS & JSON RPCish API
 - Upgrade to Chrome 36.0.x.x
+- Upgrade to Chrome 37.0.x.x
 
 >>v0.6<<
 - Cookies op_count
@@ -69,8 +70,11 @@ DONE:
 
 
 /******************************************************************************/
-/* BUILD TRICKS */
+/* BUILD NOTES */
 /******************************************************************************/
+GYP_GENERATORS=ninja gyp --depth . exo_shell.gyp
+ninja -C out/Debug exo_shell -j 1
+
 # When receiving message: `The application cannot be opened because its executable is missing.`
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
 

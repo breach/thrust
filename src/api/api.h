@@ -9,11 +9,6 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 
-#include "base/files/file_path.h"
-#include "net/socket/stream_listen_socket.h"
-#include "net/socket/socket_descriptor.h"
-#include "net/socket/unix_domain_socket_posix.h"
-
 namespace base {
 class Thread;
 class Value;

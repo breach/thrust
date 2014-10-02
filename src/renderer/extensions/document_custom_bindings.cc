@@ -11,12 +11,12 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "v8/include/v8.h"
 
-#include "src/renderer/extensions/context.h"
+#include "src/renderer/extensions/script_context.h"
 
 namespace extensions {
 
 DocumentCustomBindings::DocumentCustomBindings(
-    Context* context)
+    ScriptContext* context)
   : ObjectBackedNativeHandler(context) 
 {
   RouteFunction("RegisterElement",

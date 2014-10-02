@@ -21,7 +21,7 @@
 #include "third_party/WebKit/public/web/WebUserGestureIndicator.h"
 #include "third_party/WebKit/public/web/WebView.h"
 
-#include "src/renderer/extensions/context.h"
+#include "src/renderer/extensions/script_context.h"
 #include "src/renderer/extensions/module_system.h"
 #include "src/renderer/extensions/document_custom_bindings.h"
 
@@ -90,7 +90,7 @@ Dispatcher::DidCreateScriptContext(
     int extension_group,
     int world_id) 
 {
-  Context* context = new Context(v8_context, frame);
+  ScriptContext* context = new ScriptContext(v8_context, frame);
   //v8_context_set_.Add(context);
 
   {
@@ -143,7 +143,7 @@ Dispatcher::DidCreateScriptContext(
 void 
 Dispatcher::RegisterNativeHandlers(
     ModuleSystem* module_system,
-    Context* context) 
+    ScriptContext* context) 
 {
   module_system->RegisterNativeHandler("document_natives",
       scoped_ptr<NativeHandler>(
@@ -235,7 +235,7 @@ Dispatcher::WillReleaseScriptContext(
     int world_id) 
 {
   /*
-  Context* context = v8_context_set_.GetByV8Context(v8_context);
+  ScriptContext* context = v8_context_set_.GetByV8Context(v8_context);
   if (!context)
     return;
 

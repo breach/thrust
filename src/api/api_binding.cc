@@ -21,10 +21,10 @@ APIBinding::~APIBinding()
 }
 
 void
-APIBinding::RemoteCall(
+APIBinding::CallRemoteMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
-    const API::ActionCallback& callback)
+    const API::MethodCallback& callback)
 {
   /* TODO(spolu) */
 }

@@ -27,8 +27,6 @@ class ExoShellRenderViewObserver : public content::RenderViewObserver {
   /* RENDERVIEWOBSERVER IMPLEMENTATION                                        */
   /****************************************************************************/
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void DidClearWindowObject(blink::WebFrame* frame,
-                                    int world_id) OVERRIDE;
   virtual void DraggableRegionsChanged(blink::WebFrame* frame) OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(ExoShellRenderViewObserver);

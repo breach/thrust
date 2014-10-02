@@ -14,7 +14,7 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 
-#include "src/renderer/extensions/context.h"
+#include "src/renderer/extensions/script_context.h"
 #include "src/renderer/extensions/safe_builtins.h"
 #include "src/renderer/extensions/console.h"
 
@@ -37,7 +37,7 @@ const char* kModulesField = "modules";
 // we're at the mercy of the extension or web page's environment. They can mess
 // up our JS in unexpected ways. Hopefully dev/canary channel will pick up such
 // problems, but given the wider variety on stable/beta it's impossible to know.
-void Fatal(Context* context, const std::string& message) {
+void Fatal(ScriptContext* context, const std::string& message) {
   // Prepend some context metadata.
   std::string full_message = "(";
   if (!context->is_valid())
@@ -56,7 +56,7 @@ void Warn(v8::Isolate* isolate, const std::string& message) {
 // Default exception handler which logs the exception.
 class DefaultExceptionHandler : public ModuleSystem::ExceptionHandler {
  public:
-  explicit DefaultExceptionHandler(Context* context)
+  explicit DefaultExceptionHandler(ScriptContext* context)
       : context_(context) {}
 
   // Fatally dumps the debug info from |try_catch| to the console.
@@ -76,7 +76,7 @@ class DefaultExceptionHandler : public ModuleSystem::ExceptionHandler {
   }
 
  private:
-  Context* context_;
+  ScriptContext* context_;
 };
 
 } // namespace
@@ -107,7 +107,7 @@ std::string ModuleSystem::ExceptionHandler::CreateExceptionString(
                             error_message.c_str());
 }
 
-ModuleSystem::ModuleSystem(Context* context, SourceMap* source_map)
+ModuleSystem::ModuleSystem(ScriptContext* context, SourceMap* source_map)
     : ObjectBackedNativeHandler(context),
       context_(context),
       source_map_(source_map),

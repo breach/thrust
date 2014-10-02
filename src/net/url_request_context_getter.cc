@@ -28,9 +28,9 @@
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/data_protocol_handler.h"
 #include "net/url_request/file_protocol_handler.h"
-#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request_context.h"
+#include "net/url_request/url_request_intercepting_job_factory.h"
 #include "net/url_request/url_request_context_storage.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "content/public/browser/browser_thread.h"
@@ -70,7 +70,7 @@ ExoShellURLRequestContextGetter::ExoShellURLRequestContextGetter(
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     ProtocolHandlerMap* protocol_handlers,
-    ProtocolHandlerScopedVector protocol_interceptors,
+    URLRequestInterceptorScopedVector request_interceptors,
     net::NetLog* net_log)
     : parent_(parent),
       ignore_certificate_errors_(ignore_certificate_errors),
@@ -78,7 +78,7 @@ ExoShellURLRequestContextGetter::ExoShellURLRequestContextGetter(
       io_loop_(io_loop),
       file_loop_(file_loop),
       net_log_(net_log),
-      protocol_interceptors_(protocol_interceptors.Pass())
+      request_interceptors_(request_interceptors.Pass())
 {
   // Must first be created on the UI thread.
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -205,10 +205,10 @@ ExoShellURLRequestContextGetter::GetURLRequestContext()
     // ExoShellContentBrowserClient::IsHandledURL().
     InstallProtocolHandlers(job_factory.get(), &protocol_handlers_);
     bool set_protocol = job_factory->SetProtocolHandler(
-        kDataScheme, new net::DataProtocolHandler);
+        url::kDataScheme, new net::DataProtocolHandler);
     DCHECK(set_protocol);
     set_protocol = job_factory->SetProtocolHandler(
-        kFileScheme,
+        url::kFileScheme,
         new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
                 GetTaskRunnerWithShutdownBehavior(
@@ -218,14 +218,14 @@ ExoShellURLRequestContextGetter::GetURLRequestContext()
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
         job_factory.PassAs<net::URLRequestJobFactory>();
-    for (ProtocolHandlerScopedVector::reverse_iterator i =
-             protocol_interceptors_.rbegin();
-         i != protocol_interceptors_.rend();
+    for (URLRequestInterceptorScopedVector::reverse_iterator i =
+             request_interceptors_.rbegin();
+         i != request_interceptors_.rend();
          ++i) {
-      top_job_factory.reset(new net::ProtocolInterceptJobFactory(
+      top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
           top_job_factory.Pass(), make_scoped_ptr(*i)));
     }
-    protocol_interceptors_.weak_clear();
+    request_interceptors_.weak_clear();
 
     storage_->set_job_factory(top_job_factory.release());
   }

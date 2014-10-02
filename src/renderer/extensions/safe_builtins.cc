@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "url/gurl.h"
 
-#include "src/renderer/extensions/context.h"
+#include "src/renderer/extensions/script_context.h"
 
 namespace extensions {
 
@@ -210,7 +210,7 @@ v8::Extension* SafeBuiltins::CreateV8Extension() {
   return new ExtensionImpl();
 }
 
-SafeBuiltins::SafeBuiltins(Context* context) : context_(context) {}
+SafeBuiltins::SafeBuiltins(ScriptContext* context) : context_(context) {}
 
 SafeBuiltins::~SafeBuiltins() {}
 

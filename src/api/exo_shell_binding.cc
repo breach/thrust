@@ -4,6 +4,7 @@
 #include "src/api/exo_shell_binding.h"
 
 #include "src/browser/exo_shell.h"
+#include "src/browser/browser_client.h"
 
 namespace exo_shell {
 
@@ -15,7 +16,7 @@ ExoShellBindingFactory::~ExoShellBindingFactory()
 {
 }
 
-ApiBinding* ExoShellBindingFactory::Create(
+APIBinding* ExoShellBindingFactory::Create(
     const unsigned int id,
     scoped_ptr<base::DictionaryValue> args)
 {
@@ -26,7 +27,7 @@ ApiBinding* ExoShellBindingFactory::Create(
 ExoShellBinding::ExoShellBinding(
     const unsigned int id, 
     scoped_ptr<base::DictionaryValue> args)
-  : ApiBinding("shell", id)
+  : APIBinding("shell", id)
 {
 
   std::string root_url = "http://google.com";
@@ -44,7 +45,11 @@ ExoShellBinding::ExoShellBinding(
   std::string icon_path = "";
   args->GetString("icon_path", &icon_path);
 
+  /* TODO(spolu): Pass ExoSession ID in args */
+  ExoSession* session = ExoShellBrowserClient::Get()->system_session();
+
   shell_.reset(ExoShell::CreateNew(
+        session,
         GURL(root_url), 
         gfx::Size(width, height), 
         title, 
@@ -60,10 +65,10 @@ ExoShellBinding::~ExoShellBinding()
 
 
   void
-ExoShellBinding::LocalCall(
+ExoShellBinding::CallLocalMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
-    const ApiHandler::ActionCallback& callback)
+    const API::MethodCallback& callback)
 {
   base::DictionaryValue* res = new base::DictionaryValue;
 

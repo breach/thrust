@@ -37,14 +37,6 @@ ExoShellRenderViewObserver::OnMessageReceived(
   return handled;
 }
 
-void 
-ExoShellRenderViewObserver::DidClearWindowObject(
-    blink::WebFrame* frame,
-    int world_id) 
-{
-  return;
-}
-
 void
 ExoShellRenderViewObserver::DraggableRegionsChanged(
     blink::WebFrame* frame) 

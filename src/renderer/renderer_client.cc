@@ -14,7 +14,7 @@
 #include "third_party/WebKit/public/platform/WebMediaStreamCenter.h"
 #include "third_party/WebKit/public/web/WebPluginParams.h"
 #include "third_party/WebKit/public/web/WebElement.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebPluginContainer.h"
 #include "src/renderer/visitedlink/visitedlink_slave.h"
@@ -99,34 +99,11 @@ ExoShellRendererClient::RenderViewCreated(
 bool 
 ExoShellRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
-    WebFrame* frame,
+    blink::WebLocalFrame* frame,
     const WebPluginParams& params,
     WebPlugin** plugin) {
   std::string mime_type = params.mimeType.utf8();
   return false;
-}
-
-bool 
-ExoShellRendererClient::AllowBrowserPlugin(
-    blink::WebPluginContainer* container) 
-{
-  // If this |BrowserPlugin| <object> in the |container| is not inside a
-  // <webview>/<adview> shadowHost, we disable instantiating this plugin. This
-  // is to discourage and prevent developers from accidentally attaching
-  // <object> directly in apps.
-  //
-  // Note that this check below does *not* ensure any security, it is still
-  // possible to bypass this check.
-  // TODO(lazyboy): http://crbug.com/178663, Ensure we properly disallow
-  // instantiating BrowserPlugin outside of the <webview>/<adview> shim.
-  if (container->element().isNull())
-    return false;
-
-  if (container->element().shadowHost().isNull())
-    return false;
-
-  blink::WebString tag_name = container->element().shadowHost().tagName();
-  return tag_name.equals(blink::WebString::fromUTF8(kWebViewTagName));
 }
 
 void 
