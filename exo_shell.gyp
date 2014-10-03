@@ -20,6 +20,9 @@
     'lib_sources': [
       'src/common/main_delegate.cc',
       'src/common/main_delegate.h',
+      'src/common/main_delegate_mac.mm',
+      'src/common/content_client.h',
+      'src/common/content_client.cc',
       'src/common/messages.cc',
       'src/common/messages.h',
       'src/common/switches.cc',

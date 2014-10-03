@@ -60,7 +60,7 @@ API::Create(
     LOG(INFO) << "[API] CREATE: " << type << " " << target;
     bindings_[target] = factories_[type]->Create(target, args.Pass());
   }
-  return 0;
+  return target;
 }
 
 void

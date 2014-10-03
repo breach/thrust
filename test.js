@@ -32,6 +32,11 @@ client.on('data', function(data) {
     acc = splits.join(BOUNDARY);
     if(data.length > 0) {
       var action = JSON.parse(data);
+      console.log(action);
+      if(action._error) {
+        console.log('ERROR:');
+        console.log(action._error);
+      }
       if(action._action === 'reply' && action._result && action._result._target) {
 
         var a = {
@@ -43,6 +48,7 @@ client.on('data', function(data) {
         };
         client.write(JSON.stringify(a) + "\n" + BOUNDARY);
 
+        /*
 		setTimeout(function() {
 			var move = {
 			  _id: ++action_id,
@@ -69,6 +75,7 @@ client.on('data', function(data) {
 			client.write(JSON.stringify(move) + "\n" + BOUNDARY);
 			client.write(JSON.stringify(resize) + "\n" + BOUNDARY);
 		}, 3000);
+        */
       }
     }
   }

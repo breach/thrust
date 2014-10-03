@@ -23,13 +23,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
   return content::ContentMain(params);
 }
 
-#elif defined(OS_MACOSX)
-
-int main(int argc, const char* argv[]) {
-  return ExoShellMain(argc, argv);
-}
-
-#else // OS_LINUX
+// defined(OS_WIN)
+#elif defined(OS_LINUX) 
 
 int main(int argc, const char* argv[]) {
   exo_shell::MainDelegate delegate;
@@ -39,4 +34,12 @@ int main(int argc, const char* argv[]) {
   return content::ContentMain(params);
 }
 
+// defined(OS_LINUX)
+#else 
+
+int main(int argc, const char* argv[]) {
+  return ExoShellMain(argc, argv);
+}
+
+// defined(OS_MACOSX)
 #endif

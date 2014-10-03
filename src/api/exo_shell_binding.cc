@@ -64,7 +64,7 @@ ExoShellBinding::~ExoShellBinding()
 }
 
 
-  void
+void
 ExoShellBinding::CallLocalMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
