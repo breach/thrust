@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_COMMON_MAIN_DELEGATE_H_
-#define EXO_SHELL_COMMON_MAIN_DELEGATE_H_
+#ifndef EXO_SHELL_APP_MAIN_DELEGATE_H_
+#define EXO_SHELL_APP_MAIN_DELEGATE_H_
 
 #include "brightray/common/main_delegate.h"
 #include "brightray/common/content_client.h"
@@ -45,4 +45,4 @@ private:
 
 }
 
-#endif // EXO_SHELL_COMMON_MAIN_DELEGATE_H_
+#endif // EXO_SHELL_APP_MAIN_DELEGATE_H_

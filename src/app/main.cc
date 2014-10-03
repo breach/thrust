@@ -1,8 +1,10 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "src/common/library_main.h"
-#include "src/common/main_delegate.h"
+#include "src/app/main.h"
+
+#include "src/app/library_main.h"
+#include "src/app/main_delegate.h"
 
 #include "content/public/app/content_main.h"
 #include "sandbox/win/src/sandbox_types.h"

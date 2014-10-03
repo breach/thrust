@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/common/content_client.h"
+#include "src/app/content_client.h"
 
 #include <string>
 #include <vector>

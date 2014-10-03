@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "src/common/main_delegate.h"
+#include "src/app/main_delegate.h"
 
 #include "base/mac/bundle_locations.h"
 #include "base/files/file_path.h"

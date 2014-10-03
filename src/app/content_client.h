@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_COMMON_CONTENT_CLIENT_H_
-#define EXO_SHELL_COMMON_CONTENT_CLIENT_H_
+#ifndef EXO_SHELL_APP_CONTENT_CLIENT_H_
+#define EXO_SHELL_APP_CONTENT_CLIENT_H_
 
 #include <string>
 #include <vector>
@@ -31,4 +31,4 @@ class ContentClient : public brightray::ContentClient {
 
 }  // namespace exo_shell
 
-#endif // EXO_SHELL_COMMON_CONTENT_CLIENT_H_
+#endif // EXO_SHELL_APP_CONTENT_CLIENT_H_

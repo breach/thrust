@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "src/common/main_delegate.h"
+#include "src/app/main_delegate.h"
 
 #include "base/logging.h"
 #include "base/command_line.h"
@@ -11,7 +11,7 @@
 
 #include "src/browser/browser_client.h"
 #include "src/renderer/renderer_client.h"
-#include "src/common/content_client.h"
+#include "src/app/content_client.h"
 
 namespace exo_shell {
 

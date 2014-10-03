@@ -9,7 +9,8 @@
     'app_sources': [
       'src/browser/resources/win/exo_shell.rc',
       'src/browser/resources/win/resource.h',
-      'src/common/main.cc',
+      'src/app/main.cc',
+      'src/app/main.h',
     ],
     'bundle_sources': [
       'src/browser/resources/mac/exo_shell.icns',
@@ -18,11 +19,12 @@
       'src/renderer/extensions/resources/web_view.js',
     ],
     'lib_sources': [
-      'src/common/main_delegate.cc',
-      'src/common/main_delegate.h',
-      'src/common/main_delegate_mac.mm',
-      'src/common/content_client.h',
-      'src/common/content_client.cc',
+      'src/app/main_delegate.cc',
+      'src/app/main_delegate.h',
+      'src/app/main_delegate_mac.mm',
+      'src/app/content_client.h',
+      'src/app/content_client.cc',
+
       'src/common/messages.cc',
       'src/common/messages.h',
       'src/common/switches.cc',
@@ -138,8 +140,8 @@
       'src/api/exo_session_binding.cc',
     ],
     'framework_sources': [
-      'src/common/library_main.cc',
-      'src/common/library_main.h',
+      'src/app/library_main.cc',
+      'src/app/library_main.h',
     ],
     'conditions': [
       ['OS=="win"', {
