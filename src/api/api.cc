@@ -106,4 +106,16 @@ API::SetRemote(
   }
 }
 
+APIBinding*
+API::GetBinding(
+    unsigned int target)
+{
+  if(target > 0 && bindings_[target]) {
+    return bindings_[target];
+  }
+  return NULL;
+}
+
+
+
 } // namespace exo_browser

@@ -3,8 +3,10 @@
 
 #include "src/api/exo_shell_binding.h"
 
+#include "src/api/exo_session_binding.h"
 #include "src/browser/exo_shell.h"
 #include "src/browser/browser_client.h"
+#include "src/api/api.h"
 
 namespace exo_shell {
 
@@ -45,8 +47,20 @@ ExoShellBinding::ExoShellBinding(
   std::string icon_path = "";
   args->GetString("icon_path", &icon_path);
 
-  /* TODO(spolu): Pass ExoSession ID in args */
-  ExoSession* session = ExoShellBrowserClient::Get()->system_session();
+  ExoSession* session = NULL;
+
+  int session_id = -1;
+  args->GetInteger("session_id", &session_id);
+
+  ExoSessionBinding* sb = 
+    (ExoSessionBinding*)(API::Get()->GetBinding(session_id));
+  if(sb != NULL) {
+    session = sb->GetSession();
+    LOG(INFO) << "SESSION RETRIEVED!!!!!!!!!!!!!!!!!!!!!! " << session;
+  }
+  else {
+    session = ExoShellBrowserClient::Get()->system_session();
+  }
 
   shell_.reset(ExoShell::CreateNew(
         session,

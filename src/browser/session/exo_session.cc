@@ -84,16 +84,19 @@ ExoSession::ExoSession(
   path_ = base::FilePath(path);
 
   bool result = visitedlink_store_->Init();
-  LOG(INFO) << "VisitedLink Init: " << result;
 
   devtools_delegate_ = new ExoShellDevToolsDelegate(this);
   
   ExoShellBrowserClient::Get()->RegisterExoSession(this);
+  LOG(INFO) << "ExoSession Constructor " << this;
 }
 
 
 ExoSession::~ExoSession()
 {
+  /* If we're here that means that ou JS wrapper has been reclaimed */
+  LOG(INFO) << "ExoSession Destructor " << this;
+
   /* The ResourceContext is created on the UI thread but live son the IO */
   /* thread, so it must be deleted there.                                */
   if(resource_context_) {
@@ -110,9 +113,6 @@ ExoSession::~ExoSession()
   /* We also stop the DevToolsDelegate. It will destroy the delegate object. */
   if(devtools_delegate_)
     devtools_delegate_->Stop();
-
-  /* If we're here that means that ou JS wrapper has been reclaimed */
-  LOG(INFO) << "ExoSession Destructor";
 }
 
 GURL
@@ -145,15 +145,18 @@ ExoSession::GetDownloadManagerDelegate()
   return download_manager_delegate_.get();
 }
 
-
-net::URLRequestContextGetter* 
-ExoSession::GetRequestContext()
+BrowserPluginGuestManager* 
+ExoSession::GetGuestManager() 
 {
-  /* TODO(spolu): We should not use GetDefaultStoragePartition, but this is */
-  /*              apparently the simplest way waiting for                   */
-  /*              http://crbug.com/159193 to land on release branches       */
-  return GetDefaultStoragePartition(this)->GetURLRequestContext();
+  return guest_manager_;
 }
+
+content::ResourceContext* 
+ExoSession::GetResourceContext()
+{
+  return resource_context_.get();
+}
+
 
 net::URLRequestContextGetter* 
 ExoSession::CreateRequestContext(
@@ -175,35 +178,6 @@ ExoSession::CreateRequestContext(
 }
 
 net::URLRequestContextGetter*
-ExoSession::GetRequestContextForRenderProcess(
-    int renderer_child_id)  
-{
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-ExoSession::GetMediaRequestContext()
-{
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-ExoSession::GetMediaRequestContextForRenderProcess(
-    int renderer_child_id)
-{
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-ExoSession::GetMediaRequestContextForStoragePartition(
-    const base::FilePath& partition_path,
-    bool in_memory)
-{
-  /* TODO(spolu): Check chrome. Note: used by geolocation */
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
 ExoSession::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
@@ -215,24 +189,6 @@ ExoSession::CreateRequestContextForStoragePartition(
   /*              This might be made easier once http://crbug.com/159193    */
   /*              has landed in a release branch.                           */
   return NULL;
-}
-
-BrowserPluginGuestManager* 
-ExoSession::GetGuestManager() 
-{
-  return guest_manager_;
-}
-
-quota::SpecialStoragePolicy* 
-ExoSession::GetSpecialStoragePolicy() 
-{
-  return NULL;
-}
-
-content::ResourceContext* 
-ExoSession::GetResourceContext()
-{
-  return resource_context_.get();
 }
 
 ExoSessionCookieStore*

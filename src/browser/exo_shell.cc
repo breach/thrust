@@ -121,7 +121,7 @@ ExoShell::CreateNew(
     const bool has_frame)
 {
   ExoShell *browser = new ExoShell(web_contents, size, 
-                                       title, icon_path, has_frame);
+                                   title, icon_path, has_frame);
   return browser;
 }
 
@@ -145,7 +145,7 @@ ExoShell::CreateNew(
       PAGE_TRANSITION_TYPED | PAGE_TRANSITION_FROM_ADDRESS_BAR);
   web_contents->GetController().LoadURLWithParams(params);
 
-  LOG(INFO) << "ExoFrame Constructor (web_contents created) [" 
+  LOG(INFO) << "ExoShell Constructor (web_contents created) [" 
             << web_contents << "]";
 
   return CreateNew(web_contents, size, title, icon_path, has_frame);

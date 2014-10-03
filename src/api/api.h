@@ -69,6 +69,11 @@ public:
   void SetRemote(unsigned int target,
                  APIBindingRemote* remote);
 
+  // ### GetBinding
+  //
+  // Retrieves a binding based on its id
+  APIBinding* GetBinding(unsigned int target);
+
 private:
   /****************************************************************************/
   /* PRIVATE INTERFACE */

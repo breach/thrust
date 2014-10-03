@@ -26,15 +26,8 @@ class ExoShellAccessTokenStore : public content::AccessTokenStore {
       const GURL& server_url, const base::string16& access_token) OVERRIDE;
 
  private:
-  /****************************************************************************/
-  /* PRIVATE I/F                                                              */
-  /****************************************************************************/
-  void GetRequestContextOnUIThread();
-  void RespondOnOriginatingThread(const LoadAccessTokensCallbackType& callback);
 
   virtual ~ExoShellAccessTokenStore();
-
-  scoped_refptr<net::URLRequestContextGetter> system_request_context_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoShellAccessTokenStore);
 };

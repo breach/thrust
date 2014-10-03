@@ -32,7 +32,7 @@ ExoSessionBinding::ExoSessionBinding(
   bool off_the_record = true;
   args->GetBoolean("off_the_record", &off_the_record);
 
-  std::string path = "http://google.com";
+  std::string path = "dummy_session";
   args->GetString("path", &path);
 
   bool dummy_cookie_store = false;
@@ -41,6 +41,7 @@ ExoSessionBinding::ExoSessionBinding(
   session_.reset(new ExoSession(off_the_record, 
                                 path, 
                                 dummy_cookie_store));
+  session_->Initialize();
 }
 
 ExoSessionBinding::~ExoSessionBinding()
@@ -59,9 +60,20 @@ ExoSessionBinding::CallLocalMethod(
   base::DictionaryValue* res = new base::DictionaryValue;
 
   LOG(INFO) << "CALL " << method;
+  if(method.compare("devtools_url") == 0) {
+    res->SetString("url", session_->GetDevToolsURL().spec());
+  }
+  if(method.compare("off_the_record") == 0) {
+    res->SetBoolean("off_the_record", session_->IsOffTheRecord());
+  }
 
   callback.Run(std::string(""), 
                scoped_ptr<base::Value>(res).Pass());
+}
+
+ExoSession*
+ExoSessionBinding::GetSession() {
+  return session_.get();
 }
 
 

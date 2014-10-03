@@ -160,7 +160,7 @@ function registerWebViewElement() {
 
   console.log('WEBVIEW REGISTERED');
   window.WebView =
-      DocumentNatives.RegisterElement('webview', {prototype: proto});
+      DocumentNatives.RegisterElement('webview', { prototype: proto });
   console.log(window.WebView);
 
   // Delete the callbacks so developers cannot call them and produce unexpected

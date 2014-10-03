@@ -7,18 +7,30 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
-#include "content/public/browser/browser_thread.h"
 
 #include "src/browser/session/exo_session.h"
 #include "src/browser/browser_client.h"
 
+#ifndef GOOGLEAPIS_API_KEY
+#define GOOGLEAPIS_API_KEY "AIzaSyAQfxPJiounkhOjODEO5ZieffeBv6yft2Q"
+#endif
 
 using namespace content;
 
 namespace exo_shell {
 
+namespace {
+
+// Notice that we just combined the api key with the url together here, because
+// if we use the standard {url: key} format Chromium would override our key with
+// the predefined one in common.gypi of libchromiumcontent, which is empty.
+const char* kGeolocationProviderUrl =
+    "https://www.googleapis.com/geolocation/v1/geolocate?key="
+    GOOGLEAPIS_API_KEY;
+
+}  // namespace
+
 ExoShellAccessTokenStore::ExoShellAccessTokenStore()
-  : system_request_context_(NULL)
 {
 }
 
@@ -30,28 +42,17 @@ void
 ExoShellAccessTokenStore::LoadAccessTokens(
     const LoadAccessTokensCallbackType& callback) 
 {
-  BrowserThread::PostTaskAndReply(
-      BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(&ExoShellAccessTokenStore::GetRequestContextOnUIThread,
-                 this),
-      base::Bind(&ExoShellAccessTokenStore::RespondOnOriginatingThread,
-                 this,
-                 callback));
-}
-
-void ExoShellAccessTokenStore::GetRequestContextOnUIThread() {
-  system_request_context_ = 
-    ExoShellBrowserClient::Get()->system_session()->GetRequestContext();
-}
-
-void ExoShellAccessTokenStore::RespondOnOriginatingThread(
-    const LoadAccessTokensCallbackType& callback) {
-  /* TODO(spolu): For now we provide a dummy value to prevent crash. We */
-  /*              add proper tokens when relevant.                      */
   AccessTokenSet access_token_set;
-  //access_token_set[GURL()] = base::ASCIIToUTF16("exo_shell");
-  callback.Run(access_token_set, system_request_context_.get());
+
+  // Equivelent to access_token_set[kGeolocationProviderUrl].
+  // Somehow base::string16 is causing compilation errors when used in a pair
+  // of std::map on Linux, this can work around it.
+  std::pair<GURL, base::string16> token_pair;
+  token_pair.first = GURL(kGeolocationProviderUrl);
+  access_token_set.insert(token_pair);
+
+  callback.Run(access_token_set,
+               ExoShellBrowserClient::Get()->system_session()->url_request_context_getter());
 }
 
 void ExoShellAccessTokenStore::SaveAccessToken(

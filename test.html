@@ -1,11 +1,15 @@
 <html>
-  <body>
+  <body style="border: 1px solid black;">
     Yo!
-    <webview id="test"></webview>
+    <div style="border: 1px solid blue; height: 100px;">
+      <webview id="test"></webview>
+      <a href="http://google.com">Google</a>
+    </div>
     <script>
       onload = function() {
-        console.log(document.querySelector('#test'));
-        console.log(document.querySelector('#test').test());
+        var wv = document.querySelector('#test');
+        console.log(wv);
+        console.log(wv.test());
       }
     </script>
   </body>
