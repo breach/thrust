@@ -1,9 +1,9 @@
 // Copyright (c) 2014 GitHub, Inc. All rights reserved.
-// Copyright (c) 2014 Stanislas Polu.
-// See the LICENSE file.
+// Use of this source code is governed by the MIT license that can be
+// found in the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
-#define EXO_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
+#ifndef ATOM_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
+#define ATOM_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
 
 #include "ui/views/window/non_client_view.h"
 
@@ -11,16 +11,16 @@ namespace views {
 class Widget;
 }
 
-namespace exo_shell {
+namespace atom {
 
-class ExoShell;
+class NativeWindowViews;
 
 class FramelessView : public views::NonClientFrameView {
  public:
   FramelessView();
   virtual ~FramelessView();
 
-  virtual void Init(ExoShell* parent, views::Widget* frame);
+  virtual void Init(NativeWindowViews* window, views::Widget* frame);
 
   // Returns whether the |point| is on frameless window's resizing border.
   int ResizingBorderHitTest(const gfx::Point& point);
@@ -44,13 +44,13 @@ class FramelessView : public views::NonClientFrameView {
   virtual const char* GetClassName() const OVERRIDE;
 
   // Not owned.
-  ExoShell*        parent_;
-  views::Widget*   frame_;
+  NativeWindowViews* window_;
+  views::Widget* frame_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(FramelessView);
 };
 
-}  // namespace exo_shell
+}  // namespace atom
 
-#endif // EXO_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
+#endif  // ATOM_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_

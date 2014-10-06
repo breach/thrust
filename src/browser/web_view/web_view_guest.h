@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_WEBVIEW_WEB_VIEW_GUEST_H_
-#define EXO_SHELL_BROWSER_WEBVIEW_WEB_VIEW_GUEST_H_
+#ifndef EXO_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_
+#define EXO_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_
 
 #include <queue>
 
@@ -13,7 +13,10 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/notification_observer.h"
+#include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
+
+namespace exo_shell {
 
 struct RendererContentSettingRules;
 
@@ -31,6 +34,7 @@ struct RendererContentSettingRules;
 // Window API, when a new window is attached to a particular <webview>.
 class WebViewGuest : public content::BrowserPluginGuestDelegate,
                      public content::NotificationObserver,
+                     public content::WebContentsDelegate,
                      public content::WebContentsObserver {
 public:
 
@@ -60,52 +64,26 @@ public:
   // Returns guestview::kInstanceIDNone if |contents| does not correspond to a
   // WebViewGuest.
   static int GetViewInstanceId(content::WebContents* contents);
+  // Parses partition related parameters from |extra_params|.
+  // |storage_partition_id| is the parsed partition ID and |persist_storage|
+  // specifies whether or not the partition is in memory.
+  static void ParsePartitionParam(const base::DictionaryValue* extra_params,
+                                  std::string* storage_partition_id,
+                                  bool* persist_storage);
 
   /****************************************************************************/
-  /* ATTACH API */
+  /* BROWSER_PLUGIN_GUEST_DELEGATE IMPLEMENTATION */
   /****************************************************************************/
-  virtual void Attach(content::WebContents* embedder_web_contents,
-                      const base::DictionaryValue& args);
+  virtual void Destroy() OVERRIDE FINAL;
+  virtual void DidAttach() OVERRIDE FINAL;
+  virtual void RegisterDestructionCallback(
+      const DestructionCallback& callback) OVERRIDE FINAL;
+  virtual void WillAttach(
+      content::WebContents* embedder_web_contents,
+      const base::DictionaryValue& extra_params) OVERRIDE FINAL;
 
   /****************************************************************************/
-  /* BROWSERPLUGINGUESTDELEGATE IMPLEMENTATION */
-  /****************************************************************************/
-  /*
-  virtual void AddMessageToConsole(int32 level,
-                                   const base::string16& message,
-                                   int32 line_no,
-                                   const base::string16& source_id) OVERRIDE;
-  virtual void LoadProgressed(double progress) OVERRIDE;
-  virtual void Close() OVERRIDE;
-  virtual void DidAttach() OVERRIDE;
-  virtual void EmbedderDestroyed() OVERRIDE;
-  virtual void FindReply(int request_id,
-                         int number_of_matches,
-                         const gfx::Rect& selection_rect,
-                         int active_match_ordinal,
-                         bool final_update) OVERRIDE;
-  virtual void GuestProcessGone(base::TerminationStatus status) OVERRIDE;
-  virtual bool HandleKeyboardEvent(
-      const content::NativeWebKeyboardEvent& event) OVERRIDE;
-  virtual bool IsDragAndDropEnabled() OVERRIDE;
-  virtual bool IsOverridingUserAgent() const OVERRIDE;
-  virtual void LoadAbort(bool is_top_level,
-                         const GURL& url,
-                         const std::string& error_type) OVERRIDE;
-  virtual void RendererResponsive() OVERRIDE;
-  virtual void RendererUnresponsive() OVERRIDE;
-  virtual bool RequestPermission(
-      BrowserPluginPermissionType permission_type,
-      const base::DictionaryValue& request_info,
-      const PermissionResponseCallback& callback,
-      bool allowed_by_default) OVERRIDE;
-  virtual GURL ResolveURL(const std::string& src) OVERRIDE;
-  virtual void SizeChanged(const gfx::Size& old_size, const gfx::Size& new_size)
-      OVERRIDE;
-  */
-
-  /****************************************************************************/
-  /* NOTIFICATIONOBSERVER IMPLEMENTATION */
+  /* NOTIFICATION_OBSERVER IMPLEMENTATION */
   /****************************************************************************/
   virtual void Observe(int type,
                        const content::NotificationSource& source,
@@ -131,7 +109,9 @@ public:
   void Stop();
 
 
-
+  /****************************************************************************/
+  /* PUBLIC API */
+  /****************************************************************************/
   content::WebContents* embedder_web_contents() const {
     return embedder_web_contents_;
   }
@@ -165,6 +145,8 @@ public:
   void DispatchEvent(Event* event);
 
  private:
+  class EmbedderWebContentsObserver;
+
   void SendQueuedEvents();
 
   /****************************************************************************/
@@ -204,32 +186,38 @@ public:
   virtual void UserAgentOverrideSet(const std::string& user_agent) OVERRIDE;
   */
 
-  content::WebContents* const guest_web_contents_;
-  content::WebContents* embedder_web_contents_;
-  const std::string embedder_extension_id_;
-  int embedder_render_process_id_;
-  content::BrowserContext* const browser_context_;
+  content::WebContents* const               guest_web_contents_;
+  content::WebContents*                     embedder_web_contents_;
+  const std::string                         embedder_extension_id_;
+  int                                       embedder_render_process_id_;
+  content::BrowserContext* const            browser_context_;
   // |guest_instance_id_| is a profile-wide unique identifier for a guest
   // WebContents.
-  const int guest_instance_id_;
+  const int                                 guest_instance_id_;
   // |view_instance_id_| is an identifier that's unique within a particular
   // embedder RenderViewHost for a particular <*view> instance.
-  int view_instance_id_;
-
-  content::NotificationRegistrar notification_registrar_;
-
+  int                                       view_instance_id_;
+  bool                                      initialized_;
+  content::NotificationRegistrar            notification_registrar_;
   // Stores the current zoom factor.
-  double current_zoom_factor_;
-
+  double                                    current_zoom_factor_;
   // This is a queue of Events that are destined to be sent to the embedder once
   // the guest is attached to a particular embedder.
-  std::queue<Event*> pending_events_;
-
+  std::deque<linked_ptr<Event> >            pending_events_;
+  DestructionCallback                       destruction_callback_;
+  // The extra parameters associated with this GuestView passed
+  // in from JavaScript. This will typically be the view instance ID,
+  // the API to use, and view-specific parameters. These parameters
+  // are passed along to new guests that are created from this guest.
+  scoped_ptr<base::DictionaryValue>         extra_params_;
+  scoped_ptr<EmbedderWebContentsObserver>   embedder_web_contents_observer_;
   // This is used to ensure pending tasks will not fire after this object is
   // destroyed.
-  base::WeakPtrFactory<WebViewGuest> weak_ptr_factory_;
+  base::WeakPtrFactory<WebViewGuest>        weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(WebViewGuest);
 };
 
-#endif // EXO_SHELL_BROWSER_WEBVIEW_WEB_VIEW_GUEST_H_
+} // namespace exo_shell
+
+#endif // EXO_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_

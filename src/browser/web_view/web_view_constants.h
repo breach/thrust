@@ -20,6 +20,7 @@ extern const char kParameterInstanceId[];
 
 // Other.
 extern const int kInstanceIDNone;
+extern const char kStoragePartitionId[];
 
 }  // namespace webview
 

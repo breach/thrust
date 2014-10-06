@@ -17,5 +17,6 @@ const char kParameterInstanceId[] = "instanceId";
 
 // Other.
 const int kInstanceIDNone = 0;
+const char kStoragePartitionId[] = "storagePartitionId";
 
 }  // namespace webview

@@ -35,7 +35,7 @@ ExoSessionBinding::ExoSessionBinding(
   std::string path = "dummy_session";
   args->GetString("path", &path);
 
-  bool dummy_cookie_store = false;
+  bool dummy_cookie_store = true;
   args->GetBoolean("dummy_cookie_store", &dummy_cookie_store);
 
   session_.reset(new ExoSession(off_the_record, 

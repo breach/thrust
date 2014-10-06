@@ -19,22 +19,54 @@
 #include "content/public/common/page_zoom.h"
 
 #include "src/browser/web_view/web_view_constants.h"
+#include "src/browser/browser_client.h"
+#include "src/browser/session/exo_session.h"
 
 using content::WebContents;
 
 namespace {
 
 // <embedder_process_id, guest_instance_id> => WebViewGuest*
-typedef std::map<std::pair<int, int>, WebViewGuest*> EmbedderWebViewGuestMap;
+typedef std::map<std::pair<int, int>, exo_shell::WebViewGuest*> 
+  EmbedderWebViewGuestMap;
 static base::LazyInstance<EmbedderWebViewGuestMap> embedder_webview_map =
     LAZY_INSTANCE_INITIALIZER;
 
 // WebContents* => WebViewGuest*
-typedef std::map<WebContents*, WebViewGuest*> WebContentsWebViewGuestMap;
+typedef std::map<WebContents*, exo_shell::WebViewGuest*> 
+  WebContentsWebViewGuestMap;
 static base::LazyInstance<WebContentsWebViewGuestMap> webcontents_webview_map =
     LAZY_INSTANCE_INITIALIZER;
 
 }  // namespace
+
+namespace exo_shell {
+
+// This observer ensures that the WebViewGuest destroys itself when its
+// embedder goes away.
+class WebViewGuest::EmbedderWebContentsObserver : public WebContentsObserver {
+ public:
+  explicit EmbedderWebContentsObserver(WebViewGuest* guest)
+      : WebContentsObserver(guest->embedder_web_contents()),
+        guest_(guest) {
+  }
+
+  virtual ~EmbedderWebContentsObserver() {
+  }
+
+  // WebContentsObserver implementation.
+  virtual void WebContentsDestroyed() OVERRIDE {
+    guest_->embedder_web_contents_ = NULL;
+    //guest_->EmbedderDestroyed();
+    guest_->Destroy();
+  }
+
+ private:
+  WebViewGuest* guest_;
+
+  DISALLOW_COPY_AND_ASSIGN(EmbedderWebContentsObserver);
+};
+
 
 WebViewGuest::Event::Event(
     const std::string& name,
@@ -66,6 +98,8 @@ WebViewGuest::WebViewGuest(
   view_instance_id_(webview::kInstanceIDNone),
   weak_ptr_factory_(this) 
 {
+  WebContentsObserver::Observe(guest_web_contents);
+  guest_web_contents->SetDelegate(this);
   webcontents_webview_map.Get().insert(
       std::make_pair(guest_web_contents, this));
 
@@ -76,6 +110,10 @@ WebViewGuest::WebViewGuest(
   notification_registrar_.Add(
       this, content::NOTIFICATION_RESOURCE_RECEIVED_REDIRECT,
       content::Source<WebContents>(guest_web_contents));
+
+  LOG(INFO) << "WebViewGuest Constructor: " << this;
+  ExoShellBrowserClient::Get()->ExoSessionForBrowserContext(browser_context_)->
+    AddGuest(guest_instance_id_, guest_web_contents);
 }
 
 // static
@@ -121,49 +159,95 @@ WebViewGuest::GetViewInstanceId(
   return guest->view_instance_id();
 }
 
+// static
 void 
-WebViewGuest::Attach(
-    content::WebContents* embedder_web_contents,
-    const base::DictionaryValue& args) 
+WebViewGuest::ParsePartitionParam(
+    const base::DictionaryValue* extra_params,
+    std::string* storage_partition_id,
+    bool* persist_storage) 
 {
+  std::string partition_str;
+  if (!extra_params->GetString(webview::kStoragePartitionId, &partition_str)) {
+    return;
+  }
+
+  // Since the "persist:" prefix is in ASCII, StartsWith will work fine on
+  // UTF-8 encoded |partition_id|. If the prefix is a match, we can safely
+  // remove the prefix without splicing in the middle of a multi-byte codepoint.
+  // We can use the rest of the string as UTF-8 encoded one.
+  if (StartsWithASCII(partition_str, "persist:", true)) {
+    size_t index = partition_str.find(":");
+    CHECK(index != std::string::npos);
+    // It is safe to do index + 1, since we tested for the full prefix above.
+    *storage_partition_id = partition_str.substr(index + 1);
+
+    if (storage_partition_id->empty()) {
+      // TODO(lazyboy): Better way to deal with this error.
+      return;
+    }
+    *persist_storage = true;
+  } else {
+    *storage_partition_id = partition_str;
+    *persist_storage = false;
+  }
+}
+
+/******************************************************************************/
+/* BROWSER_PLUGIN_GUEST_DELEGATE IMPLEMENTATION */
+/******************************************************************************/
+void 
+WebViewGuest::Destroy() 
+{
+  if(!destruction_callback_.is_null())
+    destruction_callback_.Run();
+  delete guest_web_contents();
+}
+
+void 
+WebViewGuest::DidAttach() 
+{
+  SendQueuedEvents();
+}
+
+void 
+WebViewGuest::RegisterDestructionCallback(
+    const DestructionCallback& callback) 
+{
+  destruction_callback_ = callback;
+}
+
+void 
+WebViewGuest::WillAttach(
+    content::WebContents* embedder_web_contents,
+    const base::DictionaryValue& extra_params) 
+{
+  LOG(INFO) << "WILL ATTACH ***************";
+  LOG(INFO) << "WebViewGuest WillAttach: " << embedder_web_contents;
   embedder_web_contents_ = embedder_web_contents;
+  embedder_web_contents_observer_.reset(
+      new EmbedderWebContentsObserver(this));
   embedder_render_process_id_ =
       embedder_web_contents->GetRenderProcessHost()->GetID();
-  args.GetInteger(webview::kParameterInstanceId, &view_instance_id_);
+  extra_params.GetInteger(webview::kParameterInstanceId, &view_instance_id_);
+  extra_params_.reset(extra_params.DeepCopy());
 
   std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
   embedder_webview_map.Get().insert(std::make_pair(key, this));
-
-  // WebViewGuest::Attach is called prior to initialization (and initial
-  // navigation) of the guest in the content layer in order to permit mapping
-  // the necessary associations between the <*view> element and its guest. This
-  // is needed by the <webview> WebRequest API to allow intercepting resource
-  // requests during navigation. However, queued events should be fired after
-  // content layer initialization in order to ensure that load events (such as
-  // 'loadstop') fire in embedder after the contentWindow is available.
-  /* TODO(spolu): Check if should return */
-  /*
-  if (!in_extension())
-    return;
-  */
-
-  base::MessageLoop::current()->PostTask(
-      FROM_HERE,
-      base::Bind(&WebViewGuest::SendQueuedEvents,
-                 weak_ptr_factory_.GetWeakPtr()));
 }
+
 
 WebViewGuest::~WebViewGuest() 
 {
+  LOG(INFO) << "WebViewGuest Destructor: " << this;
+
   std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
   embedder_webview_map.Get().erase(key);
-
   webcontents_webview_map.Get().erase(guest_web_contents());
 
-  while (!pending_events_.empty()) {
-    delete pending_events_.front();
-    pending_events_.pop();
-  }
+  pending_events_.clear();
+
+  ExoShellBrowserClient::Get()->ExoSessionForBrowserContext(browser_context_)->
+    RemoveGuest(guest_instance_id_);
 }
 
 void 
@@ -246,13 +330,14 @@ WebViewGuest::Stop()
   guest_web_contents()->Stop();
 }
 
-
 void 
 WebViewGuest::DispatchEvent(
     Event* event) 
 {
+  scoped_ptr<Event> event_ptr(event);
+
   if (!attached()) {
-    pending_events_.push(event);
+    pending_events_.push_back(linked_ptr<Event>(event_ptr.release()));
     return;
   }
 
@@ -281,8 +366,10 @@ WebViewGuest::SendQueuedEvents()
     return;
 
   while (!pending_events_.empty()) {
-    Event* event = pending_events_.front();
-    pending_events_.pop();
-    DispatchEvent(event);
+    linked_ptr<Event> event_ptr = pending_events_.front();
+    pending_events_.pop_front();
+    DispatchEvent(event_ptr.release());
   }
 }
+
+} // namespace exo_shell

@@ -8,6 +8,9 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/threading/thread.h"
+#include "base/strings/stringprintf.h"
+#include "base/strings/string_util.h"
+#include "net/base/escape.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
@@ -20,13 +23,14 @@
 #include "src/browser/browser_main_parts.h"
 #include "src/browser/browser_client.h"
 #include "src/devtools/devtools_delegate.h"
+#include "src/browser/web_view/web_view_guest.h"
 
 using namespace content;
 
 namespace exo_shell {
 
 /******************************************************************************/
-/*                             RESOURCE CONTEXT                               */
+/* RESOURCE CONTEXT */
 /******************************************************************************/
 
 class ExoSession::ExoResourceContext : public content::ResourceContext {
@@ -63,7 +67,7 @@ class ExoSession::ExoResourceContext : public content::ResourceContext {
 };
 
 /******************************************************************************/
-/*                               EXO SESSION                                  */
+/* EXO SESSION */
 /******************************************************************************/
 
 ExoSession::ExoSession(
@@ -72,10 +76,10 @@ ExoSession::ExoSession(
     bool dummy_cookie_store)
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
-  guest_manager_(NULL),
   resource_context_(new ExoResourceContext),
   cookie_store_(new ExoSessionCookieStore(this, dummy_cookie_store)),
-  visitedlink_store_(new ExoSessionVisitedLinkStore(this))
+  visitedlink_store_(new ExoSessionVisitedLinkStore(this)),
+  current_instance_id_(0)
 {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kIgnoreCertificateErrors)) {
@@ -148,7 +152,8 @@ ExoSession::GetDownloadManagerDelegate()
 BrowserPluginGuestManager* 
 ExoSession::GetGuestManager() 
 {
-  return guest_manager_;
+  LOG(INFO) << "************++++++++++++++++++ RETURN PLUGIN GUEST MANAGER";
+  return this;
 }
 
 content::ResourceContext* 
@@ -201,6 +206,136 @@ ExoSessionVisitedLinkStore*
 ExoSession::GetVisitedLinkStore()
 {
   return visitedlink_store_.get();
+}
+
+/******************************************************************************/
+/* BROWSER_PLUGIN_GUEST_MANAGER */
+/******************************************************************************/
+
+WebContents* 
+ExoSession::CreateGuest(
+    SiteInstance* embedder_site_instance,
+    int instance_id,
+    scoped_ptr<base::DictionaryValue> extra_params) 
+{
+  LOG(INFO) << "CREATE GUEST ***************";
+
+  std::string storage_partition_id;
+  bool persist_storage = false;
+  std::string storage_partition_string;
+  WebViewGuest::ParsePartitionParam(
+      extra_params.get(), &storage_partition_id, &persist_storage);
+
+  content::RenderProcessHost* embedder_process_host =
+      embedder_site_instance->GetProcess();
+  // Validate that the partition id coming from the renderer is valid UTF-8,
+  // since we depend on this in other parts of the code, such as FilePath
+  // creation. 
+  if (!base::IsStringUTF8(storage_partition_id)) {
+    return NULL;
+  }
+
+  const GURL& embedder_site_url = embedder_site_instance->GetSiteURL();
+  const std::string& host = embedder_site_url.host();
+
+  /* TODO(spolu): Reintroduce guest_instance_id when site-isolation is live   */
+  /* with <webview>. See /src/chrome/browser/guest_view/guest_view_manager.cc */
+  /*
+  std::string url_encoded_partition = net::EscapeQueryParamValue(
+      storage_partition_id, false);
+  // The SiteInstance of a given webview tag is based on the fact that it's
+  // a guest process in addition to which platform application the tag
+  // belongs to and what storage partition is in use, rather than the URL
+  // that the tag is being navigated to.
+  GURL guest_site(base::StringPrintf("%s://%s/%s?%s",
+                                     content::kGuestScheme,
+                                     host.c_str(),
+                                     persist_storage ? "persist" : "",
+                                     url_encoded_partition.c_str()));
+
+  // If we already have a webview tag in the same app using the same storage
+  // partition, we should use the same SiteInstance so the existing tag and
+  // the new tag can script each other.
+  SiteInstance* guest_site_instance = GetGuestSiteInstance(guest_site);
+  if (!guest_site_instance) {
+    // Create the SiteInstance in a new BrowsingInstance, which will ensure
+    // that webview tags are also not allowed to send messages across
+    // different partitions.
+    guest_site_instance = SiteInstance::CreateForURL(
+        embedder_site_instance->GetBrowserContext(), guest_site);
+  }
+  */
+
+  WebContents::CreateParams create_params((BrowserContext*)this);
+  create_params.guest_instance_id = instance_id;
+  create_params.guest_extra_params.reset(extra_params.release());
+  return WebContents::Create(create_params);
+}
+
+int 
+ExoSession::GetNextInstanceID() 
+{
+  return ++current_instance_id_;
+}
+
+void 
+ExoSession::MaybeGetGuestByInstanceIDOrKill(
+    int guest_instance_id,
+    int embedder_render_process_id,
+    const GuestByInstanceIDCallback& callback) 
+{
+  content::WebContents* guest_web_contents =
+      GetGuestByInstanceID(guest_instance_id, embedder_render_process_id);
+  callback.Run(guest_web_contents);
+}
+
+WebContents* 
+ExoSession::GetGuestByInstanceID(
+    int guest_instance_id,
+    int embedder_render_process_id) 
+{
+  std::map<int, content::WebContents*>::const_iterator it =
+      guest_web_contents_.find(guest_instance_id);
+  if (it == guest_web_contents_.end())
+    return NULL;
+  return it->second;
+}
+
+bool 
+ExoSession::ForEachGuest(
+    WebContents* embedder_web_contents,
+    const GuestCallback& callback) 
+{
+  for (std::map<int, content::WebContents*>::iterator it =
+           guest_web_contents_.begin();
+       it != guest_web_contents_.end(); ++it) {
+    WebContents* guest = it->second;
+    WebViewGuest* guest_view = WebViewGuest::FromWebContents(guest);
+    if (embedder_web_contents != guest_view->embedder_web_contents())
+      continue;
+    if (callback.Run(guest))
+      return true;
+  }
+  return false;
+}
+
+void 
+ExoSession::AddGuest(
+    int guest_instance_id,
+    WebContents* guest_web_contents) 
+{
+  CHECK(!ContainsKey(guest_web_contents_, guest_instance_id));
+  guest_web_contents_[guest_instance_id] = guest_web_contents;
+}
+
+void 
+ExoSession::RemoveGuest(
+    int guest_instance_id) 
+{
+  std::map<int, content::WebContents*>::iterator it =
+      guest_web_contents_.find(guest_instance_id);
+  DCHECK(it != guest_web_contents_.end());
+  guest_web_contents_.erase(it);
 }
 
 }  // namespace exo_shell

@@ -66,57 +66,8 @@ var main = function() {
         title: "ExoShell TEST 1",
         session_id: res._target,
         size: {
-          width: 800,
-          height: 700
-        }
-      }
-    }, function(err, res) {
-      console.log('SHELL: ' + JSON.stringify(res));
-
-      perform({
-        _id: ++action_id,
-        _action: "call",
-        _target: res._target,
-        _method: "show",
-        _args: {}
-      }, function(err, res) {
-        console.log('SHOW: ' + JSON.stringify(res));
-      });
-    });
-
-  });
-
-  perform({
-    _id: ++action_id,
-    _action: "create",
-    _type: "session",
-    _args: {
-      off_the_record: false
-    }
-  }, function(err, res) {
-    console.log('SESSION: ' + JSON.stringify(res));
-
-    perform({
-      _id: ++action_id,
-      _action: "call",
-      _target: res._target,
-      _method: "devtools_url",
-      _args: {}
-    }, function(err, res) {
-      console.log('DEVTOOLS: ' + JSON.stringify(res));
-    });
-
-    perform({
-      _id: ++action_id,
-      _action: "create",
-      _type: "shell",
-      _args: {
-        root_url: "file:///" + __dirname + "/test.html",
-        title: "ExoShell TEST 2",
-        session_id: res._target,
-        size: {
-          width: 500,
-          height: 400
+          width: 650,
+          height: 480
         }
       }
     }, function(err, res) {

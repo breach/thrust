@@ -10,6 +10,9 @@
 #include "net/url_request/url_request_job_factory.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
+#include "content/public/browser/browser_plugin_guest_manager.h"
+#include "content/public/browser/site_instance.h"
+#include "content/public/browser/web_contents.h"
 #include "brightray/browser/browser_context.h"
 
 #include "src/browser/session/exo_session_cookie_store.h"
@@ -43,10 +46,11 @@ class ExoShellDownloadManagerDelegate;
 // see http://www.w3.org/TR/webstorage/
 // - SessionStorage not impacted
 // - LocalStorage can be expired / deleted by user so semantics are not too off
-class ExoSession : public brightray::BrowserContext {
+class ExoSession : public brightray::BrowserContext,
+                   public content::BrowserPluginGuestManager {
 public:
   /****************************************************************************/
-  /* PUBLIC INTERFACE                                                         */
+  /* PUBLIC INTERFACE */
   /****************************************************************************/
   // ### ExoSession
   ExoSession(const bool off_the_record,
@@ -56,7 +60,7 @@ public:
   virtual ~ExoSession();
 
   /****************************************************************************/
-  /* EXOFRAME / DEVTOOLS I/F                                                  */
+  /* EXOFRAME / DEVTOOLS I/F */
   /****************************************************************************/
   ExoShellDevToolsDelegate* devtools_delegate() {
     return devtools_delegate_;
@@ -67,8 +71,23 @@ public:
   // Returns the DevTools URL for this session
   GURL GetDevToolsURL();
 
+  ExoSessionCookieStore* GetCookieStore();
+  ExoSessionVisitedLinkStore* GetVisitedLinkStore();
+
   /****************************************************************************/
-  /* BROWSER CONTEXT IMPLEMENTATION                                           */
+  /* REQUEST CONTEXT GETTER HELPERS */
+  /****************************************************************************/
+  net::URLRequestContextGetter* CreateRequestContext(
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::URLRequestInterceptorScopedVector request_interceptors);
+  net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
+      const base::FilePath& partition_path,
+      bool in_memory,
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::URLRequestInterceptorScopedVector request_interceptors);
+
+  /****************************************************************************/
+  /* BROWSER CONTEXT IMPLEMENTATION */
   /****************************************************************************/
   virtual base::FilePath GetPath() const OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
@@ -80,19 +99,22 @@ public:
   virtual content::BrowserPluginGuestManager* GetGuestManager() OVERRIDE;
 
   /****************************************************************************/
-  /* REQUEST CONTEXT GETTER HELPERS                                           */
+  /* BROWSER_PLUGIN_GUEST_MANAGER_IMPLEMENTATION */
   /****************************************************************************/
-  net::URLRequestContextGetter* CreateRequestContext(
-      content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors);
-  net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
-      const base::FilePath& partition_path,
-      bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors);
+  virtual content::WebContents* CreateGuest(
+      content::SiteInstance* embedder_site_instance,
+      int instance_id,
+      scoped_ptr<base::DictionaryValue> extra_params) OVERRIDE;
+  virtual int GetNextInstanceID() OVERRIDE;
+  virtual void MaybeGetGuestByInstanceIDOrKill(
+      int guest_instance_id,
+      int embedder_render_process_id,
+      const GuestByInstanceIDCallback& callback) OVERRIDE;
+  virtual bool ForEachGuest(content::WebContents* embedder_web_contents,
+                            const GuestCallback& callback) OVERRIDE;
 
-  ExoSessionCookieStore* GetCookieStore();
-  ExoSessionVisitedLinkStore* GetVisitedLinkStore();
+  content::WebContents* GetGuestByInstanceID(int guest_instance_id,
+                                             int embedder_render_process_id);
 
 private:
   class ExoResourceContext;
@@ -100,6 +122,10 @@ private:
   /****************************************************************************/
   /* PRIVATE INTERFACE                                                        */
   /****************************************************************************/
+  virtual void AddGuest(int guest_instance_id,
+                        content::WebContents* guest_web_contents);
+
+  void RemoveGuest(int guest_instance_id);
 
   /****************************************************************************/
   /* MEMBERS                                                                   */
@@ -108,7 +134,6 @@ private:
   bool                                             ignore_certificate_errors_;
   base::FilePath                                   path_;
 
-  content::BrowserPluginGuestManager*              guest_manager_;
   scoped_ptr<ExoResourceContext>                   resource_context_;
   scoped_ptr<ExoShellDownloadManagerDelegate>      download_manager_delegate_;
   scoped_refptr<ExoShellURLRequestContextGetter>   url_request_getter_;
@@ -117,8 +142,13 @@ private:
 
   ExoShellDevToolsDelegate*                        devtools_delegate_;
 
+  std::map<int, content::WebContents*>             guest_web_contents_;
+  int                                              current_instance_id_;
+
   friend class ExoSessionCookieStore;
   friend class ExoShellDevToolsDelegate;
+  friend class WebViewGuest;
+  friend class GuestWebContentsObserver;
 
   DISALLOW_COPY_AND_ASSIGN(ExoSession);
 };
