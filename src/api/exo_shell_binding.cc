@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
 #include "src/api/exo_shell_binding.h"
@@ -56,7 +56,6 @@ ExoShellBinding::ExoShellBinding(
     (ExoSessionBinding*)(API::Get()->GetBinding(session_id));
   if(sb != NULL) {
     session = sb->GetSession();
-    LOG(INFO) << "SESSION RETRIEVED!!!!!!!!!!!!!!!!!!!!!! " << session;
   }
   else {
     session = ExoShellBrowserClient::Get()->system_session();

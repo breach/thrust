@@ -29,6 +29,13 @@
 #include "src/browser/dialog/javascript_dialog_manager.h"
 #include "src/browser/dialog/file_select_helper.h"
 #include "src/common/messages.h"
+#include "src/browser/ui/views/menu_bar.h"
+#include "src/browser/ui/views/menu_layout.h"
+
+#if defined(USE_X11)
+#include "src/browser/ui/views/global_menu_bar_x11.h"
+#elif defined(OS_WIN)
+#endif
 
 using namespace content;
 

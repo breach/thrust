@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
 #include "src/browser/exo_shell.h"
@@ -238,5 +238,29 @@ ExoShell::PlatformGetNativeWindow()
 {
   return window_;
 }
+
+gfx::Size 
+ExoShell::PlatformContentSize() 
+{
+  NSRect bounds = [[window_ contentView] bounds];
+  return gfx::Size(bounds.size.width, bounds.size.height);
+}
+
+void 
+ExoShell::PlatformSetContentSize(
+    int width, int height)
+{
+  NSRect frame_nsrect = [window_ frame];
+  NSSize frame = frame_nsrect.size;
+  NSSize content = [window_ contentRectForFrameRect:frame_nsrect].size;
+
+  width = width + frame.width - content.width;
+  height = height + frame.height - content.height;
+  frame_nsrect.origin.y -= height - frame_nsrect.size.height;
+  frame_nsrect.size.width = width;
+  frame_nsrect.size.height = height;
+  [window_ setFrame:frame_nsrect display:YES];
+}
+
 
 } // namespace exo_shell

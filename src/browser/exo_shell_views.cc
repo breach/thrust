@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
 #include "src/browser/exo_shell.h"
@@ -39,10 +39,18 @@
 #include "content/public/browser/web_contents.h"
 #include "vendor/brightray/browser/inspectable_web_contents_view.h"
 
+#include "src/browser/ui/views/menu_bar.h"
+#include "src/browser/ui/views/menu_layout.h"
+
 #if defined(USE_X11)
-#include "src/browser/ui/views/frameless_view.h"
+#include "base/environment.h"
+#include "base/nix/xdg_util.h"
+#include "ui/base/x/x11_util.h"
 #include "ui/gfx/x/x11_types.h"
 #include "ui/views/window/native_frame_view.h"
+#include "chrome/browser/ui/libgtk2ui/unity_service.h"
+#include "src/browser/ui/views/global_menu_bar_x11.h"
+#include "src/browser/ui/views/frameless_view.h"
 #elif defined(OS_WIN)
 #include "src/browser/ui/views/win_frame_view.h"
 #include "base/win/scoped_comptr.h"
@@ -53,6 +61,24 @@ using namespace content;
 namespace exo_shell {
 
 namespace {
+
+// The menu bar height in pixels.
+#if defined(OS_WIN)
+const int kMenuBarHeight = 20;
+#else
+const int kMenuBarHeight = 25;
+#endif
+
+#if defined(USE_X11)
+bool ShouldUseGlobalMenuBar() {
+  // Some DE would pretend to be Unity but don't have global application menu,
+  // so we can not trust unity::IsRunning().
+  scoped_ptr<base::Environment> env(base::Environment::Create());
+  return unity::IsRunning() && (base::nix::GetDesktopEnvironment(env.get()) ==
+      base::nix::DESKTOP_ENVIRONMENT_UNITY);
+}
+#endif
+
 
 class ExoShellClientView : public views::ClientView {
  public:
@@ -171,6 +197,47 @@ ExoShell::PlatformSize()
   return window_->GetWindowBoundsInScreen().size();
 }
 
+gfx::Size 
+ExoShell::PlatformContentSize() 
+{
+  if (!has_frame_)
+    return PlatformSize();
+
+  gfx::Size content_size =
+      window_->non_client_view()->frame_view()->GetBoundsForClientView().size();
+  if (menu_bar_ && menu_bar_visible_)
+    content_size.set_height(content_size.height() - kMenuBarHeight);
+  return content_size;
+}
+
+gfx::Rect
+ExoShell::ContentBoundsToWindowBounds(
+    const gfx::Rect& bounds)
+{
+  gfx::Rect window_bounds =
+      window_->non_client_view()->GetWindowBoundsForClientBounds(bounds);
+  if(menu_bar_ && menu_bar_visible_)
+    window_bounds.set_height(window_bounds.height() + kMenuBarHeight);
+  return window_bounds;
+}
+
+
+void 
+ExoShell::PlatformSetContentSize(
+    int width, int height)
+{
+  if (!has_frame_) {
+    PlatformResize(width, height);
+    return;
+  }
+
+  gfx::Size size(width, height);
+  gfx::Rect bounds = window_->GetWindowBoundsInScreen();
+  gfx::Size new_size = 
+      ContentBoundsToWindowBounds(gfx::Rect(bounds.origin(), size)).size();
+  PlatformResize(size.width(), size.height());
+}
+
 gfx::Point
 ExoShell::PlatformPosition()
 {
@@ -180,21 +247,17 @@ ExoShell::PlatformPosition()
 void
 ExoShell::PlatformMove(int x, int y)
 {
-	gfx::Size size = window_->GetWindowBoundsInScreen().size();
-
-	gfx::Rect bounds(x, y, size.width(), size.height());
-
-	window_->SetBounds(bounds);
+  gfx::Size size = window_->GetWindowBoundsInScreen().size();
+  gfx::Rect bounds(x, y, size.width(), size.height());
+  window_->SetBounds(bounds);
 }
 
 void
 ExoShell::PlatformResize(int width, int height)
 {
-	gfx::Point origin = window_->GetWindowBoundsInScreen().origin();
-
-	gfx::Rect bounds(origin.x(), origin.y(), width, height);
-
-	window_->SetBounds(bounds);
+  gfx::Point origin = window_->GetWindowBoundsInScreen().origin();
+  gfx::Rect bounds(origin.x(), origin.y(), width, height);
+  window_->SetBounds(bounds);
 }
 
 gfx::NativeWindow
@@ -216,6 +279,10 @@ ExoShell::OnWidgetActivationChanged(
   }
   else {
     /* TODO(spoluy): Notify */
+  }
+
+  if(active && web_contents()) {
+    web_contents()->Focus();
   }
 }
 
@@ -285,6 +352,59 @@ ExoShell::GetContentsView()
   return this;
 }
 
+void 
+ExoShell::PlatformSetMenu(
+    ui::MenuModel* menu_model) 
+{
+  /* TODO(spolu) Menu accelerators */
+  /*
+  // Clear previous accelerators.
+  views::FocusManager* focus_manager = GetFocusManager();
+  accelerator_table_.clear();
+  focus_manager->UnregisterAccelerators(this);
+
+  // Register accelerators with focus manager.
+  accelerator_util::GenerateAcceleratorTable(&accelerator_table_, menu_model);
+  accelerator_util::AcceleratorTable::const_iterator iter;
+  for (iter = accelerator_table_.begin();
+       iter != accelerator_table_.end();
+       ++iter) {
+    focus_manager->RegisterAccelerator(
+        iter->first, ui::AcceleratorManager::kNormalPriority, this);
+  }
+  */
+
+#if defined(USE_X11)
+  if (!global_menu_bar_ && ShouldUseGlobalMenuBar())
+    global_menu_bar_.reset(new GlobalMenuBarX11(this));
+
+  // Use global application menu bar when possible.
+  if (global_menu_bar_ && global_menu_bar_->IsServerStarted()) {
+    global_menu_bar_->SetMenu(menu_model);
+    return;
+  }
+#endif
+
+  // Do not show menu bar in frameless window.
+  if (!has_frame_)
+    return;
+
+  if (!menu_bar_) {
+    gfx::Size content_size = PlatformContentSize();
+    menu_bar_.reset(new MenuBar);
+    menu_bar_->set_owned_by_client();
+
+    if (!menu_bar_autohide_) {
+      SetMenuBarVisibility(true);
+      PlatformSetContentSize(content_size.width(), 
+                             content_size.height());
+    }
+  }
+
+  menu_bar_->SetMenu(menu_model);
+  Layout();
+}
+
 bool 
 ExoShell::ShouldDescendIntoChildForEventHandling(
     gfx::NativeView child,
@@ -334,5 +454,27 @@ ExoShell::CreateNonClientFrameView(
   return NULL;
 #endif
 }
+
+void 
+ExoShell::SetMenuBarVisibility(
+    bool visible) 
+{
+  if (!menu_bar_)
+    return;
+
+  // Always show the accelerator when the auto-hide menu bar shows.
+  if (menu_bar_autohide_)
+    menu_bar_->SetAcceleratorVisibility(visible);
+
+  menu_bar_visible_ = visible;
+  if (visible) {
+    DCHECK_EQ(child_count(), 1);
+    AddChildView(menu_bar_.get());
+  } else {
+    DCHECK_EQ(child_count(), 2);
+    RemoveChildView(menu_bar_.get());
+  }
+}
+
 
 } // namespace exo_shell

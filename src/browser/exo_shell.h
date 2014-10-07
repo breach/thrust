@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
 #ifndef EXO_SHELL_BROWSER_EXO_SHELL_H_
@@ -44,12 +44,18 @@ struct NativeWebKeyboardEvent;
 struct FileChooserParams;
 }
 
+namespace ui {
+class MenuModel;
+}
+
 namespace exo_shell {
 
 class ExoSession;
 class ExoShellDevToolsFrontend;
 class ExoShellJavaScriptDialogManager;
 
+class GlobalMenuBarX11;
+class MenuBar;
 
 // ### ExoShell
 //
@@ -156,7 +162,6 @@ public:
   // Sets the ExoShell window title
   void SetTitle(const std::string& title);
 
-
   // ### Close
   //
   // Closes the ExoShell window and reclaim underlying WebContents
@@ -171,6 +176,11 @@ public:
   //
   // Resizes the ExoShell window
   void Resize(int width, int height);
+
+  // ### SetMenu
+  //
+  // Sets the menu for this shell
+  void SetMenu(ui::MenuModel* menu) { return PlatformSetMenu(menu); }
 
   // ### is_closed
   //
@@ -381,11 +391,32 @@ private:
   //
   // Resize the ExoShell window.
   void PlatformResize(int width, int height);
+
+  // ### PlatformContentSize
+  //
+  // Retrieves the size of the ExoShell content
+  gfx::Size PlatformContentSize();
+
+  // ### PlatformSetContentSize
+  //
+  // Sets the size of the shell content
+  void PlatformSetContentSize(int width, int height);
+
+
+  // ### PlatformSetMenu
+  //
+  // Sets the menu for this shell
+  void PlatformSetMenu(ui::MenuModel* menu);
   
   // ### PlatformGetNativeWindow
   //
   // Returns the NativeWindow for this Shell
   gfx::NativeWindow PlatformGetNativeWindow();
+
+#if defined(USE_AURA)
+  gfx::Rect ContentBoundsToWindowBounds(const gfx::Rect& bounds);
+  void SetMenuBarVisibility(bool visible) ;
+#endif
 
   /****************************************************************************/
   /* MEMBERS */
@@ -395,6 +426,13 @@ private:
 
 #if defined(USE_AURA)
   scoped_ptr<views::Widget>                     window_;
+  scoped_ptr<MenuBar>                           menu_bar_;
+  bool                                          menu_bar_autohide_;
+  bool                                          menu_bar_visible_;
+  bool                                          menu_bar_alt_pressed_;
+#if defined(USE_X11)
+  scoped_ptr<GlobalMenuBarX11>                  global_menu_bar_;
+#endif
 #elif defined(OS_MACOSX)
   gfx::NativeWindow                             window_;
 #endif
