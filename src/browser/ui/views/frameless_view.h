@@ -1,9 +1,9 @@
-// Copyright (c) 2014 GitHub, Inc. All rights reserved.
-// Use of this source code is governed by the MIT license that can be
-// found in the LICENSE file.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
+// Copyright (c) 2014 GitHub, Inc.
+// See the LICENSE file.
 
-#ifndef ATOM_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
-#define ATOM_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
+#ifndef EXO_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
+#define EXO_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
 
 #include "ui/views/window/non_client_view.h"
 
@@ -11,22 +11,24 @@ namespace views {
 class Widget;
 }
 
-namespace atom {
+namespace exo_shell {
 
-class NativeWindowViews;
+class ExoShell;
 
 class FramelessView : public views::NonClientFrameView {
  public:
   FramelessView();
   virtual ~FramelessView();
 
-  virtual void Init(NativeWindowViews* window, views::Widget* frame);
+  virtual void Init(ExoShell* shell, views::Widget* frame);
 
   // Returns whether the |point| is on frameless window's resizing border.
   int ResizingBorderHitTest(const gfx::Point& point);
 
  protected:
-  // views::NonClientFrameView:
+  /****************************************************************************/
+  /* NONCLIENTFRAMEVIEWS IMPLEMENTATION */
+  /****************************************************************************/
   virtual gfx::Rect GetBoundsForClientView() const OVERRIDE;
   virtual gfx::Rect GetWindowBoundsForClientBounds(
       const gfx::Rect& client_bounds) const OVERRIDE;
@@ -37,20 +39,22 @@ class FramelessView : public views::NonClientFrameView {
   virtual void UpdateWindowIcon() OVERRIDE;
   virtual void UpdateWindowTitle() OVERRIDE;
 
-  // Overridden from View:
+  /****************************************************************************/
+  /* VIEW OVERRIDE */
+  /****************************************************************************/
   virtual gfx::Size GetPreferredSize() const OVERRIDE;
   virtual gfx::Size GetMinimumSize() const OVERRIDE;
   virtual gfx::Size GetMaximumSize() const OVERRIDE;
   virtual const char* GetClassName() const OVERRIDE;
 
   // Not owned.
-  NativeWindowViews* window_;
+  ExoShell*      shell_;
   views::Widget* frame_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(FramelessView);
 };
 
-}  // namespace atom
+}  // namespace exo_shell
 
-#endif  // ATOM_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
+#endif  // EXO_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_

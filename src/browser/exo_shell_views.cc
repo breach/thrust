@@ -197,6 +197,12 @@ ExoShell::PlatformResize(int width, int height)
 	window_->SetBounds(bounds);
 }
 
+gfx::NativeWindow
+ExoShell::PlatformGetNativeWindow() 
+{
+  return window_->GetNativeWindow(); 
+}
+
 void 
 ExoShell::OnWidgetActivationChanged(
     views::Widget* widget, 

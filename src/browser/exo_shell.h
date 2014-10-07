@@ -187,10 +187,19 @@ public:
   // Retrieves the native Window position
   gfx::Point position() { return PlatformPosition(); }
 
+  // ### GetNativeWindow
+  //
+  // Returns the NativeWindow for this Shell
+  gfx::NativeWindow GetNativeWindow() { return PlatformGetNativeWindow(); }
+
   // ### web_contents
   //
   // Returns the underlying web_contents
   content::WebContents* web_contents() const;
+
+  SkRegion* draggable_region() const { 
+    return draggable_region_.get(); 
+  }
 
   /****************************************************************************/
   /* WEBCONTENTSDELEGATE IMPLEMENTATION */
@@ -372,11 +381,16 @@ private:
   //
   // Resize the ExoShell window.
   void PlatformResize(int width, int height);
+  
+  // ### PlatformGetNativeWindow
+  //
+  // Returns the NativeWindow for this Shell
+  gfx::NativeWindow PlatformGetNativeWindow();
 
   /****************************************************************************/
   /* MEMBERS */
   /****************************************************************************/
-  scoped_ptr<ExoShellJavaScriptDialogManager> dialog_manager_;
+  scoped_ptr<ExoShellJavaScriptDialogManager>   dialog_manager_;
   content::NotificationRegistrar                registrar_;
 
 #if defined(USE_AURA)
@@ -388,11 +402,13 @@ private:
   gfx::Image                                    icon_;
   std::string                                   title_;
   bool                                          has_frame_;
+  scoped_ptr<SkRegion>                          draggable_region_;
 
   scoped_ptr<brightray::InspectableWebContents> inspectable_web_contents_;
 
   // A static container of all the open instances.
-  static std::vector<ExoShell*>               s_instances;
+  static std::vector<ExoShell*>                 s_instances;
+
 
   DISALLOW_COPY_AND_ASSIGN(ExoShell);
 };

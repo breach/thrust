@@ -6,17 +6,18 @@
 :webview
   - Webview support
 
-:cleanser #90
-  - Reintroduce ClearDataForOrigin
-  - Ability to list Data
-  - Ideally: Storage for LocalData
+:menu
+  - Support for Menu
 
 :print #108
   - Printing Support
 
+:cleanser #90
+  - Reintroduce ClearDataForOrigin
+  - Ability to list Data
+  - Ideally: Storage for LocalData
 :form_data #107
   - Password, Form Data API
-
 :html_auth #106
   - User authorization API
 

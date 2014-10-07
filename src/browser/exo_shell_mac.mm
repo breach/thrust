@@ -86,7 +86,7 @@ ExoShell::PlatformCleanUp()
 
 void 
 ExoShell::PlatformCreateWindow(
-    const gfx::Size& size)
+  const gfx::Size& size)
 {
   LOG(INFO) << "Create Window: " << size.width() << "x" << size.height();
 
@@ -147,7 +147,7 @@ ExoShell::PlatformClose()
 
 void 
 ExoShell::PlatformSetTitle(
-   const std::string& title) 
+  const std::string& title) 
 {
   NSString* title_string = base::SysUTF8ToNSString(title);
   [window_ setTitle:title_string];
@@ -156,7 +156,8 @@ ExoShell::PlatformSetTitle(
 
 
 void
-ExoShell::PlatformFocus(bool focus)
+ExoShell::PlatformFocus(
+  bool focus)
 {
   if(focus) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
@@ -210,13 +211,19 @@ ExoShell::PlatformPosition()
 }
 
 void
-ExoShell::PlatformMove(int x, int y) {
+ExoShell::PlatformMove(
+  int x, 
+  int y) 
+{
   NSScreen* screen = [[NSScreen screens] objectAtIndex:0];
   [window_ setFrameTopLeftPoint:NSMakePoint(x, NSHeight([screen frame]) - y)];
 }
 
 void
-ExoShell::PlatformResize(int width, int height) {
+ExoShell::PlatformResize(
+  int width, 
+  int height) 
+{
   NSRect frame = [window_ frame];
   frame.origin.y += frame.size.height; // remove the old height
   frame.origin.y -= height; // add the new height
@@ -224,6 +231,12 @@ ExoShell::PlatformResize(int width, int height) {
   frame.size.height = height;
   [window_ setFrame:frame
             display:YES];
+}
+
+gfx::NativeWindow
+ExoShell::PlatformGetNativeWindow() 
+{
+  return window_;
 }
 
 } // namespace exo_shell
