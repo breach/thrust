@@ -1,9 +1,9 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by the MIT license that can be
-// found in the LICENSE file.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
+// Copyright (c) 2012 The Chromium Authors.
+// See the LICENSE file.
 
-#ifndef ATOM_COMMON_DRAGGABLE_REGION_H_
-#define ATOM_COMMON_DRAGGABLE_REGION_H_
+#ifndef EXO_SHELL_COMMON_DRAGGABLE_REGION_H_
+#define EXO_SHELL_COMMON_DRAGGABLE_REGION_H_
 
 #include "ui/gfx/rect.h"
 
@@ -16,6 +16,6 @@ struct DraggableRegion {
   DraggableRegion();
 };
 
-}  // namespace atom
+}  // namespace exo_shell
 
-#endif  // ATOM_COMMON_DRAGGABLE_REGION_H_
+#endif  // EXO_SHELL_COMMON_DRAGGABLE_REGION_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
 #ifndef EXO_SHELL_APP_CONTENT_CLIENT_H_

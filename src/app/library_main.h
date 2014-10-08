@@ -1,3 +1,6 @@
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
+// See the LICENSE file.
+
 #ifndef EXO_SHELL_APP_LIBRARY_MAIN_H_
 #define EXO_SHELL_APP_LIBRARY_MAIN_H_
 

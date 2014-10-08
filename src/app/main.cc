@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
 #include "src/app/main.h"

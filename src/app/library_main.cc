@@ -1,3 +1,6 @@
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
+// See the LICENSE file.
+
 #include "src/app/library_main.h"
 
 #include "content/public/app/content_main.h"

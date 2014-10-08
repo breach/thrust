@@ -1,6 +1,6 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by the MIT license that can be
-// found in the LICENSE file.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
+// Copyright (c) 2012 The Chromium Authors.
+// See the LICENSE file.
 
 #include "src/common/draggable_region.h"
 
