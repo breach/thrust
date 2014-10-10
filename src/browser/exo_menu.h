@@ -12,15 +12,21 @@
 namespace exo_shell {
 
 class ExoShell;
+class MenuController;
 
-class ExoMenu : public ui::SimpleMenuModel::Delegate {
-
-  ui::SimpleMenuModel* model() const { return model_.get(); }
-
+class ExoMenu : public ui::SimpleMenuModel::Delegate,
+                public base::RefCountedThreadSafe<ExoMenu> {
+public:
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/
-  void InsertItemAt(int index, int command_id, const base::string16& label);
+  ExoMenu();
+  // ### ~ExoMenu
+  virtual ~ExoMenu();
+
+  void InsertItemAt(int index, 
+                    int command_id, 
+                    const base::string16& label);
   void InsertSeparatorAt(int index);
   void InsertCheckItemAt(int index,
                          int command_id,
@@ -34,12 +40,15 @@ class ExoMenu : public ui::SimpleMenuModel::Delegate {
                        const base::string16& label,
                        ExoMenu* menu);
   void SetSublabel(int index, const base::string16& sublabel);
+
   void Clear();
+
   int GetIndexOfCommandId(int command_id);
   int GetItemCount() const;
   int GetCommandIdAt(int index) const;
   base::string16 GetLabelAt(int index) const;
   base::string16 GetSublabelAt(int index) const;
+
   bool IsItemCheckedAt(int index) const;
   bool IsEnabledAt(int index) const;
   bool IsVisibleAt(int index) const;
@@ -49,25 +58,30 @@ class ExoMenu : public ui::SimpleMenuModel::Delegate {
     return PlatformPopup(shell);
   }
 
+#if defined(OS_MACOSX)
+  // Set the global menubar.
+  static void SetApplicationMenu(Menu* menu);
+  // Fake sending an action from the application menu.
+  static void SendActionToFirstResponder(const std::string& action);
+#endif
+
+  ui::SimpleMenuModel* model() const { return model_.get(); }
 
  protected:
-  ExoMenu();
-  virtual ~ExoMenu();
-
   /****************************************************************************/
   /* SIMPLEMENUMODEL DELEGATE IMPLEMENTATION */
   /****************************************************************************/
   virtual bool IsCommandIdChecked(int command_id) const OVERRIDE;
   virtual bool IsCommandIdEnabled(int command_id) const OVERRIDE;
   virtual bool IsCommandIdVisible(int command_id) const OVERRIDE;
+
   virtual bool GetAcceleratorForCommandId(
       int command_id,
       ui::Accelerator* accelerator) OVERRIDE;
-  virtual bool IsItemForCommandIdDynamic(int command_id) const OVERRIDE;
-  virtual base::string16 GetLabelForCommandId(int command_id) const OVERRIDE;
-  virtual base::string16 GetSublabelForCommandId(int command_id) const OVERRIDE;
+
   virtual void ExecuteCommand(int command_id, int event_flags) OVERRIDE;
   virtual void MenuWillShow(ui::SimpleMenuModel* source) OVERRIDE;
+  virtual void MenuClosed(ui::SimpleMenuModel* source) OVERRIDE;
 
  private:
   /****************************************************************************/
@@ -77,7 +91,7 @@ class ExoMenu : public ui::SimpleMenuModel::Delegate {
 
 #if defined(USE_AURA)
 #elif defined(OS_MACOSX)
-  base::scoped_nsobject<AtomMenuController> menu_controller_;
+  base::scoped_nsobject<MenuController>     menu_controller_;
 #endif
   scoped_ptr<ui::SimpleMenuModel>           model_;
   ExoMenu*                                  parent_;

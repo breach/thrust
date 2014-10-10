@@ -31,7 +31,6 @@ ExoShellBinding::ExoShellBinding(
     scoped_ptr<base::DictionaryValue> args)
   : APIBinding("shell", id)
 {
-
   std::string root_url = "http://google.com";
   args->GetString("root_url", &root_url);
 
@@ -83,13 +82,14 @@ ExoShellBinding::CallLocalMethod(
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
 {
+  std::string err = std::string("");
   base::DictionaryValue* res = new base::DictionaryValue;
 
-  LOG(INFO) << "CALL " << method;
+  LOG(INFO) << "ExoShell call [" << method << "]";
   if(method.compare("show") == 0) {
     shell_->Show();
   }
-  if(method.compare("focus") == 0) {
+  else if(method.compare("focus") == 0) {
     bool focus = true;
     args->GetBoolean("focus", &focus);
     shell_->Focus(focus);
@@ -140,10 +140,16 @@ ExoShellBinding::CallLocalMethod(
     res->SetInteger("position.x", shell_->position().x());
     res->SetInteger("position.y", shell_->position().y());
   }
+  else {
+    err = "exo_shell_binding:method_not_found";
+  }
 
-  callback.Run(std::string(""), 
-               scoped_ptr<base::Value>(res).Pass());
+  callback.Run(err, scoped_ptr<base::Value>(res).Pass());
 }
 
+ExoShell*
+ExoShellBinding::GetShell() {
+  return shell_.get();
+}
 
 } // namespace exo_shell

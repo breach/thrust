@@ -58,6 +58,7 @@
       'src/browser/exo_shell_mac.mm',
       'src/browser/exo_menu.h',
       'src/browser/exo_menu.cc',
+      'src/browser/exo_menu_views.cc',
       'src/browser/dialog/javascript_dialog_manager.cc',
       'src/browser/dialog/javascript_dialog_manager.h',
       'src/browser/dialog/file_select_helper.h',
@@ -162,6 +163,8 @@
       'src/api/exo_shell_binding.cc',
       'src/api/exo_session_binding.h',
       'src/api/exo_session_binding.cc',
+      'src/api/exo_menu_binding.h',
+      'src/api/exo_menu_binding.cc',
     ],
     'framework_sources': [
       'src/app/library_main.cc',

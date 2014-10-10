@@ -205,7 +205,7 @@ public:
   // ### web_contents
   //
   // Returns the underlying web_contents
-  content::WebContents* web_contents() const;
+  content::WebContents* GetWebContents() const;
 
   SkRegion* draggable_region() const { 
     return draggable_region_.get(); 
@@ -447,6 +447,7 @@ private:
   // A static container of all the open instances.
   static std::vector<ExoShell*>                 s_instances;
 
+  friend class ExoMenu;
 
   DISALLOW_COPY_AND_ASSIGN(ExoShell);
 };

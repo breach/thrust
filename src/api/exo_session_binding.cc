@@ -28,7 +28,6 @@ ExoSessionBinding::ExoSessionBinding(
     scoped_ptr<base::DictionaryValue> args)
   : APIBinding("session", id)
 {
-
   bool off_the_record = true;
   args->GetBoolean("off_the_record", &off_the_record);
 
@@ -57,18 +56,21 @@ ExoSessionBinding::CallLocalMethod(
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
 {
+  std::string err = std::string("");
   base::DictionaryValue* res = new base::DictionaryValue;
 
   LOG(INFO) << "CALL " << method;
   if(method.compare("devtools_url") == 0) {
     res->SetString("url", session_->GetDevToolsURL().spec());
   }
-  if(method.compare("off_the_record") == 0) {
+  else if(method.compare("off_the_record") == 0) {
     res->SetBoolean("off_the_record", session_->IsOffTheRecord());
   }
+  else {
+    err = "exo_session_binding:method_not_found";
+  }
 
-  callback.Run(std::string(""), 
-               scoped_ptr<base::Value>(res).Pass());
+  callback.Run(err, scoped_ptr<base::Value>(res).Pass());
 }
 
 ExoSession*

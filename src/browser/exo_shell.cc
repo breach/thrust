@@ -101,13 +101,9 @@ ExoShell::ExoShell(
 
 ExoShell::~ExoShell() 
 {
-  LOG(INFO) << "ExoShell Destructor";
+  LOG(INFO) << "ExoShell Destructor [" << inspectable_web_contents() << "]";
 
-  if(inspectable_web_contents_) {
-    inspectable_web_contents_.reset();
-  }
-
-  PlatformClose();
+  Close();
   PlatformCleanUp();
 
   for (size_t i = 0; i < s_instances.size(); ++i) {
@@ -159,7 +155,7 @@ ExoShell::CreateNew(
 }
 
 WebContents* 
-ExoShell::web_contents() const {
+ExoShell::GetWebContents() const {
   if (!inspectable_web_contents_)
     return NULL;
   return inspectable_web_contents()->GetWebContents();

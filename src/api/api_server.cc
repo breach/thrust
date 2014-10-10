@@ -16,8 +16,6 @@
 #include "net/socket/unix_domain_socket_posix.h"
 #include "content/public/browser/browser_thread.h"
 
-#include "src/api/api_binding.h"
-
 using namespace content;
 
 namespace exo_shell {
@@ -25,6 +23,235 @@ namespace exo_shell {
 const char kSocketBoundary[] = "--(Foo)++__EXO_SHELL_BOUNDARY__++(Bar)--";
 const char kAPIServerThreadName[] = "exo_shell_api_server_thread";
 
+/******************************************************************************/
+/* APISERVER::CLIENT::REMOTE */
+/******************************************************************************/
+APIServer::Client::Remote::Remote(
+    APIServer::Client* client,
+    unsigned int target)
+  : client_(client),
+    target_(target),
+    action_id_(0)
+{
+}
+
+void 
+APIServer::Client::Remote::CallMethod(
+    const std::string method,
+    scoped_ptr<base::DictionaryValue> args,
+    const API::MethodCallback& callback)
+{
+  /* Runs on UI Thread. */
+  LOG(INFO) << "Remote::Client::CallMethod [" << target_ << "] " << this;
+  /*
+  server_->thread_->message_loop()->PostTask(
+      FROM_HERE,
+      base::Bind(&APIServer::Client::Remote::SendCallMethod, this, 
+                 method, base::Passed(args.Pass()), callback));
+  */
+}
+
+void APIServer::Client::Remote::EmitEvent(
+    const std::string type,
+    scoped_ptr<base::DictionaryValue> event)
+{
+  LOG(INFO) << "Remote::Client::EmitEvent [" << target_ << "] " << this;
+
+  client_->server_->thread_->message_loop()->PostTask(
+      FROM_HERE,
+      base::Bind(&APIServer::Client::Remote::SendEvent, this, 
+                 type, base::Passed(event.Pass())));
+}
+
+void 
+APIServer::Client::Remote::SendEvent(
+    const std::string type,
+    scoped_ptr<base::DictionaryValue> event)
+{
+  /* Runs on APIServer Thread. */
+  base::DictionaryValue action;
+  action.SetString("_action", "event");
+  action.SetInteger("_id", ++action_id_);
+  action.SetInteger("_target", target_);
+  action.Set("_event", event->DeepCopy());
+
+  std::string payload;
+  base::JSONWriter::Write(&action, &payload);
+  payload += "\n" + std::string(kSocketBoundary) + "\n";
+
+  if(client_->conn_) {
+    client_->conn_->Send(payload);
+  }
+}
+
+/******************************************************************************/
+/* APISERVER::CLIENT */
+/******************************************************************************/
+APIServer::Client::Client(
+    APIServer* server, 
+    API* api,
+    scoped_ptr<net::StreamListenSocket> conn)
+  : server_(server),
+    api_(api)
+{
+  conn_ = conn.Pass();
+}
+
+APIServer::Client::~Client() 
+{
+  LOG(INFO) << "APIServer::Client Destructor: " << this;
+  conn_.reset();
+
+  /* We start by deleting all bindings that are not sessions. */
+  std::map<unsigned int, scoped_refptr<Remote> >::iterator it = remotes_.begin();
+  while(it != remotes_.end()) {
+    if(api_->GetBinding(it->first)->type() != "session") {
+      /* Remotes will be removed from the API with the Delete call */
+      api_->Delete(it->first);
+      remotes_.erase(it++);
+    }
+    else {
+      ++it;
+    }
+  }
+  /* Then we delete the sessions once nothing is left depending on them. */
+  it = remotes_.begin();
+  while(it != remotes_.end()) {
+    /* Remotes will be removed from the API with the Delete call */
+    api_->Delete(it->first);
+    ++it;
+  }
+
+  remotes_.clear();
+}
+
+void
+APIServer::Client::ProcessChunk(
+    std::string chunk)
+{
+  acc_ += chunk;
+  /* Runs on APIServer Thread. */
+  size_t pos;
+  while((pos = acc_.find(kSocketBoundary)) != std::string::npos) {
+    std::string raw = acc_.substr(0, pos);
+    acc_ = acc_.substr(pos + strlen(kSocketBoundary));
+    if(raw.length() == 0) {
+      continue;
+    }
+
+    scoped_ptr<base::Value> root;
+    root.reset(base::JSONReader::Read(raw));
+
+    base::DictionaryValue* dict = static_cast<base::DictionaryValue*>(root.get());
+
+    std::string _action;
+    dict->GetString("_action", &_action);
+    int _id = 0;
+    dict->GetInteger("_id", &_id);
+
+    base::DictionaryValue* args_d;
+    dict->GetDictionary("_args", &args_d);
+    scoped_ptr<base::DictionaryValue> _args;
+    _args.reset(args_d->DeepCopyWithoutEmptyChildren());
+
+    int _target = 0;
+    dict->GetInteger("_target", &_target);
+    std::string _type;
+    dict->GetString("_type", &_type);
+    std::string _method;
+    dict->GetString("_method", &_method);
+
+    BrowserThread::PostTask(
+        BrowserThread::UI, FROM_HERE,
+        base::Bind(&APIServer::Client::PerformAction, this, 
+                   _action, _id, base::Passed(_args.Pass()), _target, _type, _method));
+  }
+}
+
+void
+APIServer::Client::ReplyToAction(
+    const unsigned int id,
+    const std::string& error, 
+    scoped_ptr<base::Value> result)
+{
+  /* Runs on UI Thread. */
+  server_->thread_->message_loop()->PostTask(
+      FROM_HERE,
+      base::Bind(&APIServer::Client::SendReply, this, 
+                 id, error, base::Passed(result.Pass())));
+}
+
+void
+APIServer::Client::PerformAction(
+    std::string action,
+    unsigned int id,
+    scoped_ptr<base::DictionaryValue> args,
+    unsigned int target,
+    std::string type,
+    std::string method)
+{
+  /* Runs on UI Thread. */
+  LOG(INFO) << "action: " << action;
+  LOG(INFO) << "id: " << id;
+  LOG(INFO) << "args: " << args.get();
+
+  LOG(INFO) << "target: " << target;
+  LOG(INFO) << "type: " << type;
+  LOG(INFO) << "method: " << target;
+
+  if(action.compare("create") == 0 && type.length()) {
+    unsigned int target = api_->Create(type, args.Pass());
+    remotes_[target] = new Remote(this, target);
+    api_->SetRemote(target, remotes_[target].get());
+
+    base::DictionaryValue* res = new base::DictionaryValue;
+    res->SetInteger("_target", target);
+    ReplyToAction(id, std::string(""),  
+                  scoped_ptr<base::Value>(res).Pass());
+  }
+  else if(action.compare("call") == 0 && target > 0) {
+    api_->CallMethod(target, method, args.Pass(),
+                     base::Bind(&APIServer::Client::ReplyToAction, this, id));
+  }
+  else if(action.compare("delete") == 0 && target > 0) {
+    api_->Delete(target);
+
+    scoped_ptr<base::Value> null;
+    null.reset(base::Value::CreateNullValue());
+    ReplyToAction(id, std::string(""), null.Pass());
+  }
+  else {
+    LOG(INFO) << "[API_SERVER] IGNORED: " << action << " " << id;
+  }
+}
+
+
+
+void
+APIServer::Client::SendReply(
+  const unsigned int id,
+  const std::string& error, 
+  scoped_ptr<base::Value> result)
+{
+  /* Runs on APIServer Thread. */
+  base::DictionaryValue action;
+  action.SetString("_action", "reply");
+  action.SetInteger("_id", id);
+  action.SetString("_error", error);
+  action.Set("_result", result->DeepCopy());
+
+  std::string payload;
+  base::JSONWriter::Write(&action, &payload);
+  payload += "\n" + std::string(kSocketBoundary) + "\n";
+
+  if(conn_) {
+    conn_->Send(payload);
+  }
+}
+
+/******************************************************************************/
+/* APISERVER */
+/******************************************************************************/
 APIServer::APIServer(
     API* api,
     const base::FilePath& socket_path)
@@ -61,7 +288,7 @@ APIServer::DidAccept(
     scoped_ptr<net::StreamListenSocket> connection)
 {
   LOG(INFO) << "Accept";
-  conn_ = connection.Pass();
+  clients_[connection.get()] = new Client(this, api_, connection.Pass());
 }
 
 void 
@@ -71,139 +298,29 @@ APIServer::DidRead(
     int len)
 {
   LOG(INFO) << "DATA: " << data;
-  acc_ += std::string(data, len);
-  ProcessData();
+  if(clients_[connection]) {
+    clients_[connection]->ProcessChunk(std::string(data, len));
+  }
 }
 
 void 
 APIServer::DidClose(
-    net::StreamListenSocket* sock)
+    net::StreamListenSocket* connection)
 {
-  LOG(INFO) << "Close";
-  conn_.reset();
-}
-
-
-void
-APIServer::ReplyToAction(
-    const unsigned int id,
-    const std::string& error, 
-    scoped_ptr<base::Value> result)
-{
-  /* Runs on UI Thread. */
-  thread_->message_loop()->PostTask(
-      FROM_HERE,
-      base::Bind(&APIServer::SendReply, this, 
-                 id, error, base::Passed(result.Pass())));
+  LOG(INFO) << "Close " << connection;
+  BrowserThread::PostTask(
+      BrowserThread::UI, FROM_HERE,
+      base::Bind(&APIServer::DestroyClient, this, connection));
 }
 
 void
-APIServer::PerformAction(
-    std::string action,
-    unsigned int id,
-    scoped_ptr<base::DictionaryValue> args,
-    unsigned int target,
-    std::string type,
-    std::string method)
+APIServer::DestroyClient(
+    net::StreamListenSocket* connection)
 {
-  /* Runs on UI Thread. */
-  LOG(INFO) << "action: " << action;
-  LOG(INFO) << "id: " << id;
-  LOG(INFO) << "args: " << args.get();
-
-  LOG(INFO) << "target: " << target;
-  LOG(INFO) << "type: " << type;
-  LOG(INFO) << "method: " << target;
-
-  if(action.compare("create") == 0 && type.length()) {
-    unsigned int target = api_->Create(type, args.Pass());
-    base::DictionaryValue* res = new base::DictionaryValue;
-    res->SetInteger("_target", target);
-    ReplyToAction(id, std::string(""),  
-                  scoped_ptr<base::Value>(res).Pass());
-  }
-  else if(action.compare("call") == 0 && target > 0) {
-    api_->CallMethod(target, method, args.Pass(),
-                     base::Bind(&APIServer::ReplyToAction, this, id));
-  }
-  else if(action.compare("delete") == 0 && target > 0) {
-    api_->Delete(target);
-
-    scoped_ptr<base::Value> null;
-    null.reset(base::Value::CreateNullValue());
-    ReplyToAction(id, std::string(""), null.Pass());
-  }
-  else {
-    LOG(INFO) << "[API_SERVER] IGNORED: " << action << " " << id;
+  if(clients_[connection]) {
+    clients_.erase(connection);
   }
 }
-
-
-
-void
-APIServer::SendReply(
-  const unsigned int id,
-  const std::string& error, 
-  scoped_ptr<base::Value> result)
-{
-  /* Runs on APIServer Thread. */
-  base::DictionaryValue action;
-  action.SetString("_action", "reply");
-  action.SetInteger("_id", id);
-  action.SetString("_error", error);
-  action.Set("_result", result->DeepCopy());
-
-  std::string payload;
-  base::JSONWriter::Write(&action, &payload);
-  payload += "\n" + std::string(kSocketBoundary) + "\n";
-
-  if(conn_) {
-    conn_->Send(payload);
-  }
-}
-
-void
-APIServer::ProcessData()
-{
-  /* Runs on APIServer Thread. */
-  size_t pos;
-  while((pos = acc_.find(kSocketBoundary)) != std::string::npos) {
-    std::string raw = acc_.substr(0, pos);
-    acc_ = acc_.substr(pos + strlen(kSocketBoundary));
-    if(raw.length() == 0) {
-      continue;
-    }
-
-    scoped_ptr<base::Value> root;
-    root.reset(base::JSONReader::Read(raw));
-
-    base::DictionaryValue* dict = static_cast<base::DictionaryValue*>(root.get());
-
-    std::string _action;
-    dict->GetString("_action", &_action);
-    int _id = 0;
-    dict->GetInteger("_id", &_id);
-
-    base::DictionaryValue* args_d;
-    dict->GetDictionary("_args", &args_d);
-    scoped_ptr<base::DictionaryValue> _args;
-    _args.reset(args_d->DeepCopyWithoutEmptyChildren());
-
-    int _target = 0;
-    dict->GetInteger("_target", &_target);
-    std::string _type;
-    dict->GetString("_type", &_type);
-    std::string _method;
-    dict->GetString("_method", &_method);
-
-    BrowserThread::PostTask(
-        BrowserThread::UI, FROM_HERE,
-        base::Bind(&APIServer::PerformAction, this, 
-                   _action, _id, base::Passed(_args.Pass()), _target, _type, _method));
-  }
-}
-
-
 
 bool 
 APIServer::UserCanConnectCallback(

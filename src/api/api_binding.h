@@ -32,6 +32,8 @@ public:
 
   virtual ~APIBinding();
 
+  std::string type() { return type_; };
+
 protected:
   /****************************************************************************/
   /* PROTECTED INTERFACE */

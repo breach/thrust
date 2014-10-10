@@ -74,9 +74,9 @@ API::Delete(
     delete bindings_[target];
     bindings_.erase(target);
 
-    /* Finally we delete the remote object */
+    /* Finally we remove the remote object. We don't delete it as it */
+    /* is not owned by the API                                       */
     if(remotes_[target]) {
-      delete remotes_[target];
       remotes_.erase(target);
     }
   }
@@ -116,6 +116,15 @@ API::GetBinding(
   return NULL;
 }
 
+APIBindingRemote*
+API::GetRemote(
+    unsigned int target)
+{
+  if(target > 0 && bindings_[target] && remotes_[target]) {
+    return remotes_[target];
+  }
+  return NULL;
+}
 
 
 } // namespace exo_browser

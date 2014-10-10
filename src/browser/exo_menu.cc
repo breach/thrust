@@ -47,24 +47,6 @@ ExoMenu::GetAcceleratorForCommandId(
   return false;
 }
 
-bool 
-ExoMenu::IsItemForCommandIdDynamic(
-    int command_id) const 
-{
-}
-
-base::string16 
-ExoMenu::GetLabelForCommandId(
-    int command_id) const 
-{
-}
-
-base::string16 
-ExoMenu::GetSublabelForCommandId(
-    int command_id) const 
-{
-}
-
 void 
 ExoMenu::ExecuteCommand(
     int command_id, 
@@ -74,6 +56,12 @@ ExoMenu::ExecuteCommand(
 
 void 
 ExoMenu::MenuWillShow(
+    ui::SimpleMenuModel* source) 
+{
+}
+
+void 
+ExoMenu::MenuClosed(
     ui::SimpleMenuModel* source) 
 {
 }

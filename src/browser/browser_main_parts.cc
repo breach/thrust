@@ -27,6 +27,7 @@
 #include "src/api/api_server.h"
 #include "src/api/exo_shell_binding.h"
 #include "src/api/exo_session_binding.h"
+#include "src/api/exo_menu_binding.h"
 
 
 using namespace content;
@@ -77,6 +78,7 @@ ExoShellMainParts::PreMainMessageLoopRun()
   //
   api_->InstallBinding("shell", new ExoShellBindingFactory());
   api_->InstallBinding("session", new ExoSessionBindingFactory());
+  api_->InstallBinding("menu", new ExoMenuBindingFactory());
   
   base::FilePath path;
   base::GetTempDir(&path);

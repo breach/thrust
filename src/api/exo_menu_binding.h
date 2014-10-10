@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_API_EXO_SHELL_BINDING_H_
-#define EXO_SHELL_API_EXO_SHELL_BINDING_H_
+#ifndef EXO_SHELL_API_EXO_MENU_BINDING_H_
+#define EXO_SHELL_API_EXO_MENU_BINDING_H_
 
 #include "base/callback.h"
 
@@ -10,16 +10,16 @@
 
 namespace exo_shell {
 
-class ExoShell;
+class ExoMenu;
 
-class ExoShellBinding : public APIBinding {
+class ExoMenuBinding : public APIBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
-  ExoShellBinding(const unsigned int id, 
+  ExoMenuBinding(const unsigned int id, 
                   scoped_ptr<base::DictionaryValue> args);
-  ~ExoShellBinding();
+  ~ExoMenuBinding();
 
   virtual void CallLocalMethod(
       const std::string& method, 
@@ -29,20 +29,20 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  ExoShell* GetShell();
+  ExoMenu* GetMenu();
 
 private:
-  scoped_ptr<ExoShell> shell_;
+  scoped_ptr<ExoMenu> menu_;
 };
 
 
-// ## ExoShellBindingFactory
+// ## ExoMenuBindingFactory
 //
-// Factory object used to generate ExoShell bindings
-class ExoShellBindingFactory : public APIBindingFactory {
+// Factory object used to generate ExoMenu bindings
+class ExoMenuBindingFactory : public APIBindingFactory {
 public:
-  ExoShellBindingFactory();
-  ~ExoShellBindingFactory();
+  ExoMenuBindingFactory();
+  ~ExoMenuBindingFactory();
 
   APIBinding* Create(const unsigned int id, 
                      scoped_ptr<base::DictionaryValue> args) OVERRIDE;
@@ -50,4 +50,4 @@ public:
 
 } // namespace exo_shell
   
-#endif // EXO_SHELL_API_API_BINDING_H_
+#endif // EXO_SHELL_API_EXO_MENU_BINDING_H_

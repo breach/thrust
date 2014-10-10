@@ -21,6 +21,10 @@ class APIBinding;
 class APIBindingFactory;
 class APIBindingRemote;
 
+// ## API
+//
+// This objects reprensents the ExoShell API. It lives on the Browser UI thread
+// and is used by object there as well as the APIServer.
 class API {
 public:
   typedef base::Callback<void(const std::string& error, 
@@ -63,9 +67,8 @@ public:
 
   // ### SetRemote
   //
-  // Sets the remote for a given biding represented by its target id. The remote
-  // is owned by the API (deleted on object deletion) if not replaced by another
-  // one.
+  // Sets the remote for a given biding represented by its target id. The Remote
+  // is not owned by the API and should be nullified on deletion
   void SetRemote(unsigned int target,
                  APIBindingRemote* remote);
 
@@ -73,6 +76,11 @@ public:
   //
   // Retrieves a binding based on its id
   APIBinding* GetBinding(unsigned int target);
+
+  // ### GetRemote
+  //
+  // Retrieves a remote binding for this id
+  APIBindingRemote* GetRemote(unsigned int target);
 
 private:
   /****************************************************************************/

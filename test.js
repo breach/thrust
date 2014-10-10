@@ -35,6 +35,8 @@ client.on('data', function(data) {
   }
 });
 
+var SHELL_ID = -1;
+
 var main = function() {
 
   perform({
@@ -47,6 +49,7 @@ var main = function() {
   }, function(err, res) {
     console.log('SESSION: ' + JSON.stringify(res));
 
+    /*
     perform({
       _id: ++action_id,
       _action: "call",
@@ -56,6 +59,7 @@ var main = function() {
     }, function(err, res) {
       console.log('DEVTOOLS: ' + JSON.stringify(res));
     });
+    */
 
     perform({
       _id: ++action_id,
@@ -72,6 +76,7 @@ var main = function() {
       }
     }, function(err, res) {
       console.log('SHELL: ' + JSON.stringify(res));
+      SHELL_ID = res._target;
 
       perform({
         _id: ++action_id,
@@ -82,8 +87,43 @@ var main = function() {
       }, function(err, res) {
         console.log('SHOW: ' + JSON.stringify(res));
       });
-    });
 
+
+      perform({
+        _id: ++action_id,
+        _action: "create",
+        _type: "menu",
+        _args: {}
+      }, function(err, res) {
+        console.log('MENU: ' + JSON.stringify(res));
+
+        perform({
+          _id: ++action_id,
+          _action: "call",
+          _target: res._target,
+          _method: "insert_item_at",
+          _args: {
+            index: 0,
+            command_id: 1,
+            label: "Test Menu Item"
+          }
+        }, function(err, res) {
+          console.log('INSERT_ITEM_AT: ' + JSON.stringify(res));
+        });
+
+        perform({
+          _id: ++action_id,
+          _action: "call",
+          _target: res._target,
+          _method: "attach",
+          _args: {
+            shell_id: SHELL_ID
+          }
+        }, function(err, res) {
+          console.log('ATTACH: ' + JSON.stringify(res));
+        });
+      });
+    });
   });
 };
 
