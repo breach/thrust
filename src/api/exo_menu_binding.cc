@@ -101,7 +101,6 @@ ExoMenuBinding::CallLocalMethod(
     ExoMenuBinding* mb = 
       (ExoMenuBinding*)(API::Get()->GetBinding(menu_id));
     if(mb != NULL) {
-      LOG(INFO) << " INSERT SUBMENU AT: " << menu_id;
       menu = mb->GetMenu();
       menu_->InsertSubMenuAt(index, command_id, base::UTF8ToUTF16(label), menu);
     }
