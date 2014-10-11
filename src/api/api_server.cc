@@ -191,13 +191,14 @@ APIServer::Client::PerformAction(
     std::string method)
 {
   /* Runs on UI Thread. */
+  /*
   LOG(INFO) << "action: " << action;
   LOG(INFO) << "id: " << id;
   LOG(INFO) << "args: " << args.get();
-
   LOG(INFO) << "target: " << target;
   LOG(INFO) << "type: " << type;
   LOG(INFO) << "method: " << target;
+  */
 
   if(action.compare("create") == 0 && type.length()) {
     unsigned int target = api_->Create(type, args.Pass());
@@ -297,7 +298,7 @@ APIServer::DidRead(
     const char* data,
     int len)
 {
-  LOG(INFO) << "DATA: " << data;
+  //LOG(INFO) << "DATA: " << data;
   if(clients_[connection]) {
     clients_[connection]->ProcessChunk(std::string(data, len));
   }

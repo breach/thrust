@@ -101,6 +101,7 @@ ExoMenuBinding::CallLocalMethod(
     ExoMenuBinding* mb = 
       (ExoMenuBinding*)(API::Get()->GetBinding(menu_id));
     if(mb != NULL) {
+      LOG(INFO) << " INSERT SUBMENU AT: " << menu_id;
       menu = mb->GetMenu();
       menu_->InsertSubMenuAt(index, command_id, base::UTF8ToUTF16(label), menu);
     }
@@ -122,6 +123,7 @@ ExoMenuBinding::CallLocalMethod(
     if(sb != NULL) {
       shell = sb->GetShell();
       menu_->AttachToShell(shell);
+      LOG(INFO) << "ATTACH TO SHELL" << shell_id;
     }
     else {
       err = "exo_menu_binding:shell_not_found";
