@@ -28,6 +28,8 @@ ThrustSessionBinding::ThrustSessionBinding(
     scoped_ptr<base::DictionaryValue> args)
   : APIBinding("session", id)
 {
+  LOG(INFO) << "ThrustSessionBinding Constructor [" << this << "] " << id_;
+
   bool off_the_record = true;
   args->GetBoolean("off_the_record", &off_the_record);
 
@@ -45,7 +47,7 @@ ThrustSessionBinding::ThrustSessionBinding(
 
 ThrustSessionBinding::~ThrustSessionBinding()
 {
-  LOG(INFO) << "ThrustSessionBinding Destructor";
+  LOG(INFO) << "ThrustSessionBinding Destructor [" << this << "] " << id_;
   session_.reset();
 }
 

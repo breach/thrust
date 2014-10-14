@@ -31,6 +31,8 @@ ThrustWindowBinding::ThrustWindowBinding(
     scoped_ptr<base::DictionaryValue> args)
   : APIBinding("window", id)
 {
+  LOG(INFO) << "ThrustWindowBinding Constructor [" << this << "] " << id_;
+
   std::string root_url = "http://google.com";
   args->GetString("root_url", &root_url);
 
@@ -71,7 +73,7 @@ ThrustWindowBinding::ThrustWindowBinding(
 
 ThrustWindowBinding::~ThrustWindowBinding()
 {
-  LOG(INFO) << "ThrustWindowBinding Destructor";
+  LOG(INFO) << "ThrustWindowBinding Destructor [" << this << "] " << id_;
   window_.reset();
 }
 
