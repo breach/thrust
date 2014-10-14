@@ -3,22 +3,31 @@
 /******************************************************************************/
 
 >>v0.x<<
-:cleanser #90
-  - Reintroduce ClearDataForOrigin
-  - Ability to list Data
-  - Ideally: Storage for LocalData
+:webview
+  - Webview support
+
+:menu
+  - Support for Menu
 
 :print #108
   - Printing Support
 
+:cleanser #90
+  - Reintroduce ClearDataForOrigin
+  - Ability to list Data
+  - Ideally: Storage for LocalData
 :form_data #107
   - Password, Form Data API
-
 :html_auth #106
   - User authorization API
 
 
 DONE:
+>>v0.7<<
+- Remove NodeJS & JSON RPCish API
+- Upgrade to Chrome 36.0.x.x
+- Upgrade to Chrome 37.0.x.x
+
 >>v0.6<<
 - Cookies op_count
 - Upgrade to Node 0.11.14 (v8: 3.25.30.0)
@@ -52,12 +61,20 @@ DONE:
 - Delete VisitedLinks / Cache / Local Storage JS API
 - Capture ExoFrame ScreenShot from API
 
+/******************************************************************************/
+/* v0.7 Implementation NOTES */
+/******************************************************************************/
+- [x] Add object registry to api_handler
+- [x] Move server out of api_handler and make api_handler live in BROWSER_THREAD
+- [ ] Expose api_handler methods through messages (to call from webview wrapper)
+- [ ] Add Register webviews in API + binding
+
 
 /******************************************************************************/
-/* BUILD TRICKS */
+/* BUILD NOTES */
 /******************************************************************************/
-
-build/gyp_chromium exo_browser/exo_browser.gyp -Ddisable_debugallocation=1
+GYP_GENERATORS=ninja gyp --depth . exo_shell.gyp
+ninja -C out/Debug exo_shell -j 1
 
 # When receiving message: `The application cannot be opened because its executable is missing.`
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
@@ -66,7 +83,6 @@ build/gyp_chromium exo_browser/exo_browser.gyp -Ddisable_debugallocation=1
 /******************************************************************************/
 /* CHROMIUM URLS */
 /******************************************************************************/
-
 http://src.chromium.org/chrome/releases/
 http://omahaproxy.appspot.com/
 
@@ -74,7 +90,6 @@ http://omahaproxy.appspot.com/
 /******************************************************************************/
 /* NOTES ON CHROMIUM */
 /******************************************************************************/
-
 - Issue 159193: Move URLRequestContext getters from Profile into StoragePartition 
 https://code.google.com/p/chromium/issues/detail?id=159193#c28
 

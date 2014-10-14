@@ -1,20 +1,20 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_GEOLOCATION_ACCESS_TOKEN_STORE_H_
-#define EXO_BROWSER_GEOLOCATION_ACCESS_TOKEN_STORE_H_
+#ifndef EXO_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_
+#define EXO_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_
 
 #include "base/memory/ref_counted.h"
 #include "content/public/browser/access_token_store.h"
 #include "net/url_request/url_request_context_getter.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
 // Dummy access token store used to initialise the network location provider.
-class ExoBrowserAccessTokenStore : public content::AccessTokenStore {
+class ExoShellAccessTokenStore : public content::AccessTokenStore {
  public:
-  explicit ExoBrowserAccessTokenStore();
+  explicit ExoShellAccessTokenStore();
 
   /****************************************************************************/
   /* ACCESSTOKENSTORE IMPLEMENTATION                                          */
@@ -26,19 +26,12 @@ class ExoBrowserAccessTokenStore : public content::AccessTokenStore {
       const GURL& server_url, const base::string16& access_token) OVERRIDE;
 
  private:
-  /****************************************************************************/
-  /* PRIVATE I/F                                                              */
-  /****************************************************************************/
-  void GetRequestContextOnUIThread();
-  void RespondOnOriginatingThread(const LoadAccessTokensCallbackType& callback);
 
-  virtual ~ExoBrowserAccessTokenStore();
+  virtual ~ExoShellAccessTokenStore();
 
-  scoped_refptr<net::URLRequestContextGetter> system_request_context_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserAccessTokenStore);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellAccessTokenStore);
 };
 
-}  // namespace exo_browser
+}  // namespace exo_shell
 
-#endif // EXO_BROWSER_GEOLOCATION_ACCESS_TOKEN_STORE_H_
+#endif // EXO_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_

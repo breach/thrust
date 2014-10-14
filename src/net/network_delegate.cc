@@ -1,8 +1,8 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/net/network_delegate.h"
+#include "src/net/network_delegate.h"
 
 #include "net/base/net_errors.h"
 #include "net/base/static_cookie_policy.h"
@@ -10,29 +10,29 @@
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
 bool g_accept_all_cookies = true;
 }
 
-ExoBrowserNetworkDelegate::ExoBrowserNetworkDelegate() 
+ExoShellNetworkDelegate::ExoShellNetworkDelegate() 
 {
 }
 
-ExoBrowserNetworkDelegate::~ExoBrowserNetworkDelegate() 
+ExoShellNetworkDelegate::~ExoShellNetworkDelegate() 
 {
 }
 
 void 
-ExoBrowserNetworkDelegate::SetAcceptAllCookies(
+ExoShellNetworkDelegate::SetAcceptAllCookies(
     bool accept) 
 {
   g_accept_all_cookies = accept;
 }
 
 int 
-ExoBrowserNetworkDelegate::OnBeforeURLRequest(
+ExoShellNetworkDelegate::OnBeforeURLRequest(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     GURL* new_url) {
@@ -40,7 +40,7 @@ ExoBrowserNetworkDelegate::OnBeforeURLRequest(
 }
 
 int 
-ExoBrowserNetworkDelegate::OnBeforeSendHeaders(
+ExoShellNetworkDelegate::OnBeforeSendHeaders(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     net::HttpRequestHeaders* headers) 
@@ -49,14 +49,14 @@ ExoBrowserNetworkDelegate::OnBeforeSendHeaders(
 }
 
 void 
-ExoBrowserNetworkDelegate::OnSendHeaders(
+ExoShellNetworkDelegate::OnSendHeaders(
     net::URLRequest* request,
     const net::HttpRequestHeaders& headers) 
 {
 }
 
 int 
-ExoBrowserNetworkDelegate::OnHeadersReceived(
+ExoShellNetworkDelegate::OnHeadersReceived(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     const net::HttpResponseHeaders* original_response_headers,
@@ -67,47 +67,47 @@ ExoBrowserNetworkDelegate::OnHeadersReceived(
 }
 
 void 
-ExoBrowserNetworkDelegate::OnBeforeRedirect(
+ExoShellNetworkDelegate::OnBeforeRedirect(
     net::URLRequest* request,
     const GURL& new_location) 
 {
 }
 
 void 
-ExoBrowserNetworkDelegate::OnResponseStarted(
+ExoShellNetworkDelegate::OnResponseStarted(
     net::URLRequest* request) 
 {
 }
 
 void 
-ExoBrowserNetworkDelegate::OnRawBytesRead(
+ExoShellNetworkDelegate::OnRawBytesRead(
     const net::URLRequest& request,
     int bytes_read) 
 {
 }
 
 void 
-ExoBrowserNetworkDelegate::OnCompleted(
+ExoShellNetworkDelegate::OnCompleted(
     net::URLRequest* request, 
     bool started) 
 {
 }
 
 void 
-ExoBrowserNetworkDelegate::OnURLRequestDestroyed(
+ExoShellNetworkDelegate::OnURLRequestDestroyed(
     net::URLRequest* request) 
 {
 }
 
 void 
-ExoBrowserNetworkDelegate::OnPACScriptError(
+ExoShellNetworkDelegate::OnPACScriptError(
     int line_number,
     const base::string16& error) 
 {
 }
 
-ExoBrowserNetworkDelegate::AuthRequiredResponse 
-ExoBrowserNetworkDelegate::OnAuthRequired(
+ExoShellNetworkDelegate::AuthRequiredResponse 
+ExoShellNetworkDelegate::OnAuthRequired(
     net::URLRequest* request,
     const net::AuthChallengeInfo& auth_info,
     const AuthCallback& callback,
@@ -117,7 +117,7 @@ ExoBrowserNetworkDelegate::OnAuthRequired(
 }
 
 bool 
-ExoBrowserNetworkDelegate::OnCanGetCookies(
+ExoShellNetworkDelegate::OnCanGetCookies(
     const net::URLRequest& request,
     const net::CookieList& cookie_list) 
 {
@@ -132,7 +132,7 @@ ExoBrowserNetworkDelegate::OnCanGetCookies(
 }
 
 bool 
-ExoBrowserNetworkDelegate::OnCanSetCookie(
+ExoShellNetworkDelegate::OnCanSetCookie(
     const net::URLRequest& request,
     const std::string& cookie_line,
     net::CookieOptions* options) 
@@ -148,7 +148,7 @@ ExoBrowserNetworkDelegate::OnCanSetCookie(
 }
 
 bool 
-ExoBrowserNetworkDelegate::OnCanAccessFile(
+ExoShellNetworkDelegate::OnCanAccessFile(
     const net::URLRequest& request,
     const base::FilePath& path) const 
 {
@@ -156,18 +156,18 @@ ExoBrowserNetworkDelegate::OnCanAccessFile(
 }
 
 bool 
-ExoBrowserNetworkDelegate::OnCanThrottleRequest(
+ExoShellNetworkDelegate::OnCanThrottleRequest(
     const net::URLRequest& request) const 
 {
   return false;
 }
 
 int 
-ExoBrowserNetworkDelegate::OnBeforeSocketStreamConnect(
+ExoShellNetworkDelegate::OnBeforeSocketStreamConnect(
     net::SocketStream* socket,
     const net::CompletionCallback& callback) 
 {
   return net::OK;
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

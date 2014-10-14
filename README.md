@@ -1,55 +1,44 @@
-ExoShell
-========
+Thrust
+======
 
-The ExoShell is a scriptable platform designed to ease the experimentation 
-with new concepts for the Web Browser.
+Thrust is a cross-platform (Linux, OSX, Windows) application shell bindable from
+any language. It is designed to ease the creation, packaging and distribution of
+cross-platform native desktop appplication.
 
-The ExoShell exposes its API (parts of the Chromium Content API + 
-a Simple View Model) in Javascript and enables the implementation of a fully 
-functional browser entirely out of it (as a Javascript/HTML/CSS app)
+Thrust embeds Chromium Content API and exposes its API through a local JSON RPC
+server listening on unix domain socket. Through the use of a language library,
+developers can control Thrust and create shell window, sessions, menus, etc...
 
-The ExoShell is used by Breach.
+Thrust also come with support for the `<webview>` tag allowing the execution of
+remote pages in a entirely secure setting.
 
-#### The ExoShell Architecture
+Thrust will be used by next releases of Breach.
+
+#### Thrust Architecture
 
 ```
-[Chromium Architecture]
-  
-  (Platform)        #   (Browser Implementation)
-+----------------+  #  +-----------------------+
-|  Content API   +-----+     Chrome (C++)      |
-+----+-----------+  #  +-----------------------+
-     |              #     |       |        |
-+----+---+  +----+  #  +-----+ +-----+ +-------+
-| Webkit +--+ v8 |  #  | GTK | | Win | | Cocoa |
-+--------+  +----+  #  +-----+ +-----+ +-------+
-
-`vs.`
-
-[ExoShell Architecture]
-
-             (Platform)                  #   (Browser Implementation)
-                                         #
-                   +------------------+  #
-                   |  Cocoa/Win/GTK+  |  #
-                   +---------+--------+  #
-                             |           #
-+----------------+ +---------+--------+  #  +-----------------------+
-|  Content API   +-+  ExoShell (C++)  |  #  |  Web Views (HTML/JS)  |
-+----+-----------+ +--------------+---+  #  +-----------------------+
-     |                   (JS API) |      #             | (TCP)      
-+----+---+  +----+ +--------------|---+  #  +-----------------------+
-| Webkit +--+ v8 +-+    NodeJS    +---+-----+   Local Server (JS)   |
-+--------+  +----+ +------------------+  #  +-----------------------+
+[Thurst Architecture]
+             (Platform)                        (Client Implementation)
+                                                                       
+                                          #
+                   +------------------+   #      +-----------------------+
+                   |  Cocoa/Win/GTK+  |   #  +---|  shell3: (HTML/JS)    |
+                   +---------+--------+   #  |  +-----------------------++
+                             |            #  +--|  shell2: (HTML/JS)    |
++----------------+ +---------+--------+   #  | +-----------------------++
+|  Content API   +-+   Thrust (C++)   +------+-+  shell1: (HTML/JS)    |
++----+-----------+ +---------+--------+   #    +-----------------------+
+     |                       |            #               | (TCP/FS)      
++----+---+  +----+ +---------+--------+   #    +-----------------------+
+| Blink  +--+ v8 +-+   JSON RPC srv   +--------+ Client App (any Lang) |
++--------+  +----+ +------------------+   #     +-----------------------+
+                                          #
 ```
 
-### Getting the Source Code & Building the ExoBrowser
+### Testing
 
-See [Building the ExoShell](https://github.com/breach/exo_shell/wiki/Building-the-ExoBrowser)
-
-### Hacking with the ExoShell
-
-See [ExoShell JS API Specification](https://github.com/breach/exo_shell/blob/master/API.md)
+Thrust currently is testable only manually by running the exo_shell executable
+and runnin thrust-node library test.js file.
 
 ### Getting Involved
 

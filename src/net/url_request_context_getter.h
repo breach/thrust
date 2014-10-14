@@ -1,9 +1,9 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
-#define EXO_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#ifndef EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#define EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -26,20 +26,20 @@ class ProxyConfigService;
 class URLRequestContextStorage;
 }
 
-namespace exo_browser {
+namespace exo_shell {
 
 class ExoSession;
 
-class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
+class ExoShellURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
-  ExoBrowserURLRequestContextGetter(
+  ExoShellURLRequestContextGetter(
       ExoSession* parent,
       bool ignore_certificate_errors,
       const base::FilePath& base_path,
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors,
+      content::URLRequestInterceptorScopedVector request_interceptors,
       net::NetLog* net_log);
 
   // net::URLRequestContextGetter implementation.
@@ -50,28 +50,28 @@ class ExoBrowserURLRequestContextGetter : public net::URLRequestContextGetter {
   net::HostResolver* host_resolver();
 
  protected:
-  virtual ~ExoBrowserURLRequestContextGetter();
+  virtual ~ExoShellURLRequestContextGetter();
 
  private:
-  ExoSession*                               parent_;
-  bool                                      ignore_certificate_errors_;
-  base::FilePath                            base_path_;
-  base::MessageLoop*                        io_loop_;
-  base::MessageLoop*                        file_loop_;
-  net::NetLog*                              net_log_;
+  ExoSession*                                parent_;
+  bool                                       ignore_certificate_errors_;
+  base::FilePath                             base_path_;
+  base::MessageLoop*                         io_loop_;
+  base::MessageLoop*                         file_loop_;
+  net::NetLog*                               net_log_;
 
-  scoped_ptr<net::ProxyConfigService>       proxy_config_service_;
-  scoped_ptr<net::NetworkDelegate>          network_delegate_;
-  scoped_ptr<net::URLRequestContextStorage> storage_;
-  scoped_ptr<net::URLRequestContext>        url_request_context_;
-  content::ProtocolHandlerMap               protocol_handlers_;
-  content::ProtocolHandlerScopedVector      protocol_interceptors_;
+  scoped_ptr<net::ProxyConfigService>        proxy_config_service_;
+  scoped_ptr<net::NetworkDelegate>           network_delegate_;
+  scoped_ptr<net::URLRequestContextStorage>  storage_;
+  scoped_ptr<net::URLRequestContext>         url_request_context_;
+  content::ProtocolHandlerMap                protocol_handlers_;
+  content::URLRequestInterceptorScopedVector request_interceptors_;
 
   friend class ExoSession;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserURLRequestContextGetter);
+  DISALLOW_COPY_AND_ASSIGN(ExoShellURLRequestContextGetter);
 };
 
-} // namespace exo_browser
+} // namespace exo_shell
 
-#endif // EXO_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#endif // EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_

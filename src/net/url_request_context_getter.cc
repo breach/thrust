@@ -1,8 +1,8 @@
-// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "exo_browser/src/net/url_request_context_getter.h"
+#include "src/net/url_request_context_getter.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -28,22 +28,23 @@
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/data_protocol_handler.h"
 #include "net/url_request/file_protocol_handler.h"
-#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request_context.h"
+#include "net/url_request/url_request_intercepting_job_factory.h"
 #include "net/url_request/url_request_context_storage.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/browser/cookie_store_factory.h"
-#include "exo_browser/src/common/switches.h"
-#include "exo_browser/src/net/network_delegate.h"
-#include "exo_browser/src/browser/session/exo_session.h"
+
+#include "src/common/switches.h"
+#include "src/net/network_delegate.h"
+#include "src/browser/session/exo_session.h"
 
 using namespace content;
 
-namespace exo_browser {
+namespace exo_shell {
 
 namespace {
 
@@ -62,14 +63,14 @@ void InstallProtocolHandlers(net::URLRequestJobFactoryImpl* job_factory,
 
 }  // namespace
 
-ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
+ExoShellURLRequestContextGetter::ExoShellURLRequestContextGetter(
     ExoSession* parent,
     bool ignore_certificate_errors,
     const base::FilePath& base_path,
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     ProtocolHandlerMap* protocol_handlers,
-    ProtocolHandlerScopedVector protocol_interceptors,
+    URLRequestInterceptorScopedVector request_interceptors,
     net::NetLog* net_log)
     : parent_(parent),
       ignore_certificate_errors_(ignore_certificate_errors),
@@ -77,7 +78,7 @@ ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
       io_loop_(io_loop),
       file_loop_(file_loop),
       net_log_(net_log),
-      protocol_interceptors_(protocol_interceptors.Pass())
+      request_interceptors_(request_interceptors.Pass())
 {
   // Must first be created on the UI thread.
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -91,19 +92,19 @@ ExoBrowserURLRequestContextGetter::ExoBrowserURLRequestContextGetter(
         io_loop_->message_loop_proxy().get(), file_loop_));
 }
 
-ExoBrowserURLRequestContextGetter::~ExoBrowserURLRequestContextGetter() 
+ExoShellURLRequestContextGetter::~ExoShellURLRequestContextGetter() 
 {
 }
 
 net::URLRequestContext* 
-ExoBrowserURLRequestContextGetter::GetURLRequestContext() 
+ExoShellURLRequestContextGetter::GetURLRequestContext() 
 {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (!url_request_context_) {
     url_request_context_.reset(new net::URLRequestContext());
     url_request_context_->set_net_log(net_log_);
-    network_delegate_.reset(new ExoBrowserNetworkDelegate);
+    network_delegate_.reset(new ExoShellNetworkDelegate);
     url_request_context_->set_network_delegate(network_delegate_.get());
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
@@ -201,13 +202,13 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     // Keep ProtocolHandlers added in sync with
-    // ExoBrowserContentBrowserClient::IsHandledURL().
+    // ExoShellContentBrowserClient::IsHandledURL().
     InstallProtocolHandlers(job_factory.get(), &protocol_handlers_);
     bool set_protocol = job_factory->SetProtocolHandler(
-        kDataScheme, new net::DataProtocolHandler);
+        url::kDataScheme, new net::DataProtocolHandler);
     DCHECK(set_protocol);
     set_protocol = job_factory->SetProtocolHandler(
-        kFileScheme,
+        url::kFileScheme,
         new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
                 GetTaskRunnerWithShutdownBehavior(
@@ -217,14 +218,14 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
         job_factory.PassAs<net::URLRequestJobFactory>();
-    for (ProtocolHandlerScopedVector::reverse_iterator i =
-             protocol_interceptors_.rbegin();
-         i != protocol_interceptors_.rend();
+    for (URLRequestInterceptorScopedVector::reverse_iterator i =
+             request_interceptors_.rbegin();
+         i != request_interceptors_.rend();
          ++i) {
-      top_job_factory.reset(new net::ProtocolInterceptJobFactory(
+      top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
           top_job_factory.Pass(), make_scoped_ptr(*i)));
     }
-    protocol_interceptors_.weak_clear();
+    request_interceptors_.weak_clear();
 
     storage_->set_job_factory(top_job_factory.release());
   }
@@ -233,15 +234,15 @@ ExoBrowserURLRequestContextGetter::GetURLRequestContext()
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-ExoBrowserURLRequestContextGetter::GetNetworkTaskRunner() const 
+ExoShellURLRequestContextGetter::GetNetworkTaskRunner() const 
 {
   return BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
 }
 
 net::HostResolver* 
-ExoBrowserURLRequestContextGetter::host_resolver() 
+ExoShellURLRequestContextGetter::host_resolver() 
 {
   return url_request_context_->host_resolver();
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

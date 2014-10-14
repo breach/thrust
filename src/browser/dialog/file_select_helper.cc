@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "exo_browser/src/browser/dialog/file_select_helper.h"
+#include "src/browser/dialog/file_select_helper.h"
 
 #include <string>
 #include <utility>
@@ -24,8 +24,8 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_params.h"
-#include "grit/exo_browser_resources.h"
-#include "exo_browser/src/browser/util/platform_util.h"
+
+#include "src/browser/util/platform_util.h"
 
 using namespace content;
 
@@ -56,7 +56,7 @@ std::vector<ui::SelectedFileInfo> FilePathListToSelectedFileInfoList(
 } // namespace
 
 
-namespace exo_browser {
+namespace exo_shell {
 
 struct FileSelectHelper::ActiveDirectoryEnumeration {
   ActiveDirectoryEnumeration() : rvh_(NULL) {}
@@ -250,14 +250,17 @@ FileSelectHelper::GetFileTypesFromAcceptType(
       // so we just have to add it to the list.
       base::FilePath::StringType ext(ascii_type.begin(), ascii_type.end());
       extensions->push_back(ext.substr(1));
-    } else {
-      if (ascii_type == "image/*")
+    } 
+    else {
+      /* TODO(spolu): FixMe */
+      /*
+      if (ascii_type == "image*")
         description_id = IDS_IMAGE_FILES;
-      else if (ascii_type == "audio/*")
+      else if (ascii_type == "audio*")
         description_id = IDS_AUDIO_FILES;
-      else if (ascii_type == "video/*")
+      else if (ascii_type == "video*")
         description_id = IDS_VIDEO_FILES;
-
+      */
       net::GetExtensionsForMimeType(ascii_type, extensions);
     }
 
@@ -276,9 +279,12 @@ FileSelectHelper::GetFileTypesFromAcceptType(
   //    "ehtml,shtml,htm,html" for "text/html". On Windows, the select file
   //    dialog uses the first extension in the list to form the description,
   //    like "EHTML Files". This is not what we want.
+  /* TODO(spolu): FixMe */
+  /*
   if (valid_type_count > 1 ||
       (valid_type_count == 1 && description_id == 0 && extensions->size() > 1))
     description_id = IDS_CUSTOM_FILES;
+  */
 
   if (description_id) {
     file_type->extension_description_overrides.push_back(
@@ -460,4 +466,4 @@ bool FileSelectHelper::IsAcceptTypeValid(const std::string& accept_type) {
   return true;
 }
 
-} // namespace exo_browser
+} // namespace exo_shell

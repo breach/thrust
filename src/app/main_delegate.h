@@ -1,43 +1,48 @@
-// Copyright (c) 2014 Stanislas Polu.
-// Copyright (c) 2012 The Chromium Authors.
+// Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_BROWSER_APP_MAIN_DELEGATE_H_
-#define EXO_BROWSER_APP_MAIN_DELEGATE_H_
+#ifndef EXO_SHELL_APP_MAIN_DELEGATE_H_
+#define EXO_SHELL_APP_MAIN_DELEGATE_H_
 
-#include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
-#include "content/public/app/content_main_delegate.h"
-#include "exo_browser/src/common/content_client.h"
+#include "brightray/common/main_delegate.h"
+#include "brightray/common/content_client.h"
 
-namespace exo_browser {
+namespace exo_shell {
 
-class ExoBrowserContentBrowserClient;
-class ExoBrowserContentRendererClient;
+class MainDelegate : public brightray::MainDelegate {
+public:
+  MainDelegate();
+  ~MainDelegate();
 
-class ExoBrowserMainDelegate : public content::ContentMainDelegate {
- public:
-  ExoBrowserMainDelegate();
-  virtual ~ExoBrowserMainDelegate();
-
-  // ContentMainDelegate implementation:
+protected:
+  /****************************************************************************/
+  /* CONTENT_MAIN_DELEGATE IMPLEMENTATION */
+  /****************************************************************************/
   virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
   virtual void PreSandboxStartup() OVERRIDE;
-  virtual content::ContentBrowserClient* 
-    CreateContentBrowserClient() OVERRIDE;
-  virtual content::ContentRendererClient* 
-    CreateContentRendererClient() OVERRIDE;
+  virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
+  virtual content::ContentRendererClient*
+      CreateContentRendererClient() OVERRIDE;
 
-  static void InitializeResourceBundle();
+  /****************************************************************************/
+  /* BRIGHTRAY_MAIN_DELEGATE IMPLEMENTATION */
+  /****************************************************************************/
+  virtual scoped_ptr<brightray::ContentClient> CreateContentClient() OVERRIDE;
+  virtual void AddDataPackFromPath(
+      ui::ResourceBundle* bundle, const base::FilePath& pak_dir) OVERRIDE;
+#if defined(OS_MACOSX)
+  virtual void OverrideChildProcessPath() OVERRIDE;
+  virtual void OverrideFrameworkBundlePath() OVERRIDE;
+#endif
 
- private:
-  scoped_ptr<ExoBrowserContentBrowserClient> browser_client_;
-  scoped_ptr<ExoBrowserContentRendererClient> renderer_client_;
-  ExoBrowserContentClient content_client_;
+private:
+  brightray::ContentClient content_client_;
+  scoped_ptr<content::ContentBrowserClient> browser_client_;
+  scoped_ptr<content::ContentRendererClient> renderer_client_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoBrowserMainDelegate);
+  DISALLOW_COPY_AND_ASSIGN(MainDelegate);
 };
 
-} // namespace exo_browser
+}
 
-#endif // EXO_BROWSER_APP_MAIN_DELEGATE_H_
+#endif // EXO_SHELL_APP_MAIN_DELEGATE_H_
