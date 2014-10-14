@@ -47,8 +47,6 @@ protected:
   APIBinding(const std::string& type, 
              const unsigned int id);
 
-private:
-
   std::string      type_;
   unsigned int     id_;
 

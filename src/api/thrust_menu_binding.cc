@@ -33,13 +33,14 @@ ThrustMenuBinding::ThrustMenuBinding(
     scoped_ptr<base::DictionaryValue> args)
   : APIBinding("menu", id)
 {
-  LOG(INFO) << "ThrustMenuBinding Constructor: " << this;
+  LOG(INFO) << "ThrustMenuBinding Constructor [" << this << "] " << id_;
+
   menu_.reset(new ThrustMenu());
 }
 
 ThrustMenuBinding::~ThrustMenuBinding()
 {
-  LOG(INFO) << "ThrustMenuBinding Destructor: " << this;
+  LOG(INFO) << "ThrustMenuBinding Destructor [" << this << "] " << id_;
   menu_.reset();
 }
 
