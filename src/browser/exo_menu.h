@@ -60,7 +60,7 @@ public:
 
 #if defined(OS_MACOSX)
   // Set the global menubar.
-  static void SetApplicationMenu(Menu* menu);
+  static void SetApplicationMenu(ExoMenu* menu);
   // Fake sending an action from the application menu.
   static void SendActionToFirstResponder(const std::string& action);
 #endif
@@ -89,10 +89,6 @@ public:
   /****************************************************************************/
   void PlatformPopup(ExoShell* shell);
 
-#if defined(USE_AURA)
-#elif defined(OS_MACOSX)
-  base::scoped_nsobject<MenuController>     menu_controller_;
-#endif
   scoped_ptr<ui::SimpleMenuModel>           model_;
   ExoMenu*                                  parent_;
 

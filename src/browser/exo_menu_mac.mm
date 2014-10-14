@@ -1,16 +1,22 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/browser/exo_menu.h"
+#import "src/browser/exo_menu.h"
 
-using namespace content;
+#import "base/mac/scoped_nsobject.h"
+#import "base/strings/sys_string_conversions.h"
+
+#import "src/browser/ui/cocoa/menu_controller.h"
+#import "src/browser/exo_shell.h"
 
 namespace exo_shell {
 
+static base::scoped_nsobject<ExoShellMenuController> menu_controller_;
+
 void 
 ExoMenu::PlatformPopup(ExoShell* shell) {
-  base::scoped_nsobject<MenuController> menu_controller(
-      [[MenuController alloc] initWithModel:model_.get()]);
+  base::scoped_nsobject<ExoShellMenuController> menu_controller(
+      [[ExoShellMenuController alloc] initWithModel:model_.get()]);
 
   NSWindow* nswindow = shell->GetNativeWindow();
   content::WebContents* web_contents = shell->GetWebContents();
@@ -37,14 +43,13 @@ ExoMenu::PlatformPopup(ExoShell* shell) {
 
 // static
 void 
-ExoMenu::SetApplicationMenu(Menu* base_menu) {
-  MenuMac* menu = static_cast<MenuMac*>(base_menu);
-  base::scoped_nsobject<AtomMenuController> menu_controller(
-      [[AtomMenuController alloc] initWithModel:menu->model_.get()]);
+ExoMenu::SetApplicationMenu(ExoMenu* menu) {
+  base::scoped_nsobject<ExoShellMenuController> menu_controller(
+      [[ExoShellMenuController alloc] initWithModel:menu->model_.get()]);
   [NSApp setMainMenu:[menu_controller menu]];
 
   // Ensure the menu_controller_ is destroyed after main menu is set.
-  menu_controller.swap(menu->menu_controller_);
+  menu_controller.swap(menu_controller_);
 }
 
 // static

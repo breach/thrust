@@ -30,9 +30,12 @@ ExoShellRenderViewObserver::OnMessageReceived(
     const IPC::Message& message) 
 {
   bool handled = true;
+  /*
   IPC_BEGIN_MESSAGE_MAP(ExoShellRenderViewObserver, message)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
+  */
+  handled = false;
 
   return handled;
 }

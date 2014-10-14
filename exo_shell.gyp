@@ -59,6 +59,7 @@
       'src/browser/exo_menu.h',
       'src/browser/exo_menu.cc',
       'src/browser/exo_menu_views.cc',
+      'src/browser/exo_menu_mac.mm',
       'src/browser/dialog/javascript_dialog_manager.cc',
       'src/browser/dialog/javascript_dialog_manager.h',
       'src/browser/dialog/file_select_helper.h',
@@ -87,10 +88,10 @@
       'src/browser/ui/views/submenu_button.h',
       'src/browser/ui/views/submenu_button.cc',
 
-      'src/browser/ui/views/cocoa/menu_controller.h',
-      'src/browser/ui/views/cocoa/menu_controller.mm',
-      'src/browser/ui/views/cocoa/event_processing_window.h',
-      'src/browser/ui/views/cocoa/event_processing_window.mm',
+      'src/browser/ui/cocoa/menu_controller.h',
+      'src/browser/ui/cocoa/menu_controller.mm',
+      'src/browser/ui/cocoa/event_processing_window.h',
+      'src/browser/ui/cocoa/event_processing_window.mm',
 
       'src/browser/web_view/web_view_guest.h',
       'src/browser/web_view/web_view_guest.cc',

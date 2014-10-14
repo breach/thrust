@@ -87,7 +87,7 @@ ExoSession::ExoSession(
   }
   path_ = base::FilePath(path);
 
-  bool result = visitedlink_store_->Init();
+  visitedlink_store_->Init();
 
   devtools_delegate_ = new ExoShellDevToolsDelegate(this);
   
@@ -226,8 +226,9 @@ ExoSession::CreateGuest(
   WebViewGuest::ParsePartitionParam(
       extra_params.get(), &storage_partition_id, &persist_storage);
 
-  content::RenderProcessHost* embedder_process_host =
-      embedder_site_instance->GetProcess();
+  //content::RenderProcessHost* embedder_process_host =
+  //  embedder_site_instance->GetProcess();
+  
   // Validate that the partition id coming from the renderer is valid UTF-8,
   // since we depend on this in other parts of the code, such as FilePath
   // creation. 
@@ -235,12 +236,12 @@ ExoSession::CreateGuest(
     return NULL;
   }
 
-  const GURL& embedder_site_url = embedder_site_instance->GetSiteURL();
-  const std::string& host = embedder_site_url.host();
-
   /* TODO(spolu): Reintroduce guest_instance_id when site-isolation is live   */
   /* with <webview>. See /src/chrome/browser/guest_view/guest_view_manager.cc */
   /*
+  const GURL& embedder_site_url = embedder_site_instance->GetSiteURL();
+  const std::string& host = embedder_site_url.host();
+
   std::string url_encoded_partition = net::EscapeQueryParamValue(
       storage_partition_id, false);
   // The SiteInstance of a given webview tag is based on the fact that it's

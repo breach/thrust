@@ -12,8 +12,9 @@
 #include "url/gurl.h"
 #import "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "content/public/browser/native_web_keyboard_event.h"
-#include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
+#include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host_view.h"
+#include "vendor/brightray/browser/inspectable_web_contents.h"
 #include "vendor/brightray/browser/inspectable_web_contents_view.h"
 
 using namespace content;
@@ -260,6 +261,13 @@ ExoShell::PlatformSetContentSize(
   frame_nsrect.size.width = width;
   frame_nsrect.size.height = height;
   [window_ setFrame:frame_nsrect display:YES];
+}
+
+void 
+ExoShell::PlatformSetMenu(
+    ui::MenuModel* menu_model) 
+{
+  /* No action on MacOSX should use ExoMenu::SetApplicationMenu. */
 }
 
 

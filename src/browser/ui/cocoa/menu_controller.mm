@@ -5,13 +5,13 @@
 
 #import "src/browser/ui/cocoa/menu_controller.h"
 
-#include "base/logging.h"
-#include "base/strings/sys_string_conversions.h"
-#include "ui/base/accelerators/accelerator.h"
-#include "ui/base/accelerators/platform_accelerator_cocoa.h"
-#include "ui/base/l10n/l10n_util_mac.h"
-#include "ui/base/models/simple_menu_model.h"
-#include "ui/gfx/image/image.h"
+#import "base/logging.h"
+#import "base/strings/sys_string_conversions.h"
+#import "ui/base/accelerators/accelerator.h"
+#import "ui/base/accelerators/platform_accelerator_cocoa.h"
+#import "ui/base/l10n/l10n_util_mac.h"
+#import "ui/base/models/simple_menu_model.h"
+#import "ui/gfx/image/image.h"
 
 namespace {
 
@@ -60,12 +60,12 @@ int EventFlagsFromNSEvent(NSEvent* event) {
 
 }  // namespace
 
-@interface MenuController (Private)
+@interface ExoShellMenuController (Private)
 - (void)addSeparatorToMenu:(NSMenu*)menu
                    atIndex:(int)index;
 @end
 
-@implementation MenuController
+@implementation ExoShellMenuController
 
 @synthesize model = model_;
 

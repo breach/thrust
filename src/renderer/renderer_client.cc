@@ -50,8 +50,6 @@ namespace {
 
 ExoShellRendererClient* g_renderer_client;
 
-const char kWebViewTagName[] = "WEBVIEW";
-
 }
 
 ExoShellRendererClient* 

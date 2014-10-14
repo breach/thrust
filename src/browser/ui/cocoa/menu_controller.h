@@ -8,8 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "base/mac/scoped_nsobject.h"
-#include "base/strings/string16.h"
+#import "base/mac/scoped_nsobject.h"
+#import "base/strings/string16.h"
 
 namespace ui {
 class MenuModel;
@@ -21,11 +21,11 @@ class MenuModel;
 // allow for hierarchical menus). The tag is the index into that model for
 // that particular item. It is important that the model outlives this object
 // as it only maintains weak references.
-@interface MenuController : NSObject<NSMenuDelegate> {
+@interface ExoShellMenuController : NSObject<NSMenuDelegate> {
  @protected
-  ui::MenuModel* model_;  // weak
+  ui::MenuModel*                model_;  // weak
   base::scoped_nsobject<NSMenu> menu_;
-  BOOL isMenuOpen_;
+  BOOL                          isMenuOpen_;
 }
 
 @property(nonatomic, assign) ui::MenuModel* model;
@@ -57,12 +57,12 @@ class MenuModel;
 @end
 
 // Exposed only for unit testing, do not call directly.
-@interface MenuController (PrivateExposedForTesting)
+@interface ExoShellMenuController (PrivateExposedForTesting)
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item;
 @end
 
 // Protected methods that subclassers can override.
-@interface MenuController (Protected)
+@interface ExoShellMenuController (Protected)
 - (void)addItemToMenu:(NSMenu*)menu
               atIndex:(NSInteger)index
             fromModel:(ui::MenuModel*)model;
