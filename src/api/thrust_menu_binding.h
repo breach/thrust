@@ -29,6 +29,8 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
+  void EmitExecuteCommand(int command_id, int event_flags);
+
   ThrustMenu* GetMenu();
 
 private:

@@ -6,11 +6,13 @@
 
 #include "src/browser/thrust_window.h"
 #include "src/browser/ui/accelerator_util.h"
+#include "src/api/thrust_menu_binding.h"
 
 namespace thrust_shell {
 
-ThrustMenu::ThrustMenu()
-  : model_(new ui::SimpleMenuModel(this)),
+ThrustMenu::ThrustMenu(ThrustMenuBinding* binding)
+  : binding_(binding),
+    model_(new ui::SimpleMenuModel(this)),
     parent_(NULL) 
 {
 }
@@ -64,8 +66,9 @@ ThrustMenu::ExecuteCommand(
     int command_id, 
     int event_flags) 
 {
-  LOG(INFO) << "---+++++++++++++_-_____________________ EXECUTE " << command_id << " " << event_flags;
-  /* TODO(spolu); */
+  if(binding_ != NULL) {
+    binding_->EmitExecuteCommand(command_id, event_flags);
+  }
 }
 
 void 

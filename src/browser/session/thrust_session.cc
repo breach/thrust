@@ -71,10 +71,12 @@ class ThrustSession::ExoResourceContext : public content::ResourceContext {
 /******************************************************************************/
 
 ThrustSession::ThrustSession(
+    ThrustSessionBinding* binding,
     const bool off_the_record,
     const std::string& path,
     bool dummy_cookie_store)
-: off_the_record_(off_the_record),
+: binding_(binding),
+  off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
   resource_context_(new ExoResourceContext),
   cookie_store_(new ThrustSessionCookieStore(this, dummy_cookie_store)),

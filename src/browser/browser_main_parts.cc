@@ -62,7 +62,7 @@ ThrustShellMainParts::CreateBrowserContext() {
   if(system_session_ == NULL) {
     /* We create an off the record session to be used internally. */
     /* This session has a dummy cookie store. Stores nothing.     */
-    system_session_ = new ThrustSession(true, "system_session", true);
+    system_session_ = new ThrustSession(NULL, true, "system_session", true);
   }
   return system_session_;
 }

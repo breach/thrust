@@ -35,7 +35,7 @@ ThrustMenuBinding::ThrustMenuBinding(
 {
   LOG(INFO) << "ThrustMenuBinding Constructor [" << this << "] " << id_;
 
-  menu_.reset(new ThrustMenu());
+  menu_.reset(new ThrustMenu(this));
 }
 
 ThrustMenuBinding::~ThrustMenuBinding()
@@ -194,6 +194,18 @@ ThrustMenuBinding::CallLocalMethod(
   */
 
   callback.Run(err, scoped_ptr<base::Value>(res).Pass());
+}
+
+void 
+ThrustMenuBinding::EmitExecuteCommand(
+    int command_id, 
+    int event_flags)
+{
+  base::DictionaryValue* res = new base::DictionaryValue;
+  res->SetInteger("command_id", command_id);
+  res->SetInteger("event_flags", event_flags);
+
+  this->EmitEvent("execute", scoped_ptr<base::DictionaryValue>(res).Pass());
 }
 
 ThrustMenu*

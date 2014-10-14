@@ -14,14 +14,15 @@ namespace thrust_shell {
 
 class ThrustWindow;
 class MenuController;
+class ThrustMenuBinding;
 
-class ThrustMenu : public ui::SimpleMenuModel::Delegate,
-                public base::RefCountedThreadSafe<ThrustMenu> {
+class ThrustMenu : public ui::SimpleMenuModel::Delegate {
 public:
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/
-  ThrustMenu();
+  // ### ThrustMenu
+  ThrustMenu(ThrustMenuBinding* binding);
   // ### ~ThrustMenu
   virtual ~ThrustMenu();
 
@@ -94,6 +95,8 @@ public:
   /* PLATFORM INTERFACE */
   /****************************************************************************/
   void PlatformPopup(ThrustWindow* window);
+
+  ThrustMenuBinding*                        binding_;
 
   scoped_ptr<ui::SimpleMenuModel>           model_;
   ThrustMenu*                               parent_;

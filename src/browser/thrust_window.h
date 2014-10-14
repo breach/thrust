@@ -53,6 +53,7 @@ namespace thrust_shell {
 class ThrustSession;
 class ThrustShellDevToolsFrontend;
 class ThrustShellJavaScriptDialogManager;
+class ThrustWindowBinding;
 
 class GlobalMenuBarX11;
 class MenuBar;
@@ -82,6 +83,8 @@ public:
   //
   // Creates a new ThrustWindow with the specified `root_url`
   // ```
+  // @binding   {ThrustWindowBinding} the binding associated
+  // @session   {ThrustSession} the session to use
   // @root_url  {GURL} the main document root url
   // @size      {Size} the initial size of the window
   // @title     {string} the title to use
@@ -89,6 +92,7 @@ public:
   // @has_frame {boolean} has a frame
   // ```
   static ThrustWindow* CreateNew(
+      ThrustWindowBinding* binding,
       ThrustSession* session,
       const GURL& root_url,
       const gfx::Size& size,
@@ -100,11 +104,15 @@ public:
   //
   // Creates a new ThrustWindow out of an existing WebContents
   // ```
+  // @binding      {ThrustWindowBinding} the binding associated
   // @web_contents {WebContents} the web_contents to use
   // @size         {Size} the initial size of the window
+  // @title        {string} the title to use
   // @icon_path    {string} icon_path (no effect on OSX)
+  // @has_frame    {boolean} has a frame
   // ```
   static ThrustWindow* CreateNew(
+      ThrustWindowBinding* binding,
       content::WebContents* web_contents,
       const gfx::Size& size,
       const std::string& title,
@@ -267,6 +275,7 @@ private:
   /* PRIVATE INTERFACE */
   /****************************************************************************/
   explicit ThrustWindow(
+      ThrustWindowBinding* binding,
       content::WebContents* web_contents,
       const gfx::Size& size,
       const std::string& title,
@@ -421,31 +430,32 @@ private:
   /****************************************************************************/
   /* MEMBERS */
   /****************************************************************************/
+  ThrustWindowBinding*                             binding_;
   scoped_ptr<ThrustShellJavaScriptDialogManager>   dialog_manager_;
-  content::NotificationRegistrar                registrar_;
+  content::NotificationRegistrar                   registrar_;
 
 #if defined(USE_AURA)
-  scoped_ptr<views::Widget>                     window_;
-  scoped_ptr<MenuBar>                           menu_bar_;
-  bool                                          menu_bar_autohide_;
-  bool                                          menu_bar_visible_;
-  bool                                          menu_bar_alt_pressed_;
+  scoped_ptr<views::Widget>                        window_;
+  scoped_ptr<MenuBar>                              menu_bar_;
+  bool                                             menu_bar_autohide_;
+  bool                                             menu_bar_visible_;
+  bool                                             menu_bar_alt_pressed_;
 #if defined(USE_X11)
-  scoped_ptr<GlobalMenuBarX11>                  global_menu_bar_;
+  scoped_ptr<GlobalMenuBarX11>                     global_menu_bar_;
 #endif
 #elif defined(OS_MACOSX)
-  gfx::NativeWindow                             window_;
+  gfx::NativeWindow                                window_;
 #endif
-  bool                                          is_closed_;
-  gfx::Image                                    icon_;
-  std::string                                   title_;
-  bool                                          has_frame_;
-  scoped_ptr<SkRegion>                          draggable_region_;
+  bool                                             is_closed_;
+  gfx::Image                                       icon_;
+  std::string                                      title_;
+  bool                                             has_frame_;
+  scoped_ptr<SkRegion>                             draggable_region_;
 
-  scoped_ptr<brightray::InspectableWebContents> inspectable_web_contents_;
+  scoped_ptr<brightray::InspectableWebContents>    inspectable_web_contents_;
 
   // A static container of all the open instances.
-  static std::vector<ThrustWindow*>                 s_instances;
+  static std::vector<ThrustWindow*>                s_instances;
 
   friend class ThrustMenu;
 

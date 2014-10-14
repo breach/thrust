@@ -28,15 +28,21 @@ APIBinding::CallRemoteMethod(
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
 {
-  /* TODO(spolu) */
+  APIBindingRemote* remote = API::Get()->GetRemote(id_);
+  if(remote != NULL) {
+    remote->CallMethod(method, args.Pass(), callback);
+  }
 }
 
 void
-APIBinding::Emit(
+APIBinding::EmitEvent(
     const std::string& type,
     scoped_ptr<base::DictionaryValue> event)
 {
-  /* TODO(spolu) */
+  APIBindingRemote* remote = API::Get()->GetRemote(id_);
+  if(remote != NULL) {
+    remote->EmitEvent(type, event.Pass());
+  }
 }
 
 } // namespace thrust_shell

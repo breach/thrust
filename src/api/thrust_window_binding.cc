@@ -63,6 +63,7 @@ ThrustWindowBinding::ThrustWindowBinding(
   }
 
   window_.reset(ThrustWindow::CreateNew(
+        this,
         session,
         GURL(root_url), 
         gfx::Size(width, height), 

@@ -45,12 +45,14 @@ std::vector<ThrustWindow*> ThrustWindow::s_instances;
 
 
 ThrustWindow::ThrustWindow(
+    ThrustWindowBinding* binding,
     WebContents* web_contents,
     const gfx::Size& size,
     const std::string& title,
     const std::string& icon_path,
     const bool has_frame)
   : WebContentsObserver(web_contents),
+    binding_(binding),
     is_closed_(false),
     title_(title),
     has_frame_(has_frame),
@@ -117,19 +119,21 @@ ThrustWindow::~ThrustWindow()
 
 ThrustWindow*
 ThrustWindow::CreateNew(
+    ThrustWindowBinding* binding,
     WebContents* web_contents,
     const gfx::Size& size,
     const std::string& title,
     const std::string& icon_path,
     const bool has_frame)
 {
-  ThrustWindow *browser = new ThrustWindow(web_contents, size, 
+  ThrustWindow *browser = new ThrustWindow(binding, web_contents, size, 
                                            title, icon_path, has_frame);
   return browser;
 }
 
 ThrustWindow*
 ThrustWindow::CreateNew(
+    ThrustWindowBinding* binding,
     ThrustSession* session,
     const GURL& root_url,
     const gfx::Size& size,
@@ -151,7 +155,7 @@ ThrustWindow::CreateNew(
   LOG(INFO) << "ThrustWindow Constructor (web_contents created) [" 
             << web_contents << "]";
 
-  return CreateNew(web_contents, size, title, icon_path, has_frame);
+  return CreateNew(binding, web_contents, size, title, icon_path, has_frame);
 }
 
 WebContents* 

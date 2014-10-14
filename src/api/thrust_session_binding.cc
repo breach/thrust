@@ -39,9 +39,10 @@ ThrustSessionBinding::ThrustSessionBinding(
   bool dummy_cookie_store = true;
   args->GetBoolean("dummy_cookie_store", &dummy_cookie_store);
 
-  session_.reset(new ThrustSession(off_the_record, 
-                                path, 
-                                dummy_cookie_store));
+  session_.reset(new ThrustSession(this,
+                                   off_the_record, 
+                                   path, 
+                                   dummy_cookie_store));
   session_->Initialize();
 }
 

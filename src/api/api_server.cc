@@ -73,6 +73,7 @@ APIServer::Client::Remote::SendEvent(
   action.SetString("_action", "event");
   action.SetInteger("_id", ++action_id_);
   action.SetInteger("_target", target_);
+  action.SetString("_type", type);
   action.Set("_event", event->DeepCopy());
 
   std::string payload;

@@ -41,8 +41,8 @@ protected:
   void CallRemoteMethod(const std::string& method, 
                         scoped_ptr<base::DictionaryValue> args, 
                         const API::MethodCallback& callback);
-  void Emit(const std::string& type, 
-            scoped_ptr<base::DictionaryValue> event);
+  void EmitEvent(const std::string& type, 
+                 scoped_ptr<base::DictionaryValue> event);
 
   APIBinding(const std::string& type, 
              const unsigned int id);

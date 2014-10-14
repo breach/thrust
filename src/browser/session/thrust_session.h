@@ -25,6 +25,7 @@ class ThrustShellDevToolsDelegate;
 class ResourceContext;
 class ThrustShellURLRequestContextGetter;
 class ThrustShellDownloadManagerDelegate;
+class ThrustSessionBinding;
 
 // ### ThrustSession
 //
@@ -47,13 +48,14 @@ class ThrustShellDownloadManagerDelegate;
 // - SessionStorage not impacted
 // - LocalStorage can be expired / deleted by user so semantics are not too off
 class ThrustSession : public brightray::BrowserContext,
-                   public content::BrowserPluginGuestManager {
+                      public content::BrowserPluginGuestManager {
 public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
   // ### ThrustSession
-  ThrustSession(const bool off_the_record,
+  ThrustSession(ThrustSessionBinding* binding,
+                const bool off_the_record,
                 const std::string& path,
                 bool dummy_cookie_store = false);
   // ### ~ThrustSession
@@ -130,6 +132,8 @@ private:
   /****************************************************************************/
   /* MEMBERS                                                                   */
   /****************************************************************************/
+  ThrustSessionBinding*                               binding_;
+
   bool                                                off_the_record_;
   bool                                                ignore_certificate_errors_;
   base::FilePath                                      path_;
