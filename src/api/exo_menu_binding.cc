@@ -58,7 +58,7 @@ ExoMenuBinding::CallLocalMethod(
      method.compare("insert_check_item_at") == 0 ||
      method.compare("insert_radio_item_at") == 0 ||
      method.compare("insert_separator_at") == 0 ||
-    method.compare("set_sub_label") == 0) {
+     method.compare("set_sub_label") == 0) {
     int index = 0;
     int command_id = -1;
     int group_id = -1;
@@ -84,6 +84,34 @@ ExoMenuBinding::CallLocalMethod(
     if(method.compare("set_sub_label") == 0) {
       menu_->SetSublabel(index, base::UTF8ToUTF16(label));
     }
+  }
+  else if(method.compare("set_checked") == 0 ||
+          method.compare("set_enabled") == 0 ||
+          method.compare("set_visible") == 0) {
+    int command_id = -1;
+    bool value = false;
+
+    args->GetInteger("command_id", &command_id);
+    args->GetBoolean("value", &value);
+
+    if(method.compare("set_checked") == 0) {
+      menu_->SetChecked(command_id, value);
+    }
+    if(method.compare("set_enabled") == 0) {
+      menu_->SetEnabled(command_id, value);
+    }
+    if(method.compare("set_visible") == 0) {
+      menu_->SetVisible(command_id, value);
+    }
+  }
+  else if(method.compare("set_accelerator") == 0) {
+    int command_id = -1;
+    std::string accelerator = "";
+
+    args->GetInteger("command_id", &command_id);
+    args->GetString("accelerator", &accelerator);
+
+    menu_->SetAccelerator(command_id, accelerator);
   }
   else if(method.compare("insert_submenu_at") == 0) {
     int index = 0;

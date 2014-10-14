@@ -5,6 +5,7 @@
 #define EXO_SHELL_BROWSER_EXO_MENU_H_
 
 #include <string>
+#include <map>
 
 #include "base/memory/scoped_ptr.h"
 #include "ui/base/models/simple_menu_model.h"
@@ -42,6 +43,11 @@ public:
   void SetSublabel(int index, const base::string16& sublabel);
 
   void Clear();
+
+  void SetChecked(int command_id, bool checked);
+  void SetEnabled(int command_id, bool enabled);
+  void SetVisible(int command_id, bool visible);
+  void SetAccelerator(int command_id, std::string accelerator);
 
   int GetIndexOfCommandId(int command_id);
   int GetItemCount() const;
@@ -95,6 +101,11 @@ public:
 #endif
   scoped_ptr<ui::SimpleMenuModel>           model_;
   ExoMenu*                                  parent_;
+
+  std::map<int, bool>                       checked_;
+  std::map<int, bool>                       enabled_;
+  std::map<int, bool>                       visible_;
+  std::map<int, std::string>                accelerator_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoMenu);
 };

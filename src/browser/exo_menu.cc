@@ -5,6 +5,7 @@
 #include "src/browser/exo_menu.h"
 
 #include "src/browser/exo_shell.h"
+#include "src/browser/ui/accelerator_util.h"
 
 namespace exo_shell {
 
@@ -21,13 +22,19 @@ bool
 ExoMenu::IsCommandIdChecked(
     int command_id) const 
 {
-  return true;
+  if(checked_.find(command_id) != checked_.end()) {
+    return checked_.find(command_id)->second;
+  }
+  return false;
 }
 
 bool 
 ExoMenu::IsCommandIdEnabled(
     int command_id) const 
 {
+  if(enabled_.find(command_id) != enabled_.end()) {
+    return enabled_.find(command_id)->second;
+  }
   return true;
 }
 
@@ -35,6 +42,9 @@ bool
 ExoMenu::IsCommandIdVisible(
     int command_id) const 
 {
+  if(visible_.find(command_id) != visible_.end()) {
+    return visible_.find(command_id)->second;
+  }
   return true;
 }
 
@@ -43,7 +53,9 @@ ExoMenu::GetAcceleratorForCommandId(
     int command_id,
     ui::Accelerator* accelerator) 
 {
-  /* TODO(spolu) */
+  if(accelerator_.find(command_id) != accelerator_.end()) {
+    return accelerator_util::StringToAccelerator(accelerator_[command_id], accelerator);
+  }
   return false;
 }
 
@@ -52,6 +64,8 @@ ExoMenu::ExecuteCommand(
     int command_id, 
     int event_flags) 
 {
+  LOG(INFO) << "---+++++++++++++_-_____________________ EXECUTE " << command_id << " " << event_flags;
+  /* TODO(spolu); */
 }
 
 void 
@@ -130,6 +144,38 @@ void
 ExoMenu::Clear() 
 {
   model_->Clear();
+}
+
+void
+ExoMenu::SetChecked(
+    int command_id,
+    bool checked)
+{
+  checked_[command_id] = checked;
+}
+
+void
+ExoMenu::SetEnabled(
+    int command_id,
+    bool enabled)
+{
+  enabled_[command_id] = enabled;
+}
+
+void
+ExoMenu::SetVisible(
+    int command_id,
+    bool visible)
+{
+  visible_[command_id] = visible;
+}
+
+void
+ExoMenu::SetAccelerator(
+    int command_id,
+    std::string accelerator)
+{
+  accelerator_[command_id] = accelerator;
 }
 
 int 

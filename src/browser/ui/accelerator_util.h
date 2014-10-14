@@ -1,5 +1,5 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
-// Copyright (c) 2014 GitHub, Inc.
+// Copyright (c) 2013 GitHub, Inc.
 // See the LICENSE file.
 
 #ifndef EXO_SHELL_BROWSER_UI_ACCELERATOR_UTIL_H_
