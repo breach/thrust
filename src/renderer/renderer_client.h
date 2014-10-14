@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
-#define EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#ifndef THRUST_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#define THRUST_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -25,16 +25,16 @@ namespace extensions {
 class Dispatcher;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShellRenderProcessObserver;
+class ThrustShellRenderProcessObserver;
 
-class ExoShellRendererClient : public content::ContentRendererClient {
+class ThrustShellRendererClient : public content::ContentRendererClient {
  public:
-  static ExoShellRendererClient* Get();
+  static ThrustShellRendererClient* Get();
 
-  ExoShellRendererClient();
-  virtual ~ExoShellRendererClient();
+  ThrustShellRendererClient();
+  virtual ~ThrustShellRendererClient();
 
   /****************************************************************************/
   /* CONTENTRENDERERCLIENT IMPLEMENTATION */
@@ -60,11 +60,11 @@ class ExoShellRendererClient : public content::ContentRendererClient {
 
 
  private:
-  scoped_ptr<ExoShellRenderProcessObserver> observer_;
+  scoped_ptr<ThrustShellRenderProcessObserver> observer_;
   scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
   scoped_ptr<extensions::Dispatcher>        extension_dispatcher_;
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#endif // THRUST_SHELL_RENDERER_CONTENT_RENDERER_CLIENT_H_

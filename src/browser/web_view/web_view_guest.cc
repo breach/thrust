@@ -20,27 +20,27 @@
 
 #include "src/browser/web_view/web_view_constants.h"
 #include "src/browser/browser_client.h"
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 
 using content::WebContents;
 
 namespace {
 
 // <embedder_process_id, guest_instance_id> => WebViewGuest*
-typedef std::map<std::pair<int, int>, exo_shell::WebViewGuest*> 
+typedef std::map<std::pair<int, int>, thrust_shell::WebViewGuest*> 
   EmbedderWebViewGuestMap;
 static base::LazyInstance<EmbedderWebViewGuestMap> embedder_webview_map =
     LAZY_INSTANCE_INITIALIZER;
 
 // WebContents* => WebViewGuest*
-typedef std::map<WebContents*, exo_shell::WebViewGuest*> 
+typedef std::map<WebContents*, thrust_shell::WebViewGuest*> 
   WebContentsWebViewGuestMap;
 static base::LazyInstance<WebContentsWebViewGuestMap> webcontents_webview_map =
     LAZY_INSTANCE_INITIALIZER;
 
 }  // namespace
 
-namespace exo_shell {
+namespace thrust_shell {
 
 // This observer ensures that the WebViewGuest destroys itself when its
 // embedder goes away.
@@ -112,7 +112,7 @@ WebViewGuest::WebViewGuest(
       content::Source<WebContents>(guest_web_contents));
 
   LOG(INFO) << "WebViewGuest Constructor: " << this;
-  ExoShellBrowserClient::Get()->ExoSessionForBrowserContext(browser_context_)->
+  ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
     AddGuest(guest_instance_id_, guest_web_contents);
 }
 
@@ -246,7 +246,7 @@ WebViewGuest::~WebViewGuest()
 
   pending_events_.clear();
 
-  ExoShellBrowserClient::Get()->ExoSessionForBrowserContext(browser_context_)->
+  ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
     RemoveGuest(guest_instance_id_);
 }
 
@@ -372,4 +372,4 @@ WebViewGuest::SendQueuedEvents()
   }
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

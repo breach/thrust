@@ -1,15 +1,15 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_APP_CONTENT_CLIENT_H_
-#define EXO_SHELL_APP_CONTENT_CLIENT_H_
+#ifndef THRUST_SHELL_APP_CONTENT_CLIENT_H_
+#define THRUST_SHELL_APP_CONTENT_CLIENT_H_
 
 #include <string>
 #include <vector>
 
 #include "brightray/common/content_client.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 class ContentClient : public brightray::ContentClient {
  public:
@@ -29,6 +29,6 @@ class ContentClient : public brightray::ContentClient {
   DISALLOW_COPY_AND_ASSIGN(ContentClient);
 };
 
-}  // namespace exo_shell
+}  // namespace thrust_shell
 
-#endif // EXO_SHELL_APP_CONTENT_CLIENT_H_
+#endif // THRUST_SHELL_APP_CONTENT_CLIENT_H_

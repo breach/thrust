@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_EXO_SHELL_H_
-#define EXO_SHELL_BROWSER_EXO_SHELL_H_
+#ifndef THRUST_SHELL_BROWSER_THRUST_WINDOW_H_
+#define THRUST_SHELL_BROWSER_THRUST_WINDOW_H_
 
 #include <vector>
 
@@ -48,25 +48,25 @@ namespace ui {
 class MenuModel;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoSession;
-class ExoShellDevToolsFrontend;
-class ExoShellJavaScriptDialogManager;
+class ThrustSession;
+class ThrustShellDevToolsFrontend;
+class ThrustShellJavaScriptDialogManager;
 
 class GlobalMenuBarX11;
 class MenuBar;
 
-// ### ExoShell
+// ### ThrustWindow
 //
-// This represents an ExoShell window. The ExoShell window opens on a
-// root_url provided at creation. The window exposes only one webcontents
-// with support for the <exoframe> tag.
+// This represents an ThrustShell window. The window opens on a `root_url` 
+// provided at creation. The window exposes only one webcontents with support 
+// for the <exoframe> tag.
 //
-// The ExoShell lives on the BrowserThread::UI thread
-class ExoShell : public brightray::DefaultWebContentsDelegate,
-                 public brightray::InspectableWebContentsDelegate,
-                 public content::WebContentsObserver,
+// The ThrustWindow lives on the BrowserThread::UI thread
+class ThrustWindow : public brightray::DefaultWebContentsDelegate,
+                     public brightray::InspectableWebContentsDelegate,
+                     public content::WebContentsObserver,
 #if defined(USE_AURA)
                  public views::WidgetDelegateView,
                  public views::WidgetObserver,
@@ -80,7 +80,7 @@ public:
   /****************************************************************************/
   // ### CreateNew
   //
-  // Creates a new ExoShell window with the specified `root_url`
+  // Creates a new ThrustWindow with the specified `root_url`
   // ```
   // @root_url  {GURL} the main document root url
   // @size      {Size} the initial size of the window
@@ -88,8 +88,8 @@ public:
   // @icon_path {string} icon_path (no effect on OSX)
   // @has_frame {boolean} has a frame
   // ```
-  static ExoShell* CreateNew(
-      ExoSession* session,
+  static ThrustWindow* CreateNew(
+      ThrustSession* session,
       const GURL& root_url,
       const gfx::Size& size,
       const std::string& title,
@@ -98,13 +98,13 @@ public:
 
   // ### CreateNew
   //
-  // Creates a new ExoShell window out of an existing WebContents
+  // Creates a new ThrustWindow out of an existing WebContents
   // ```
   // @web_contents {WebContents} the web_contents to use
   // @size         {Size} the initial size of the window
   // @icon_path    {string} icon_path (no effect on OSX)
   // ```
-  static ExoShell* CreateNew(
+  static ThrustWindow* CreateNew(
       content::WebContents* web_contents,
       const gfx::Size& size,
       const std::string& title,
@@ -113,19 +113,19 @@ public:
 
   // ### instances
   //
-  // Getter for all the currently working ExoShell instances.
-  static std::vector<ExoShell*>& instances() { return s_instances; }
+  // Getter for all the currently working ThrustWindow instances.
+  static std::vector<ThrustWindow*>& instances() { return s_instances; }
 
   // ### CloseAll
   //
-  // Closes all open ExoShell windows
+  // Closes all open ThrustWindows
   static void CloseAll();
 
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  // ### ~ExoShell
-  ~ExoShell();
+  // ### ~ThrustWindow
+  ~ThrustWindow();
 
   // ### Show
   //
@@ -134,47 +134,47 @@ public:
 
   // ### Focus
   //
-  // Focuses the ExoShell window
+  // Focuses the window
   void Focus(bool focus) { PlatformFocus(focus); }
 
   // ### Maximize
   //
-  // Maximize the ExoShell window
+  // Maximize the window
   void Maximize() { PlatformMaximize(); }
 
   // ### UnMaximize
   //
-  // UnMaximize the ExoShell window
+  // UnMaximize the window
   void UnMaximize() { PlatformUnMaximize(); }
 
   // ### Minimize
   //
-  // Minimize the ExoShell window
+  // Minimize the window
   void Minimize() { PlatformMinimize(); }
 
   // ### Restore
   //
-  // Restore the ExoShell window
+  // Restore the window
   void Restore() { PlatformRestore(); }
 
   // ### SetTitle
   //
-  // Sets the ExoShell window title
+  // Sets the window title
   void SetTitle(const std::string& title);
 
   // ### Close
   //
-  // Closes the ExoShell window and reclaim underlying WebContents
+  // Closes the window and reclaim underlying WebContents
   void Close();
 
   // ### Move
   //
-  // Moves the ExoShell window
+  // Moves the window
   void Move(int x, int y);
 
   // ### Resize
   //
-  // Resizes the ExoShell window
+  // Resizes the window
   void Resize(int width, int height);
 
   // ### SetMenu
@@ -184,7 +184,7 @@ public:
 
   // ### is_closed
   //
-  // Returns whether the ExoShell is killed or not
+  // Returns whether the window is closed or not
   bool is_closed() { return is_closed_; }
 
   // ### WindowSize
@@ -266,7 +266,7 @@ private:
   /****************************************************************************/
   /* PRIVATE INTERFACE */
   /****************************************************************************/
-  explicit ExoShell(
+  explicit ThrustWindow(
       content::WebContents* web_contents,
       const gfx::Size& size,
       const std::string& title,
@@ -328,42 +328,42 @@ private:
 
   // ### PlatformCreateWindow
   //
-  // Creates the ExoShell window GUI.
+  // Creates the window GUI.
   void PlatformCreateWindow(const gfx::Size& size);
 
   // ### PlatformShow
   //
-  // Initially Show the ExoShell window
+  // Initially Show the window
   void PlatformShow();
 
   // ### PlatformFocus
   //
-  // Focuses the ExoShell window
+  // Focuses the window
   void PlatformFocus(bool focus);
 
   // ### PlatformMaximize
   //
-  // Maximizes the ExoShell window
+  // Maximizes the window
   void PlatformMaximize();
 
   // ### PlatformUnMaximize
   //
-  // Maximizes the ExoShell window
+  // Maximizes the window
   void PlatformUnMaximize();
 
   // ### PlatformMinimize
   //
-  // Minimize the ExoShell window
+  // Minimize the window
   void PlatformMinimize();
 
   // ### PlatformRestore
   //
-  // Restore the ExoShell window
+  // Restore the window
   void PlatformRestore();
 
   // ### PlatformSetTitle
   //
-  // Set the title of ExoShell window.
+  // Set the title of window.
   void PlatformSetTitle(const std::string& title);
 
   // ### PlatformClose
@@ -374,27 +374,27 @@ private:
 
   // ### PlatformSize
   //
-  // Retrieves the size of the ExoShell window.
+  // Retrieves the size of the window.
   gfx::Size PlatformSize();
 
   // ### PlatformPosition
   //
-  // Retrieves the position of the ExoShell window.
+  // Retrieves the position of the window.
   gfx::Point PlatformPosition();
   //
   // ### PlatformMove
   //
-  // Moves the position of the ExoShell window.
+  // Moves the position of the window.
   void PlatformMove(int x, int y);
 
   // ### PlatformResize
   //
-  // Resize the ExoShell window.
+  // Resize the window.
   void PlatformResize(int width, int height);
 
   // ### PlatformContentSize
   //
-  // Retrieves the size of the ExoShell content
+  // Retrieves the size of the ThrustWindow content
   gfx::Size PlatformContentSize();
 
   // ### PlatformSetContentSize
@@ -421,7 +421,7 @@ private:
   /****************************************************************************/
   /* MEMBERS */
   /****************************************************************************/
-  scoped_ptr<ExoShellJavaScriptDialogManager>   dialog_manager_;
+  scoped_ptr<ThrustShellJavaScriptDialogManager>   dialog_manager_;
   content::NotificationRegistrar                registrar_;
 
 #if defined(USE_AURA)
@@ -445,13 +445,13 @@ private:
   scoped_ptr<brightray::InspectableWebContents> inspectable_web_contents_;
 
   // A static container of all the open instances.
-  static std::vector<ExoShell*>                 s_instances;
+  static std::vector<ThrustWindow*>                 s_instances;
 
-  friend class ExoMenu;
+  friend class ThrustMenu;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShell);
+  DISALLOW_COPY_AND_ASSIGN(ThrustWindow);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_EXO_SHELL_H_
+#endif // THRUST_SHELL_BROWSER_THRUST_WINDOW_H_

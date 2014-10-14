@@ -2,15 +2,15 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-// Defines all the "exo_shell" command-line switches.
+// Defines all the "thrust_shell" command-line switches.
 
-#ifndef EXO_SHELL_COMMON_SWITCHES_H_
-#define EXO_SHELL_COMMON_SWITCHES_H_
+#ifndef THRUST_SHELL_COMMON_SWITCHES_H_
+#define THRUST_SHELL_COMMON_SWITCHES_H_
 
 namespace switches {
 
-extern const char kExoShellDataPath[];
+extern const char kThrustShellDataPath[];
 
 }  // namespace switches
 
-#endif  // EXO_SHELL_COMMON_SWITCHES_H_
+#endif  // THRUST_SHELL_COMMON_SWITCHES_H_

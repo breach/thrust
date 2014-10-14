@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_RENDERER_EXTENSIONS_CONTEXT_H_
-#define EXO_SHELL_RENDERER_EXTENSIONS_CONTEXT_H_
+#ifndef THRUST_SHELL_RENDERER_EXTENSIONS_CONTEXT_H_
+#define THRUST_SHELL_RENDERER_EXTENSIONS_CONTEXT_H_
 
 #include <string>
 
@@ -105,4 +105,4 @@ class Context {
 
 }  // namespace extensions
 
-#endif // EXO_SHELL_RENDERER_EXTENSIONS_CONTEXT_H_
+#endif // THRUST_SHELL_RENDERER_EXTENSIONS_CONTEXT_H_

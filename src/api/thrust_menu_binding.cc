@@ -1,51 +1,51 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/api/exo_menu_binding.h"
+#include "src/api/thrust_menu_binding.h"
 
 #include "base/strings/utf_string_conversions.h"
 
-#include "src/api/exo_session_binding.h"
-#include "src/api/exo_shell_binding.h"
-#include "src/browser/exo_menu.h"
+#include "src/api/thrust_session_binding.h"
+#include "src/api/thrust_window_binding.h"
+#include "src/browser/thrust_menu.h"
 #include "src/browser/browser_client.h"
 #include "src/api/api.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoMenuBindingFactory::ExoMenuBindingFactory()
+ThrustMenuBindingFactory::ThrustMenuBindingFactory()
 {
 }
 
-ExoMenuBindingFactory::~ExoMenuBindingFactory()
+ThrustMenuBindingFactory::~ThrustMenuBindingFactory()
 {
 }
 
-APIBinding* ExoMenuBindingFactory::Create(
+APIBinding* ThrustMenuBindingFactory::Create(
     const unsigned int id,
     scoped_ptr<base::DictionaryValue> args)
 {
-  return new ExoMenuBinding(id, args.Pass());
+  return new ThrustMenuBinding(id, args.Pass());
 }
 
-ExoMenuBinding::ExoMenuBinding(
+ThrustMenuBinding::ThrustMenuBinding(
     const unsigned int id, 
     scoped_ptr<base::DictionaryValue> args)
   : APIBinding("menu", id)
 {
-  LOG(INFO) << "ExoMenuBinding Constructor: " << this;
-  menu_.reset(new ExoMenu());
+  LOG(INFO) << "ThrustMenuBinding Constructor: " << this;
+  menu_.reset(new ThrustMenu());
 }
 
-ExoMenuBinding::~ExoMenuBinding()
+ThrustMenuBinding::~ThrustMenuBinding()
 {
-  LOG(INFO) << "ExoMenuBinding Destructor: " << this;
+  LOG(INFO) << "ThrustMenuBinding Destructor: " << this;
   menu_.reset();
 }
 
 
 void
-ExoMenuBinding::CallLocalMethod(
+ThrustMenuBinding::CallLocalMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
@@ -53,7 +53,7 @@ ExoMenuBinding::CallLocalMethod(
   std::string err = std::string("");
   base::DictionaryValue* res = new base::DictionaryValue;
 
-  LOG(INFO) << "ExoMenu call [" << method << "]";
+  LOG(INFO) << "ThrustMenu call [" << method << "]";
   if(method.compare("insert_item_at") == 0 ||
      method.compare("insert_check_item_at") == 0 ||
      method.compare("insert_radio_item_at") == 0 ||
@@ -124,10 +124,10 @@ ExoMenuBinding::CallLocalMethod(
     args->GetInteger("index", &index);
     args->GetInteger("command_id", &command_id);
 
-    ExoMenu* menu = NULL;
+    ThrustMenu* menu = NULL;
 
-    ExoMenuBinding* mb = 
-      (ExoMenuBinding*)(API::Get()->GetBinding(menu_id));
+    ThrustMenuBinding* mb = 
+      (ThrustMenuBinding*)(API::Get()->GetBinding(menu_id));
     if(mb != NULL) {
       menu = mb->GetMenu();
       menu_->InsertSubMenuAt(index, command_id, base::UTF8ToUTF16(label), menu);
@@ -140,20 +140,20 @@ ExoMenuBinding::CallLocalMethod(
     menu_->Clear();
   }
   else if(method.compare("attach") == 0) {
-    int shell_id = -1;
-    args->GetInteger("shell_id", &shell_id);
+    int window_id = -1;
+    args->GetInteger("window_id", &window_id);
 
-    ExoShell* shell = NULL;
+    ThrustWindow* window = NULL;
 
-    ExoShellBinding* sb = 
-      (ExoShellBinding*)(API::Get()->GetBinding(shell_id));
+    ThrustWindowBinding* sb = 
+      (ThrustWindowBinding*)(API::Get()->GetBinding(window_id));
     if(sb != NULL) {
-      shell = sb->GetShell();
-      menu_->AttachToShell(shell);
-      LOG(INFO) << "ATTACH TO SHELL" << shell_id;
+      window = sb->GetWindow();
+      menu_->AttachToWindow(window);
+      LOG(INFO) << "ATTACH TO WINDOW" << window_id;
     }
     else {
-      err = "exo_menu_binding:shell_not_found";
+      err = "exo_menu_binding:window_not_found";
     }
   }
 #if defined(OS_MACOSX)
@@ -161,13 +161,13 @@ ExoMenuBinding::CallLocalMethod(
     int menu_id = -1;
     args->GetInteger("menu_id", &menu_id);
 
-    ExoMenu* menu = NULL;
+    ThrustMenu* menu = NULL;
 
-    ExoMenuBinding* mb = 
-      (ExoMenuBinding*)(API::Get()->GetBinding(menu_id));
+    ThrustMenuBinding* mb = 
+      (ThrustMenuBinding*)(API::Get()->GetBinding(menu_id));
     if(mb != NULL) {
       menu = mb->GetMenu();
-      ExoMenu::SetApplicationMenu(menu);
+      ThrustMenu::SetApplicationMenu(menu);
     }
     else {
       err = "exo_menu_binding:menu_not_found";
@@ -195,10 +195,10 @@ ExoMenuBinding::CallLocalMethod(
   callback.Run(err, scoped_ptr<base::Value>(res).Pass());
 }
 
-ExoMenu*
-ExoMenuBinding::GetMenu() {
+ThrustMenu*
+ThrustMenuBinding::GetMenu() {
   return menu_.get();
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell
 

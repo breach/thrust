@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleExecutable</key>
-  <string>ExoShell Framework</string>
+  <string>ThrustShell Framework</string>
   <key>CFBundleIdentifier</key>
-  <string>org.breach.ExoShellFramework</string>
+  <string>org.breach.ThrustShellFramework</string>
   <key>CFBundleName</key>
-  <string>ExoShell Framework</string>
+  <string>ThrustShell Framework</string>
   <key>CFBundlePackageType</key>
   <string>FMWK</string>
   <key>NSSupportsAutomaticGraphicsSwitching</key>

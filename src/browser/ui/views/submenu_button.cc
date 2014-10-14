@@ -10,7 +10,7 @@
 #include "ui/gfx/text_utils.h"
 #include "ui/views/controls/button/label_button_border.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -114,4 +114,4 @@ SubmenuButton::GetCharacterPosition(
                              0, 0);
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

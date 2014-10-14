@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_API_API_BINDING_H_
-#define EXO_SHELL_API_API_BINDING_H_
+#ifndef THRUST_SHELL_API_API_BINDING_H_
+#define THRUST_SHELL_API_API_BINDING_H_
 
 #include <map>
 
@@ -16,7 +16,7 @@ class Value;
 class DictionaryValue;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
 // ## APIBinding
 //
@@ -85,6 +85,6 @@ public:
 
 
 
-} // namespace exo_shell
+} // namespace thrust_shell
   
-#endif // EXO_SHELL_API_API_BINDING_H_
+#endif // THRUST_SHELL_API_API_BINDING_H_

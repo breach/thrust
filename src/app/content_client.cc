@@ -8,7 +8,7 @@
 
 #include "src/common/chrome_version.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 ContentClient::ContentClient() 
 {
@@ -32,4 +32,4 @@ ContentClient::AddAdditionalSchemes(
   standard_schemes->push_back("chrome-extension");
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

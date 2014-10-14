@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
-#define EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
+#ifndef THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_H_
+#define THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_H_
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -15,20 +15,20 @@
 #include "content/public/browser/web_contents.h"
 #include "brightray/browser/browser_context.h"
 
-#include "src/browser/session/exo_session_cookie_store.h"
-#include "src/browser/session/exo_session_visitedlink_store.h"
+#include "src/browser/session/thrust_session_cookie_store.h"
+#include "src/browser/session/thrust_session_visitedlink_store.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 class DownloadManagerDelegate;
-class ExoShellDevToolsDelegate;
+class ThrustShellDevToolsDelegate;
 class ResourceContext;
-class ExoShellURLRequestContextGetter;
-class ExoShellDownloadManagerDelegate;
+class ThrustShellURLRequestContextGetter;
+class ThrustShellDownloadManagerDelegate;
 
-// ### ExoSession
+// ### ThrustSession
 //
-// The ExoSession is BrowserContext passed to an ExoShell to be used with all
+// The ThrustSession is BrowserContext passed to an ThrustShell to be used with all
 // its associated control and frames. A session represents the contextual 
 // parameters and data needed to render a web page:
 // - Whether or not Local HTML5 Storage is allowed or in-memory
@@ -46,23 +46,23 @@ class ExoShellDownloadManagerDelegate;
 // see http://www.w3.org/TR/webstorage/
 // - SessionStorage not impacted
 // - LocalStorage can be expired / deleted by user so semantics are not too off
-class ExoSession : public brightray::BrowserContext,
+class ThrustSession : public brightray::BrowserContext,
                    public content::BrowserPluginGuestManager {
 public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  // ### ExoSession
-  ExoSession(const bool off_the_record,
-             const std::string& path,
-             bool dummy_cookie_store = false);
-  // ### ~ExoSession
-  virtual ~ExoSession();
+  // ### ThrustSession
+  ThrustSession(const bool off_the_record,
+                const std::string& path,
+                bool dummy_cookie_store = false);
+  // ### ~ThrustSession
+  virtual ~ThrustSession();
 
   /****************************************************************************/
   /* EXOFRAME / DEVTOOLS I/F */
   /****************************************************************************/
-  ExoShellDevToolsDelegate* devtools_delegate() {
+  ThrustShellDevToolsDelegate* devtools_delegate() {
     return devtools_delegate_;
   }
 
@@ -71,8 +71,8 @@ public:
   // Returns the DevTools URL for this session
   GURL GetDevToolsURL();
 
-  ExoSessionCookieStore* GetCookieStore();
-  ExoSessionVisitedLinkStore* GetVisitedLinkStore();
+  ThrustSessionCookieStore* GetCookieStore();
+  ThrustSessionVisitedLinkStore* GetVisitedLinkStore();
 
   /****************************************************************************/
   /* REQUEST CONTEXT GETTER HELPERS */
@@ -130,29 +130,29 @@ private:
   /****************************************************************************/
   /* MEMBERS                                                                   */
   /****************************************************************************/
-  bool                                             off_the_record_;
-  bool                                             ignore_certificate_errors_;
-  base::FilePath                                   path_;
+  bool                                                off_the_record_;
+  bool                                                ignore_certificate_errors_;
+  base::FilePath                                      path_;
 
-  scoped_ptr<ExoResourceContext>                   resource_context_;
-  scoped_ptr<ExoShellDownloadManagerDelegate>      download_manager_delegate_;
-  scoped_refptr<ExoShellURLRequestContextGetter>   url_request_getter_;
-  scoped_refptr<ExoSessionCookieStore>             cookie_store_;
-  scoped_refptr<ExoSessionVisitedLinkStore>        visitedlink_store_;
+  scoped_ptr<ExoResourceContext>                      resource_context_;
+  scoped_ptr<ThrustShellDownloadManagerDelegate>      download_manager_delegate_;
+  scoped_refptr<ThrustShellURLRequestContextGetter>   url_request_getter_;
+  scoped_refptr<ThrustSessionCookieStore>             cookie_store_;
+  scoped_refptr<ThrustSessionVisitedLinkStore>        visitedlink_store_;
 
-  ExoShellDevToolsDelegate*                        devtools_delegate_;
+  ThrustShellDevToolsDelegate*                        devtools_delegate_;
 
-  std::map<int, content::WebContents*>             guest_web_contents_;
-  int                                              current_instance_id_;
+  std::map<int, content::WebContents*>                guest_web_contents_;
+  int                                                 current_instance_id_;
 
-  friend class ExoSessionCookieStore;
-  friend class ExoShellDevToolsDelegate;
+  friend class ThrustSessionCookieStore;
+  friend class ThrustShellDevToolsDelegate;
   friend class WebViewGuest;
   friend class GuestWebContentsObserver;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoSession);
+  DISALLOW_COPY_AND_ASSIGN(ThrustSession);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_SESSION_EXO_SESSION_H_
+#endif // THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_H_

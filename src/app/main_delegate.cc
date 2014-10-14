@@ -13,7 +13,7 @@
 #include "src/renderer/renderer_client.h"
 #include "src/app/content_client.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 MainDelegate::MainDelegate() {
 }
@@ -77,13 +77,13 @@ MainDelegate::PreSandboxStartup()
 
 content::ContentBrowserClient* 
 MainDelegate::CreateContentBrowserClient() {
-  browser_client_.reset(new ExoShellBrowserClient);
+  browser_client_.reset(new ThrustShellBrowserClient);
   return browser_client_.get();
 }
 
 content::ContentRendererClient* 
 MainDelegate::CreateContentRendererClient() {
-  renderer_client_.reset(new ExoShellRendererClient);
+  renderer_client_.reset(new ThrustShellRendererClient);
   return renderer_client_.get();
 }
 

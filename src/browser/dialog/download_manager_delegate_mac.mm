@@ -21,9 +21,9 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-void ExoShellDownloadManagerDelegate::ChooseDownloadPath(
+void ThrustShellDownloadManagerDelegate::ChooseDownloadPath(
     uint32 download_id,
     const DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) {
@@ -48,4 +48,4 @@ void ExoShellDownloadManagerDelegate::ChooseDownloadPath(
                DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

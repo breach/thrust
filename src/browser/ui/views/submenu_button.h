@@ -2,12 +2,12 @@
 // Copyright (c) 2014 GitHub, Inc.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_UI_VIEWS_SUBMENU_BUTTON_H_
-#define EXO_SHELL_BROWSER_UI_VIEWS_SUBMENU_BUTTON_H_
+#ifndef THRUST_SHELL_BROWSER_UI_VIEWS_SUBMENU_BUTTON_H_
+#define THRUST_SHELL_BROWSER_UI_VIEWS_SUBMENU_BUTTON_H_
 
 #include "ui/views/controls/button/menu_button.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 // Special button that used by menu bar to show submenus.
 class SubmenuButton : public views::MenuButton {
@@ -49,6 +49,6 @@ class SubmenuButton : public views::MenuButton {
   DISALLOW_COPY_AND_ASSIGN(SubmenuButton);
 };
 
-}  // namespace exo_shell
+}  // namespace thrust_shell
 
-#endif  // EXO_SHELL_BROWSER_UI_VIEWS_SUBMENU_BUTTON_H_
+#endif  // THRUST_SHELL_BROWSER_UI_VIEWS_SUBMENU_BUTTON_H_

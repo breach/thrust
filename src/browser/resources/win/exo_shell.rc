@@ -67,12 +67,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Breach"
-            VALUE "FileDescription", "ExoShell"
+            VALUE "FileDescription", "ThrustShell"
             VALUE "FileVersion", "0.7.0"
-            VALUE "InternalName", "exo_shell.exe"
+            VALUE "InternalName", "thrust_shell.exe"
             VALUE "LegalCopyright", "Copyright (C) 2014 Stanislas Polu. All rights reserved."
-            VALUE "OriginalFilename", "exo_shell.exe"
-            VALUE "ProductName", "ExoShell"
+            VALUE "OriginalFilename", "thrust_shell.exe"
+            VALUE "ProductName", "ThrustShell"
             VALUE "ProductVersion", "0.1.0"
         END
     END
@@ -102,6 +102,6 @@ END
 // Icon
 //
 
-IDR_MAINFRAME           ICON                    "exo_shell.ico"
+IDR_MAINFRAME           ICON                    "thrust_shell.ico"
 /////////////////////////////////////////////////////////////////////////////
 

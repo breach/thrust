@@ -3,8 +3,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_UI_COCOA_MENU_CONTROLLER_H_
-#define EXO_SHELL_BROWSER_UI_COCOA_MENU_CONTROLLER_H_
+#ifndef THRUST_SHELL_BROWSER_UI_COCOA_MENU_CONTROLLER_H_
+#define THRUST_SHELL_BROWSER_UI_COCOA_MENU_CONTROLLER_H_
 
 #import <Cocoa/Cocoa.h>
 
@@ -21,7 +21,7 @@ class MenuModel;
 // allow for hierarchical menus). The tag is the index into that model for
 // that particular item. It is important that the model outlives this object
 // as it only maintains weak references.
-@interface ExoShellMenuController : NSObject<NSMenuDelegate> {
+@interface ThrustShellMenuController : NSObject<NSMenuDelegate> {
  @protected
   ui::MenuModel*                model_;  // weak
   base::scoped_nsobject<NSMenu> menu_;
@@ -57,16 +57,16 @@ class MenuModel;
 @end
 
 // Exposed only for unit testing, do not call directly.
-@interface ExoShellMenuController (PrivateExposedForTesting)
+@interface ThrustShellMenuController (PrivateExposedForTesting)
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item;
 @end
 
 // Protected methods that subclassers can override.
-@interface ExoShellMenuController (Protected)
+@interface ThrustShellMenuController (Protected)
 - (void)addItemToMenu:(NSMenu*)menu
               atIndex:(NSInteger)index
             fromModel:(ui::MenuModel*)model;
 - (NSMenu*)menuFromModel:(ui::MenuModel*)model;
 @end
 
-#endif // EXO_SHELL_BROWSER_UI_COCOA_MENU_CONTROLLER_H_
+#endif // THRUST_SHELL_BROWSER_UI_COCOA_MENU_CONTROLLER_H_

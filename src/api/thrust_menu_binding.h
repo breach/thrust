@@ -1,25 +1,25 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_API_EXO_SHELL_BINDING_H_
-#define EXO_SHELL_API_EXO_SHELL_BINDING_H_
+#ifndef THRUST_SHELL_API_THRUST_MENU_BINDING_H_
+#define THRUST_SHELL_API_THRUST_MENU_BINDING_H_
 
 #include "base/callback.h"
 
 #include "src/api/api_binding.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShell;
+class ThrustMenu;
 
-class ExoShellBinding : public APIBinding {
+class ThrustMenuBinding : public APIBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
-  ExoShellBinding(const unsigned int id, 
+  ThrustMenuBinding(const unsigned int id, 
                   scoped_ptr<base::DictionaryValue> args);
-  ~ExoShellBinding();
+  ~ThrustMenuBinding();
 
   virtual void CallLocalMethod(
       const std::string& method, 
@@ -29,25 +29,25 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  ExoShell* GetShell();
+  ThrustMenu* GetMenu();
 
 private:
-  scoped_ptr<ExoShell> shell_;
+  scoped_ptr<ThrustMenu> menu_;
 };
 
 
-// ## ExoShellBindingFactory
+// ## ThrustMenuBindingFactory
 //
-// Factory object used to generate ExoShell bindings
-class ExoShellBindingFactory : public APIBindingFactory {
+// Factory object used to generate ThrustMenu bindings
+class ThrustMenuBindingFactory : public APIBindingFactory {
 public:
-  ExoShellBindingFactory();
-  ~ExoShellBindingFactory();
+  ThrustMenuBindingFactory();
+  ~ThrustMenuBindingFactory();
 
   APIBinding* Create(const unsigned int id, 
                      scoped_ptr<base::DictionaryValue> args) OVERRIDE;
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
   
-#endif // EXO_SHELL_API_API_BINDING_H_
+#endif // THRUST_SHELL_API_THRUST_MENU_BINDING_H_

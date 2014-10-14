@@ -56,7 +56,7 @@ std::vector<ui::SelectedFileInfo> FilePathListToSelectedFileInfoList(
 } // namespace
 
 
-namespace exo_shell {
+namespace thrust_shell {
 
 struct FileSelectHelper::ActiveDirectoryEnumeration {
   ActiveDirectoryEnumeration() : rvh_(NULL) {}
@@ -466,4 +466,4 @@ bool FileSelectHelper::IsAcceptTypeValid(const std::string& accept_type) {
   return true;
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

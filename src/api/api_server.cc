@@ -18,10 +18,10 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-const char kSocketBoundary[] = "--(Foo)++__EXO_SHELL_BOUNDARY__++(Bar)--";
-const char kAPIServerThreadName[] = "exo_shell_api_server_thread";
+const char kSocketBoundary[] = "--(Foo)++__THRUST_SHELL_BOUNDARY__++(Bar)--";
+const char kAPIServerThreadName[] = "thrust_shell_api_server_thread";
 
 /******************************************************************************/
 /* APISERVER::CLIENT::REMOTE */
@@ -396,4 +396,4 @@ APIServer::ThreadTearDown()
 }
 
   
-} // namespace exo_shell
+} // namespace thrust_shell

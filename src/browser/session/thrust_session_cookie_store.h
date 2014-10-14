@@ -1,35 +1,35 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
-#define EXO_SHELL_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
+#ifndef THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_COOKIE_STORE_H_
+#define THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_COOKIE_STORE_H_
 
 #include "net/cookies/cookie_monster.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoSession;
+class ThrustSession;
 
-// ### ExoSessionCookieStore
+// ### ThrustSessionCookieStore
 //
-// The ExoSessionCookieStore is a glue between the CookieMonster Delegate and
-// PersistentCookieStore interface and the ExoSession JS API. It calls into
+// The ThrustSessionCookieStore is a glue between the CookieMonster Delegate and
+// PersistentCookieStore interface and the ThrustSession JS API. It calls into
 // JS whenever it receives a call from the CookieMonster of which it is both
 // the Delegate and the PersistentCookieStore.
 //
-// The ExoSessionCookieStore is RefCounted and therefore owned by the URLRequest
-// context that uses it. We also keep track of the parent ExoSession to be able
+// The ThrustSessionCookieStore is RefCounted and therefore owned by the URLRequest
+// context that uses it. We also keep track of the parent ThrustSession to be able
 // to not call into its wrapper if it's been deleted (which should not happen in
 // theory)
-class ExoSessionCookieStore : public net::CookieMonster::PersistentCookieStore {
+class ThrustSessionCookieStore : public net::CookieMonster::PersistentCookieStore {
 
 typedef net::CookieMonster::PersistentCookieStore::LoadedCallback
   LoadedCallback;
 
 public:
-  // ### ExoSessionCookieStore
-  // We keep a pointer to the parent ExoSession to call into the JS API
-  ExoSessionCookieStore(ExoSession* parent, bool dummy = false);
+  // ### ThrustSessionCookieStore
+  // We keep a pointer to the parent ThrustSession to call into the JS API
+  ThrustSessionCookieStore(ThrustSession* parent, bool dummy = false);
 
   /****************************************************************************/
   /* COOKIE MONSTER PERSISTENT STORE IMPLEMENTATION                           */
@@ -49,18 +49,18 @@ public:
   virtual void SetForceKeepSessionState() OVERRIDE;
 
 private:
-  virtual ~ExoSessionCookieStore();
+  virtual ~ThrustSessionCookieStore();
 
-  ExoSession*         parent_;
-  bool                dummy_;
+  ThrustSession*         parent_;
+  bool                   dummy_;
 
-  unsigned int        op_count_;
+  unsigned int           op_count_;
 
-  friend class ExoSession;
+  friend class ThrustSession;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoSessionCookieStore);
+  DISALLOW_COPY_AND_ASSIGN(ThrustSessionCookieStore);
 };
   
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_SESSION_EXO_SESSION_COOKIE_STORE_H_
+#endif // THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_COOKIE_STORE_H_

@@ -12,20 +12,20 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoShellResourceDispatcherHostDelegate::
-  ExoShellResourceDispatcherHostDelegate() 
+ThrustShellResourceDispatcherHostDelegate::
+  ThrustShellResourceDispatcherHostDelegate() 
 {
 }
 
-ExoShellResourceDispatcherHostDelegate::
-~ExoShellResourceDispatcherHostDelegate() 
+ThrustShellResourceDispatcherHostDelegate::
+~ThrustShellResourceDispatcherHostDelegate() 
 {
 }
 
 ResourceDispatcherHostLoginDelegate*
-ExoShellResourceDispatcherHostDelegate::CreateLoginDelegate(
+ThrustShellResourceDispatcherHostDelegate::CreateLoginDelegate(
     net::AuthChallengeInfo* auth_info, 
     net::URLRequest* request) 
 {
@@ -33,4 +33,4 @@ ExoShellResourceDispatcherHostDelegate::CreateLoginDelegate(
   return NULL;
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

@@ -14,18 +14,18 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoShellJavaScriptDialogManager::ExoShellJavaScriptDialogManager() 
+ThrustShellJavaScriptDialogManager::ThrustShellJavaScriptDialogManager() 
 {
 }
 
-ExoShellJavaScriptDialogManager::~ExoShellJavaScriptDialogManager() 
+ThrustShellJavaScriptDialogManager::~ThrustShellJavaScriptDialogManager() 
 {
 }
 
 void 
-ExoShellJavaScriptDialogManager::RunJavaScriptDialog(
+ThrustShellJavaScriptDialogManager::RunJavaScriptDialog(
     WebContents* web_contents,
     const GURL& origin_url,
     const std::string& accept_lang,
@@ -48,7 +48,7 @@ ExoShellJavaScriptDialogManager::RunJavaScriptDialog(
 }
 
 void 
-ExoShellJavaScriptDialogManager::RunBeforeUnloadDialog(
+ThrustShellJavaScriptDialogManager::RunBeforeUnloadDialog(
     WebContents* web_contents,
     const base::string16& message_text,
     bool is_reload,
@@ -68,24 +68,24 @@ ExoShellJavaScriptDialogManager::RunBeforeUnloadDialog(
 
 
 void 
-ExoShellJavaScriptDialogManager::CancelActiveAndPendingDialogs(
+ThrustShellJavaScriptDialogManager::CancelActiveAndPendingDialogs(
     WebContents* web_contents) 
 {
   /* TODO(spolu): Expose to API */
 }
 
 void 
-ExoShellJavaScriptDialogManager::WebContentsDestroyed(
+ThrustShellJavaScriptDialogManager::WebContentsDestroyed(
     WebContents* web_contents) 
 {
 }
 
 /*
 void 
-ExoShellJavaScriptDialogManager::DialogClosed(
+ThrustShellJavaScriptDialogManager::DialogClosed(
     JavaScriptDialog* dialog) 
 {
 }
 */
 
-} // namespace exo_shell
+} // namespace thrust_shell

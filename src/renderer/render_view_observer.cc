@@ -17,21 +17,21 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoShellRenderViewObserver::ExoShellRenderViewObserver(
+ThrustShellRenderViewObserver::ThrustShellRenderViewObserver(
     RenderView* render_view)
     : RenderViewObserver(render_view) 
 {
 }
 
 bool 
-ExoShellRenderViewObserver::OnMessageReceived(
+ThrustShellRenderViewObserver::OnMessageReceived(
     const IPC::Message& message) 
 {
   bool handled = true;
   /*
-  IPC_BEGIN_MESSAGE_MAP(ExoShellRenderViewObserver, message)
+  IPC_BEGIN_MESSAGE_MAP(ThrustShellRenderViewObserver, message)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   */
@@ -41,10 +41,10 @@ ExoShellRenderViewObserver::OnMessageReceived(
 }
 
 void
-ExoShellRenderViewObserver::DraggableRegionsChanged(
+ThrustShellRenderViewObserver::DraggableRegionsChanged(
     blink::WebFrame* frame) 
 {
   return;
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

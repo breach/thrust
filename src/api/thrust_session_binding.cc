@@ -1,29 +1,29 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/api/exo_session_binding.h"
+#include "src/api/thrust_session_binding.h"
 
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoSessionBindingFactory::ExoSessionBindingFactory()
+ThrustSessionBindingFactory::ThrustSessionBindingFactory()
 {
 }
 
-ExoSessionBindingFactory::~ExoSessionBindingFactory()
+ThrustSessionBindingFactory::~ThrustSessionBindingFactory()
 {
 }
 
-APIBinding* ExoSessionBindingFactory::Create(
+APIBinding* ThrustSessionBindingFactory::Create(
     const unsigned int id,
     scoped_ptr<base::DictionaryValue> args)
 {
-  return new ExoSessionBinding(id, args.Pass());
+  return new ThrustSessionBinding(id, args.Pass());
 }
 
 
-ExoSessionBinding::ExoSessionBinding(
+ThrustSessionBinding::ThrustSessionBinding(
     const unsigned int id, 
     scoped_ptr<base::DictionaryValue> args)
   : APIBinding("session", id)
@@ -37,21 +37,21 @@ ExoSessionBinding::ExoSessionBinding(
   bool dummy_cookie_store = true;
   args->GetBoolean("dummy_cookie_store", &dummy_cookie_store);
 
-  session_.reset(new ExoSession(off_the_record, 
+  session_.reset(new ThrustSession(off_the_record, 
                                 path, 
                                 dummy_cookie_store));
   session_->Initialize();
 }
 
-ExoSessionBinding::~ExoSessionBinding()
+ThrustSessionBinding::~ThrustSessionBinding()
 {
-  LOG(INFO) << "ExoSessionBinding Destructor";
+  LOG(INFO) << "ThrustSessionBinding Destructor";
   session_.reset();
 }
 
 
 void
-ExoSessionBinding::CallLocalMethod(
+ThrustSessionBinding::CallLocalMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
@@ -73,10 +73,10 @@ ExoSessionBinding::CallLocalMethod(
   callback.Run(err, scoped_ptr<base::Value>(res).Pass());
 }
 
-ExoSession*
-ExoSessionBinding::GetSession() {
+ThrustSession*
+ThrustSessionBinding::GetSession() {
   return session_.get();
 }
 
 
-} // namespace exo_shell
+} // namespace thrust_shell

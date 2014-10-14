@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
-#define EXO_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
+#ifndef THRUST_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
+#define THRUST_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -76,4 +76,4 @@ private:
 
 } // namespace extensions
 
-#endif // EXO_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_
+#endif // THRUST_SHELL_RENDERER_EXTENSIONS_DISPATCHER_H_

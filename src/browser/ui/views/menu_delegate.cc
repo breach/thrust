@@ -13,7 +13,7 @@
 
 #include "src/browser/ui/views/menu_bar.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 MenuDelegate::MenuDelegate(
   MenuBar* menu_bar)
@@ -167,4 +167,4 @@ MenuDelegate::GetSiblingMenu(
   return BuildMenu(model);
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

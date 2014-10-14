@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 
 #if defined(OS_WIN)
 #include <shobjidl.h>
@@ -58,7 +58,7 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -80,15 +80,15 @@ bool ShouldUseGlobalMenuBar() {
 #endif
 
 
-class ExoShellClientView : public views::ClientView {
+class ThrustWindowClientView : public views::ClientView {
  public:
-  ExoShellClientView(
+  ThrustWindowClientView(
       views::Widget* widget,
-      ExoShell* shell)
-      : views::ClientView(widget, shell) 
+      ThrustWindow* window)
+      : views::ClientView(widget, window) 
   {
   }
-  virtual ~ExoShellClientView() {}
+  virtual ~ThrustWindowClientView() {}
 
   virtual bool 
   CanClose() OVERRIDE 
@@ -97,19 +97,19 @@ class ExoShellClientView : public views::ClientView {
   }
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ExoShellClientView);
+  DISALLOW_COPY_AND_ASSIGN(ThrustWindowClientView);
 };
 
 }  // namespace
 
 void 
-ExoShell::PlatformCleanUp() 
+ThrustWindow::PlatformCleanUp() 
 {
   window_->RemoveObserver(this);
 }
 
 void 
-ExoShell::PlatformCreateWindow(
+ThrustWindow::PlatformCreateWindow(
     const gfx::Size& size)
 {
   window_.reset(new views::Widget());
@@ -138,26 +138,26 @@ ExoShell::PlatformCreateWindow(
 }
 
 void 
-ExoShell::PlatformShow() 
+ThrustWindow::PlatformShow() 
 {
   window_->Show();
 }
 
 void 
-ExoShell::PlatformClose() 
+ThrustWindow::PlatformClose() 
 {
   window_->Close();
 }
 
 void 
-ExoShell::PlatformSetTitle(
+ThrustWindow::PlatformSetTitle(
     const std::string& title) 
 {
   window_->UpdateWindowTitle();
 }
 
 void
-ExoShell::PlatformFocus(bool focus)
+ThrustWindow::PlatformFocus(bool focus)
 {
   if(focus) {
     window_->Activate();
@@ -168,37 +168,37 @@ ExoShell::PlatformFocus(bool focus)
 }
 
 void
-ExoShell::PlatformMaximize()
+ThrustWindow::PlatformMaximize()
 {
   window_->Maximize();
 }
 
 void
-ExoShell::PlatformUnMaximize()
+ThrustWindow::PlatformUnMaximize()
 {
   window_->Restore();
 }
 
 void
-ExoShell::PlatformMinimize()
+ThrustWindow::PlatformMinimize()
 {
   window_->Minimize();
 }
 
 void
-ExoShell::PlatformRestore()
+ThrustWindow::PlatformRestore()
 {
   window_->Restore();
 }
 
 gfx::Size
-ExoShell::PlatformSize()
+ThrustWindow::PlatformSize()
 {
   return window_->GetWindowBoundsInScreen().size();
 }
 
 gfx::Size 
-ExoShell::PlatformContentSize() 
+ThrustWindow::PlatformContentSize() 
 {
   if (!has_frame_)
     return PlatformSize();
@@ -211,7 +211,7 @@ ExoShell::PlatformContentSize()
 }
 
 gfx::Rect
-ExoShell::ContentBoundsToWindowBounds(
+ThrustWindow::ContentBoundsToWindowBounds(
     const gfx::Rect& bounds)
 {
   gfx::Rect window_bounds =
@@ -223,7 +223,7 @@ ExoShell::ContentBoundsToWindowBounds(
 
 
 void 
-ExoShell::PlatformSetContentSize(
+ThrustWindow::PlatformSetContentSize(
     int width, int height)
 {
   if (!has_frame_) {
@@ -239,13 +239,13 @@ ExoShell::PlatformSetContentSize(
 }
 
 gfx::Point
-ExoShell::PlatformPosition()
+ThrustWindow::PlatformPosition()
 {
   return window_->GetWindowBoundsInScreen().origin();
 }
 
 void
-ExoShell::PlatformMove(int x, int y)
+ThrustWindow::PlatformMove(int x, int y)
 {
   gfx::Size size = window_->GetWindowBoundsInScreen().size();
   gfx::Rect bounds(x, y, size.width(), size.height());
@@ -253,7 +253,7 @@ ExoShell::PlatformMove(int x, int y)
 }
 
 void
-ExoShell::PlatformResize(int width, int height)
+ThrustWindow::PlatformResize(int width, int height)
 {
   gfx::Point origin = window_->GetWindowBoundsInScreen().origin();
   gfx::Rect bounds(origin.x(), origin.y(), width, height);
@@ -261,13 +261,13 @@ ExoShell::PlatformResize(int width, int height)
 }
 
 gfx::NativeWindow
-ExoShell::PlatformGetNativeWindow() 
+ThrustWindow::PlatformGetNativeWindow() 
 {
   return window_->GetNativeWindow(); 
 }
 
 void 
-ExoShell::OnWidgetActivationChanged(
+ThrustWindow::OnWidgetActivationChanged(
     views::Widget* widget, 
     bool active) 
 {
@@ -288,72 +288,72 @@ ExoShell::OnWidgetActivationChanged(
 
 
 void 
-ExoShell::DeleteDelegate() {
+ThrustWindow::DeleteDelegate() {
   Close();
 }
 
 views::View* 
-ExoShell::GetInitiallyFocusedView() 
+ThrustWindow::GetInitiallyFocusedView() 
 {
   return inspectable_web_contents()->GetView()->GetWebView();
 }
 
 bool 
-ExoShell::CanResize() const 
+ThrustWindow::CanResize() const 
 {
   return true;
 }
 
 bool 
-ExoShell::CanMaximize() const 
+ThrustWindow::CanMaximize() const 
 {
   return true;
 }
 
 base::string16 
-ExoShell::GetWindowTitle() const 
+ThrustWindow::GetWindowTitle() const 
 {
   return base::UTF8ToUTF16(title_);
 }
 
 bool 
-ExoShell::ShouldHandleSystemCommands() const 
+ThrustWindow::ShouldHandleSystemCommands() const 
 {
   return true;
 }
 
 gfx::ImageSkia 
-ExoShell::GetWindowAppIcon() 
+ThrustWindow::GetWindowAppIcon() 
 {
   return *(icon_.ToImageSkia());
 }
 
 gfx::ImageSkia 
-ExoShell::GetWindowIcon() 
+ThrustWindow::GetWindowIcon() 
 {
   return GetWindowAppIcon();
 }
 
 views::Widget* 
-ExoShell::GetWidget() 
+ThrustWindow::GetWidget() 
 {
   return window_.get();
 }
 
 const views::Widget* 
-ExoShell::GetWidget() const 
+ThrustWindow::GetWidget() const 
 {
   return window_.get();
 }
 
 views::View* 
-ExoShell::GetContentsView() 
+ThrustWindow::GetContentsView() 
 {
   return this;
 }
 
 void 
-ExoShell::PlatformSetMenu(
+ThrustWindow::PlatformSetMenu(
     ui::MenuModel* menu_model) 
 {
   /* TODO(spolu) Menu accelerators */
@@ -406,7 +406,7 @@ ExoShell::PlatformSetMenu(
 }
 
 bool 
-ExoShell::ShouldDescendIntoChildForEventHandling(
+ThrustWindow::ShouldDescendIntoChildForEventHandling(
     gfx::NativeView child,
     const gfx::Point& location) 
 {
@@ -427,14 +427,14 @@ ExoShell::ShouldDescendIntoChildForEventHandling(
 }
 
 views::ClientView* 
-ExoShell::CreateClientView(
+ThrustWindow::CreateClientView(
     views::Widget* widget) 
 {
-  return new ExoShellClientView(widget, this);
+  return new ThrustWindowClientView(widget, this);
 }
 
 views::NonClientFrameView* 
-ExoShell::CreateNonClientFrameView(
+ThrustWindow::CreateNonClientFrameView(
     views::Widget* widget) 
 {
 #if defined(OS_WIN)
@@ -456,7 +456,7 @@ ExoShell::CreateNonClientFrameView(
 }
 
 void 
-ExoShell::SetMenuBarVisibility(
+ThrustWindow::SetMenuBarVisibility(
     bool visible) 
 {
   if (!menu_bar_)
@@ -477,4 +477,4 @@ ExoShell::SetMenuBarVisibility(
 }
 
 
-} // namespace exo_shell
+} // namespace thrust_shell

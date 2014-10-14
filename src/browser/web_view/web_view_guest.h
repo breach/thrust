@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_
-#define EXO_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_
+#ifndef THRUST_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_
+#define THRUST_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_
 
 #include <queue>
 
@@ -16,7 +16,7 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 struct RendererContentSettingRules;
 
@@ -218,6 +218,6 @@ public:
   DISALLOW_COPY_AND_ASSIGN(WebViewGuest);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_
+#endif // THRUST_SHELL_BROWSER_WEB_VIEW_WEB_VIEW_GUEST_H_

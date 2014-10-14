@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
-#define EXO_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
+#ifndef THRUST_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
+#define THRUST_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
@@ -14,13 +14,13 @@ namespace content {
 class DownloadManager;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShellDownloadManagerDelegate
+class ThrustShellDownloadManagerDelegate
     : public content::DownloadManagerDelegate {
  public:
-  ExoShellDownloadManagerDelegate();
-  virtual ~ExoShellDownloadManagerDelegate();
+  ThrustShellDownloadManagerDelegate();
+  virtual ~ThrustShellDownloadManagerDelegate();
 
   void SetDownloadManager(content::DownloadManager* manager);
 
@@ -53,13 +53,13 @@ class ExoShellDownloadManagerDelegate
   content::DownloadManager*                               download_manager_;
   base::FilePath                                          default_download_path_;
   bool                                                    suppress_prompting_;
-  base::WeakPtrFactory<ExoShellDownloadManagerDelegate> weak_ptr_factory_; 
+  base::WeakPtrFactory<ThrustShellDownloadManagerDelegate> weak_ptr_factory_; 
 
-  friend class base::RefCountedThreadSafe<ExoShellDownloadManagerDelegate>;
+  friend class base::RefCountedThreadSafe<ThrustShellDownloadManagerDelegate>;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShellDownloadManagerDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ThrustShellDownloadManagerDelegate);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_
+#endif // THRUST_SHELL_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_

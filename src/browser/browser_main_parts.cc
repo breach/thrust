@@ -20,83 +20,83 @@
 #include "content/public/browser/browser_thread.h"
 
 #include "src/common/switches.h"
-#include "src/browser/exo_shell.h"
-#include "src/browser/session/exo_session.h"
+#include "src/browser/thrust_window.h"
+#include "src/browser/session/thrust_session.h"
 #include "src/net/net_log.h"
 #include "src/api/api.h"
 #include "src/api/api_server.h"
-#include "src/api/exo_shell_binding.h"
-#include "src/api/exo_session_binding.h"
-#include "src/api/exo_menu_binding.h"
+#include "src/api/thrust_window_binding.h"
+#include "src/api/thrust_session_binding.h"
+#include "src/api/thrust_menu_binding.h"
 
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 // static
-ExoShellMainParts* ExoShellMainParts::self_ = NULL;
+ThrustShellMainParts* ThrustShellMainParts::self_ = NULL;
 
 
-ExoShellMainParts::ExoShellMainParts()
+ThrustShellMainParts::ThrustShellMainParts()
   : system_session_(NULL)
 {
-  DCHECK(!self_) << "Cannot have two ExoShellBrowserMainParts";
+  DCHECK(!self_) << "Cannot have two ThrustShellBrowserMainParts";
   self_ = this;
   api_ = new API();
 }
 
-ExoShellMainParts::~ExoShellMainParts() {
+ThrustShellMainParts::~ThrustShellMainParts() {
 }
 
 // static
-ExoShellMainParts* 
-ExoShellMainParts::Get() 
+ThrustShellMainParts* 
+ThrustShellMainParts::Get() 
 {
   DCHECK(self_);
   return self_;
 }
 
 brightray::BrowserContext* 
-ExoShellMainParts::CreateBrowserContext() {
+ThrustShellMainParts::CreateBrowserContext() {
   if(system_session_ == NULL) {
     /* We create an off the record session to be used internally. */
     /* This session has a dummy cookie store. Stores nothing.     */
-    system_session_ = new ExoSession(true, "system_session", true);
+    system_session_ = new ThrustSession(true, "system_session", true);
   }
   return system_session_;
 }
 
 void 
-ExoShellMainParts::PreMainMessageLoopRun() 
+ThrustShellMainParts::PreMainMessageLoopRun() 
 {
   brightray::BrowserMainParts::PreMainMessageLoopRun();
-  net_log_.reset(new ExoShellNetLog());
+  net_log_.reset(new ThrustShellNetLog());
 
   /* TODO(spolu): Get Path form command line */
   //CommandLine* command_line = CommandLine::ForCurrentProcess();
   //
-  api_->InstallBinding("shell", new ExoShellBindingFactory());
-  api_->InstallBinding("session", new ExoSessionBindingFactory());
-  api_->InstallBinding("menu", new ExoMenuBindingFactory());
+  api_->InstallBinding("window", new ThrustWindowBindingFactory());
+  api_->InstallBinding("session", new ThrustSessionBindingFactory());
+  api_->InstallBinding("menu", new ThrustMenuBindingFactory());
   
   base::FilePath path;
   base::GetTempDir(&path);
-  api_server_.reset(new APIServer(api_, path.Append("_exo_shell.sock")));
+  api_server_.reset(new APIServer(api_, path.Append("_thrust_shell.sock")));
   api_server_->Start();
 
   /*
   BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE, base::Bind(&ExoShellMainParts::Startup));
+      BrowserThread::UI, FROM_HERE, base::Bind(&ThrustShellMainParts::Startup));
   */
 }
 
-void ExoShellMainParts::PostMainMessageLoopRun() 
+void ThrustShellMainParts::PostMainMessageLoopRun() 
 {
   brightray::BrowserMainParts::PostMainMessageLoopRun();
   /* system_session_ is cleaned up in the above call. */
 
-  /* TODO(spolu): Cleanup Remaining ExoSessions? */
+  /* TODO(spolu): Cleanup Remaining ThrustSessions? */
 }
 
 }  // namespace

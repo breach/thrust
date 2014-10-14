@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
-#define EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
+#ifndef THRUST_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
+#define THRUST_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
 
 #include "brightray/browser/browser_main_parts.h"
 
@@ -20,19 +20,19 @@ namespace content {
 struct MainFunctionParams;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoSession;
+class ThrustSession;
 class API;
 class APIServer;
 
-class ExoShellMainParts : public brightray::BrowserMainParts {
+class ThrustShellMainParts : public brightray::BrowserMainParts {
  public:
 
-  explicit ExoShellMainParts();
-  virtual ~ExoShellMainParts();
+  explicit ThrustShellMainParts();
+  virtual ~ThrustShellMainParts();
 
-  static ExoShellMainParts* Get();
+  static ThrustShellMainParts* Get();
 
   /* TODO(spolu) Add App object similar to atom-shell Browser. */
 
@@ -54,15 +54,15 @@ class ExoShellMainParts : public brightray::BrowserMainParts {
  private:
   scoped_ptr<net::NetLog> net_log_;
 
-  static ExoShellMainParts*          self_;
-  ExoSession*                        system_session_;
+  static ThrustShellMainParts*          self_;
+  ThrustSession*                        system_session_;
 
   API*                               api_;
   scoped_ptr<APIServer>              api_server_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShellMainParts);
+  DISALLOW_COPY_AND_ASSIGN(ThrustShellMainParts);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_
+#endif // THRUST_SHELL_BROWSER_BROWSER_MAIN_PARTS_H_

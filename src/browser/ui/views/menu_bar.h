@@ -2,8 +2,8 @@
 // Copyright (c) 2014 GitHub, Inc. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_UI_VIEWS_MENU_BAR_H_
-#define EXO_SHELL_BROWSER_UI_VIEWS_MENU_BAR_H_
+#ifndef THRUST_SHELL_BROWSER_UI_VIEWS_MENU_BAR_H_
+#define THRUST_SHELL_BROWSER_UI_VIEWS_MENU_BAR_H_
 
 #include "ui/views/controls/button/button.h"
 #include "ui/views/controls/button/menu_button_listener.h"
@@ -17,7 +17,7 @@ namespace views {
 class MenuButton;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
 class MenuDelegate;
 
@@ -77,6 +77,6 @@ class MenuBar : public views::View,
   DISALLOW_COPY_AND_ASSIGN(MenuBar);
 };
 
-}  // namespace exo_shell
+}  // namespace thrust_shell
 
-#endif  // EXO_SHELL_BROWSER_UI_VIEWS_MENU_BAR_H_
+#endif  // THRUST_SHELL_BROWSER_UI_VIEWS_MENU_BAR_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef EXO_SHELL_RENDERER_EXTENSIONS_STATIC_V8_EXTERNAL_STRING_RESOURCE_H_
-#define EXO_SHELL_RENDERER_EXTENSIONS_STATIC_V8_EXTERNAL_STRING_RESOURCE_H_
+#ifndef THRUST_SHELL_RENDERER_EXTENSIONS_STATIC_V8_EXTERNAL_STRING_RESOURCE_H_
+#define THRUST_SHELL_RENDERER_EXTENSIONS_STATIC_V8_EXTERNAL_STRING_RESOURCE_H_
 
 #include "base/compiler_specific.h"
 #include "base/strings/string_piece.h"
@@ -29,4 +29,4 @@ class StaticV8ExternalAsciiStringResource
 
 } // namspace extensions
 
-#endif // EXO_SHELL_RENDERER_EXTENSIONS_STATIC_V8_EXTERNAL_STRING_RESOURCE_H_
+#endif // THRUST_SHELL_RENDERER_EXTENSIONS_STATIC_V8_EXTERNAL_STRING_RESOURCE_H_

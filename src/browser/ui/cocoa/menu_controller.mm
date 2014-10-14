@@ -60,12 +60,12 @@ int EventFlagsFromNSEvent(NSEvent* event) {
 
 }  // namespace
 
-@interface ExoShellMenuController (Private)
+@interface ThrustShellMenuController (Private)
 - (void)addSeparatorToMenu:(NSMenu*)menu
                    atIndex:(int)index;
 @end
 
-@implementation ExoShellMenuController
+@implementation ThrustShellMenuController
 
 @synthesize model = model_;
 

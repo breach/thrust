@@ -2,8 +2,8 @@
 // Copyright (c) 2013 GitHub, Inc.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_UI_ACCELERATOR_UTIL_H_
-#define EXO_SHELL_BROWSER_UI_ACCELERATOR_UTIL_H_
+#ifndef THRUST_SHELL_BROWSER_UI_ACCELERATOR_UTIL_H_
+#define THRUST_SHELL_BROWSER_UI_ACCELERATOR_UTIL_H_
 
 #include <map>
 #include <string>
@@ -35,4 +35,4 @@ bool TriggerAcceleratorTableCommand(AcceleratorTable* table,
 
 }  // namespace accelerator_util
 
-#endif  // EXO_SHELL_BROWSER_UI_ACCELERATOR_UTIL_H_
+#endif  // THRUST_SHELL_BROWSER_UI_ACCELERATOR_UTIL_H_

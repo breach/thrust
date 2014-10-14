@@ -6,8 +6,8 @@
 #include "content/public/app/content_main.h"
 #include "src/app/main_delegate.h"
 
-int ExoShellMain(int argc, const char* argv[]) {
-  exo_shell::MainDelegate delegate;
+int ThrustShellMain(int argc, const char* argv[]) {
+  thrust_shell::MainDelegate delegate;
   content::ContentMainParams params(&delegate);
   params.argc = argc;
   params.argv = argv;

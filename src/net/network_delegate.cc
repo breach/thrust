@@ -10,29 +10,29 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 bool g_accept_all_cookies = true;
 }
 
-ExoShellNetworkDelegate::ExoShellNetworkDelegate() 
+ThrustShellNetworkDelegate::ThrustShellNetworkDelegate() 
 {
 }
 
-ExoShellNetworkDelegate::~ExoShellNetworkDelegate() 
+ThrustShellNetworkDelegate::~ThrustShellNetworkDelegate() 
 {
 }
 
 void 
-ExoShellNetworkDelegate::SetAcceptAllCookies(
+ThrustShellNetworkDelegate::SetAcceptAllCookies(
     bool accept) 
 {
   g_accept_all_cookies = accept;
 }
 
 int 
-ExoShellNetworkDelegate::OnBeforeURLRequest(
+ThrustShellNetworkDelegate::OnBeforeURLRequest(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     GURL* new_url) {
@@ -40,7 +40,7 @@ ExoShellNetworkDelegate::OnBeforeURLRequest(
 }
 
 int 
-ExoShellNetworkDelegate::OnBeforeSendHeaders(
+ThrustShellNetworkDelegate::OnBeforeSendHeaders(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     net::HttpRequestHeaders* headers) 
@@ -49,14 +49,14 @@ ExoShellNetworkDelegate::OnBeforeSendHeaders(
 }
 
 void 
-ExoShellNetworkDelegate::OnSendHeaders(
+ThrustShellNetworkDelegate::OnSendHeaders(
     net::URLRequest* request,
     const net::HttpRequestHeaders& headers) 
 {
 }
 
 int 
-ExoShellNetworkDelegate::OnHeadersReceived(
+ThrustShellNetworkDelegate::OnHeadersReceived(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     const net::HttpResponseHeaders* original_response_headers,
@@ -67,47 +67,47 @@ ExoShellNetworkDelegate::OnHeadersReceived(
 }
 
 void 
-ExoShellNetworkDelegate::OnBeforeRedirect(
+ThrustShellNetworkDelegate::OnBeforeRedirect(
     net::URLRequest* request,
     const GURL& new_location) 
 {
 }
 
 void 
-ExoShellNetworkDelegate::OnResponseStarted(
+ThrustShellNetworkDelegate::OnResponseStarted(
     net::URLRequest* request) 
 {
 }
 
 void 
-ExoShellNetworkDelegate::OnRawBytesRead(
+ThrustShellNetworkDelegate::OnRawBytesRead(
     const net::URLRequest& request,
     int bytes_read) 
 {
 }
 
 void 
-ExoShellNetworkDelegate::OnCompleted(
+ThrustShellNetworkDelegate::OnCompleted(
     net::URLRequest* request, 
     bool started) 
 {
 }
 
 void 
-ExoShellNetworkDelegate::OnURLRequestDestroyed(
+ThrustShellNetworkDelegate::OnURLRequestDestroyed(
     net::URLRequest* request) 
 {
 }
 
 void 
-ExoShellNetworkDelegate::OnPACScriptError(
+ThrustShellNetworkDelegate::OnPACScriptError(
     int line_number,
     const base::string16& error) 
 {
 }
 
-ExoShellNetworkDelegate::AuthRequiredResponse 
-ExoShellNetworkDelegate::OnAuthRequired(
+ThrustShellNetworkDelegate::AuthRequiredResponse 
+ThrustShellNetworkDelegate::OnAuthRequired(
     net::URLRequest* request,
     const net::AuthChallengeInfo& auth_info,
     const AuthCallback& callback,
@@ -117,7 +117,7 @@ ExoShellNetworkDelegate::OnAuthRequired(
 }
 
 bool 
-ExoShellNetworkDelegate::OnCanGetCookies(
+ThrustShellNetworkDelegate::OnCanGetCookies(
     const net::URLRequest& request,
     const net::CookieList& cookie_list) 
 {
@@ -132,7 +132,7 @@ ExoShellNetworkDelegate::OnCanGetCookies(
 }
 
 bool 
-ExoShellNetworkDelegate::OnCanSetCookie(
+ThrustShellNetworkDelegate::OnCanSetCookie(
     const net::URLRequest& request,
     const std::string& cookie_line,
     net::CookieOptions* options) 
@@ -148,7 +148,7 @@ ExoShellNetworkDelegate::OnCanSetCookie(
 }
 
 bool 
-ExoShellNetworkDelegate::OnCanAccessFile(
+ThrustShellNetworkDelegate::OnCanAccessFile(
     const net::URLRequest& request,
     const base::FilePath& path) const 
 {
@@ -156,18 +156,18 @@ ExoShellNetworkDelegate::OnCanAccessFile(
 }
 
 bool 
-ExoShellNetworkDelegate::OnCanThrottleRequest(
+ThrustShellNetworkDelegate::OnCanThrottleRequest(
     const net::URLRequest& request) const 
 {
   return false;
 }
 
 int 
-ExoShellNetworkDelegate::OnBeforeSocketStreamConnect(
+ThrustShellNetworkDelegate::OnBeforeSocketStreamConnect(
     net::SocketStream* socket,
     const net::CompletionCallback& callback) 
 {
   return net::OK;
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

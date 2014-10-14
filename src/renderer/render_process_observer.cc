@@ -17,46 +17,46 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
-ExoShellRenderProcessObserver* g_instance = NULL;
+ThrustShellRenderProcessObserver* g_instance = NULL;
  
 }
 
 // static
-ExoShellRenderProcessObserver* 
-ExoShellRenderProcessObserver::GetInstance() 
+ThrustShellRenderProcessObserver* 
+ThrustShellRenderProcessObserver::GetInstance() 
 {
   return g_instance;
 }
 
-ExoShellRenderProcessObserver::ExoShellRenderProcessObserver()
+ThrustShellRenderProcessObserver::ThrustShellRenderProcessObserver()
 {
   CHECK(!g_instance);
   g_instance = this;
   RenderThread::Get()->AddObserver(this);
 }
 
-ExoShellRenderProcessObserver::~ExoShellRenderProcessObserver() 
+ThrustShellRenderProcessObserver::~ThrustShellRenderProcessObserver() 
 {
   CHECK(g_instance == this);
   g_instance = NULL;
 }
 
 void 
-ExoShellRenderProcessObserver::WebKitInitialized() 
+ThrustShellRenderProcessObserver::WebKitInitialized() 
 {
 }
 
 bool 
-ExoShellRenderProcessObserver::OnControlMessageReceived(
+ThrustShellRenderProcessObserver::OnControlMessageReceived(
     const IPC::Message& message) 
 {
   bool handled = true;
   /*
-  IPC_BEGIN_MESSAGE_MAP(ExoShellRenderProcessObserver, message)
+  IPC_BEGIN_MESSAGE_MAP(ThrustShellRenderProcessObserver, message)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   */
@@ -65,4 +65,4 @@ ExoShellRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

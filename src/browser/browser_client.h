@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_CONTENT_BROWSER_H_
-#define EXO_SHELL_BROWSER_CONTENT_BROWSER_H_
+#ifndef THRUST_SHELL_BROWSER_CONTENT_BROWSER_H_
+#define THRUST_SHELL_BROWSER_CONTENT_BROWSER_H_
 
 #include <string>
 #include <map>
@@ -14,21 +14,21 @@
 
 #include "brightray/browser/browser_client.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShellMainParts;
-class ExoShellContext;
-class ExoShellResourceDispatcherHostDelegate;
+class ThrustShellMainParts;
+class ThrustShellContext;
+class ThrustShellResourceDispatcherHostDelegate;
 class RenderProcessHost;
-class ExoSession;
+class ThrustSession;
 
-class ExoShellBrowserClient : public brightray::BrowserClient {
+class ThrustShellBrowserClient : public brightray::BrowserClient {
  public:
 
-  ExoShellBrowserClient();
-  virtual ~ExoShellBrowserClient();
+  ThrustShellBrowserClient();
+  virtual ~ThrustShellBrowserClient();
 
-  static ExoShellBrowserClient* Get();
+  static ThrustShellBrowserClient* Get();
 
   /****************************************************************************/
   /* CONTENTBROWSERCLIENT IMPLEMENTATION */
@@ -68,50 +68,50 @@ class ExoShellBrowserClient : public brightray::BrowserClient {
   /****************************************************************************/
   /* EXOSESSION I/F */
   /****************************************************************************/
-  // ### RegisterExoSession
+  // ### RegisterThrustSession
   // ```
-  // @session {ExoSession} the session to register
+  // @session {ThrustSession} the session to register
   // ```
-  // Lets ExoSession register themselves when constructed so that they can be
+  // Lets ThrustSession register themselves when constructed so that they can be
   // retrieved from their underlying BrowserContext when needed.
-  // see ExoSessionForBrowserContext
-  void RegisterExoSession(ExoSession* session);
+  // see ThrustSessionForBrowserContext
+  void RegisterThrustSession(ThrustSession* session);
 
-  // ### UnRegisterExoSession
+  // ### UnRegisterThrustSession
   // ```
-  // @session {ExoSession} the session to unregister
+  // @session {ThrustSession} the session to unregister
   // ```
-  void UnRegisterExoSession(ExoSession* session);
+  void UnRegisterThrustSession(ThrustSession* session);
 
-  // ### ExoSessionFroBrowserContext
+  // ### ThrustSessionFroBrowserContext
   // ```
   // @content_browser_context {BrowserContext}
   // ```
-  // Retrieves the ExoSession wrapping the given content::BrowserContext
-  ExoSession* ExoSessionForBrowserContext(
+  // Retrieves the ThrustSession wrapping the given content::BrowserContext
+  ThrustSession* ThrustSessionForBrowserContext(
       content::BrowserContext* browser_context);
 
   /****************************************************************************/
   /* ACCESSORS */
   /****************************************************************************/
-  ExoShellResourceDispatcherHostDelegate* 
+  ThrustShellResourceDispatcherHostDelegate* 
   resource_dispatcher_host_delegate() {
     return resource_dispatcher_host_delegate_.get();
   }
-  ExoSession* system_session();
+  ThrustSession* system_session();
 
 
  private:
   virtual brightray::BrowserMainParts* OverrideCreateBrowserMainParts(
       const content::MainFunctionParams&) OVERRIDE;
 
-  scoped_ptr<ExoShellResourceDispatcherHostDelegate>
+  scoped_ptr<ThrustShellResourceDispatcherHostDelegate>
                             resource_dispatcher_host_delegate_;
 
-  static ExoShellBrowserClient*    self_;
-  std::vector<ExoSession*>           sessions_;
+  static ThrustShellBrowserClient*    self_;
+  std::vector<ThrustSession*>           sessions_;
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_CONTENT_BROWSER_CLIENT_H_
+#endif // THRUST_SHELL_BROWSER_CONTENT_BROWSER_CLIENT_H_

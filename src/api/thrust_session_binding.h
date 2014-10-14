@@ -1,25 +1,25 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_API_EXO_MENU_BINDING_H_
-#define EXO_SHELL_API_EXO_MENU_BINDING_H_
+#ifndef THRUST_SHELL_API_THRUST_SESSION_BINDING_H_
+#define THRUST_SHELL_API_THRUST_SESSION_BINDING_H_
 
 #include "base/callback.h"
 
 #include "src/api/api_binding.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoMenu;
+class ThrustSession;
 
-class ExoMenuBinding : public APIBinding {
+class ThrustSessionBinding : public APIBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
-  ExoMenuBinding(const unsigned int id, 
-                  scoped_ptr<base::DictionaryValue> args);
-  ~ExoMenuBinding();
+  ThrustSessionBinding(const unsigned int id, 
+                    scoped_ptr<base::DictionaryValue> args);
+  ~ThrustSessionBinding();
 
   virtual void CallLocalMethod(
       const std::string& method, 
@@ -29,25 +29,25 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  ExoMenu* GetMenu();
+  ThrustSession* GetSession();
 
 private:
-  scoped_ptr<ExoMenu> menu_;
+  scoped_ptr<ThrustSession> session_;
 };
 
 
-// ## ExoMenuBindingFactory
+// ## ThrustSessionBindingFactory
 //
-// Factory object used to generate ExoMenu bindings
-class ExoMenuBindingFactory : public APIBindingFactory {
+// Factory object used to generate ThrustSession bindings
+class ThrustSessionBindingFactory : public APIBindingFactory {
 public:
-  ExoMenuBindingFactory();
-  ~ExoMenuBindingFactory();
+  ThrustSessionBindingFactory();
+  ~ThrustSessionBindingFactory();
 
   APIBinding* Create(const unsigned int id, 
                      scoped_ptr<base::DictionaryValue> args) OVERRIDE;
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
   
-#endif // EXO_SHELL_API_EXO_MENU_BINDING_H_
+#endif // THRUST_SHELL_API_THRUST_SESSION_BINDING_H_

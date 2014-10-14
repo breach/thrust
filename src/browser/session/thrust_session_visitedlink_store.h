@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_SESSION_EXO_SESSION_VISITEDLINK_STORE_H_
-#define EXO_SHELL_BROWSER_SESSION_EXO_SESSION_VISITEDLINK_STORE_H_
+#ifndef THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_VISITEDLINK_STORE_H_
+#define THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_VISITEDLINK_STORE_H_
 
 #include <string>
 
@@ -13,25 +13,25 @@ namespace visitedlink {
 class VisitedLinkMaster;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoSession;
+class ThrustSession;
 
-// ### ExoSessionVisitedLinkStore
+// ### ThrustSessionVisitedLinkStore
 //
-// The ExoSessionVisitedLinkStore is a wrapper around the VisitedLinkMaster.
+// The ThrustSessionVisitedLinkStore is a wrapper around the VisitedLinkMaster.
 // It is a VisitedLinkDelegate (but returns not visited link) as the master
 // already takes care of storing links on disk and read from it if the browser
 // context is not off the record.
 // TODO(spolu): Later on we may want to expose the delgate API to JS but this
 //              is low priority as it does not bring that much value for now.
-class ExoSessionVisitedLinkStore 
+class ThrustSessionVisitedLinkStore 
   : public visitedlink::VisitedLinkDelegate,
-    public base::RefCountedThreadSafe<ExoSessionVisitedLinkStore> {
+    public base::RefCountedThreadSafe<ThrustSessionVisitedLinkStore> {
 public:
-  // ### ExoSessionVisitedLinkStore
-  // We keep a pointer to the parent ExoSession to call into the JS API
-  ExoSessionVisitedLinkStore(ExoSession* parent);
+  // ### ThrustSessionVisitedLinkStore
+  // We keep a pointer to the parent ThrustSession to call into the JS API
+  ThrustSessionVisitedLinkStore(ThrustSession* parent);
 
   // ### Init
   // Initialiazes the VisitedLinkStore (underlying VisitedLinkMaster 
@@ -56,17 +56,17 @@ public:
       const scoped_refptr<URLEnumerator>& enumerator) OVERRIDE;
 
 private:
-  virtual ~ExoSessionVisitedLinkStore();
+  virtual ~ThrustSessionVisitedLinkStore();
 
-  ExoSession*                                parent_;
+  ThrustSession*                                parent_;
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 
-  friend class ExoSession;
-  friend class base::RefCountedThreadSafe<ExoSessionVisitedLinkStore>;
+  friend class ThrustSession;
+  friend class base::RefCountedThreadSafe<ThrustSessionVisitedLinkStore>;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoSessionVisitedLinkStore);
+  DISALLOW_COPY_AND_ASSIGN(ThrustSessionVisitedLinkStore);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_SESSION_EXO_SESSION_VISITEDLINK_STORE_H_
+#endif // THRUST_SHELL_BROWSER_SESSION_THRUST_SESSION_VISITEDLINK_STORE_H_

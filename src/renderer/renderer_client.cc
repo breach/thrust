@@ -44,35 +44,35 @@ using blink::WebRTCPeerConnectionHandler;
 using blink::WebRTCPeerConnectionHandlerClient;
 using blink::WebThemeEngine;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
-ExoShellRendererClient* g_renderer_client;
+ThrustShellRendererClient* g_renderer_client;
 
 }
 
-ExoShellRendererClient* 
-ExoShellRendererClient::Get() 
+ThrustShellRendererClient* 
+ThrustShellRendererClient::Get() 
 {
   return g_renderer_client;
 }
 
-ExoShellRendererClient::ExoShellRendererClient() 
+ThrustShellRendererClient::ThrustShellRendererClient() 
 {
   DCHECK(!g_renderer_client);
   g_renderer_client = this;
 }
 
-ExoShellRendererClient::~ExoShellRendererClient() 
+ThrustShellRendererClient::~ThrustShellRendererClient() 
 {
   g_renderer_client = NULL;
 }
 
 void 
-ExoShellRendererClient::RenderThreadStarted() 
+ThrustShellRendererClient::RenderThreadStarted() 
 {
-  observer_.reset(new ExoShellRenderProcessObserver());
+  observer_.reset(new ThrustShellRenderProcessObserver());
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave());
   if (!extension_dispatcher_)
     extension_dispatcher_.reset(new extensions::Dispatcher());
@@ -88,14 +88,14 @@ ExoShellRendererClient::RenderThreadStarted()
 }
 
 void 
-ExoShellRendererClient::RenderViewCreated(
+ThrustShellRendererClient::RenderViewCreated(
     RenderView* render_view) 
 {
-  new ExoShellRenderViewObserver(render_view);
+  new ThrustShellRenderViewObserver(render_view);
 }
 
 bool 
-ExoShellRendererClient::OverrideCreatePlugin(
+ThrustShellRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
     blink::WebLocalFrame* frame,
     const WebPluginParams& params,
@@ -105,7 +105,7 @@ ExoShellRendererClient::OverrideCreatePlugin(
 }
 
 void 
-ExoShellRendererClient::DidCreateScriptContext(
+ThrustShellRendererClient::DidCreateScriptContext(
     blink::WebFrame* frame, 
     v8::Handle<v8::Context> context, 
     int extension_group,
@@ -116,7 +116,7 @@ ExoShellRendererClient::DidCreateScriptContext(
 }
 
 unsigned long long 
-ExoShellRendererClient::VisitedLinkHash(
+ThrustShellRendererClient::VisitedLinkHash(
     const char* canonical_url, 
     size_t length) 
 { 
@@ -124,7 +124,7 @@ ExoShellRendererClient::VisitedLinkHash(
 }
 
 bool 
-ExoShellRendererClient::IsLinkVisited(
+ThrustShellRendererClient::IsLinkVisited(
     unsigned long long link_hash)
 {
   //LOG(INFO) << link_hash << " " << visited_link_slave_->IsVisited(link_hash);
@@ -132,4 +132,4 @@ ExoShellRendererClient::IsLinkVisited(
 }
 
 
-} // namespace exo_shell
+} // namespace thrust_shell

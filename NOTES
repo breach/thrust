@@ -73,8 +73,8 @@ DONE:
 /******************************************************************************/
 /* BUILD NOTES */
 /******************************************************************************/
-GYP_GENERATORS=ninja gyp --depth . exo_shell.gyp
-ninja -C out/Debug exo_shell -j 1
+GYP_GENERATORS=ninja gyp --depth . thrust_shell.gyp
+ninja -C out/Debug thrust_shell -j 1
 
 # When receiving message: `The application cannot be opened because its executable is missing.`
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
