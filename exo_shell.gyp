@@ -70,6 +70,8 @@
       'src/browser/dialog/download_manager_delegate_mac.mm',
       'src/browser/ui/accelerator_util.h',
       'src/browser/ui/accelerator_util.cc',
+      'src/browser/ui/accelerator_util_mac.mm',
+      'src/browser/ui/accelerator_util_views.cc',
       'src/browser/ui/views/frameless_view.h',
       'src/browser/ui/views/frameless_view.cc',
       'src/browser/ui/views/win_frame_view.h',
