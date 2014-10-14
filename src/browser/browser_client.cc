@@ -26,42 +26,42 @@
 #include "src/browser/browser_main_parts.h"
 #include "src/browser/resource_dispatcher_host_delegate.h"
 #include "src/common/switches.h"
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 #include "src/geolocation/access_token_store.h"
 
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 // static
-ExoShellBrowserClient* ExoShellBrowserClient::self_ = NULL;
+ThrustShellBrowserClient* ThrustShellBrowserClient::self_ = NULL;
 
 
-ExoShellBrowserClient::ExoShellBrowserClient()
+ThrustShellBrowserClient::ThrustShellBrowserClient()
 {
   self_ = this;
 }
 
-ExoShellBrowserClient::~ExoShellBrowserClient() 
+ThrustShellBrowserClient::~ThrustShellBrowserClient() 
 {
 }
 
 // static
-ExoShellBrowserClient* 
-ExoShellBrowserClient::Get() 
+ThrustShellBrowserClient* 
+ThrustShellBrowserClient::Get() 
 {
   DCHECK(self_);
   return self_;
 }
 
 std::string 
-ExoShellBrowserClient::GetApplicationLocale() {
+ThrustShellBrowserClient::GetApplicationLocale() {
   return l10n_util::GetApplicationLocale("");
 }
 
 void 
-ExoShellBrowserClient::AppendExtraCommandLineSwitches(
+ThrustShellBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line,
     int child_process_id) 
 {
@@ -74,38 +74,38 @@ ExoShellBrowserClient::AppendExtraCommandLineSwitches(
 }
 
 void 
-ExoShellBrowserClient::ResourceDispatcherHostCreated() 
+ThrustShellBrowserClient::ResourceDispatcherHostCreated() 
 {
   resource_dispatcher_host_delegate_.reset(
-      new ExoShellResourceDispatcherHostDelegate());
+      new ThrustShellResourceDispatcherHostDelegate());
   ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
 }
 
 AccessTokenStore* 
-ExoShellBrowserClient::CreateAccessTokenStore()
+ThrustShellBrowserClient::CreateAccessTokenStore()
 { 
-  return new ExoShellAccessTokenStore();
+  return new ThrustShellAccessTokenStore();
 }
 
 std::string 
-ExoShellBrowserClient::GetDefaultDownloadName() 
+ThrustShellBrowserClient::GetDefaultDownloadName() 
 {
   return "download";
 }
 
 
 WebContentsViewDelegate* 
-ExoShellBrowserClient::GetWebContentsViewDelegate(
+ThrustShellBrowserClient::GetWebContentsViewDelegate(
     WebContents* web_contents) 
 { 
   return NULL;
   /* TODO(spolu): Reimplemenent with plugin */
-  //return CreateExoShellWebContentsViewDelegate(web_contents);
+  //return CreateThrustShellWebContentsViewDelegate(web_contents);
 }
 
 void 
-ExoShellBrowserClient::OverrideWebkitPrefs(
+ThrustShellBrowserClient::OverrideWebkitPrefs(
     RenderViewHost* render_view_host,
     const GURL& url,
     WebPreferences* prefs) 
@@ -118,27 +118,27 @@ ExoShellBrowserClient::OverrideWebkitPrefs(
 }
 
 net::URLRequestContextGetter* 
-ExoShellBrowserClient::CreateRequestContext(
+ThrustShellBrowserClient::CreateRequestContext(
     BrowserContext* content_browser_context,
     ProtocolHandlerMap* protocol_handlers,
     URLRequestInterceptorScopedVector protocol_interceptors)
 {
-  ExoSession* session =
-      ExoSessionForBrowserContext(content_browser_context);
+  ThrustSession* session =
+      ThrustSessionForBrowserContext(content_browser_context);
   return session->CreateRequestContext(
       protocol_handlers, protocol_interceptors.Pass());
 }
 
 net::URLRequestContextGetter*
-ExoShellBrowserClient::CreateRequestContextForStoragePartition(
+ThrustShellBrowserClient::CreateRequestContextForStoragePartition(
     BrowserContext* content_browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers,
     URLRequestInterceptorScopedVector protocol_interceptors)
 {
-  ExoSession* session =
-      ExoSessionForBrowserContext(content_browser_context);
+  ThrustSession* session =
+      ThrustSessionForBrowserContext(content_browser_context);
   return session->CreateRequestContextForStoragePartition(
       partition_path, in_memory, 
       protocol_handlers, protocol_interceptors.Pass());
@@ -146,14 +146,14 @@ ExoShellBrowserClient::CreateRequestContextForStoragePartition(
 
 
 bool 
-ExoShellBrowserClient::IsHandledURL(
+ThrustShellBrowserClient::IsHandledURL(
     const GURL& url) 
 {
   if (!url.is_valid())
     return false;
   DCHECK_EQ(url.scheme(), StringToLowerASCII(url.scheme()));
   // Keep in sync with ProtocolHandlers added by
-  // ExoShellURLRequestContextGetter::GetURLRequestContext().
+  // ThrustShellURLRequestContextGetter::GetURLRequestContext().
   /* TODO(spolu): Check in sync */
   static const char* const kProtocolList[] = {
       url::kBlobScheme,
@@ -171,18 +171,18 @@ ExoShellBrowserClient::IsHandledURL(
 }
 
 void 
-ExoShellBrowserClient::RegisterExoSession(
-    ExoSession* session)
+ThrustShellBrowserClient::RegisterThrustSession(
+    ThrustSession* session)
 {
   LOG(INFO) << "Register Session";
   sessions_.push_back(session);
 }
 
 void 
-ExoShellBrowserClient::UnRegisterExoSession(
-    ExoSession* session)
+ThrustShellBrowserClient::UnRegisterThrustSession(
+    ThrustSession* session)
 {
-  std::vector<ExoSession*>::iterator it;
+  std::vector<ThrustSession*>::iterator it;
   for(it = sessions_.begin(); it != sessions_.end(); it++) {
     if(*it == session)
       break;
@@ -193,11 +193,11 @@ ExoShellBrowserClient::UnRegisterExoSession(
   }
 }
 
-ExoSession*
-ExoShellBrowserClient::ExoSessionForBrowserContext(
+ThrustSession*
+ThrustShellBrowserClient::ThrustSessionForBrowserContext(
     BrowserContext* browser_context) 
 {
-  std::vector<ExoSession*>::iterator it;
+  std::vector<ThrustSession*>::iterator it;
   for(it = sessions_.begin(); it != sessions_.end(); it++) {
     if(*it == browser_context) {
       return *it;
@@ -206,17 +206,17 @@ ExoShellBrowserClient::ExoSessionForBrowserContext(
   return NULL;
 }
 
-ExoSession* 
-ExoShellBrowserClient::system_session()
+ThrustSession* 
+ThrustShellBrowserClient::system_session()
 {
-  return ((ExoSession*) browser_main_parts()->browser_context());
+  return ((ThrustSession*) browser_main_parts()->browser_context());
 }
 
 brightray::BrowserMainParts* 
-ExoShellBrowserClient::OverrideCreateBrowserMainParts(
+ThrustShellBrowserClient::OverrideCreateBrowserMainParts(
     const content::MainFunctionParams&) 
 {
-  return new ExoShellMainParts();
+  return new ThrustShellMainParts();
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

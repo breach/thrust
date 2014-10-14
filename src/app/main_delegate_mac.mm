@@ -10,7 +10,7 @@
 
 #include "brightray/common/mac/main_application_bundle.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -23,15 +23,15 @@ base::FilePath GetFrameworksPath() {
 
 void MainDelegate::OverrideFrameworkBundlePath() {
   base::mac::SetOverrideFrameworkBundlePath(
-      GetFrameworksPath().Append("ExoShell Framework.framework"));
+      GetFrameworksPath().Append("ThrustShell Framework.framework"));
 }
 
 void MainDelegate::OverrideChildProcessPath() {
-  base::FilePath helper_path = GetFrameworksPath().Append("ExoShell Helper.app")
+  base::FilePath helper_path = GetFrameworksPath().Append("ThrustShell Helper.app")
                                                   .Append("Contents")
                                                   .Append("MacOS")
-                                                  .Append("ExoShell Helper");
+                                                  .Append("ThrustShell Helper");
   PathService::Override(content::CHILD_PROCESS_EXE, helper_path);
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

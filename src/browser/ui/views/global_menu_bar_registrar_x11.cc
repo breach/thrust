@@ -71,7 +71,7 @@ GlobalMenuBarRegistrarX11::~GlobalMenuBarRegistrarX11() {
 
 void GlobalMenuBarRegistrarX11::RegisterXID(unsigned long xid) {
   DCHECK(registrar_proxy_);
-  std::string path = exo_shell::GlobalMenuBarX11::GetPathForWindow(xid);
+  std::string path = thrust_shell::GlobalMenuBarX11::GetPathForWindow(xid);
 
   ANNOTATE_SCOPED_MEMORY_LEAK; // http://crbug.com/314087
   // TODO(erg): The mozilla implementation goes to a lot of callback trouble
@@ -92,7 +92,7 @@ void GlobalMenuBarRegistrarX11::RegisterXID(unsigned long xid) {
 
 void GlobalMenuBarRegistrarX11::UnregisterXID(unsigned long xid) {
   DCHECK(registrar_proxy_);
-  std::string path = exo_shell::GlobalMenuBarX11::GetPathForWindow(xid);
+  std::string path = thrust_shell::GlobalMenuBarX11::GetPathForWindow(xid);
 
   ANNOTATE_SCOPED_MEMORY_LEAK; // http://crbug.com/314087
   // TODO(erg): The mozilla implementation goes to a lot of callback trouble

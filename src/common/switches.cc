@@ -6,7 +6,7 @@
 
 namespace switches {
 
-// Makes ExoShell use the given path for its data directory.
-const char kExoShellDataPath[] = "data-path";
+// Makes ThrustShell use the given path for its data directory.
+const char kThrustShellDataPath[] = "data-path";
 
 }  // namespace switches

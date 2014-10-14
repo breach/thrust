@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
-#define EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#ifndef THRUST_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#define THRUST_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -26,14 +26,14 @@ class ProxyConfigService;
 class URLRequestContextStorage;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoSession;
+class ThrustSession;
 
-class ExoShellURLRequestContextGetter : public net::URLRequestContextGetter {
+class ThrustShellURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
-  ExoShellURLRequestContextGetter(
-      ExoSession* parent,
+  ThrustShellURLRequestContextGetter(
+      ThrustSession* parent,
       bool ignore_certificate_errors,
       const base::FilePath& base_path,
       base::MessageLoop* io_loop,
@@ -50,10 +50,10 @@ class ExoShellURLRequestContextGetter : public net::URLRequestContextGetter {
   net::HostResolver* host_resolver();
 
  protected:
-  virtual ~ExoShellURLRequestContextGetter();
+  virtual ~ThrustShellURLRequestContextGetter();
 
  private:
-  ExoSession*                                parent_;
+  ThrustSession*                                parent_;
   bool                                       ignore_certificate_errors_;
   base::FilePath                             base_path_;
   base::MessageLoop*                         io_loop_;
@@ -67,11 +67,11 @@ class ExoShellURLRequestContextGetter : public net::URLRequestContextGetter {
   content::ProtocolHandlerMap                protocol_handlers_;
   content::URLRequestInterceptorScopedVector request_interceptors_;
 
-  friend class ExoSession;
+  friend class ThrustSession;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShellURLRequestContextGetter);
+  DISALLOW_COPY_AND_ASSIGN(ThrustShellURLRequestContextGetter);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#endif // THRUST_SHELL_NET_URL_REQUEST_CONTEXT_GETTER_H_

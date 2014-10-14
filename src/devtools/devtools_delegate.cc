@@ -123,61 +123,61 @@ Target::Close() const
 
 }  // namespace
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoShellDevToolsDelegate::ExoShellDevToolsDelegate(ExoSession* session)
+ThrustShellDevToolsDelegate::ThrustShellDevToolsDelegate(ThrustSession* session)
 : session_(session)
 {
-  LOG(INFO) << "ExoShellDevToolsDelegate Constructor";
+  LOG(INFO) << "ThrustShellDevToolsDelegate Constructor";
   devtools_http_handler_ =
     DevToolsHttpHandler::Start(CreateSocketFactory(), std::string(), this,
                                base::FilePath());
 }
 
-ExoShellDevToolsDelegate::~ExoShellDevToolsDelegate() 
+ThrustShellDevToolsDelegate::~ThrustShellDevToolsDelegate() 
 {
-  LOG(INFO) << "ExoShellDevToolsDelegate Destructor";
+  LOG(INFO) << "ThrustShellDevToolsDelegate Destructor";
 }
 
 void
-ExoShellDevToolsDelegate::Stop()
+ThrustShellDevToolsDelegate::Stop()
 {
-  LOG(INFO) << "ExoShellDevToolsDelegate Stop";
+  LOG(INFO) << "ThrustShellDevToolsDelegate Stop";
   /* This call destroys this delegates. Be carefule double destroy. */
   devtools_http_handler_->Stop();
 }
 
 std::string 
-ExoShellDevToolsDelegate::GetDiscoveryPageHTML() 
+ThrustShellDevToolsDelegate::GetDiscoveryPageHTML() 
 {
   return std::string("<html></html>");
 }
 
 bool 
-ExoShellDevToolsDelegate::BundlesFrontendResources() 
+ThrustShellDevToolsDelegate::BundlesFrontendResources() 
 {
   return true;
 }
 
 base::FilePath 
-ExoShellDevToolsDelegate::GetDebugFrontendDir() 
+ThrustShellDevToolsDelegate::GetDebugFrontendDir() 
 {
   return base::FilePath();
 }
 
 std::string 
-ExoShellDevToolsDelegate::GetPageThumbnailData(const GURL& url) 
+ThrustShellDevToolsDelegate::GetPageThumbnailData(const GURL& url) 
 {
   return std::string();
 }
 
 scoped_ptr<DevToolsTarget>
-ExoShellDevToolsDelegate::CreateNewTarget(const GURL& url) {
+ThrustShellDevToolsDelegate::CreateNewTarget(const GURL& url) {
   return scoped_ptr<DevToolsTarget>();
 }
 
 void 
-ExoShellDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
+ThrustShellDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   TargetList targets;
   std::vector<RenderViewHost*> rvh_list =
     content::DevToolsAgentHost::GetValidRenderViewHosts();
@@ -200,10 +200,10 @@ ExoShellDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
 
 
 scoped_ptr<net::StreamListenSocket>
-ExoShellDevToolsDelegate::CreateSocketForTethering(
+ThrustShellDevToolsDelegate::CreateSocketForTethering(
     net::StreamListenSocket::Delegate* delegate,
     std::string* name) {
   return scoped_ptr<net::StreamListenSocket>(); 
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

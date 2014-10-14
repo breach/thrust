@@ -2,8 +2,8 @@
 // Copyright (c) 2014 GitHub, Inc. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_UI_VIEWS_GLOBAL_MENU_BAR_X11_H_
-#define EXO_SHELL_BROWSER_UI_VIEWS_GLOBAL_MENU_BAR_X11_H_
+#ifndef THRUST_SHELL_BROWSER_UI_VIEWS_GLOBAL_MENU_BAR_X11_H_
+#define THRUST_SHELL_BROWSER_UI_VIEWS_GLOBAL_MENU_BAR_X11_H_
 
 #include <string>
 
@@ -20,9 +20,9 @@ class Accelerator;
 class MenuModel;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShell;
+class ThrustWindow;
 
 // Controls the Mac style menu bar on Unity.
 //
@@ -37,7 +37,7 @@ class ExoShell;
 // from menu models instead, and it is also per-window specific.
 class GlobalMenuBarX11 {
  public:
-  explicit GlobalMenuBarX11(ExoShell* window);
+  explicit GlobalMenuBarX11(ThrustWindow* window);
   virtual ~GlobalMenuBarX11();
 
   // Creates the object path for DbusemenuServer which is attached to |xid|.
@@ -61,14 +61,14 @@ class GlobalMenuBarX11 {
                      unsigned int);
   CHROMEG_CALLBACK_0(GlobalMenuBarX11, void, OnSubMenuShow, DbusmenuMenuitem*);
 
-  ExoShell*              shell_;
+  ThrustWindow*          window_;
   gfx::AcceleratedWidget xid_;
 
-  DbusmenuServer* server_;
+  DbusmenuServer*        server_;
 
   DISALLOW_COPY_AND_ASSIGN(GlobalMenuBarX11);
 };
 
-}  // namespace exo_shell
+}  // namespace thrust_shell
 
-#endif  // EXO_SHELL_BROWSER_UI_VIEWS_GLOBAL_MENU_BAR_X11_H_
+#endif  // THRUST_SHELL_BROWSER_UI_VIEWS_GLOBAL_MENU_BAR_X11_H_

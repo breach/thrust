@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -27,13 +27,13 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 /******************************************************************************/
 /* RESOURCE CONTEXT */
 /******************************************************************************/
 
-class ExoSession::ExoResourceContext : public content::ResourceContext {
+class ThrustSession::ExoResourceContext : public content::ResourceContext {
  public:
   ExoResourceContext() 
     : getter_(NULL) {}
@@ -56,12 +56,12 @@ class ExoSession::ExoResourceContext : public content::ResourceContext {
   }
 
   void set_url_request_context_getter(
-      ExoShellURLRequestContextGetter* getter) {
+      ThrustShellURLRequestContextGetter* getter) {
     getter_ = getter;
   }
 
  private:
-  ExoShellURLRequestContextGetter* getter_;
+  ThrustShellURLRequestContextGetter* getter_;
 
   DISALLOW_COPY_AND_ASSIGN(ExoResourceContext);
 };
@@ -70,15 +70,15 @@ class ExoSession::ExoResourceContext : public content::ResourceContext {
 /* EXO SESSION */
 /******************************************************************************/
 
-ExoSession::ExoSession(
+ThrustSession::ThrustSession(
     const bool off_the_record,
     const std::string& path,
     bool dummy_cookie_store)
 : off_the_record_(off_the_record),
   ignore_certificate_errors_(false),
   resource_context_(new ExoResourceContext),
-  cookie_store_(new ExoSessionCookieStore(this, dummy_cookie_store)),
-  visitedlink_store_(new ExoSessionVisitedLinkStore(this)),
+  cookie_store_(new ThrustSessionCookieStore(this, dummy_cookie_store)),
+  visitedlink_store_(new ThrustSessionVisitedLinkStore(this)),
   current_instance_id_(0)
 {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -89,17 +89,17 @@ ExoSession::ExoSession(
 
   visitedlink_store_->Init();
 
-  devtools_delegate_ = new ExoShellDevToolsDelegate(this);
+  devtools_delegate_ = new ThrustShellDevToolsDelegate(this);
   
-  ExoShellBrowserClient::Get()->RegisterExoSession(this);
-  LOG(INFO) << "ExoSession Constructor " << this;
+  ThrustShellBrowserClient::Get()->RegisterThrustSession(this);
+  LOG(INFO) << "ThrustSession Constructor " << this;
 }
 
 
-ExoSession::~ExoSession()
+ThrustSession::~ThrustSession()
 {
   /* If we're here that means that ou JS wrapper has been reclaimed */
-  LOG(INFO) << "ExoSession Destructor " << this;
+  LOG(INFO) << "ThrustSession Destructor " << this;
 
   /* The ResourceContext is created on the UI thread but live son the IO */
   /* thread, so it must be deleted there.                                */
@@ -107,7 +107,7 @@ ExoSession::~ExoSession()
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
-  ExoShellBrowserClient::Get()->UnRegisterExoSession(this);
+  ThrustShellBrowserClient::Get()->UnRegisterThrustSession(this);
   /* We remove ourselves from the CookieStore as it may oulive us but we dont */
   /* want it to call into the API anymore.                                    */
   cookie_store_->parent_ = NULL;
@@ -120,56 +120,56 @@ ExoSession::~ExoSession()
 }
 
 GURL
-ExoSession::GetDevToolsURL()
+ThrustSession::GetDevToolsURL()
 {
   return devtools_delegate_->devtools_http_handler()->GetFrontendURL();
 }
 
 base::FilePath 
-ExoSession::GetPath() const 
+ThrustSession::GetPath() const 
 {
   return path_;
 }
 
 bool 
-ExoSession::IsOffTheRecord() const 
+ThrustSession::IsOffTheRecord() const 
 {
   return off_the_record_;
 }
 
 
 content::DownloadManagerDelegate* 
-ExoSession::GetDownloadManagerDelegate()  
+ThrustSession::GetDownloadManagerDelegate()  
 {
   if (!download_manager_delegate_.get()) {
     DownloadManager* manager = BrowserContext::GetDownloadManager(this);
-    download_manager_delegate_.reset(new ExoShellDownloadManagerDelegate());
+    download_manager_delegate_.reset(new ThrustShellDownloadManagerDelegate());
     download_manager_delegate_->SetDownloadManager(manager);
   }
   return download_manager_delegate_.get();
 }
 
 BrowserPluginGuestManager* 
-ExoSession::GetGuestManager() 
+ThrustSession::GetGuestManager() 
 {
   LOG(INFO) << "************++++++++++++++++++ RETURN PLUGIN GUEST MANAGER";
   return this;
 }
 
 content::ResourceContext* 
-ExoSession::GetResourceContext()
+ThrustSession::GetResourceContext()
 {
   return resource_context_.get();
 }
 
 
 net::URLRequestContextGetter* 
-ExoSession::CreateRequestContext(
+ThrustSession::CreateRequestContext(
     ProtocolHandlerMap* protocol_handlers,
     URLRequestInterceptorScopedVector request_interceptors)
 {
   DCHECK(!url_request_getter_.get());
-  url_request_getter_ = new ExoShellURLRequestContextGetter(
+  url_request_getter_ = new ThrustShellURLRequestContextGetter(
       this,
       ignore_certificate_errors_,
       GetPath(),
@@ -177,13 +177,13 @@ ExoSession::CreateRequestContext(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
       request_interceptors.Pass(),
-      ExoShellMainParts::Get()->net_log());
+      ThrustShellMainParts::Get()->net_log());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
 
 net::URLRequestContextGetter*
-ExoSession::CreateRequestContextForStoragePartition(
+ThrustSession::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
     ProtocolHandlerMap* protocol_handlers,
@@ -196,14 +196,14 @@ ExoSession::CreateRequestContextForStoragePartition(
   return NULL;
 }
 
-ExoSessionCookieStore*
-ExoSession::GetCookieStore()
+ThrustSessionCookieStore*
+ThrustSession::GetCookieStore()
 {
   return cookie_store_.get();
 }
 
-ExoSessionVisitedLinkStore*
-ExoSession::GetVisitedLinkStore()
+ThrustSessionVisitedLinkStore*
+ThrustSession::GetVisitedLinkStore()
 {
   return visitedlink_store_.get();
 }
@@ -213,7 +213,7 @@ ExoSession::GetVisitedLinkStore()
 /******************************************************************************/
 
 WebContents* 
-ExoSession::CreateGuest(
+ThrustSession::CreateGuest(
     SiteInstance* embedder_site_instance,
     int instance_id,
     scoped_ptr<base::DictionaryValue> extra_params) 
@@ -274,13 +274,13 @@ ExoSession::CreateGuest(
 }
 
 int 
-ExoSession::GetNextInstanceID() 
+ThrustSession::GetNextInstanceID() 
 {
   return ++current_instance_id_;
 }
 
 void 
-ExoSession::MaybeGetGuestByInstanceIDOrKill(
+ThrustSession::MaybeGetGuestByInstanceIDOrKill(
     int guest_instance_id,
     int embedder_render_process_id,
     const GuestByInstanceIDCallback& callback) 
@@ -291,7 +291,7 @@ ExoSession::MaybeGetGuestByInstanceIDOrKill(
 }
 
 WebContents* 
-ExoSession::GetGuestByInstanceID(
+ThrustSession::GetGuestByInstanceID(
     int guest_instance_id,
     int embedder_render_process_id) 
 {
@@ -303,7 +303,7 @@ ExoSession::GetGuestByInstanceID(
 }
 
 bool 
-ExoSession::ForEachGuest(
+ThrustSession::ForEachGuest(
     WebContents* embedder_web_contents,
     const GuestCallback& callback) 
 {
@@ -321,7 +321,7 @@ ExoSession::ForEachGuest(
 }
 
 void 
-ExoSession::AddGuest(
+ThrustSession::AddGuest(
     int guest_instance_id,
     WebContents* guest_web_contents) 
 {
@@ -330,7 +330,7 @@ ExoSession::AddGuest(
 }
 
 void 
-ExoSession::RemoveGuest(
+ThrustSession::RemoveGuest(
     int guest_instance_id) 
 {
   std::map<int, content::WebContents*>::iterator it =
@@ -339,4 +339,4 @@ ExoSession::RemoveGuest(
   guest_web_contents_.erase(it);
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

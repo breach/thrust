@@ -18,27 +18,28 @@ Thrust will be used by next releases of Breach.
 
 ```
 [Thurst Architecture]
-             (Platform)                        (Client Implementation)
+
+              (Platform)                        (Client Implementation)
                                                                        
-                                          #
-                   +------------------+   #      +-----------------------+
-                   |  Cocoa/Win/GTK+  |   #  +---|  shell3: (HTML/JS)    |
-                   +---------+--------+   #  |  +-----------------------++
-                             |            #  +--|  shell2: (HTML/JS)    |
-+----------------+ +---------+--------+   #  | +-----------------------++
-|  Content API   +-+   Thrust (C++)   +------+-+  shell1: (HTML/JS)    |
-+----+-----------+ +---------+--------+   #    +-----------------------+
-     |                       |            #               | (TCP/FS)      
-+----+---+  +----+ +---------+--------+   #    +-----------------------+
-| Blink  +--+ v8 +-+   JSON RPC srv   +--------+ Client App (any Lang) |
-+--------+  +----+ +------------------+   #     +-----------------------+
-                                          #
+                                           #
+                   +------------------+    #        +-----------------------+
+                   |  Cocoa/Win/GTK+  |    #    +---|  shell3: (HTML/JS)    |
+                   +---------+--------+    #    |  +-----------------------++
+                             |             #    +--|  shell2: (HTML/JS)    |
++----------------+ +---------+--------+    #    | +-----------------------++
+|  Content API   +-+   Thrust (C++)   +---------+-+  shell1: (HTML/JS)    |
++----+-----------+ +---------+--------+    #      +-----------------------+
+     |                       |             #                 | (TCP/FS)      
++----+---+  +----+ +---------+--------+    #      +-----------------------+
+| Blink  +--+ v8 +-+   JSON RPC srv   +-----------+ Client App (any Lang) |
++--------+  +----+ +------------------+    #      +-----------------------+
+                                           #
 ```
 
 ### Testing
 
-Thrust currently is testable only manually by running the exo_shell executable
-and runnin thrust-node library test.js file.
+Thrust currently is testable only manually by running the `thrust_shell` 
+executable and runnin thrust-node library's test.js file.
 
 ### Getting Involved
 

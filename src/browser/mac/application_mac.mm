@@ -7,16 +7,16 @@
 #include "base/auto_reset.h"
 #include "url/gurl.h"
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 #include "src/browser/browser_client.h"
 
 #include  <sys/types.h>
 #include  <signal.h>
 
-@implementation ExoShellApplication
+@implementation ThrustShellApplication
 
-+ (ExoShellApplication*)sharedApplication {
-  return (ExoShellApplication*)[super sharedApplication];
++ (ThrustShellApplication*)sharedApplication {
+  return (ThrustShellApplication*)[super sharedApplication];
 }
 
 - (BOOL)isHandlingSendEvent {

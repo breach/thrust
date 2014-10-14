@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_EXO_MENU_H_
-#define EXO_SHELL_BROWSER_EXO_MENU_H_
+#ifndef THRUST_SHELL_BROWSER_THRUST_MENU_H_
+#define THRUST_SHELL_BROWSER_THRUST_MENU_H_
 
 #include <string>
 #include <map>
@@ -10,20 +10,20 @@
 #include "base/memory/scoped_ptr.h"
 #include "ui/base/models/simple_menu_model.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShell;
+class ThrustWindow;
 class MenuController;
 
-class ExoMenu : public ui::SimpleMenuModel::Delegate,
-                public base::RefCountedThreadSafe<ExoMenu> {
+class ThrustMenu : public ui::SimpleMenuModel::Delegate,
+                public base::RefCountedThreadSafe<ThrustMenu> {
 public:
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/
-  ExoMenu();
-  // ### ~ExoMenu
-  virtual ~ExoMenu();
+  ThrustMenu();
+  // ### ~ThrustMenu
+  virtual ~ThrustMenu();
 
   void InsertItemAt(int index, 
                     int command_id, 
@@ -39,7 +39,7 @@ public:
   void InsertSubMenuAt(int index,
                        int command_id,
                        const base::string16& label,
-                       ExoMenu* menu);
+                       ThrustMenu* menu);
   void SetSublabel(int index, const base::string16& sublabel);
 
   void Clear();
@@ -59,14 +59,14 @@ public:
   bool IsEnabledAt(int index) const;
   bool IsVisibleAt(int index) const;
 
-  virtual void AttachToShell(ExoShell* shell);
-  virtual void Popup(ExoShell* shell) {
-    return PlatformPopup(shell);
+  virtual void AttachToWindow(ThrustWindow* window);
+  virtual void Popup(ThrustWindow* window) {
+    return PlatformPopup(window);
   }
 
 #if defined(OS_MACOSX)
   // Set the global menubar.
-  static void SetApplicationMenu(ExoMenu* menu);
+  static void SetApplicationMenu(ThrustMenu* menu);
   // Fake sending an action from the application menu.
   static void SendActionToFirstResponder(const std::string& action);
 #endif
@@ -93,19 +93,19 @@ public:
   /****************************************************************************/
   /* PLATFORM INTERFACE */
   /****************************************************************************/
-  void PlatformPopup(ExoShell* shell);
+  void PlatformPopup(ThrustWindow* window);
 
   scoped_ptr<ui::SimpleMenuModel>           model_;
-  ExoMenu*                                  parent_;
+  ThrustMenu*                               parent_;
 
   std::map<int, bool>                       checked_;
   std::map<int, bool>                       enabled_;
   std::map<int, bool>                       visible_;
   std::map<int, std::string>                accelerator_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoMenu);
+  DISALLOW_COPY_AND_ASSIGN(ThrustMenu);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_BROWSER_EXO_MENU_H_
+#endif // THRUST_SHELL_BROWSER_THRUST_MENU_H_

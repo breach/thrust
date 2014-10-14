@@ -2,24 +2,24 @@
 // Copyright (c) 2013 GitHub, Inc.
 // See the LICENSE file.
 
-#include "src/browser/exo_menu.h"
+#include "src/browser/thrust_menu.h"
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 #include "src/browser/ui/accelerator_util.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoMenu::ExoMenu()
+ThrustMenu::ThrustMenu()
   : model_(new ui::SimpleMenuModel(this)),
     parent_(NULL) 
 {
 }
 
-ExoMenu::~ExoMenu() {
+ThrustMenu::~ThrustMenu() {
 }
 
 bool 
-ExoMenu::IsCommandIdChecked(
+ThrustMenu::IsCommandIdChecked(
     int command_id) const 
 {
   if(checked_.find(command_id) != checked_.end()) {
@@ -29,7 +29,7 @@ ExoMenu::IsCommandIdChecked(
 }
 
 bool 
-ExoMenu::IsCommandIdEnabled(
+ThrustMenu::IsCommandIdEnabled(
     int command_id) const 
 {
   if(enabled_.find(command_id) != enabled_.end()) {
@@ -39,7 +39,7 @@ ExoMenu::IsCommandIdEnabled(
 }
 
 bool 
-ExoMenu::IsCommandIdVisible(
+ThrustMenu::IsCommandIdVisible(
     int command_id) const 
 {
   if(visible_.find(command_id) != visible_.end()) {
@@ -49,7 +49,7 @@ ExoMenu::IsCommandIdVisible(
 }
 
 bool 
-ExoMenu::GetAcceleratorForCommandId(
+ThrustMenu::GetAcceleratorForCommandId(
     int command_id,
     ui::Accelerator* accelerator) 
 {
@@ -60,7 +60,7 @@ ExoMenu::GetAcceleratorForCommandId(
 }
 
 void 
-ExoMenu::ExecuteCommand(
+ThrustMenu::ExecuteCommand(
     int command_id, 
     int event_flags) 
 {
@@ -69,25 +69,25 @@ ExoMenu::ExecuteCommand(
 }
 
 void 
-ExoMenu::MenuWillShow(
+ThrustMenu::MenuWillShow(
     ui::SimpleMenuModel* source) 
 {
 }
 
 void 
-ExoMenu::MenuClosed(
+ThrustMenu::MenuClosed(
     ui::SimpleMenuModel* source) 
 {
 }
 
 void 
-ExoMenu::AttachToShell(ExoShell* shell) 
+ThrustMenu::AttachToWindow(ThrustWindow* window) 
 {
-  shell->SetMenu(model_.get());
+  window->SetMenu(model_.get());
 }
 
 void 
-ExoMenu::InsertItemAt(
+ThrustMenu::InsertItemAt(
     int index, 
     int command_id, 
     const base::string16& label) 
@@ -96,14 +96,14 @@ ExoMenu::InsertItemAt(
 }
 
 void 
-ExoMenu::InsertSeparatorAt(
+ThrustMenu::InsertSeparatorAt(
     int index) 
 {
   model_->InsertSeparatorAt(index, ui::NORMAL_SEPARATOR);
 }
 
 void 
-ExoMenu::InsertCheckItemAt(
+ThrustMenu::InsertCheckItemAt(
     int index,
     int command_id,
     const base::string16& label) 
@@ -112,7 +112,7 @@ ExoMenu::InsertCheckItemAt(
 }
 
 void 
-ExoMenu::InsertRadioItemAt(
+ThrustMenu::InsertRadioItemAt(
     int index,
     int command_id,
     const base::string16& label,
@@ -122,18 +122,18 @@ ExoMenu::InsertRadioItemAt(
 }
 
 void 
-ExoMenu::InsertSubMenuAt(
+ThrustMenu::InsertSubMenuAt(
     int index,
     int command_id,
     const base::string16& label,
-    ExoMenu* menu) 
+    ThrustMenu* menu) 
 {
   menu->parent_ = this;
   model_->InsertSubMenuAt(index, command_id, label, menu->model_.get());
 }
 
 void 
-ExoMenu::SetSublabel(
+ThrustMenu::SetSublabel(
     int index, 
     const base::string16& sublabel) 
 {
@@ -141,13 +141,13 @@ ExoMenu::SetSublabel(
 }
 
 void 
-ExoMenu::Clear() 
+ThrustMenu::Clear() 
 {
   model_->Clear();
 }
 
 void
-ExoMenu::SetChecked(
+ThrustMenu::SetChecked(
     int command_id,
     bool checked)
 {
@@ -155,7 +155,7 @@ ExoMenu::SetChecked(
 }
 
 void
-ExoMenu::SetEnabled(
+ThrustMenu::SetEnabled(
     int command_id,
     bool enabled)
 {
@@ -163,7 +163,7 @@ ExoMenu::SetEnabled(
 }
 
 void
-ExoMenu::SetVisible(
+ThrustMenu::SetVisible(
     int command_id,
     bool visible)
 {
@@ -171,7 +171,7 @@ ExoMenu::SetVisible(
 }
 
 void
-ExoMenu::SetAccelerator(
+ThrustMenu::SetAccelerator(
     int command_id,
     std::string accelerator)
 {
@@ -179,58 +179,58 @@ ExoMenu::SetAccelerator(
 }
 
 int 
-ExoMenu::GetIndexOfCommandId(
+ThrustMenu::GetIndexOfCommandId(
     int command_id) 
 {
   return model_->GetIndexOfCommandId(command_id);
 }
 
 int 
-ExoMenu::GetItemCount() const 
+ThrustMenu::GetItemCount() const 
 {
   return model_->GetItemCount();
 }
 
 int 
-ExoMenu::GetCommandIdAt(
+ThrustMenu::GetCommandIdAt(
     int index) const 
 {
   return model_->GetCommandIdAt(index);
 }
 
 base::string16 
-ExoMenu::GetLabelAt(
+ThrustMenu::GetLabelAt(
     int index) const 
 {
   return model_->GetLabelAt(index);
 }
 
 base::string16 
-ExoMenu::GetSublabelAt(
+ThrustMenu::GetSublabelAt(
     int index) const 
 {
   return model_->GetSublabelAt(index);
 }
 
 bool 
-ExoMenu::IsItemCheckedAt(
+ThrustMenu::IsItemCheckedAt(
     int index) const 
 {
   return model_->IsItemCheckedAt(index);
 }
 
 bool 
-ExoMenu::IsEnabledAt(
+ThrustMenu::IsEnabledAt(
     int index) const 
 {
   return model_->IsEnabledAt(index);
 }
 
 bool 
-ExoMenu::IsVisibleAt(
+ThrustMenu::IsVisibleAt(
     int index) const 
 {
   return model_->IsVisibleAt(index);
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

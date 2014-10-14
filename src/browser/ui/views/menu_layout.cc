@@ -4,7 +4,7 @@
 
 #include "src/browser/ui/views/menu_layout.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 MenuLayout::MenuLayout(
   int menu_height)
@@ -67,4 +67,4 @@ MenuLayout::HasMenu(
   return host->child_count() == 2;
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

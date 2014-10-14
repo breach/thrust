@@ -12,9 +12,9 @@
 #include "ipc/ipc_platform_file.h"
 #include "src/common/draggable_region.h"
 
-#define IPC_MESSAGE_START ExoShellMsgStart
+#define IPC_MESSAGE_START ThrustShellMsgStart
 
-IPC_STRUCT_TRAITS_BEGIN(exo_shell::DraggableRegion)
+IPC_STRUCT_TRAITS_BEGIN(thrust_shell::DraggableRegion)
   IPC_STRUCT_TRAITS_MEMBER(draggable)
   IPC_STRUCT_TRAITS_MEMBER(bounds)
 IPC_STRUCT_TRAITS_END()

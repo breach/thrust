@@ -1,25 +1,25 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_API_EXO_SESSION_BINDING_H_
-#define EXO_SHELL_API_EXO_SESSION_BINDING_H_
+#ifndef THRUST_SHELL_API_THRUST_SHELL_BINDING_H_
+#define THRUST_SHELL_API_THRUST_SHELL_BINDING_H_
 
 #include "base/callback.h"
 
 #include "src/api/api_binding.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoSession;
+class ThrustWindow;
 
-class ExoSessionBinding : public APIBinding {
+class ThrustWindowBinding : public APIBinding {
 public:
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
-  ExoSessionBinding(const unsigned int id, 
-                    scoped_ptr<base::DictionaryValue> args);
-  ~ExoSessionBinding();
+  ThrustWindowBinding(const unsigned int id, 
+                  scoped_ptr<base::DictionaryValue> args);
+  ~ThrustWindowBinding();
 
   virtual void CallLocalMethod(
       const std::string& method, 
@@ -29,25 +29,25 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  ExoSession* GetSession();
+  ThrustWindow* GetWindow();
 
 private:
-  scoped_ptr<ExoSession> session_;
+  scoped_ptr<ThrustWindow> window_;
 };
 
 
-// ## ExoSessionBindingFactory
+// ## ThrustWindowBindingFactory
 //
-// Factory object used to generate ExoSession bindings
-class ExoSessionBindingFactory : public APIBindingFactory {
+// Factory object used to generate ThrustWindow bindings
+class ThrustWindowBindingFactory : public APIBindingFactory {
 public:
-  ExoSessionBindingFactory();
-  ~ExoSessionBindingFactory();
+  ThrustWindowBindingFactory();
+  ~ThrustWindowBindingFactory();
 
   APIBinding* Create(const unsigned int id, 
                      scoped_ptr<base::DictionaryValue> args) OVERRIDE;
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
   
-#endif // EXO_SHELL_API_EXO_SESSION_BINDING_H_
+#endif // THRUST_SHELL_API_API_BINDING_H_

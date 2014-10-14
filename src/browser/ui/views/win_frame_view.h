@@ -2,12 +2,12 @@
 // Copyright (c) 2014 GitHub, Inc.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_BROWSER_UI_VIEWS_WIN_FRAME_VIEW_H_
-#define EXO_SHELL_BROWSER_UI_VIEWS_WIN_FRAME_VIEW_H_
+#ifndef THRUST_SHELL_BROWSER_UI_VIEWS_WIN_FRAME_VIEW_H_
+#define THRUST_SHELL_BROWSER_UI_VIEWS_WIN_FRAME_VIEW_H_
 
 #include "src/browser/ui/views/frameless_view.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 class WinFrameView : public FramelessView {
  public:
@@ -34,6 +34,6 @@ class WinFrameView : public FramelessView {
   DISALLOW_COPY_AND_ASSIGN(WinFrameView);
 };
 
-}  // namespace exo_shell
+}  // namespace thrust_shell
 
-#endif  // EXO_SHELL_BROWSER_UI_VIEWS_WIN_FRAME_VIEW_H_
+#endif  // THRUST_SHELL_BROWSER_UI_VIEWS_WIN_FRAME_VIEW_H_

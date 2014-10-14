@@ -19,16 +19,16 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoShellDownloadManagerDelegate::ExoShellDownloadManagerDelegate()
+ThrustShellDownloadManagerDelegate::ThrustShellDownloadManagerDelegate()
   : download_manager_(NULL),
     suppress_prompting_(false),
     weak_ptr_factory_(this)
 {
 }
 
-ExoShellDownloadManagerDelegate::~ExoShellDownloadManagerDelegate()
+ThrustShellDownloadManagerDelegate::~ThrustShellDownloadManagerDelegate()
 {
   if (download_manager_) {
     DCHECK_EQ(static_cast<DownloadManagerDelegate*>(this),
@@ -36,19 +36,19 @@ ExoShellDownloadManagerDelegate::~ExoShellDownloadManagerDelegate()
     download_manager_->SetDelegate(NULL);
     download_manager_ = NULL;
   }
-  LOG(INFO) << "ExoShellDownloadManagerDelegate Destructor";
+  LOG(INFO) << "ThrustShellDownloadManagerDelegate Destructor";
 }
 
 
 void 
-ExoShellDownloadManagerDelegate::SetDownloadManager(
+ThrustShellDownloadManagerDelegate::SetDownloadManager(
     DownloadManager* download_manager) 
 {
   download_manager_ = download_manager;
 }
 
 void 
-ExoShellDownloadManagerDelegate::Shutdown() 
+ThrustShellDownloadManagerDelegate::Shutdown() 
 {
   // Revoke any pending callbacks. download_manager_ et. al. are no longer safe
   // to access after this point.
@@ -57,7 +57,7 @@ ExoShellDownloadManagerDelegate::Shutdown()
 }
 
 bool 
-ExoShellDownloadManagerDelegate::DetermineDownloadTarget(
+ThrustShellDownloadManagerDelegate::DetermineDownloadTarget(
     DownloadItem* download,
     const DownloadTargetCallback& callback) 
 {
@@ -78,7 +78,7 @@ ExoShellDownloadManagerDelegate::DetermineDownloadTarget(
   }
 
   FilenameDeterminedCallback filename_determined_callback =
-      base::Bind(&ExoShellDownloadManagerDelegate::OnDownloadPathGenerated,
+      base::Bind(&ThrustShellDownloadManagerDelegate::OnDownloadPathGenerated,
                  weak_ptr_factory_.GetWeakPtr(),
                  download->GetId(),
                  callback);
@@ -86,7 +86,7 @@ ExoShellDownloadManagerDelegate::DetermineDownloadTarget(
   BrowserThread::PostTask(
       BrowserThread::FILE,
       FROM_HERE,
-      base::Bind(&ExoShellDownloadManagerDelegate::GenerateFilename,
+      base::Bind(&ThrustShellDownloadManagerDelegate::GenerateFilename,
                  download->GetURL(),
                  download->GetContentDisposition(),
                  download->GetSuggestedFilename(),
@@ -97,7 +97,7 @@ ExoShellDownloadManagerDelegate::DetermineDownloadTarget(
 }
 
 bool 
-ExoShellDownloadManagerDelegate::ShouldOpenDownload(
+ThrustShellDownloadManagerDelegate::ShouldOpenDownload(
     DownloadItem* item,
     const DownloadOpenDelayedCallback& callback) 
 {
@@ -105,7 +105,7 @@ ExoShellDownloadManagerDelegate::ShouldOpenDownload(
 }
 
 void 
-ExoShellDownloadManagerDelegate::GetNextId(
+ThrustShellDownloadManagerDelegate::GetNextId(
     const DownloadIdCallback& callback) 
 {
   static uint32 next_id = DownloadItem::kInvalidId + 1;
@@ -113,7 +113,7 @@ ExoShellDownloadManagerDelegate::GetNextId(
 }
 
 void 
-ExoShellDownloadManagerDelegate::GenerateFilename(
+ThrustShellDownloadManagerDelegate::GenerateFilename(
     const GURL& url,
     const std::string& content_disposition,
     const std::string& suggested_filename,
@@ -138,7 +138,7 @@ ExoShellDownloadManagerDelegate::GenerateFilename(
 }
 
 void 
-ExoShellDownloadManagerDelegate::OnDownloadPathGenerated(
+ThrustShellDownloadManagerDelegate::OnDownloadPathGenerated(
     uint32 download_id,
     const DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) 
@@ -155,5 +155,5 @@ ExoShellDownloadManagerDelegate::OnDownloadPathGenerated(
   ChooseDownloadPath(download_id, callback, suggested_path);
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell
 

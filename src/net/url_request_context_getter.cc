@@ -40,11 +40,11 @@
 
 #include "src/common/switches.h"
 #include "src/net/network_delegate.h"
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -63,8 +63,8 @@ void InstallProtocolHandlers(net::URLRequestJobFactoryImpl* job_factory,
 
 }  // namespace
 
-ExoShellURLRequestContextGetter::ExoShellURLRequestContextGetter(
-    ExoSession* parent,
+ThrustShellURLRequestContextGetter::ThrustShellURLRequestContextGetter(
+    ThrustSession* parent,
     bool ignore_certificate_errors,
     const base::FilePath& base_path,
     base::MessageLoop* io_loop,
@@ -92,19 +92,19 @@ ExoShellURLRequestContextGetter::ExoShellURLRequestContextGetter(
         io_loop_->message_loop_proxy().get(), file_loop_));
 }
 
-ExoShellURLRequestContextGetter::~ExoShellURLRequestContextGetter() 
+ThrustShellURLRequestContextGetter::~ThrustShellURLRequestContextGetter() 
 {
 }
 
 net::URLRequestContext* 
-ExoShellURLRequestContextGetter::GetURLRequestContext() 
+ThrustShellURLRequestContextGetter::GetURLRequestContext() 
 {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (!url_request_context_) {
     url_request_context_.reset(new net::URLRequestContext());
     url_request_context_->set_net_log(net_log_);
-    network_delegate_.reset(new ExoShellNetworkDelegate);
+    network_delegate_.reset(new ThrustShellNetworkDelegate);
     url_request_context_->set_network_delegate(network_delegate_.get());
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
@@ -202,7 +202,7 @@ ExoShellURLRequestContextGetter::GetURLRequestContext()
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     // Keep ProtocolHandlers added in sync with
-    // ExoShellContentBrowserClient::IsHandledURL().
+    // ThrustShellContentBrowserClient::IsHandledURL().
     InstallProtocolHandlers(job_factory.get(), &protocol_handlers_);
     bool set_protocol = job_factory->SetProtocolHandler(
         url::kDataScheme, new net::DataProtocolHandler);
@@ -234,15 +234,15 @@ ExoShellURLRequestContextGetter::GetURLRequestContext()
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-ExoShellURLRequestContextGetter::GetNetworkTaskRunner() const 
+ThrustShellURLRequestContextGetter::GetNetworkTaskRunner() const 
 {
   return BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
 }
 
 net::HostResolver* 
-ExoShellURLRequestContextGetter::host_resolver() 
+ThrustShellURLRequestContextGetter::host_resolver() 
 {
   return url_request_context_->host_resolver();
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

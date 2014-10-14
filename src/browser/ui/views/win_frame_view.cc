@@ -8,9 +8,9 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/win/hwnd_util.h"
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -78,4 +78,4 @@ WinFrameView::ClientAreaSizeToWindowSize(
   size->set_height(size->height() + window.height() - client.height());
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

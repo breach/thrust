@@ -1,38 +1,38 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 //
-#include "src/browser/session/exo_session_visitedlink_store.h"
+#include "src/browser/session/thrust_session_visitedlink_store.h"
 
 #include "url/gurl.h"
 #include "content/public/browser/browser_thread.h"
 
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 #include "src/browser/visitedlink/visitedlink_master.h"
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoSessionVisitedLinkStore::ExoSessionVisitedLinkStore(
-    ExoSession* parent)
+ThrustSessionVisitedLinkStore::ThrustSessionVisitedLinkStore(
+    ThrustSession* parent)
 : parent_(parent),
   visitedlink_master_(new visitedlink::VisitedLinkMaster(
         parent, this, !parent->IsOffTheRecord()))
 {
 }
 
-ExoSessionVisitedLinkStore::~ExoSessionVisitedLinkStore()
+ThrustSessionVisitedLinkStore::~ThrustSessionVisitedLinkStore()
 {
 }
 
 bool
-ExoSessionVisitedLinkStore::Init()
+ThrustSessionVisitedLinkStore::Init()
 {
   return visitedlink_master_->Init();
 }
 
 void
-ExoSessionVisitedLinkStore::Add(
+ThrustSessionVisitedLinkStore::Add(
     const std::string& url)
 {
   if(!parent_->IsOffTheRecord()) {
@@ -41,14 +41,14 @@ ExoSessionVisitedLinkStore::Add(
 }
 
 void
-ExoSessionVisitedLinkStore::Clear()
+ThrustSessionVisitedLinkStore::Clear()
 {
   visitedlink_master_->DeleteAllURLs();
 }
 
 
 void 
-ExoSessionVisitedLinkStore::RebuildTable(
+ThrustSessionVisitedLinkStore::RebuildTable(
     const scoped_refptr<URLEnumerator>& enumerator)
 {
   /* We return no URL as the master here. The master takes care of persisting */
@@ -57,4 +57,4 @@ ExoSessionVisitedLinkStore::RebuildTable(
   enumerator->OnComplete(true);
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

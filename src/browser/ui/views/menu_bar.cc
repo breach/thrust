@@ -22,11 +22,11 @@
 #include "src/browser/ui/views/menu_delegate.h"
 #include "src/browser/ui/views/submenu_button.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
-const char kViewClassName[] = "ExoShellMenuBar";
+const char kViewClassName[] = "ThrustShellMenuBar";
 
 // Default color of the menu bar.
 const SkColor kDefaultColor = SkColorSetARGB(255, 233, 233, 233);
@@ -194,4 +194,4 @@ MenuBar::OnMenuButtonClicked(
   menu_delegate_->RunMenu(menu_model_->GetSubmenuModelAt(id), button);
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

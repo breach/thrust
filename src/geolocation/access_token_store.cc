@@ -8,7 +8,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
 
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 #include "src/browser/browser_client.h"
 
 #ifndef GOOGLEAPIS_API_KEY
@@ -17,7 +17,7 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -30,16 +30,16 @@ const char* kGeolocationProviderUrl =
 
 }  // namespace
 
-ExoShellAccessTokenStore::ExoShellAccessTokenStore()
+ThrustShellAccessTokenStore::ThrustShellAccessTokenStore()
 {
 }
 
-ExoShellAccessTokenStore::~ExoShellAccessTokenStore() 
+ThrustShellAccessTokenStore::~ThrustShellAccessTokenStore() 
 {
 }
 
 void 
-ExoShellAccessTokenStore::LoadAccessTokens(
+ThrustShellAccessTokenStore::LoadAccessTokens(
     const LoadAccessTokensCallbackType& callback) 
 {
   AccessTokenSet access_token_set;
@@ -52,10 +52,10 @@ ExoShellAccessTokenStore::LoadAccessTokens(
   access_token_set.insert(token_pair);
 
   callback.Run(access_token_set,
-               ExoShellBrowserClient::Get()->system_session()->url_request_context_getter());
+               ThrustShellBrowserClient::Get()->system_session()->url_request_context_getter());
 }
 
-void ExoShellAccessTokenStore::SaveAccessToken(
+void ThrustShellAccessTokenStore::SaveAccessToken(
     const GURL& server_url, const base::string16& access_token) {
   LOG(INFO) << "ExoBrwoserAccessTokenStore::SaveAccessToken: " 
             << server_url << " "

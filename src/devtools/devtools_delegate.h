@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_DEVTOOLS_DELEGATE_H_
-#define EXO_SHELL_DEVTOOLS_DELEGATE_H_
+#ifndef THRUST_SHELL_DEVTOOLS_DELEGATE_H_
+#define THRUST_SHELL_DEVTOOLS_DELEGATE_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -14,13 +14,13 @@ class BrowserContext;
 class DevToolsHttpHandler;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoSession;
+class ThrustSession;
 
-class ExoShellDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
+class ThrustShellDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit ExoShellDevToolsDelegate(ExoSession* session);
+  explicit ThrustShellDevToolsDelegate(ThrustSession* session);
 
   // Stop (and destroy this)
   void Stop();
@@ -44,14 +44,14 @@ class ExoShellDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   }
 
  private:
-  virtual ~ExoShellDevToolsDelegate();
+  virtual ~ThrustShellDevToolsDelegate();
 
   content::DevToolsHttpHandler* devtools_http_handler_;
-  ExoSession*                   session_;
+  ThrustSession*                   session_;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShellDevToolsDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ThrustShellDevToolsDelegate);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_DEVTOOLS_DELEGATE_H_
+#endif // THRUST_SHELL_DEVTOOLS_DELEGATE_H_

@@ -4,9 +4,11 @@
 #include <sstream>
 #include <string>
 
-#include "src/api/exo_shell_binding.h"
+#include "base/callback.h"
 
-namespace exo_shell {
+#include "src/api/api_binding.h"
+
+namespace thrust_shell {
 
 APIBinding::APIBinding(
     const std::string& type,
@@ -37,4 +39,4 @@ APIBinding::Emit(
   /* TODO(spolu) */
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

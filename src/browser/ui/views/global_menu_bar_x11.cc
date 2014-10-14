@@ -24,7 +24,7 @@
 #include "ui/base/models/menu_model.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 #include "src/browser/ui/views/global_menu_bar_registrar_x11.h"
 
 // libdbusmenu-glib types
@@ -59,7 +59,7 @@ typedef DbusmenuServer* (*dbusmenu_server_new_func)(const char* object);
 typedef void (*dbusmenu_server_set_root_func)(DbusmenuServer* self,
                                               DbusmenuMenuitem* root);
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -180,9 +180,9 @@ SetMenuItemID(
 }  // namespace
 
 GlobalMenuBarX11::GlobalMenuBarX11(
-    ExoShell* shell)
-  : shell_(shell),
-    xid_(shell_->GetNativeWindow()->GetHost()->GetAcceleratedWidget()),
+    ThrustWindow* window)
+  : window_(window),
+    xid_(window_->GetNativeWindow()->GetHost()->GetAcceleratedWidget()),
     server_(NULL) 
 {
   EnsureMethodsLoaded();
@@ -348,4 +348,4 @@ GlobalMenuBarX11::OnSubMenuShow(
   BuildMenuFromModel(model->GetSubmenuModelAt(id), item);
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

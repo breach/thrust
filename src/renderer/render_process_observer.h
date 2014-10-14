@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_
-#define EXO_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#ifndef THRUST_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#define THRUST_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -16,14 +16,14 @@ namespace content {
 class RenderView;
 }
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShellRenderProcessObserver : public content::RenderProcessObserver {
+class ThrustShellRenderProcessObserver : public content::RenderProcessObserver {
  public:
-  static ExoShellRenderProcessObserver* GetInstance();
+  static ThrustShellRenderProcessObserver* GetInstance();
 
-  ExoShellRenderProcessObserver();
-  virtual ~ExoShellRenderProcessObserver();
+  ThrustShellRenderProcessObserver();
+  virtual ~ThrustShellRenderProcessObserver();
 
   /****************************************************************************/
   /* RENDERPROCESSOBSERVER IMPLEMENTATIO */
@@ -33,9 +33,9 @@ class ExoShellRenderProcessObserver : public content::RenderProcessObserver {
 
  private:
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShellRenderProcessObserver);
+  DISALLOW_COPY_AND_ASSIGN(ThrustShellRenderProcessObserver);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#endif // THRUST_SHELL_RENDERER_RENDER_PROCESS_OBSERVER_H_

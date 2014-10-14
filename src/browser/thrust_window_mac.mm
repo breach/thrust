@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 
 #include <algorithm>
 
@@ -20,22 +20,22 @@
 using namespace content;
 
 
-// ## ExoShellWindowDelegagte
+// ## ThrustWindowDelegate
 //
 //  Listens for event that the window should close.
-@interface ExoShellWindowDelegate : NSObject<NSWindowDelegate> {
+@interface ThrustWindowDelegate : NSObject<NSWindowDelegate> {
  @private
-  exo_shell::ExoShell* shell_;
+  thrust_shell::ThrustWindow* window_;
 }
-- (id)initWithShell:(exo_shell::ExoShell*) shell;
+- (id)initWithShell:(thrust_shell::ThrustWindow*) window;
 @end
 
 
-@implementation ExoShellWindowDelegate
+@implementation ThrustWindowDelegate
 
-- (id)initWithShell:(exo_shell::ExoShell*) shell {
+- (id)initWithShell:(thrust_shell::ThrustWindow*) window {
   if ((self = [super init])) {
-    shell_ = shell;
+    window_ = window;
   }
   return self;
 }
@@ -47,8 +47,8 @@ using namespace content;
 - (BOOL)windowShouldClose:(id)window {
   /* TODO(spolu): Check there is absolutely no leak here. Esp. in the case */
   /* the windowShouldClose handler is due to a programmatic Kill().        */
-  if(!shell_->is_closed()) {
-    shell_->Close();
+  if(!window_->is_closed()) {
+    window_->Close();
     [self release];
   }
   return YES;
@@ -56,17 +56,17 @@ using namespace content;
 
 @end
 
-@interface ExoShellCrWindow : UnderlayOpenGLHostingWindow {
+@interface ThrustWindowCrWindow : UnderlayOpenGLHostingWindow {
  @private
-  exo_shell::ExoShell* shell_;
+  thrust_shell::ThrustWindow* window_;
 }
-- (void) setShell:(exo_shell::ExoShell*) shell;
+- (void) setWindow:(thrust_shell::ThrustWindow*) window;
 @end
 
-@implementation ExoShellCrWindow
+@implementation ThrustWindowCrWindow
 
-- (void) setShell:(exo_shell::ExoShell*) shell {
-  shell_ = shell;
+- (void) setWindow:(thrust_shell::ThrustWindow*) window {
+  window_ = window;
 }
 
 @end
@@ -74,19 +74,19 @@ using namespace content;
 
 namespace {
 
-NSString* kWindowTitle = @"ExoShell";
+NSString* kWindowTitle = @"ThrustShell";
 
 }  // namespace
 
-namespace exo_shell {
+namespace thrust_shell {
 
 void 
-ExoShell::PlatformCleanUp() 
+ThrustWindow::PlatformCleanUp() 
 {
 }
 
 void 
-ExoShell::PlatformCreateWindow(
+ThrustWindow::PlatformCreateWindow(
   const gfx::Size& size)
 {
   LOG(INFO) << "Create Window: " << size.width() << "x" << size.height();
@@ -99,13 +99,13 @@ ExoShell::PlatformCreateWindow(
                           NSClosableWindowMask |
                           NSMiniaturizableWindowMask |
                           NSResizableWindowMask;
-  ExoShellCrWindow* window =
-      [[ExoShellCrWindow alloc] initWithContentRect:content_rect
+  ThrustWindowCrWindow* window =
+      [[ThrustWindowCrWindow alloc] initWithContentRect:content_rect
                                             styleMask:style_mask
                                               backing:NSBackingStoreBuffered
                                                 defer:NO];
   window_ = window;
-  [window setShell:this];
+  [window setWindow:this];
   [window_ setTitle:kWindowTitle];
 
   /* Set the Browser window to participate in Lion Fullscreen mode. Set */
@@ -122,8 +122,8 @@ ExoShell::PlatformCreateWindow(
 
   /* Create a window delegate to watch for when it's asked to go away. It */
   /* will clean itself up so we don't need to hold a reference.           */
-  ExoShellWindowDelegate* delegate =
-      [[ExoShellWindowDelegate alloc] initWithShell:this];
+  ThrustWindowDelegate* delegate =
+      [[ThrustWindowDelegate alloc] initWithShell:this];
   [window_ setDelegate:delegate];
 
   NSView* view = inspectable_web_contents()->GetView()->GetNativeView();
@@ -134,20 +134,20 @@ ExoShell::PlatformCreateWindow(
 }
 
 void 
-ExoShell::PlatformShow() 
+ThrustWindow::PlatformShow() 
 {
   [window_ makeKeyAndOrderFront:nil];
 }
 
 void 
-ExoShell::PlatformClose() 
+ThrustWindow::PlatformClose() 
 {
   [window_ performClose:nil];
 }
 
 
 void 
-ExoShell::PlatformSetTitle(
+ThrustWindow::PlatformSetTitle(
   const std::string& title) 
 {
   NSString* title_string = base::SysUTF8ToNSString(title);
@@ -157,7 +157,7 @@ ExoShell::PlatformSetTitle(
 
 
 void
-ExoShell::PlatformFocus(
+ThrustWindow::PlatformFocus(
   bool focus)
 {
   if(focus) {
@@ -170,39 +170,39 @@ ExoShell::PlatformFocus(
 }
 
 void
-ExoShell::PlatformMaximize()
+ThrustWindow::PlatformMaximize()
 {
   [window_ zoom:nil];
 }
 
 void
-ExoShell::PlatformUnMaximize()
+ThrustWindow::PlatformUnMaximize()
 {
   [window_ zoom:nil];
 }
 
 void
-ExoShell::PlatformMinimize()
+ThrustWindow::PlatformMinimize()
 {
   [window_ miniaturize:nil];
 }
 
 void
-ExoShell::PlatformRestore()
+ThrustWindow::PlatformRestore()
 {
   [window_ deminiaturize:nil];
 }
 
 
 gfx::Size
-ExoShell::PlatformSize()
+ThrustWindow::PlatformSize()
 {
   NSRect frame = [window_ frame];
   return gfx::Size(frame.size.width, frame.size.height);
 }
 
 gfx::Point
-ExoShell::PlatformPosition()
+ThrustWindow::PlatformPosition()
 {
   NSRect frame = [window_ frame];
   NSScreen* screen = [[NSScreen screens] objectAtIndex:0];
@@ -212,7 +212,7 @@ ExoShell::PlatformPosition()
 }
 
 void
-ExoShell::PlatformMove(
+ThrustWindow::PlatformMove(
   int x, 
   int y) 
 {
@@ -221,7 +221,7 @@ ExoShell::PlatformMove(
 }
 
 void
-ExoShell::PlatformResize(
+ThrustWindow::PlatformResize(
   int width, 
   int height) 
 {
@@ -235,20 +235,20 @@ ExoShell::PlatformResize(
 }
 
 gfx::NativeWindow
-ExoShell::PlatformGetNativeWindow() 
+ThrustWindow::PlatformGetNativeWindow() 
 {
   return window_;
 }
 
 gfx::Size 
-ExoShell::PlatformContentSize() 
+ThrustWindow::PlatformContentSize() 
 {
   NSRect bounds = [[window_ contentView] bounds];
   return gfx::Size(bounds.size.width, bounds.size.height);
 }
 
 void 
-ExoShell::PlatformSetContentSize(
+ThrustWindow::PlatformSetContentSize(
     int width, int height)
 {
   NSRect frame_nsrect = [window_ frame];
@@ -264,11 +264,11 @@ ExoShell::PlatformSetContentSize(
 }
 
 void 
-ExoShell::PlatformSetMenu(
+ThrustWindow::PlatformSetMenu(
     ui::MenuModel* menu_model) 
 {
-  /* No action on MacOSX should use ExoMenu::SetApplicationMenu. */
+  /* No action on MacOSX should use ThrustMenu::SetApplicationMenu. */
 }
 
 
-} // namespace exo_shell
+} // namespace thrust_shell

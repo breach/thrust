@@ -14,7 +14,7 @@
 
 #include "src/api/api_binding.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 // static
 API* API::self_ = NULL;

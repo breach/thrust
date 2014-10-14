@@ -4,7 +4,7 @@
 
 #include "src/common/draggable_region.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 DraggableRegion::DraggableRegion()
     : draggable(false) {

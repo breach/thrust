@@ -1,18 +1,18 @@
 // Copyright (c) 2014 Stanislas Polu.
 // See the LICENSE file.
 
-#include "src/browser/session/exo_session_cookie_store.h"
+#include "src/browser/session/thrust_session_cookie_store.h"
 
 #include "content/public/browser/browser_thread.h"
 
-#include "src/browser/session/exo_session.h"
+#include "src/browser/session/thrust_session.h"
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
   
-ExoSessionCookieStore::ExoSessionCookieStore(
-    ExoSession* parent,
+ThrustSessionCookieStore::ThrustSessionCookieStore(
+    ThrustSession* parent,
     bool dummy)
 : parent_(parent),
   dummy_(dummy),
@@ -20,13 +20,13 @@ ExoSessionCookieStore::ExoSessionCookieStore(
 {
 }
 
-ExoSessionCookieStore::~ExoSessionCookieStore()
+ThrustSessionCookieStore::~ThrustSessionCookieStore()
 {
   LOG(INFO) << "ExoSesionCookieStore Destructor";
 }
 
 void 
-ExoSessionCookieStore::Load(
+ThrustSessionCookieStore::Load(
     const LoadedCallback& loaded_callback)
 {
   LOG(INFO) << "Load";
@@ -41,7 +41,7 @@ ExoSessionCookieStore::Load(
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoSessionWrap::CallCookiesLoad, 
+        base::Bind(&ThrustSessionWrap::CallCookiesLoad, 
                    parent_->wrapper_, loaded_callback));
 
   }
@@ -49,7 +49,7 @@ ExoSessionCookieStore::Load(
 }
 
 void 
-ExoSessionCookieStore::LoadCookiesForKey(
+ThrustSessionCookieStore::LoadCookiesForKey(
     const std::string& key,
     const LoadedCallback& loaded_callback)
 {
@@ -65,7 +65,7 @@ ExoSessionCookieStore::LoadCookiesForKey(
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoSessionWrap::CallCookiesLoadForKey, 
+        base::Bind(&ThrustSessionWrap::CallCookiesLoadForKey, 
                    parent_->wrapper_, key, loaded_callback));
 
   }
@@ -73,7 +73,7 @@ ExoSessionCookieStore::LoadCookiesForKey(
 }
 
 void 
-ExoSessionCookieStore::Flush(
+ThrustSessionCookieStore::Flush(
     const base::Closure& callback)
 {
   LOG(INFO) << "Flush";
@@ -86,7 +86,7 @@ ExoSessionCookieStore::Flush(
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoSessionWrap::CallCookiesFlush, 
+        base::Bind(&ThrustSessionWrap::CallCookiesFlush, 
                    parent_->wrapper_, callback));
 
   }
@@ -95,14 +95,14 @@ ExoSessionCookieStore::Flush(
 
 
 void 
-ExoSessionCookieStore::AddCookie(
+ThrustSessionCookieStore::AddCookie(
     const net::CanonicalCookie& cc)
 {
   /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoSessionWrap::DispatchCookiesAdd, 
+        base::Bind(&ThrustSessionWrap::DispatchCookiesAdd, 
                    parent_->wrapper_, cc, op_count_++));
 
   }
@@ -110,14 +110,14 @@ ExoSessionCookieStore::AddCookie(
 }
 
 void 
-ExoSessionCookieStore::UpdateCookieAccessTime(
+ThrustSessionCookieStore::UpdateCookieAccessTime(
     const net::CanonicalCookie& cc)
 {
   /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoSessionWrap::DispatchCookiesUpdateAccessTime, 
+        base::Bind(&ThrustSessionWrap::DispatchCookiesUpdateAccessTime, 
                    parent_->wrapper_, cc, op_count_++));
 
   }
@@ -125,14 +125,14 @@ ExoSessionCookieStore::UpdateCookieAccessTime(
 }
 
 void 
-ExoSessionCookieStore::DeleteCookie(
+ThrustSessionCookieStore::DeleteCookie(
     const net::CanonicalCookie& cc)
 {
   /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoSessionWrap::DispatchCookiesDelete, 
+        base::Bind(&ThrustSessionWrap::DispatchCookiesDelete, 
                    parent_->wrapper_, cc, op_count_++));
 
   }
@@ -140,17 +140,17 @@ ExoSessionCookieStore::DeleteCookie(
 }
 
 void 
-ExoSessionCookieStore::SetForceKeepSessionState()
+ThrustSessionCookieStore::SetForceKeepSessionState()
 {
   /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
-        base::Bind(&ExoSessionWrap::DispatchCookiesForceKeepSessionState, 
+        base::Bind(&ThrustSessionWrap::DispatchCookiesForceKeepSessionState, 
                    parent_->wrapper_));
 
   }
   */
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

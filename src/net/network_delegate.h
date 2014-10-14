@@ -2,19 +2,19 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_NET_NETWORK_DELEGATE_H_
-#define EXO_SHELL_NET_NETWORK_DELEGATE_H_
+#ifndef THRUST_SHELL_NET_NETWORK_DELEGATE_H_
+#define THRUST_SHELL_NET_NETWORK_DELEGATE_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "net/base/network_delegate.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-class ExoShellNetworkDelegate : public net::NetworkDelegate {
+class ThrustShellNetworkDelegate : public net::NetworkDelegate {
  public:
-  ExoShellNetworkDelegate();
-  virtual ~ExoShellNetworkDelegate();
+  ThrustShellNetworkDelegate();
+  virtual ~ThrustShellNetworkDelegate();
 
   static void SetAcceptAllCookies(bool accept);
 
@@ -62,9 +62,9 @@ class ExoShellNetworkDelegate : public net::NetworkDelegate {
       net::SocketStream* stream,
       const net::CompletionCallback& callback) OVERRIDE;
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShellNetworkDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ThrustShellNetworkDelegate);
 };
 
-} // namespace exo_shell
+} // namespace thrust_shell
 
-#endif // EXO_SHELL_NET_NETWORK_DELEGATE_H_
+#endif // THRUST_SHELL_NET_NETWORK_DELEGATE_H_

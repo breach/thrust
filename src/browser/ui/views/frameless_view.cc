@@ -9,9 +9,9 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 namespace {
 
@@ -23,7 +23,7 @@ const char kViewClassName[] = "FramelessView";
 }  // namespace
 
 FramelessView::FramelessView() 
-  : shell_(NULL), frame_(NULL) 
+  : window_(NULL), frame_(NULL) 
 {
 }
 
@@ -33,10 +33,10 @@ FramelessView::~FramelessView()
 
 void 
 FramelessView::Init(
-    ExoShell* shell, 
+    ThrustWindow* window, 
     views::Widget* frame) 
 {
-  shell_ = shell;
+  window_ = window;
   frame_ = frame;
 }
 
@@ -49,7 +49,7 @@ FramelessView::ResizingBorderHitTest(
   bool can_ever_resize = frame_->widget_delegate() ?
       frame_->widget_delegate()->CanResize() :
       false;
-  // Don't allow overlapping resize handles when the shell is maximized or
+  // Don't allow overlapping resize handles when the window is maximized or
   // fullscreen, as it can't be resized in those states.
   int resize_border =
       frame_->IsMaximized() || frame_->IsFullscreen() ? 0 :
@@ -87,12 +87,12 @@ FramelessView::NonClientHitTest(
     return HTCLIENT;
 
   // Check for possible draggable region in the client area for the frameless
-  // shell.
-  SkRegion* draggable_region = shell_->draggable_region();
+  // window.
+  SkRegion* draggable_region = window_->draggable_region();
   if (draggable_region && draggable_region->contains(cursor.x(), cursor.y()))
     return HTCAPTION;
 
-  // Support resizing frameless shell by dragging the border.
+  // Support resizing frameless window by dragging the border.
   int frame_component = ResizingBorderHitTest(cursor);
   if (frame_component != HTNOWHERE)
     return frame_component;
@@ -132,13 +132,13 @@ FramelessView::GetPreferredSize() const
 gfx::Size 
 FramelessView::GetMinimumSize() const 
 {
-  return shell_->GetMinimumSize();
+  return window_->GetMinimumSize();
 }
 
 gfx::Size 
 FramelessView::GetMaximumSize() const 
 {
-  return shell_->GetMaximumSize();
+  return window_->GetMaximumSize();
 }
 
 const char* 
@@ -147,4 +147,4 @@ FramelessView::GetClassName() const
   return kViewClassName;
 }
 
-}  // namespace exo_shell
+}  // namespace thrust_shell

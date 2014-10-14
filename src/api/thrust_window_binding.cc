@@ -1,35 +1,35 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/api/exo_shell_binding.h"
+#include "src/api/thrust_window_binding.h"
 
-#include "src/api/exo_session_binding.h"
-#include "src/browser/exo_shell.h"
+#include "src/api/thrust_session_binding.h"
+#include "src/browser/thrust_window.h"
 #include "src/browser/browser_client.h"
 #include "src/api/api.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-ExoShellBindingFactory::ExoShellBindingFactory()
+ThrustWindowBindingFactory::ThrustWindowBindingFactory()
 {
 }
 
-ExoShellBindingFactory::~ExoShellBindingFactory()
+ThrustWindowBindingFactory::~ThrustWindowBindingFactory()
 {
 }
 
-APIBinding* ExoShellBindingFactory::Create(
+APIBinding* ThrustWindowBindingFactory::Create(
     const unsigned int id,
     scoped_ptr<base::DictionaryValue> args)
 {
-  return new ExoShellBinding(id, args.Pass());
+  return new ThrustWindowBinding(id, args.Pass());
 }
 
 
-ExoShellBinding::ExoShellBinding(
+ThrustWindowBinding::ThrustWindowBinding(
     const unsigned int id, 
     scoped_ptr<base::DictionaryValue> args)
-  : APIBinding("shell", id)
+  : APIBinding("window", id)
 {
   std::string root_url = "http://google.com";
   args->GetString("root_url", &root_url);
@@ -40,27 +40,27 @@ ExoShellBinding::ExoShellBinding(
   args->GetInteger("size.width", &width);
   args->GetInteger("size.height", &height);
 
-  std::string title = "ExoShell";
+  std::string title = "ThrustShell";
   args->GetString("title", &title);
 
   std::string icon_path = "";
   args->GetString("icon_path", &icon_path);
 
-  ExoSession* session = NULL;
+  ThrustSession* session = NULL;
 
   int session_id = -1;
   args->GetInteger("session_id", &session_id);
 
-  ExoSessionBinding* sb = 
-    (ExoSessionBinding*)(API::Get()->GetBinding(session_id));
+  ThrustSessionBinding* sb = 
+    (ThrustSessionBinding*)(API::Get()->GetBinding(session_id));
   if(sb != NULL) {
     session = sb->GetSession();
   }
   else {
-    session = ExoShellBrowserClient::Get()->system_session();
+    session = ThrustShellBrowserClient::Get()->system_session();
   }
 
-  shell_.reset(ExoShell::CreateNew(
+  window_.reset(ThrustWindow::CreateNew(
         session,
         GURL(root_url), 
         gfx::Size(width, height), 
@@ -69,15 +69,15 @@ ExoShellBinding::ExoShellBinding(
         true));
 }
 
-ExoShellBinding::~ExoShellBinding()
+ThrustWindowBinding::~ThrustWindowBinding()
 {
-  LOG(INFO) << "ExoShellBinding Destructor";
-  shell_.reset();
+  LOG(INFO) << "ThrustWindowBinding Destructor";
+  window_.reset();
 }
 
 
 void
-ExoShellBinding::CallLocalMethod(
+ThrustWindowBinding::CallLocalMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
@@ -85,71 +85,71 @@ ExoShellBinding::CallLocalMethod(
   std::string err = std::string("");
   base::DictionaryValue* res = new base::DictionaryValue;
 
-  LOG(INFO) << "ExoShell call [" << method << "]";
+  LOG(INFO) << "ThrustWindow call [" << method << "]";
   if(method.compare("show") == 0) {
-    shell_->Show();
+    window_->Show();
   }
   else if(method.compare("focus") == 0) {
     bool focus = true;
     args->GetBoolean("focus", &focus);
-    shell_->Focus(focus);
+    window_->Focus(focus);
   }
   else if(method.compare("maximize") == 0) {
-    shell_->Maximize();
+    window_->Maximize();
   }
   else if(method.compare("unmaximize") == 0) {
-    shell_->UnMaximize();
+    window_->UnMaximize();
   }
   else if(method.compare("minimize") == 0) {
-    shell_->Minimize();
+    window_->Minimize();
   }
   else if(method.compare("restore") == 0) {
-    shell_->Restore();
+    window_->Restore();
   }
   else if(method.compare("set_title") == 0) {
     std::string title = "";
     args->GetString("title", &title);
-    shell_->SetTitle(title);
+    window_->SetTitle(title);
   }
   else if(method.compare("move") == 0) {
 	int x, y;
 	args->GetInteger("x", &x);
 	args->GetInteger("y", &y);
 
-	shell_->Move(x, y);
+	window_->Move(x, y);
   }
   else if(method.compare("resize") == 0) {
 	int width, height;
 	args->GetInteger("width", &width);
 	args->GetInteger("height", &height);
 
-	LOG(INFO) << "calling shell_->Resize(" << width << ", " << height << ")";
-	shell_->Resize(width, height);
+	LOG(INFO) << "calling window_->Resize(" << width << ", " << height << ")";
+	window_->Resize(width, height);
   }
   else if(method.compare("close") == 0) {
-    shell_->Close();
+    window_->Close();
   }
   else if(method.compare("is_closed") == 0) {
-    res->SetBoolean("is_closed", shell_->is_closed());
+    res->SetBoolean("is_closed", window_->is_closed());
   }
   else if(method.compare("size") == 0) {
-    res->SetInteger("size.width", shell_->size().width());
-    res->SetInteger("size.height", shell_->size().height());
+    res->SetInteger("size.width", window_->size().width());
+    res->SetInteger("size.height", window_->size().height());
   }
   else if(method.compare("position") == 0) {
-    res->SetInteger("position.x", shell_->position().x());
-    res->SetInteger("position.y", shell_->position().y());
+    res->SetInteger("position.x", window_->position().x());
+    res->SetInteger("position.y", window_->position().y());
   }
   else {
-    err = "exo_shell_binding:method_not_found";
+    err = "thrust_window_binding:method_not_found";
   }
 
   callback.Run(err, scoped_ptr<base::Value>(res).Pass());
 }
 
-ExoShell*
-ExoShellBinding::GetShell() {
-  return shell_.get();
+ThrustWindow*
+ThrustWindowBinding::GetWindow() {
+  return window_.get();
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

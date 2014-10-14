@@ -2,19 +2,19 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef EXO_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_
-#define EXO_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_
+#ifndef THRUST_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_
+#define THRUST_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_
 
 #include "base/memory/ref_counted.h"
 #include "content/public/browser/access_token_store.h"
 #include "net/url_request/url_request_context_getter.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
 // Dummy access token store used to initialise the network location provider.
-class ExoShellAccessTokenStore : public content::AccessTokenStore {
+class ThrustShellAccessTokenStore : public content::AccessTokenStore {
  public:
-  explicit ExoShellAccessTokenStore();
+  explicit ThrustShellAccessTokenStore();
 
   /****************************************************************************/
   /* ACCESSTOKENSTORE IMPLEMENTATION                                          */
@@ -27,11 +27,11 @@ class ExoShellAccessTokenStore : public content::AccessTokenStore {
 
  private:
 
-  virtual ~ExoShellAccessTokenStore();
+  virtual ~ThrustShellAccessTokenStore();
 
-  DISALLOW_COPY_AND_ASSIGN(ExoShellAccessTokenStore);
+  DISALLOW_COPY_AND_ASSIGN(ThrustShellAccessTokenStore);
 };
 
-}  // namespace exo_shell
+}  // namespace thrust_shell
 
-#endif // EXO_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_
+#endif // THRUST_SHELL_GEOLOCATION_ACCESS_TOKEN_STORE_H_

@@ -1,25 +1,25 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#import "src/browser/exo_menu.h"
+#import "src/browser/thrust_menu.h"
 
 #import "base/mac/scoped_nsobject.h"
 #import "base/strings/sys_string_conversions.h"
 
 #import "src/browser/ui/cocoa/menu_controller.h"
-#import "src/browser/exo_shell.h"
+#import "src/browser/thrust_window.h"
 
-namespace exo_shell {
+namespace thrust_shell {
 
-static base::scoped_nsobject<ExoShellMenuController> menu_controller_;
+static base::scoped_nsobject<ThrustShellMenuController> menu_controller_;
 
 void 
-ExoMenu::PlatformPopup(ExoShell* shell) {
-  base::scoped_nsobject<ExoShellMenuController> menu_controller(
-      [[ExoShellMenuController alloc] initWithModel:model_.get()]);
+ThrustMenu::PlatformPopup(ThrustWindow* window) {
+  base::scoped_nsobject<ThrustShellMenuController> menu_controller(
+      [[ThrustShellMenuController alloc] initWithModel:model_.get()]);
 
-  NSWindow* nswindow = shell->GetNativeWindow();
-  content::WebContents* web_contents = shell->GetWebContents();
+  NSWindow* nswindow = window->GetNativeWindow();
+  content::WebContents* web_contents = window->GetWebContents();
 
   // Fake out a context menu event.
   NSEvent* currentEvent = [NSApp currentEvent];
@@ -43,9 +43,9 @@ ExoMenu::PlatformPopup(ExoShell* shell) {
 
 // static
 void 
-ExoMenu::SetApplicationMenu(ExoMenu* menu) {
-  base::scoped_nsobject<ExoShellMenuController> menu_controller(
-      [[ExoShellMenuController alloc] initWithModel:menu->model_.get()]);
+ThrustMenu::SetApplicationMenu(ThrustMenu* menu) {
+  base::scoped_nsobject<ThrustShellMenuController> menu_controller(
+      [[ThrustShellMenuController alloc] initWithModel:menu->model_.get()]);
   [NSApp setMainMenu:[menu_controller menu]];
 
   // Ensure the menu_controller_ is destroyed after main menu is set.
@@ -54,9 +54,9 @@ ExoMenu::SetApplicationMenu(ExoMenu* menu) {
 
 // static
 void 
-ExoMenu::SendActionToFirstResponder(const std::string& action) {
+ThrustMenu::SendActionToFirstResponder(const std::string& action) {
   SEL selector = NSSelectorFromString(base::SysUTF8ToNSString(action));
   [NSApp sendAction:selector to:nil from:[NSApp mainMenu]];
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell

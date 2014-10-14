@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Stanislas Polu. All rights reserved.
 // See the LICENSE file.
 
-#include "src/browser/exo_shell.h"
+#include "src/browser/thrust_window.h"
 
 #include "base/auto_reset.h"
 #include "base/message_loop/message_loop.h"
@@ -39,12 +39,12 @@
 
 using namespace content;
 
-namespace exo_shell {
+namespace thrust_shell {
 
-std::vector<ExoShell*> ExoShell::s_instances;
+std::vector<ThrustWindow*> ThrustWindow::s_instances;
 
 
-ExoShell::ExoShell(
+ThrustWindow::ThrustWindow(
     WebContents* web_contents,
     const gfx::Size& size,
     const std::string& title,
@@ -95,13 +95,13 @@ ExoShell::ExoShell(
   PlatformCreateWindow(size);
 
 
-  LOG(INFO) << "ExoShell Constructor [" << web_contents << "]";
+  LOG(INFO) << "ThrustWindow Constructor [" << web_contents << "]";
   s_instances.push_back(this);
 }
 
-ExoShell::~ExoShell() 
+ThrustWindow::~ThrustWindow() 
 {
-  LOG(INFO) << "ExoShell Destructor [" << inspectable_web_contents() << "]";
+  LOG(INFO) << "ThrustWindow Destructor [" << inspectable_web_contents() << "]";
 
   Close();
   PlatformCleanUp();
@@ -115,22 +115,22 @@ ExoShell::~ExoShell()
 }
 
 
-ExoShell*
-ExoShell::CreateNew(
+ThrustWindow*
+ThrustWindow::CreateNew(
     WebContents* web_contents,
     const gfx::Size& size,
     const std::string& title,
     const std::string& icon_path,
     const bool has_frame)
 {
-  ExoShell *browser = new ExoShell(web_contents, size, 
-                                   title, icon_path, has_frame);
+  ThrustWindow *browser = new ThrustWindow(web_contents, size, 
+                                           title, icon_path, has_frame);
   return browser;
 }
 
-ExoShell*
-ExoShell::CreateNew(
-    ExoSession* session,
+ThrustWindow*
+ThrustWindow::CreateNew(
+    ThrustSession* session,
     const GURL& root_url,
     const gfx::Size& size,
     const std::string& title,
@@ -138,7 +138,7 @@ ExoShell::CreateNew(
     const bool has_frame)
 {
   if(session == NULL) {
-    session = ExoShellBrowserClient::Get()->system_session();
+    session = ThrustShellBrowserClient::Get()->system_session();
   }
   WebContents::CreateParams create_params((BrowserContext*)session);
   WebContents* web_contents = WebContents::Create(create_params);
@@ -148,30 +148,30 @@ ExoShell::CreateNew(
       PAGE_TRANSITION_TYPED | PAGE_TRANSITION_FROM_ADDRESS_BAR);
   web_contents->GetController().LoadURLWithParams(params);
 
-  LOG(INFO) << "ExoShell Constructor (web_contents created) [" 
+  LOG(INFO) << "ThrustWindow Constructor (web_contents created) [" 
             << web_contents << "]";
 
   return CreateNew(web_contents, size, title, icon_path, has_frame);
 }
 
 WebContents* 
-ExoShell::GetWebContents() const {
+ThrustWindow::GetWebContents() const {
   if (!inspectable_web_contents_)
     return NULL;
   return inspectable_web_contents()->GetWebContents();
 }
 
 void 
-ExoShell::CloseAll() 
+ThrustWindow::CloseAll() 
 {
-  std::vector<ExoShell*> open(s_instances);
+  std::vector<ThrustWindow*> open(s_instances);
   for (size_t i = 0; i < open.size(); ++i) {
     open[i]->Close();
   }
 }
 
 void 
-ExoShell::SetTitle(
+ThrustWindow::SetTitle(
     const std::string& title)
 {
   title_ = title;
@@ -179,7 +179,7 @@ ExoShell::SetTitle(
 }
 
 void
-ExoShell::Close()
+ThrustWindow::Close()
 {
   registrar_.RemoveAll();
   if(!is_closed_) {
@@ -189,19 +189,19 @@ ExoShell::Close()
 }
 
 void
-ExoShell::Move(int x, int y)
+ThrustWindow::Move(int x, int y)
 {
 	PlatformMove(x, y);
 }
 
 void
-ExoShell::Resize(int width, int height)
+ThrustWindow::Resize(int width, int height)
 {
 	PlatformResize(width, height);
 }
 
 WebContents* 
-ExoShell::OpenURLFromTab(
+ThrustWindow::OpenURLFromTab(
     WebContents* source,
     const content::OpenURLParams& params) 
 {
@@ -224,7 +224,7 @@ ExoShell::OpenURLFromTab(
 
 
 void 
-ExoShell::RequestToLockMouse(
+ThrustWindow::RequestToLockMouse(
     WebContents* web_contents,
     bool user_gesture,
     bool last_unlocked_by_target) 
@@ -234,13 +234,13 @@ ExoShell::RequestToLockMouse(
 }
 
 bool 
-ExoShell::CanOverscrollContent() const 
+ThrustWindow::CanOverscrollContent() const 
 {
   return false;
 }
 
 void 
-ExoShell::CloseContents(
+ThrustWindow::CloseContents(
     WebContents* source) 
 {
   if(inspectable_web_contents_) {
@@ -251,16 +251,16 @@ ExoShell::CloseContents(
 
 
 JavaScriptDialogManager* 
-ExoShell::GetJavaScriptDialogManager() 
+ThrustWindow::GetJavaScriptDialogManager() 
 {
   /* TODO(spolu): Eventually Move to API */
   if (!dialog_manager_)
-    dialog_manager_.reset(new ExoShellJavaScriptDialogManager());
+    dialog_manager_.reset(new ThrustShellJavaScriptDialogManager());
   return dialog_manager_.get();
 }
 
 void 
-ExoShell::ActivateContents(
+ThrustWindow::ActivateContents(
     WebContents* contents) 
 {
   LOG(INFO) << "Activate Content";
@@ -268,7 +268,7 @@ ExoShell::ActivateContents(
 }
 
 void 
-ExoShell::DeactivateContents(
+ThrustWindow::DeactivateContents(
     WebContents* contents) 
 {
   LOG(INFO) << "Deactivate Content";
@@ -276,7 +276,7 @@ ExoShell::DeactivateContents(
 }
 
 void 
-ExoShell::RendererUnresponsive(
+ThrustWindow::RendererUnresponsive(
     WebContents* source) 
 {
   LOG(INFO) << "RendererUnresponsive";
@@ -284,7 +284,7 @@ ExoShell::RendererUnresponsive(
 }
 
 void 
-ExoShell::RendererResponsive(
+ThrustWindow::RendererResponsive(
     WebContents* source) 
 {
   LOG(INFO) << "RendererResponsive";
@@ -292,7 +292,7 @@ ExoShell::RendererResponsive(
 }
 
 void 
-ExoShell::WorkerCrashed(
+ThrustWindow::WorkerCrashed(
     WebContents* source) 
 {
   LOG(INFO) << "WorkerCrashed";
@@ -300,7 +300,7 @@ ExoShell::WorkerCrashed(
 }
 
 void 
-ExoShell::RunFileChooser(
+ThrustWindow::RunFileChooser(
     WebContents* web_contents,
     const FileChooserParams& params)
 {
@@ -308,7 +308,7 @@ ExoShell::RunFileChooser(
 }
 
 void 
-ExoShell::EnumerateDirectory(
+ThrustWindow::EnumerateDirectory(
     WebContents* web_contents,
     int request_id,
     const base::FilePath& path)
@@ -317,7 +317,7 @@ ExoShell::EnumerateDirectory(
 }
 
 void 
-ExoShell::Observe(
+ThrustWindow::Observe(
     int type,
     const NotificationSource& source,
     const NotificationDetails& details) 
@@ -334,12 +334,12 @@ ExoShell::Observe(
 }
 
 bool 
-ExoShell::OnMessageReceived(
+ThrustWindow::OnMessageReceived(
     const IPC::Message& message) 
 {
   bool handled = true;
   /*
-  IPC_BEGIN_MESSAGE_MAP(ExoShell, message)
+  IPC_BEGIN_MESSAGE_MAP(ThrustWindow, message)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   */
@@ -348,4 +348,4 @@ ExoShell::OnMessageReceived(
   return handled;
 }
 
-} // namespace exo_shell
+} // namespace thrust_shell
