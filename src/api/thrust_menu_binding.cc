@@ -147,7 +147,7 @@ ThrustMenuBinding::CallLocalMethod(
     }
   }
 #if defined(OS_MACOSX)
-  else if(method.compare("set_application_menu")) {
+  else if(method.compare("set_application_menu") == 0) {
     int menu_id = -1;
     args->GetInteger("menu_id", &menu_id);
 
