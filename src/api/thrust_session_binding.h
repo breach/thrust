@@ -7,6 +7,7 @@
 #include "base/callback.h"
 
 #include "src/api/api_binding.h"
+#include "net/cookies/cookie_monster.h"
 
 namespace thrust_shell {
 
@@ -14,6 +15,10 @@ class ThrustSession;
 
 class ThrustSessionBinding : public APIBinding {
 public:
+
+  typedef net::CookieMonster::PersistentCookieStore::LoadedCallback
+        LoadedCallback;
+
   /****************************************************************************/
   /* API BINDING INTERFACE */
   /****************************************************************************/
@@ -29,6 +34,8 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
+  void Load(const LoadedCallback& loaded_callback);
+
   ThrustSession* GetSession();
 
 private:

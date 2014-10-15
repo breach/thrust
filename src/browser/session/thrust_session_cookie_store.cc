@@ -6,6 +6,7 @@
 #include "content/public/browser/browser_thread.h"
 
 #include "src/browser/session/thrust_session.h"
+#include "src/api/thrust_session_binding.h"
 
 using namespace content;
 
@@ -37,6 +38,13 @@ ThrustSessionCookieStore::Load(
         content::BrowserThread::IO, FROM_HERE,
         base::Bind(loaded_callback, ccs));
   }
+  else if(parent_ && parent_->binding_) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ThrustSessionBinding::Load, parent_->binding_, 
+                   loaded_callback));
+    //parent_->binding_->Load(loaded_callback);
+  }
   /*
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
@@ -62,6 +70,9 @@ ThrustSessionCookieStore::LoadCookiesForKey(
         base::Bind(loaded_callback, ccs));
   }
   /*
+  else if(parent_ && parent_->binding_) {
+    parent_->binding_->LoadCookiesForKey(key, loaded_callback);
+  }
   if(parent_ && parent_->wrapper_) {
     NodeThread::Get()->PostTask(
         FROM_HERE,
