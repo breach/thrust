@@ -19,11 +19,13 @@ ThrustSessionCookieStore::ThrustSessionCookieStore(
   dummy_(dummy),
   op_count_(0) 
 {
+  LOG(INFO) << "ThrustSesionCookieStore Constructor [" 
+            << dummy_ << "]: " << this;
 }
 
 ThrustSessionCookieStore::~ThrustSessionCookieStore()
 {
-  LOG(INFO) << "ExoSesionCookieStore Destructor";
+  LOG(INFO) << "ThrustSesionCookieStore Destructor: " << this;
 }
 
 void 
@@ -43,17 +45,7 @@ ThrustSessionCookieStore::Load(
         content::BrowserThread::UI, FROM_HERE,
         base::Bind(&ThrustSessionBinding::CookiesLoad, parent_->binding_, 
                    loaded_callback));
-    //parent_->binding_->Load(loaded_callback);
   }
-  /*
-  if(parent_ && parent_->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ThrustSessionWrap::CallCookiesLoad, 
-                   parent_->wrapper_, loaded_callback));
-
-  }
-  */
 }
 
 void 
@@ -69,18 +61,12 @@ ThrustSessionCookieStore::LoadCookiesForKey(
         content::BrowserThread::IO, FROM_HERE,
         base::Bind(loaded_callback, ccs));
   }
-  /*
   else if(parent_ && parent_->binding_) {
-    parent_->binding_->LoadCookiesForKey(key, loaded_callback);
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ThrustSessionBinding::CookiesLoadForKey, parent_->binding_, 
+                   key, loaded_callback));
   }
-  if(parent_ && parent_->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ThrustSessionWrap::CallCookiesLoadForKey, 
-                   parent_->wrapper_, key, loaded_callback));
-
-  }
-  */
 }
 
 void 

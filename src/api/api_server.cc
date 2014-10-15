@@ -30,50 +30,23 @@ APIServer::Client::Remote::Remote(
     APIServer::Client* client,
     unsigned int target)
   : client_(client),
-    target_(target),
-    action_id_(0)
+    target_(target)
 {
 }
 
 void 
-APIServer::Client::Remote::CallMethod(
+APIServer::Client::Remote::InvokeMethod(
     const std::string method,
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
 {
   /* Runs on UI Thread. */
-  LOG(INFO) << "Remote::Client::CallMethod [" << target_ << "] " << this;
+  LOG(INFO) << "Remote::Client::InvokeMethod [" << target_ << "] " << this;
   
-
-  /* TODO(spolu): store callback for reply */
-  
-
   client_->server_->thread_->message_loop()->PostTask(
       FROM_HERE,
-      base::Bind(&APIServer::Client::Remote::SendInvoke, this, 
-                 method, base::Passed(args.Pass())));
-}
-
-void 
-APIServer::Client::Remote::SendInvoke(
-    const std::string method,
-    scoped_ptr<base::DictionaryValue> args)
-{
-  /* Runs on APIServer Thread. */
-  base::DictionaryValue action;
-  action.SetString("_action", "call");
-  action.SetInteger("_id", ++action_id_);
-  action.SetInteger("_target", target_);
-  action.SetString("_method", method);
-  action.Set("_args", args->DeepCopy());
-
-  std::string payload;
-  base::JSONWriter::Write(&action, &payload);
-  payload += "\n" + std::string(kSocketBoundary) + "\n";
-
-  if(client_->conn_) {
-    client_->conn_->Send(payload);
-  }
+      base::Bind(&APIServer::Client::SendInvoke, client_, 
+                 callback, target_, method, base::Passed(args.Pass())));
 }
 
 void APIServer::Client::Remote::EmitEvent(
@@ -85,30 +58,8 @@ void APIServer::Client::Remote::EmitEvent(
 
   client_->server_->thread_->message_loop()->PostTask(
       FROM_HERE,
-      base::Bind(&APIServer::Client::Remote::SendEvent, this, 
-                 type, base::Passed(event.Pass())));
-}
-
-void 
-APIServer::Client::Remote::SendEvent(
-    const std::string type,
-    scoped_ptr<base::DictionaryValue> event)
-{
-  /* Runs on APIServer Thread. */
-  base::DictionaryValue action;
-  action.SetString("_action", "event");
-  action.SetInteger("_id", ++action_id_);
-  action.SetInteger("_target", target_);
-  action.SetString("_type", type);
-  action.Set("_event", event->DeepCopy());
-
-  std::string payload;
-  base::JSONWriter::Write(&action, &payload);
-  payload += "\n" + std::string(kSocketBoundary) + "\n";
-
-  if(client_->conn_) {
-    client_->conn_->Send(payload);
-  }
+      base::Bind(&APIServer::Client::SendEvent, client_, 
+                 target_, type, base::Passed(event.Pass())));
 }
 
 /******************************************************************************/
@@ -119,7 +70,8 @@ APIServer::Client::Client(
     API* api,
     scoped_ptr<net::StreamListenSocket> conn)
   : server_(server),
-    api_(api)
+    api_(api),
+    action_id_(0)
 {
   conn_ = conn.Pass();
 }
@@ -166,32 +118,14 @@ APIServer::Client::ProcessChunk(
       continue;
     }
 
-    scoped_ptr<base::Value> root;
-    root.reset(base::JSONReader::Read(raw));
-
-    base::DictionaryValue* dict = static_cast<base::DictionaryValue*>(root.get());
-
-    std::string _action;
-    dict->GetString("_action", &_action);
-    int _id = 0;
-    dict->GetInteger("_id", &_id);
-
-    base::DictionaryValue* args_d;
-    dict->GetDictionary("_args", &args_d);
-    scoped_ptr<base::DictionaryValue> _args;
-    _args.reset(args_d->DeepCopyWithoutEmptyChildren());
-
-    int _target = 0;
-    dict->GetInteger("_target", &_target);
-    std::string _type;
-    dict->GetString("_type", &_type);
-    std::string _method;
-    dict->GetString("_method", &_method);
+    scoped_ptr<base::DictionaryValue> action;
+    action.reset(
+        static_cast<base::DictionaryValue*>(base::JSONReader::Read(raw)));
 
     BrowserThread::PostTask(
         BrowserThread::UI, FROM_HERE,
         base::Bind(&APIServer::Client::PerformAction, this, 
-                   _action, _id, base::Passed(_args.Pass()), _target, _type, _method));
+          base::Passed(action.Pass())));
   }
 }
 
@@ -199,7 +133,7 @@ void
 APIServer::Client::ReplyToAction(
     const unsigned int id,
     const std::string& error, 
-    scoped_ptr<base::Value> result)
+    scoped_ptr<base::DictionaryValue> result)
 {
   /* Runs on UI Thread. */
   server_->thread_->message_loop()->PostTask(
@@ -210,22 +144,58 @@ APIServer::Client::ReplyToAction(
 
 void
 APIServer::Client::PerformAction(
-    std::string action,
-    unsigned int id,
-    scoped_ptr<base::DictionaryValue> args,
-    unsigned int target,
-    std::string type,
-    std::string method)
+    scoped_ptr<base::DictionaryValue> _action)
 {
   /* Runs on UI Thread. */
+
+  /* We extract the relevant fields form the actio object. */
+  std::string action;
+  _action->GetString("_action", &action);
+
+  int id = 0;
+  _action->GetInteger("_id", &id);
+
+  int target = 0;
+  _action->GetInteger("_target", &target);
+
+  std::string method = "";
+  _action->GetString("_method", &method);
+
+  std::string type = "";
+  _action->GetString("_type", &type);
+
+  scoped_ptr<base::DictionaryValue> args;
+  base::DictionaryValue* args_d;
+  if(_action->GetDictionary("_args", &args_d)) {
+    args.reset(args_d->DeepCopyWithoutEmptyChildren());
+  }
+
+  scoped_ptr<base::DictionaryValue> event;
+  base::DictionaryValue* event_d;
+  if(_action->GetDictionary("_event", &event_d)) {
+    event.reset(event_d->DeepCopyWithoutEmptyChildren());
+  }
+
+  scoped_ptr<base::DictionaryValue> result;
+  base::DictionaryValue* result_d;
+  if(_action->GetDictionary("_result", &result_d)) {
+    result.reset(result_d->DeepCopyWithoutEmptyChildren());
+  }
+
+  std::string error = "";
+  _action->GetString("_error", &error);
+
   /*
   LOG(INFO) << "===========================================";
   LOG(INFO) << "action: " << action;
   LOG(INFO) << "id: " << id;
-  LOG(INFO) << "args: " << args.get();
   LOG(INFO) << "target: " << target;
-  LOG(INFO) << "type: " << type;
   LOG(INFO) << "method: " << method;
+  LOG(INFO) << "type: " << type;
+  LOG(INFO) << "args: " << args.get();
+  LOG(INFO) << "event: " << event.get();
+  LOG(INFO) << "result: " << result.get();
+  LOG(INFO) << "error: " << error;
   LOG(INFO) << "===========================================";
   */
 
@@ -236,8 +206,8 @@ APIServer::Client::PerformAction(
 
     base::DictionaryValue* res = new base::DictionaryValue;
     res->SetInteger("_target", target);
-    ReplyToAction(id, std::string(""),  
-                  scoped_ptr<base::Value>(res).Pass());
+    ReplyToAction(id, std::string(""), 
+                  scoped_ptr<base::DictionaryValue>(res).Pass());
   }
   else if(action.compare("call") == 0 && target > 0) {
     api_->CallMethod(target, method, args.Pass(),
@@ -247,9 +217,14 @@ APIServer::Client::PerformAction(
     api_->Delete(target);
     /* TODO(spolu): Delete remote */
 
-    scoped_ptr<base::Value> null;
-    null.reset(base::Value::CreateNullValue());
-    ReplyToAction(id, std::string(""), null.Pass());
+    base::DictionaryValue* res = new base::DictionaryValue;
+    ReplyToAction(id, std::string(""),
+                  scoped_ptr<base::DictionaryValue>(res).Pass());
+  }
+  else if(action.compare("reply") == 0 && 
+          invokes_.find(id) != invokes_.end()) {
+    invokes_[id].Run(error, result.Pass());
+    invokes_.erase(id);
   }
   else {
     LOG(INFO) << "[API_SERVER] IGNORED: " << action << " " << id;
@@ -262,7 +237,7 @@ void
 APIServer::Client::SendReply(
   const unsigned int id,
   const std::string& error, 
-  scoped_ptr<base::Value> result)
+  scoped_ptr<base::DictionaryValue> result)
 {
   /* Runs on APIServer Thread. */
   base::DictionaryValue action;
@@ -279,6 +254,58 @@ APIServer::Client::SendReply(
     conn_->Send(payload);
   }
 }
+
+void 
+APIServer::Client::SendEvent(
+    unsigned int target,
+    const std::string type,
+    scoped_ptr<base::DictionaryValue> event)
+{
+  /* Runs on APIServer Thread. */
+  base::DictionaryValue action;
+  action.SetString("_action", "event");
+  action.SetInteger("_id", ++action_id_);
+  action.SetInteger("_target", target);
+  action.SetString("_type", type);
+  action.Set("_event", event->DeepCopy());
+
+  std::string payload;
+  base::JSONWriter::Write(&action, &payload);
+  payload += "\n" + std::string(kSocketBoundary) + "\n";
+
+  if(conn_) {
+    conn_->Send(payload);
+  }
+}
+
+void 
+APIServer::Client::SendInvoke(
+    const API::MethodCallback& callback,
+    unsigned int target,
+    const std::string method,
+    scoped_ptr<base::DictionaryValue> args)
+{
+  /* Runs on APIServer Thread. */
+  unsigned int action_id = ++action_id_;
+
+  invokes_[action_id] = callback;
+
+  base::DictionaryValue action;
+  action.SetString("_action", "invoke");
+  action.SetInteger("_id", action_id);
+  action.SetInteger("_target", target);
+  action.SetString("_method", method);
+  action.Set("_args", args->DeepCopy());
+
+  std::string payload;
+  base::JSONWriter::Write(&action, &payload);
+  payload += "\n" + std::string(kSocketBoundary) + "\n";
+
+  if(conn_) {
+    conn_->Send(payload);
+  }
+}
+
 
 /******************************************************************************/
 /* APISERVER */

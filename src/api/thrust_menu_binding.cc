@@ -182,7 +182,7 @@ ThrustMenuBinding::CallLocalMethod(
   }
   */
 
-  callback.Run(err, scoped_ptr<base::Value>(res).Pass());
+  callback.Run(err, scoped_ptr<base::DictionaryValue>(res).Pass());
 }
 
 void 

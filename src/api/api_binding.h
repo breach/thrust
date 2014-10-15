@@ -40,9 +40,9 @@ protected:
   /****************************************************************************/
   /* PROTECTED INTERFACE */
   /****************************************************************************/
-  void CallRemoteMethod(const std::string& method, 
-                        scoped_ptr<base::DictionaryValue> args, 
-                        const API::MethodCallback& callback);
+  void InvokeRemoteMethod(const std::string& method, 
+                          scoped_ptr<base::DictionaryValue> args, 
+                          const API::MethodCallback& callback);
   void EmitEvent(const std::string& type, 
                  scoped_ptr<base::DictionaryValue> event);
 
@@ -76,9 +76,9 @@ class APIBindingRemote {
 public:
   virtual ~APIBindingRemote() {}
 
-  virtual void CallMethod(const std::string method,
-                          scoped_ptr<base::DictionaryValue> args,
-                          const API::MethodCallback& callback) = 0;
+  virtual void InvokeMethod(const std::string method,
+                            scoped_ptr<base::DictionaryValue> args,
+                            const API::MethodCallback& callback) = 0;
   virtual void EmitEvent(const std::string type,
                          scoped_ptr<base::DictionaryValue> event) = 0;
 };

@@ -6,13 +6,14 @@
 #include "base/time/time.h"
 #include "url/gurl.h"
 #include "net/cookies/cookie_util.h"
+#include "content/public/browser/browser_thread.h"
 
 #include "src/browser/session/thrust_session.h"
 
 namespace {
 
 static base::DictionaryValue*
-ObjectFromCanonicalCookie(
+ValueFromCanonicalCookie(
     const net::CanonicalCookie& cc)
 {
   base::DictionaryValue* cookie_v = new base::DictionaryValue;
@@ -41,8 +42,8 @@ ObjectFromCanonicalCookie(
 }
 
 net::CanonicalCookie*
-CanonicalCookieFromObject(
-    scoped_ptr<base::DictionaryValue> cookie_v)
+CanonicalCookieFromValue(
+    base::DictionaryValue* cookie_v)
 {
   std::string source = "";
   std::string name = "";
@@ -120,13 +121,13 @@ ThrustSessionBinding::ThrustSessionBinding(
   std::string path = "dummy_session";
   args->GetString("path", &path);
 
-  bool dummy_cookie_store = true;
-  args->GetBoolean("dummy_cookie_store", &dummy_cookie_store);
+  bool cookie_store = false;
+  args->GetBoolean("cookie_store", &cookie_store);
 
   session_.reset(new ThrustSession(this,
                                    off_the_record, 
                                    path, 
-                                   dummy_cookie_store));
+                                   !cookie_store));
   session_->Initialize();
 }
 
@@ -157,30 +158,63 @@ ThrustSessionBinding::CallLocalMethod(
     err = "exo_session_binding:method_not_found";
   }
 
-  callback.Run(err, scoped_ptr<base::Value>(res).Pass());
-}
-
-void
-ThrustSessionBinding::CookiesLoad(
-    const LoadedCallback& loaded_callback)
-{
-  base::DictionaryValue* args = new base::DictionaryValue;
-
-  this->CallRemoteMethod("cookies_load", 
-                         scoped_ptr<base::DictionaryValue>(args).Pass(),
-                         base::Bind(&ThrustSessionBinding::CookiesLoadCallback, 
-                                    this, loaded_callback));
+  callback.Run(err, scoped_ptr<base::DictionaryValue>(res).Pass());
 }
 
 void
 ThrustSessionBinding::CookiesLoadCallback(
     const LoadedCallback& loaded_callback,
     const std::string& error,
-    scoped_ptr<base::Value> result)
+    scoped_ptr<base::DictionaryValue> result)
 {
+  /* Runs on UI thread. */
+  std::vector<net::CanonicalCookie*> ccs;
+
+  base::ListValue* cookies;
+  if(result->GetList("cookies", &cookies)) {
+    for(size_t i = 0; i < cookies->GetSize(); i++) {
+      base::DictionaryValue* cookie;
+      if(cookies->GetDictionary(i, &cookie)) {
+        ccs.push_back(CanonicalCookieFromValue(cookie));
+      }
+    }
+  }
+
   LOG(INFO) << "COOKIE LOAD CALLBACK " << error;
+  LOG(INFO) << ccs.size();
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
+      base::Bind(loaded_callback, ccs));
 }
 
+void
+ThrustSessionBinding::CookiesLoad(
+    const LoadedCallback& loaded_callback)
+{
+  /* Runs on UI thread. */
+  base::DictionaryValue* args = new base::DictionaryValue;
+
+  this->InvokeRemoteMethod("cookies_load", 
+                           scoped_ptr<base::DictionaryValue>(args).Pass(),
+                           base::Bind(&ThrustSessionBinding::CookiesLoadCallback, 
+                                      this, loaded_callback));
+}
+
+void 
+ThrustSessionBinding::CookiesLoadForKey(
+    const std::string& key,
+    const LoadedCallback& loaded_callback)
+{
+  /* Runs on UI thread. */
+  base::DictionaryValue* args = new base::DictionaryValue;
+  args->SetString("key", key);
+
+  this->InvokeRemoteMethod("cookies_load_for_key", 
+                           scoped_ptr<base::DictionaryValue>(args).Pass(),
+                           base::Bind(&ThrustSessionBinding::CookiesLoadCallback, 
+                                      this, loaded_callback));
+}
 
 
 ThrustSession*

@@ -36,8 +36,11 @@ public:
   /****************************************************************************/
   void CookiesLoadCallback(const LoadedCallback& loaded_callback,
                            const std::string& error,
-                           scoped_ptr<base::Value> result);
+                           scoped_ptr<base::DictionaryValue> result);
+
   void CookiesLoad(const LoadedCallback& loaded_callback);
+  void CookiesLoadForKey(const std::string& key,
+                         const LoadedCallback& loaded_callback);
 
   ThrustSession* GetSession();
 

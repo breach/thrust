@@ -23,14 +23,14 @@ APIBinding::~APIBinding()
 }
 
 void
-APIBinding::CallRemoteMethod(
+APIBinding::InvokeRemoteMethod(
     const std::string& method,
     scoped_ptr<base::DictionaryValue> args,
     const API::MethodCallback& callback)
 {
   APIBindingRemote* remote = API::Get()->GetRemote(id_);
   if(remote != NULL) {
-    remote->CallMethod(method, args.Pass(), callback);
+    remote->InvokeMethod(method, args.Pass(), callback);
   }
 }
 

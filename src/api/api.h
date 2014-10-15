@@ -28,8 +28,8 @@ class APIBindingRemote;
 class API {
 public:
   typedef base::Callback<void(const std::string& error, 
-                              scoped_ptr<base::Value> result)> MethodCallback;
-  typedef base::Callback<void(scoped_ptr<base::Value> event)> EventCallback;
+                              scoped_ptr<base::DictionaryValue> result)> MethodCallback;
+  typedef base::Callback<void(scoped_ptr<base::DictionaryValue> event)> EventCallback;
 
   /****************************************************************************/
   /* PUBLIC INTERFACE */
