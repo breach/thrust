@@ -9,7 +9,7 @@
 
 namespace switches {
 
-extern const char kThrustShellDataPath[];
+extern const char kThrustShellSocketPath[];
 
 }  // namespace switches
 

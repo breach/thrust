@@ -73,22 +73,20 @@ ThrustShellMainParts::PreMainMessageLoopRun()
   brightray::BrowserMainParts::PreMainMessageLoopRun();
   net_log_.reset(new ThrustShellNetLog());
 
-  /* TODO(spolu): Get Path form command line */
-  //CommandLine* command_line = CommandLine::ForCurrentProcess();
-  //
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::FilePath path = 
+    command_line->GetSwitchValuePath(switches::kThrustShellSocketPath);
+
+  CHECK(!path.empty()) << "Command line switch `" 
+                       << switches::kThrustShellSocketPath
+                       << "` must be specified. Aborting.";
+
   api_->InstallBinding("window", new ThrustWindowBindingFactory());
   api_->InstallBinding("session", new ThrustSessionBindingFactory());
   api_->InstallBinding("menu", new ThrustMenuBindingFactory());
-  
-  base::FilePath path;
-  base::GetTempDir(&path);
-  api_server_.reset(new APIServer(api_, path.Append("_thrust_shell.sock")));
-  api_server_->Start();
 
-  /*
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE, base::Bind(&ThrustShellMainParts::Startup));
-  */
+  api_server_.reset(new APIServer(api_, path));
+  api_server_->Start();
 }
 
 void ThrustShellMainParts::PostMainMessageLoopRun() 
