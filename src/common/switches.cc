@@ -6,7 +6,7 @@
 
 namespace switches {
 
-// Makes ThrustShell use the given path for its data directory.
-const char kThrustShellDataPath[] = "data-path";
+// Makes ThrustShell use the given socket [compulsory]
+const char kThrustShellSocketPath[] = "socket-path";
 
 }  // namespace switches
