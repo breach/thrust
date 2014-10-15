@@ -36,6 +36,19 @@ Thrust will be used by next releases of Breach.
                                            #
 ```
 
+### Building Thrust
+
+```
+./scripts/boostrap.py                                
+
+GYP_GENERATORS=ninja gyp --depth . thrust_shell.gyp
+ninja -C out/Debug thrust_shell -j 1
+```
+
+Note that `bootstrap.py` may take some time as it checks out `brightray` and
+downloads `libchromiumcontent` for your platform.
+
+
 ### Testing
 
 Thrust currently is testable only manually by running the `thrust_shell` 
