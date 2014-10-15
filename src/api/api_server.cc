@@ -217,6 +217,7 @@ APIServer::Client::PerformAction(
   }
   else if(action.compare("delete") == 0 && target > 0) {
     api_->Delete(target);
+    /* TODO(spolu): Delete remote */
 
     scoped_ptr<base::Value> null;
     null.reset(base::Value::CreateNullValue());

@@ -89,9 +89,9 @@ private:
 
   static API*                               self_;
   unsigned int                              next_binding_id_;
-  std::map<std::string, APIBindingFactory*> factories_;
-  std::map<unsigned int, APIBinding*>       bindings_;
-  std::map<unsigned int, APIBindingRemote*> remotes_;
+  std::map<std::string, APIBindingFactory*>           factories_;
+  std::map<unsigned int, scoped_refptr<APIBinding> >  bindings_;
+  std::map<unsigned int, APIBindingRemote*>           remotes_;
 };
 
 } // namespace thrust_shell

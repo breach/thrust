@@ -7,6 +7,7 @@
 #include <map>
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/ref_counted.h" 
 #include "base/values.h"
 
 #include "src/api/api.h"
@@ -21,7 +22,8 @@ namespace thrust_shell {
 // ## APIBinding
 //
 // Exposes the interface of an object binded to the API
-class APIBinding {
+class APIBinding 
+  : public base::RefCountedThreadSafe<APIBinding> { 
 public:
   /****************************************************************************/
   /* VIRTUAL INTERFACE */
