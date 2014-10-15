@@ -14,8 +14,6 @@ remote pages in a entirely secure setting.
 
 Thrust will be used by next releases of Breach.
 
-#### Thrust Architecture
-
 ```
 [Thurst Architecture]
 
