@@ -7,6 +7,7 @@
 #include <map>
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/ref_counted.h" 
 #include "base/values.h"
 
 #include "src/api/api.h"
@@ -21,7 +22,8 @@ namespace thrust_shell {
 // ## APIBinding
 //
 // Exposes the interface of an object binded to the API
-class APIBinding {
+class APIBinding 
+  : public base::RefCountedThreadSafe<APIBinding> { 
 public:
   /****************************************************************************/
   /* VIRTUAL INTERFACE */
@@ -38,9 +40,9 @@ protected:
   /****************************************************************************/
   /* PROTECTED INTERFACE */
   /****************************************************************************/
-  void CallRemoteMethod(const std::string& method, 
-                        scoped_ptr<base::DictionaryValue> args, 
-                        const API::MethodCallback& callback);
+  void InvokeRemoteMethod(const std::string& method, 
+                          scoped_ptr<base::DictionaryValue> args, 
+                          const API::MethodCallback& callback);
   void EmitEvent(const std::string& type, 
                  scoped_ptr<base::DictionaryValue> event);
 
@@ -74,9 +76,9 @@ class APIBindingRemote {
 public:
   virtual ~APIBindingRemote() {}
 
-  virtual void CallMethod(const std::string method,
-                          scoped_ptr<base::DictionaryValue> args,
-                          const API::MethodCallback& callback) = 0;
+  virtual void InvokeMethod(const std::string method,
+                            scoped_ptr<base::DictionaryValue> args,
+                            const API::MethodCallback& callback) = 0;
   virtual void EmitEvent(const std::string type,
                          scoped_ptr<base::DictionaryValue> event) = 0;
 };

@@ -46,7 +46,7 @@ public:
 
     void ReplyToAction(const unsigned int id, 
                        const std::string& error, 
-                       scoped_ptr<base::Value> result);
+                       scoped_ptr<base::DictionaryValue> result);
   
     /**************************************************************************/
     /* APISERVER::CLIENT::REMOTE */
@@ -57,43 +57,44 @@ public:
       Remote(APIServer::Client* client,
              unsigned int target);
 
-      virtual void CallMethod(const std::string method,
-                              scoped_ptr<base::DictionaryValue> args,
-                              const API::MethodCallback& callback) OVERRIDE;
+      virtual void InvokeMethod(const std::string method,
+                                scoped_ptr<base::DictionaryValue> args,
+                                const API::MethodCallback& callback) OVERRIDE;
       virtual void EmitEvent(const std::string type,
                              scoped_ptr<base::DictionaryValue> event) OVERRIDE;
 
     private:
-      void SendEvent(const std::string type,
-                     scoped_ptr<base::DictionaryValue> event);
-                     
       APIServer::Client*                      client_;
 
       unsigned int                            target_;
-      unsigned int                            action_id_;
 
       DISALLOW_COPY_AND_ASSIGN(Remote);
     };
 
   private:
-    void PerformAction(std::string action,
-                       unsigned int id,
-                       scoped_ptr<base::DictionaryValue> args,
-                       unsigned int target,
-                       std::string type,
-                       std::string method);
-  
+    void PerformAction(scoped_ptr<base::DictionaryValue> action);
+
     void SendReply(const unsigned id,
                    const std::string& error,
-                   scoped_ptr<base::Value> result);
+                   scoped_ptr<base::DictionaryValue> result);
+    void SendInvoke(const API::MethodCallback& callback,
+                    unsigned int target,
+                    const std::string method,
+                    scoped_ptr<base::DictionaryValue> args);
+    void SendEvent(unsigned int target,
+                   const std::string type,
+                   scoped_ptr<base::DictionaryValue> event);
+                     
 
-    APIServer*                                     server_;
-    API*                                           api_;
+    APIServer*                                         server_;
+    API*                                               api_;
+    unsigned int                                       action_id_;
 
-    scoped_ptr<net::StreamListenSocket>            conn_;
-    std::string                                    acc_;
+    scoped_ptr<net::StreamListenSocket>                conn_;
+    std::string                                        acc_;
 
-    std::map<unsigned int, scoped_refptr<Remote> > remotes_;
+    std::map<unsigned int, scoped_refptr<Remote> >     remotes_;
+    std::map<int, API::MethodCallback >                invokes_;
 
     DISALLOW_COPY_AND_ASSIGN(Client);
   };

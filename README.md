@@ -21,20 +21,26 @@ Thrust will be used by next releases of Breach.
                                                                        
                                            #
                    +------------------+    #        +-----------------------+
-                   |  Cocoa/Win/GTK+  |    #    +---|  shell3: (HTML/JS)    |
+                   |   Cocoa / Aura   |    #    +---|  shell3: (HTML/JS)    |
                    +---------+--------+    #    |  +-----------------------++
                              |             #    +--|  shell2: (HTML/JS)    |
 +----------------+ +---------+--------+    #    | +-----------------------++
-|  Content API   +-+   Thrust (C++)   +---------+-+  shell1: (HTML/JS)    |
-+----+-----------+ +---------+--------+    #      +-----------------------+
-     |                       |             #                 | (TCP/FS)      
-+----+---+  +----+ +---------+--------+    #      +-----------------------+
-| Blink  +--+ v8 +-+   JSON RPC srv   +-----------+ Client App (any Lang) |
-+--------+  +----+ +------------------+    #      +-----------------------+
+|                +-+   Thrust (C++)   +---------+-+  shell1: (HTML/JS)    |
+|  Content  API  | +---------+--------+    #      +-----------------------+
+|                |           |             #                 | (TCP/FS)      
+|  (Blink / v8)  | +---------+--------+    #      +-----------------------+
+|                | +   JSON RPC srv   +-----------+ Client App (any Lang) |
++----------------+ +------------------+    #      +-----------------------+
                                            #
 ```
 
 ### Building Thrust
+
+First you'll need to make sure you have the Chromium `depot_tools` installed.
+Check out the instructions here: 
+[Install depot_tools](http://www.chromium.org/developers/how-tos/install-depot-tools)
+
+Then you can build with the following commands:
 
 ```
 ./scripts/boostrap.py                                

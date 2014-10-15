@@ -182,7 +182,7 @@ ThrustMenuBinding::CallLocalMethod(
   }
   */
 
-  callback.Run(err, scoped_ptr<base::Value>(res).Pass());
+  callback.Run(err, scoped_ptr<base::DictionaryValue>(res).Pass());
 }
 
 void 
@@ -190,11 +190,11 @@ ThrustMenuBinding::EmitExecuteCommand(
     int command_id, 
     int event_flags)
 {
-  base::DictionaryValue* res = new base::DictionaryValue;
-  res->SetInteger("command_id", command_id);
-  res->SetInteger("event_flags", event_flags);
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  evt->SetInteger("command_id", command_id);
+  evt->SetInteger("event_flags", event_flags);
 
-  this->EmitEvent("execute", scoped_ptr<base::DictionaryValue>(res).Pass());
+  this->EmitEvent("execute", scoped_ptr<base::DictionaryValue>(evt).Pass());
 }
 
 ThrustMenu*

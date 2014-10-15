@@ -147,7 +147,7 @@ ThrustWindowBinding::CallLocalMethod(
     err = "thrust_window_binding:method_not_found";
   }
 
-  callback.Run(err, scoped_ptr<base::Value>(res).Pass());
+  callback.Run(err, scoped_ptr<base::DictionaryValue>(res).Pass());
 }
 
 ThrustWindow*

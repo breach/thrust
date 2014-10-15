@@ -69,9 +69,8 @@ API::Delete(
 {
   if(target > 0 && bindings_[target]) {
     LOG(INFO) << "[API] DELETE: " << target;
-    /* We call the destructor of the binding which is in charge of */
-    /* cleaning up all local objects associated with it.           */
-    delete bindings_[target];
+    /* We remove our scoped_refptr to that binding which should trigger */
+    /* its deletion as soon as all callbacks have been called.          */
     bindings_.erase(target);
 
     /* Finally we remove the remote object. We don't delete it as it */
@@ -111,7 +110,7 @@ API::GetBinding(
     unsigned int target)
 {
   if(target > 0 && bindings_[target]) {
-    return bindings_[target];
+    return bindings_[target].get();
   }
   return NULL;
 }
