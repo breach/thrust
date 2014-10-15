@@ -215,7 +215,7 @@ APIServer::Client::PerformAction(
   }
   else if(action.compare("delete") == 0 && target > 0) {
     api_->Delete(target);
-    /* TODO(spolu): Delete remote */
+    remotes_.erase(target);
 
     base::DictionaryValue* res = new base::DictionaryValue;
     ReplyToAction(id, std::string(""),
