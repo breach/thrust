@@ -161,10 +161,27 @@ ThrustSessionBinding::CallLocalMethod(
 }
 
 void
-ThrustSessionBinding::Load(
+ThrustSessionBinding::CookiesLoad(
     const LoadedCallback& loaded_callback)
 {
+  base::DictionaryValue* args = new base::DictionaryValue;
+
+  this->CallRemoteMethod("cookies_load", 
+                         scoped_ptr<base::DictionaryValue>(args).Pass(),
+                         base::Bind(&ThrustSessionBinding::CookiesLoadCallback, 
+                                    this, loaded_callback));
 }
+
+void
+ThrustSessionBinding::CookiesLoadCallback(
+    const LoadedCallback& loaded_callback,
+    const std::string& error,
+    scoped_ptr<base::Value> result)
+{
+  LOG(INFO) << "COOKIE LOAD CALLBACK " << error;
+}
+
+
 
 ThrustSession*
 ThrustSessionBinding::GetSession() {

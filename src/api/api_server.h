@@ -64,6 +64,8 @@ public:
                              scoped_ptr<base::DictionaryValue> event) OVERRIDE;
 
     private:
+      void SendInvoke(const std::string method,
+                      scoped_ptr<base::DictionaryValue> args);
       void SendEvent(const std::string type,
                      scoped_ptr<base::DictionaryValue> event);
                      

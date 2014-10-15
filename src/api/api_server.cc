@@ -43,18 +43,44 @@ APIServer::Client::Remote::CallMethod(
 {
   /* Runs on UI Thread. */
   LOG(INFO) << "Remote::Client::CallMethod [" << target_ << "] " << this;
-  /*
-  server_->thread_->message_loop()->PostTask(
+  
+
+  /* TODO(spolu): store callback for reply */
+  
+
+  client_->server_->thread_->message_loop()->PostTask(
       FROM_HERE,
-      base::Bind(&APIServer::Client::Remote::SendCallMethod, this, 
-                 method, base::Passed(args.Pass()), callback));
-  */
+      base::Bind(&APIServer::Client::Remote::SendInvoke, this, 
+                 method, base::Passed(args.Pass())));
+}
+
+void 
+APIServer::Client::Remote::SendInvoke(
+    const std::string method,
+    scoped_ptr<base::DictionaryValue> args)
+{
+  /* Runs on APIServer Thread. */
+  base::DictionaryValue action;
+  action.SetString("_action", "call");
+  action.SetInteger("_id", ++action_id_);
+  action.SetInteger("_target", target_);
+  action.SetString("_method", method);
+  action.Set("_args", args->DeepCopy());
+
+  std::string payload;
+  base::JSONWriter::Write(&action, &payload);
+  payload += "\n" + std::string(kSocketBoundary) + "\n";
+
+  if(client_->conn_) {
+    client_->conn_->Send(payload);
+  }
 }
 
 void APIServer::Client::Remote::EmitEvent(
     const std::string type,
     scoped_ptr<base::DictionaryValue> event)
 {
+  /* Runs on UI Thread. */
   LOG(INFO) << "Remote::Client::EmitEvent [" << target_ << "] " << this;
 
   client_->server_->thread_->message_loop()->PostTask(

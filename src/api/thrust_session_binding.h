@@ -34,7 +34,10 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  void Load(const LoadedCallback& loaded_callback);
+  void CookiesLoadCallback(const LoadedCallback& loaded_callback,
+                           const std::string& error,
+                           scoped_ptr<base::Value> result);
+  void CookiesLoad(const LoadedCallback& loaded_callback);
 
   ThrustSession* GetSession();
 

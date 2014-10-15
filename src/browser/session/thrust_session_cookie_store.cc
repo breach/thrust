@@ -41,7 +41,7 @@ ThrustSessionCookieStore::Load(
   else if(parent_ && parent_->binding_) {
     content::BrowserThread::PostTask(
         content::BrowserThread::UI, FROM_HERE,
-        base::Bind(&ThrustSessionBinding::Load, parent_->binding_, 
+        base::Bind(&ThrustSessionBinding::CookiesLoad, parent_->binding_, 
                    loaded_callback));
     //parent_->binding_->Load(loaded_callback);
   }
