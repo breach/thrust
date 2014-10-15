@@ -55,35 +55,29 @@ ThrustMenuBinding::CallLocalMethod(
   base::DictionaryValue* res = new base::DictionaryValue;
 
   LOG(INFO) << "ThrustMenu call [" << method << "]";
-  if(method.compare("insert_item_at") == 0 ||
-     method.compare("insert_check_item_at") == 0 ||
-     method.compare("insert_radio_item_at") == 0 ||
-     method.compare("insert_separator_at") == 0 ||
-     method.compare("set_sub_label") == 0) {
-    int index = 0;
+  if(method.compare("add_item") == 0 ||
+     method.compare("add_check_item") == 0 ||
+     method.compare("add_radio_item") == 0 ||
+     method.compare("add_separator") == 0) {
     int command_id = -1;
     int group_id = -1;
     std::string label = "NO-LABEL";
 
     args->GetString("label", &label);
-    args->GetInteger("index", &index);
     args->GetInteger("command_id", &command_id);
     args->GetInteger("group_id", &group_id);
 
-    if(method.compare("insert_item_at") == 0) {
-      menu_->InsertItemAt(index, command_id, base::UTF8ToUTF16(label));
+    if(method.compare("add_item") == 0) {
+      menu_->AddItem(command_id, base::UTF8ToUTF16(label));
     }
-    if(method.compare("insert_check_item_at") == 0) {
-      menu_->InsertCheckItemAt(index, command_id, base::UTF8ToUTF16(label));
+    if(method.compare("add_check_item") == 0) {
+      menu_->AddCheckItem(command_id, base::UTF8ToUTF16(label));
     }
-    if(method.compare("insert_radio_item_at") == 0) {
-      menu_->InsertRadioItemAt(index, command_id, base::UTF8ToUTF16(label), group_id);
+    if(method.compare("add_radio_item") == 0) {
+      menu_->AddRadioItem(command_id, base::UTF8ToUTF16(label), group_id);
     }
-    if(method.compare("insert_separator_at") == 0) {
-      menu_->InsertSeparatorAt(index);
-    }
-    if(method.compare("set_sub_label") == 0) {
-      menu_->SetSublabel(index, base::UTF8ToUTF16(label));
+    if(method.compare("add_separator") == 0) {
+      menu_->AddSeparator();
     }
   }
   else if(method.compare("set_checked") == 0 ||
@@ -114,24 +108,19 @@ ThrustMenuBinding::CallLocalMethod(
 
     menu_->SetAccelerator(command_id, accelerator);
   }
-  else if(method.compare("insert_submenu_at") == 0) {
-    int index = 0;
+  else if(method.compare("add_submenu") == 0) {
     int command_id = -1;
     std::string label = "NO-LABEL";
     int menu_id = -1;
 
     args->GetInteger("menu_id", &menu_id);
     args->GetString("label", &label);
-    args->GetInteger("index", &index);
     args->GetInteger("command_id", &command_id);
-
-    ThrustMenu* menu = NULL;
 
     ThrustMenuBinding* mb = 
       (ThrustMenuBinding*)(API::Get()->GetBinding(menu_id));
     if(mb != NULL) {
-      menu = mb->GetMenu();
-      menu_->InsertSubMenuAt(index, command_id, base::UTF8ToUTF16(label), menu);
+      menu_->AddSubMenu(command_id, base::UTF8ToUTF16(label), mb->GetMenu());
     }
     else {
       err = "exo_menu_binding:menu_not_found";
