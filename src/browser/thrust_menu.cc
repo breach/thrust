@@ -90,57 +90,44 @@ ThrustMenu::AttachToWindow(ThrustWindow* window)
 }
 
 void 
-ThrustMenu::InsertItemAt(
-    int index, 
+ThrustMenu::AddItem(
     int command_id, 
     const base::string16& label) 
 {
-  model_->InsertItemAt(index, command_id, label);
+  model_->AddItem(command_id, label);
 }
 
 void 
-ThrustMenu::InsertSeparatorAt(
-    int index) 
+ThrustMenu::AddSeparator()
 {
-  model_->InsertSeparatorAt(index, ui::NORMAL_SEPARATOR);
+  model_->AddSeparator(ui::NORMAL_SEPARATOR);
 }
 
 void 
-ThrustMenu::InsertCheckItemAt(
-    int index,
+ThrustMenu::AddCheckItem(
     int command_id,
     const base::string16& label) 
 {
-  model_->InsertCheckItemAt(index, command_id, label);
+  model_->AddCheckItem(command_id, label);
 }
 
 void 
-ThrustMenu::InsertRadioItemAt(
-    int index,
+ThrustMenu::AddRadioItem(
     int command_id,
     const base::string16& label,
     int group_id) 
 {
-  model_->InsertRadioItemAt(index, command_id, label, group_id);
+  model_->AddRadioItem(command_id, label, group_id);
 }
 
 void 
-ThrustMenu::InsertSubMenuAt(
-    int index,
+ThrustMenu::AddSubMenu(
     int command_id,
     const base::string16& label,
     ThrustMenu* menu) 
 {
   menu->parent_ = this;
-  model_->InsertSubMenuAt(index, command_id, label, menu->model_.get());
-}
-
-void 
-ThrustMenu::SetSublabel(
-    int index, 
-    const base::string16& sublabel) 
-{
-  model_->SetSublabel(index, sublabel);
+  model_->AddSubMenu(command_id, label, menu->model_.get());
 }
 
 void 
@@ -206,13 +193,6 @@ ThrustMenu::GetLabelAt(
     int index) const 
 {
   return model_->GetLabelAt(index);
-}
-
-base::string16 
-ThrustMenu::GetSublabelAt(
-    int index) const 
-{
-  return model_->GetSublabelAt(index);
 }
 
 bool 

@@ -193,12 +193,14 @@ APIServer::Client::PerformAction(
 {
   /* Runs on UI Thread. */
   /*
+  LOG(INFO) << "===========================================";
   LOG(INFO) << "action: " << action;
   LOG(INFO) << "id: " << id;
   LOG(INFO) << "args: " << args.get();
   LOG(INFO) << "target: " << target;
   LOG(INFO) << "type: " << type;
-  LOG(INFO) << "method: " << target;
+  LOG(INFO) << "method: " << method;
+  LOG(INFO) << "===========================================";
   */
 
   if(action.compare("create") == 0 && type.length()) {

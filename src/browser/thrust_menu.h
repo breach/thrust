@@ -26,22 +26,17 @@ public:
   // ### ~ThrustMenu
   virtual ~ThrustMenu();
 
-  void InsertItemAt(int index, 
-                    int command_id, 
+  void AddItem(int command_id, 
+               const base::string16& label);
+  void AddSeparator();
+  void AddCheckItem(int command_id,
                     const base::string16& label);
-  void InsertSeparatorAt(int index);
-  void InsertCheckItemAt(int index,
-                         int command_id,
-                         const base::string16& label);
-  void InsertRadioItemAt(int index,
-                         int command_id,
-                         const base::string16& label,
-                         int group_id);
-  void InsertSubMenuAt(int index,
-                       int command_id,
-                       const base::string16& label,
-                       ThrustMenu* menu);
-  void SetSublabel(int index, const base::string16& sublabel);
+  void AddRadioItem(int command_id,
+                    const base::string16& label,
+                    int group_id);
+  void AddSubMenu(int command_id,
+                  const base::string16& label,
+                  ThrustMenu* menu);
 
   void Clear();
 
@@ -54,7 +49,6 @@ public:
   int GetItemCount() const;
   int GetCommandIdAt(int index) const;
   base::string16 GetLabelAt(int index) const;
-  base::string16 GetSublabelAt(int index) const;
 
   bool IsItemCheckedAt(int index) const;
   bool IsEnabledAt(int index) const;
