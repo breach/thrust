@@ -154,6 +154,14 @@ ThrustSessionBinding::CallLocalMethod(
   else if(method.compare("off_the_record") == 0) {
     res->SetBoolean("off_the_record", session_->IsOffTheRecord());
   }
+  else if(method.compare("visitedlink_add") == 0) {
+    std::string url = "";
+    args->GetString("url", &url);
+    session_->GetVisitedLinkStore()->Add(url);
+  }
+  else if(method.compare("visitedlink_clear") == 0) {
+    session_->GetVisitedLinkStore()->Clear();
+  }
   else {
     err = "exo_session_binding:method_not_found";
   }
@@ -215,6 +223,81 @@ ThrustSessionBinding::CookiesLoadForKey(
                            base::Bind(&ThrustSessionBinding::CookiesLoadCallback, 
                                       this, loaded_callback));
 }
+
+void
+ThrustSessionBinding::CookiesFlushCallback(
+    const base::Closure& callback,
+    const std::string& error,
+    scoped_ptr<base::DictionaryValue> result)
+{
+  /* Runs on UI thread. */
+  if(error.size() == 0) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::IO, FROM_HERE, callback);
+  }
+  /* Otherwise if an error occured we don't call the callback. */
+}
+
+void
+ThrustSessionBinding::CookiesFlush(
+    const base::Closure& callback)
+{
+  /* Runs on UI thread. */
+  base::DictionaryValue* args = new base::DictionaryValue;
+
+  this->InvokeRemoteMethod("cookies_flush", 
+                           scoped_ptr<base::DictionaryValue>(args).Pass(),
+                           base::Bind(&ThrustSessionBinding::CookiesFlushCallback, 
+                                      this, callback));
+}
+
+void
+ThrustSessionBinding::CookiesAdd(
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  evt->Set("cookie", ValueFromCanonicalCookie(cc));
+  evt->SetInteger("op_count", op_count);
+
+  this->EmitEvent("cookies_add", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void
+ThrustSessionBinding::CookiesUpdateAccessTime(
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  evt->Set("cookie", ValueFromCanonicalCookie(cc));
+  evt->SetInteger("op_count", op_count);
+
+  this->EmitEvent("cookies_update_access_time", 
+                  scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void
+ThrustSessionBinding::CookiesDelete(
+    const net::CanonicalCookie& cc,
+    unsigned int op_count)
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  evt->Set("cookie", ValueFromCanonicalCookie(cc));
+  evt->SetInteger("op_count", op_count);
+
+  this->EmitEvent("cookies_delete", 
+                  scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void
+ThrustSessionBinding::CookiesForceKeepSessionState()
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+
+  this->EmitEvent("cookies_force_keep_session_state", 
+                  scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
 
 
 ThrustSession*

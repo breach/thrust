@@ -29,7 +29,7 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  void EmitExecuteCommand(int command_id, int event_flags);
+  void ExecuteCommand(int command_id, int event_flags);
 
   ThrustMenu* GetMenu();
 

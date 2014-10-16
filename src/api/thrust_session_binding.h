@@ -37,10 +37,22 @@ public:
   void CookiesLoadCallback(const LoadedCallback& loaded_callback,
                            const std::string& error,
                            scoped_ptr<base::DictionaryValue> result);
-
   void CookiesLoad(const LoadedCallback& loaded_callback);
   void CookiesLoadForKey(const std::string& key,
                          const LoadedCallback& loaded_callback);
+
+  void CookiesFlushCallback(const base::Closure& callback,
+                            const std::string& error,
+                            scoped_ptr<base::DictionaryValue> result);
+  void CookiesFlush(const base::Closure& callback);
+
+  void CookiesAdd(const net::CanonicalCookie& cc,
+                  unsigned int op_count);
+  void CookiesUpdateAccessTime(const net::CanonicalCookie& cc,
+                               unsigned int op_count);
+  void CookiesDelete(const net::CanonicalCookie& cc,
+                     unsigned int op_count);
+  void CookiesForceKeepSessionState();
 
   ThrustSession* GetSession();
 

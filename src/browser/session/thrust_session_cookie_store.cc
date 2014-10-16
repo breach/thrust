@@ -79,15 +79,12 @@ ThrustSessionCookieStore::Flush(
     content::BrowserThread::PostTask(
         content::BrowserThread::IO, FROM_HERE, callback);
   }
-  /*
-  if(parent_ && parent_->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ThrustSessionWrap::CallCookiesFlush, 
-                   parent_->wrapper_, callback));
-
+  else if(parent_ && parent_->binding_) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ThrustSessionBinding::CookiesFlush, parent_->binding_, 
+                   callback));
   }
-  */
 }
 
 
@@ -95,59 +92,51 @@ void
 ThrustSessionCookieStore::AddCookie(
     const net::CanonicalCookie& cc)
 {
-  /*
-  if(parent_ && parent_->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ThrustSessionWrap::DispatchCookiesAdd, 
-                   parent_->wrapper_, cc, op_count_++));
+  if(parent_ && parent_->binding_) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ThrustSessionBinding::CookiesAdd, 
+                   parent_->binding_, cc, op_count_++));
 
   }
-  */
 }
 
 void 
 ThrustSessionCookieStore::UpdateCookieAccessTime(
     const net::CanonicalCookie& cc)
 {
-  /*
-  if(parent_ && parent_->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ThrustSessionWrap::DispatchCookiesUpdateAccessTime, 
-                   parent_->wrapper_, cc, op_count_++));
+  if(parent_ && parent_->binding_) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ThrustSessionBinding::CookiesUpdateAccessTime, 
+                   parent_->binding_, cc, op_count_++));
 
   }
-  */
 }
 
 void 
 ThrustSessionCookieStore::DeleteCookie(
     const net::CanonicalCookie& cc)
 {
-  /*
-  if(parent_ && parent_->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ThrustSessionWrap::DispatchCookiesDelete, 
-                   parent_->wrapper_, cc, op_count_++));
+  if(parent_ && parent_->binding_) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ThrustSessionBinding::CookiesDelete, 
+                   parent_->binding_, cc, op_count_++));
 
   }
-  */
 }
 
 void 
 ThrustSessionCookieStore::SetForceKeepSessionState()
 {
-  /*
-  if(parent_ && parent_->wrapper_) {
-    NodeThread::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&ThrustSessionWrap::DispatchCookiesForceKeepSessionState, 
-                   parent_->wrapper_));
+  if(parent_ && parent_->binding_) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ThrustSessionBinding::CookiesForceKeepSessionState, 
+                   parent_->binding_));
 
   }
-  */
 }
 
 }  // namespace thrust_shell

@@ -67,7 +67,7 @@ ThrustMenu::ExecuteCommand(
     int event_flags) 
 {
   if(binding_ != NULL) {
-    binding_->EmitExecuteCommand(command_id, event_flags);
+    binding_->ExecuteCommand(command_id, event_flags);
   }
 }
 
