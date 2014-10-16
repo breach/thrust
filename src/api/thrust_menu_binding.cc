@@ -186,7 +186,7 @@ ThrustMenuBinding::CallLocalMethod(
 }
 
 void 
-ThrustMenuBinding::EmitExecuteCommand(
+ThrustMenuBinding::ExecuteCommand(
     int command_id, 
     int event_flags)
 {
