@@ -49,10 +49,10 @@ image of `thrust` is downloaded from this repository's releases.
 ```
 require('node-thrust')(function(err, api) {
   api.window({
-    root_url: 'http://www.vim.org/'
+    root_url: 'https://www.google.com/',
     size: {
-      width: 800,
-      height: 600
+      width: 1024,
+      height: 768
     }
   }).show(function(err) {
     console.log('WINDOW CREATED');
