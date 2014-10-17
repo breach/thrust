@@ -68,6 +68,8 @@ See [breach/node-thrust](https://github.com/breach/node-thrust) for more details
 [TODO]
 ```
 
+See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust) for more details.
+
 ### Building Thrust
 
 First you'll need to make sure you have the Chromium `depot_tools` installed.
