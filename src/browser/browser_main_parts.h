@@ -57,8 +57,8 @@ class ThrustShellMainParts : public brightray::BrowserMainParts {
   static ThrustShellMainParts*          self_;
   ThrustSession*                        system_session_;
 
-  API*                               api_;
-  scoped_ptr<APIServer>              api_server_;
+  API*                                  api_;
+  scoped_ptr<APIServer>                 api_server_;
 
   DISALLOW_COPY_AND_ASSIGN(ThrustShellMainParts);
 };

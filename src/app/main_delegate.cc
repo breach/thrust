@@ -25,19 +25,10 @@ bool
 MainDelegate::BasicStartupComplete(
     int* exit_code) 
 {
-  // Disable logging out to debug.log on Windows
-#if defined(OS_WIN)
+  // Log everything to stderr
   logging::LoggingSettings settings;
-#if defined(DEBUG)
-  settings.logging_dest = logging::LOG_TO_ALL;
-  settings.log_file = L"debug.log";
-  settings.lock_log = logging::LOCK_LOG_FILE;
-  settings.delete_old = logging::DELETE_OLD_LOG_FILE;
-#else
   settings.logging_dest = logging::LOG_TO_SYSTEM_DEBUG_LOG;
-#endif
   logging::InitLogging(settings);
-#endif  // defined(OS_WIN)
 
   // Logging with pid and timestamp.
   logging::SetLogItems(true, false, true, false);

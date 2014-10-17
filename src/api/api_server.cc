@@ -3,6 +3,8 @@
 
 #include "src/api/api_server.h"
 
+#include <iostream>
+
 #include "base/bind.h"
 #include "base/callback.h"
 #include "base/file_util.h"
@@ -43,8 +45,8 @@ APIServer::Client::Remote::InvokeMethod(
   /* Runs on UI Thread. */
   LOG(INFO) << "Remote::Client::InvokeMethod [" << target_ << "] " << this;
   
-  client_->server_->thread_->message_loop()->PostTask(
-      FROM_HERE,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
       base::Bind(&APIServer::Client::SendInvoke, client_, 
                  callback, target_, method, base::Passed(args.Pass())));
 }
@@ -56,8 +58,8 @@ void APIServer::Client::Remote::EmitEvent(
   /* Runs on UI Thread. */
   LOG(INFO) << "Remote::Client::EmitEvent [" << target_ << "] " << this;
 
-  client_->server_->thread_->message_loop()->PostTask(
-      FROM_HERE,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
       base::Bind(&APIServer::Client::SendEvent, client_, 
                  target_, type, base::Passed(event.Pass())));
 }
@@ -67,19 +69,16 @@ void APIServer::Client::Remote::EmitEvent(
 /******************************************************************************/
 APIServer::Client::Client(
     APIServer* server, 
-    API* api,
-    scoped_ptr<net::StreamListenSocket> conn)
+    API* api)
   : server_(server),
     api_(api),
     action_id_(0)
 {
-  conn_ = conn.Pass();
 }
 
 APIServer::Client::~Client() 
 {
   LOG(INFO) << "APIServer::Client Destructor: " << this;
-  conn_.reset();
 
   /* We start by deleting all bindings that are not sessions. */
   std::map<unsigned int, scoped_refptr<Remote> >::iterator it = remotes_.begin();
@@ -118,6 +117,11 @@ APIServer::Client::ProcessChunk(
       continue;
     }
 
+    /*
+    LOG(INFO) << "RAW: `" << raw << "`";
+    LOG(INFO) << "RAW LENGHT: " << raw.length();
+    */
+
     scoped_ptr<base::DictionaryValue> action;
     action.reset(
         static_cast<base::DictionaryValue*>(base::JSONReader::Read(raw)));
@@ -136,8 +140,8 @@ APIServer::Client::ReplyToAction(
     scoped_ptr<base::DictionaryValue> result)
 {
   /* Runs on UI Thread. */
-  server_->thread_->message_loop()->PostTask(
-      FROM_HERE,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
       base::Bind(&APIServer::Client::SendReply, this, 
                  id, error, base::Passed(result.Pass())));
 }
@@ -239,7 +243,7 @@ APIServer::Client::SendReply(
   const std::string& error, 
   scoped_ptr<base::DictionaryValue> result)
 {
-  /* Runs on APIServer Thread. */
+  /* Runs on IO Thread. */
   base::DictionaryValue action;
   action.SetString("_action", "reply");
   action.SetInteger("_id", id);
@@ -250,9 +254,8 @@ APIServer::Client::SendReply(
   base::JSONWriter::Write(&action, &payload);
   payload += "\n" + std::string(kSocketBoundary) + "\n";
 
-  if(conn_) {
-    conn_->Send(payload);
-  }
+  std::cout << payload;
+  std::cout.flush();
 }
 
 void 
@@ -261,7 +264,7 @@ APIServer::Client::SendEvent(
     const std::string type,
     scoped_ptr<base::DictionaryValue> event)
 {
-  /* Runs on APIServer Thread. */
+  /* Runs on IO Thread. */
   base::DictionaryValue action;
   action.SetString("_action", "event");
   action.SetInteger("_id", ++action_id_);
@@ -273,9 +276,8 @@ APIServer::Client::SendEvent(
   base::JSONWriter::Write(&action, &payload);
   payload += "\n" + std::string(kSocketBoundary) + "\n";
 
-  if(conn_) {
-    conn_->Send(payload);
-  }
+  std::cout << payload;
+  std::cout.flush();
 }
 
 void 
@@ -285,7 +287,7 @@ APIServer::Client::SendInvoke(
     const std::string method,
     scoped_ptr<base::DictionaryValue> args)
 {
-  /* Runs on APIServer Thread. */
+  /* Runs on IO Thread. */
   unsigned int action_id = ++action_id_;
 
   invokes_[action_id] = callback;
@@ -301,9 +303,8 @@ APIServer::Client::SendInvoke(
   base::JSONWriter::Write(&action, &payload);
   payload += "\n" + std::string(kSocketBoundary) + "\n";
 
-  if(conn_) {
-    conn_->Send(payload);
-  }
+  std::cout << payload;
+  std::cout.flush();
 }
 
 
@@ -311,11 +312,10 @@ APIServer::Client::SendInvoke(
 /* APISERVER */
 /******************************************************************************/
 APIServer::APIServer(
-    API* api,
-    const base::FilePath& socket_path)
-  : api_(api),
-    socket_path_(socket_path)
+    API* api)
+  : api_(api)
 {
+  client_ = new Client(this, api_);
 }
 
 void 
@@ -340,27 +340,7 @@ APIServer::Stop() {
       base::Bind(&APIServer::ResetHandlerThread, this));
 }
 
-void 
-APIServer::DidAccept(
-    net::StreamListenSocket* server,                          
-    scoped_ptr<net::StreamListenSocket> connection)
-{
-  LOG(INFO) << "Accept";
-  clients_[connection.get()] = new Client(this, api_, connection.Pass());
-}
-
-void 
-APIServer::DidRead(
-    net::StreamListenSocket* connection,
-    const char* data,
-    int len)
-{
-  //LOG(INFO) << "DATA: " << data;
-  if(clients_[connection]) {
-    clients_[connection]->ProcessChunk(std::string(data, len));
-  }
-}
-
+/*
 void 
 APIServer::DidClose(
     net::StreamListenSocket* connection)
@@ -370,29 +350,12 @@ APIServer::DidClose(
       BrowserThread::UI, FROM_HERE,
       base::Bind(&APIServer::DestroyClient, this, connection));
 }
+ */
 
 void
-APIServer::DestroyClient(
-    net::StreamListenSocket* connection)
+APIServer::DestroyClient()
 {
-  if(clients_[connection]) {
-    clients_.erase(connection);
-  }
 }
-
-bool 
-APIServer::UserCanConnectCallback(
-    uid_t user_id, 
-    gid_t group_id) {
-  return true;
-}
-
-void 
-APIServer::DeleteSocketFile()
-{
-  base::DeleteFile(socket_path_, false /* not recursive */);
-}
-
 
 
 void 
@@ -410,7 +373,7 @@ APIServer::StartHandlerThread()
 
   thread_->message_loop()->PostTask(
       FROM_HERE,
-      base::Bind(&APIServer::ThreadInit, this));
+      base::Bind(&APIServer::ThreadRun, this));
 }
 
 void 
@@ -434,16 +397,31 @@ APIServer::StopHandlerThread()
 }
 
 void 
-APIServer::ThreadInit() 
+APIServer::ThreadRun() 
 {
-  LOG(INFO) << "Cleaning up: " << socket_path_.value();
-  DeleteSocketFile();
+  char chunk[5000];
+  std::cin.getline(chunk, 5000);
 
-  LOG(INFO) << "Listening on: " << socket_path_.value();
-  /* Runs on the handler thread */
-  socket_ = net::UnixDomainSocket::CreateAndListen(
-      socket_path_.value(), this, 
-      base::Bind(&APIServer::UserCanConnectCallback, this));
+  /*
+  LOG(INFO) << "GOOD: " << std::cin.good();
+  LOG(INFO) << "EOF : " << std::cin.eof();
+  LOG(INFO) << "FAIL: " << std::cin.fail();
+  LOG(INFO) << "BAD : " << std::cin.bad();
+  */
+
+  /*
+  LOG(INFO) << "READ: " << std::string(chunk, strlen(chunk));
+  */
+
+  client_->ProcessChunk(std::string(chunk, strlen(chunk)));
+  if(std::cin.fail()) {
+    std::cin.clear();
+  }
+
+  /* Finally we loop */
+  thread_->message_loop()->PostTask(
+      FROM_HERE,
+      base::Bind(&APIServer::ThreadRun, this));
 }
 
 void 

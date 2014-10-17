@@ -29,8 +29,7 @@ namespace thrust_shell {
 
 class API;
 
-class APIServer : public net::StreamListenSocket::Delegate,
-                  public base::RefCountedThreadSafe<APIServer> {
+class APIServer : public base::RefCountedThreadSafe<APIServer> {
 public:
 
   /****************************************************************************/
@@ -38,8 +37,7 @@ public:
   /****************************************************************************/
   class Client : public base::RefCountedThreadSafe<APIServer::Client> {
   public:
-    Client(APIServer* server, API* api,
-           scoped_ptr<net::StreamListenSocket> conn);
+    Client(APIServer* server, API* api);
     ~Client();
 
     void ProcessChunk(std::string chunk);
@@ -90,7 +88,6 @@ public:
     API*                                               api_;
     unsigned int                                       action_id_;
 
-    scoped_ptr<net::StreamListenSocket>                conn_;
     std::string                                        acc_;
 
     std::map<unsigned int, scoped_refptr<Remote> >     remotes_;
@@ -102,8 +99,7 @@ public:
   /****************************************************************************/
   /* PUBLIC INTERFACE */
   /****************************************************************************/
-  APIServer(API* api,
-            const base::FilePath& socket_path);
+  APIServer(API* api);
 
   // ### Start
   // 
@@ -115,39 +111,23 @@ public:
   // Stops the APIServer and shuts down the server
   void Stop();
 
-  /****************************************************************************/
-  /* STREAMLISTENSOCKET::DELEGATE INTERFACE */
-  /****************************************************************************/
-  virtual void DidAccept(net::StreamListenSocket* server,                          
-                         scoped_ptr<net::StreamListenSocket> connection) OVERRIDE;
-  virtual void DidRead(net::StreamListenSocket* connection,
-                       const char* data,
-                       int len) OVERRIDE;
-  virtual void DidClose(net::StreamListenSocket* sock) OVERRIDE;
-
 private:
   /****************************************************************************/
   /* PRIVATE INTERFACE */
   /****************************************************************************/
-  bool UserCanConnectCallback(uid_t user_id, gid_t group_id);
-  void DeleteSocketFile();
-
   void StartHandlerThread();
   void ResetHandlerThread();
   void StopHandlerThread();
-  void ThreadInit();
+  void ThreadRun();
   void ThreadTearDown();
 
-  void DestroyClient(net::StreamListenSocket* sock);
+  void DestroyClient();
 
   /* The thread used by the API handler to run server socket. */
   API*                                                       api_;
   scoped_ptr<base::Thread>                                   thread_;
 
-  const base::FilePath                                       socket_path_;
-  scoped_ptr<net::UnixDomainSocket>                          socket_;
-
-  std::map<net::StreamListenSocket*, scoped_refptr<Client> > clients_;
+  scoped_refptr<Client>                                      client_;
 
   DISALLOW_COPY_AND_ASSIGN(APIServer);
 };
