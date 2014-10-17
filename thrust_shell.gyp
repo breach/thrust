@@ -402,13 +402,6 @@
                 '<(libchromiumcontent_library_dir)/libchromiumcontent.dylib',
               ],
             },
-            {
-              'destination': '<(PRODUCT_DIR)/<(framework_name).framework/Versions/A/Resources',
-              'files': [
-                '<(PRODUCT_DIR)/Inspector',
-                '<(PRODUCT_DIR)/crash_report_sender.app',
-              ],
-            },
           ],
           'postbuilds': [
             {
