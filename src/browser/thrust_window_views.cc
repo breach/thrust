@@ -78,8 +78,9 @@ bool ShouldUseGlobalMenuBar() {
     base::nix::GetDesktopEnvironment(env.get()) ==
     base::nix::DESKTOP_ENVIRONMENT_UNITY;
   std::string menu_proxy;
-  return is_unity && env->GetVar("UBUNTU_MENUPROXY", &menu_proxy) &&
-    menu_proxy.length() > 1;
+  return is_unity; 
+  /* TODO(spolu): Revert when stable. */
+  /* && env->GetVar("UBUNTU_MENUPROXY", &menu_proxy) && menu_proxy.length() > 1; */
 }
 #endif
 
@@ -379,21 +380,22 @@ ThrustWindow::PlatformSetMenu(
   */
 
 #if defined(USE_X11)
-  if (!global_menu_bar_ && ShouldUseGlobalMenuBar())
+  if(!global_menu_bar_ && ShouldUseGlobalMenuBar()) {
     global_menu_bar_.reset(new GlobalMenuBarX11(this));
+  }
 
   // Use global application menu bar when possible.
-  if (global_menu_bar_ && global_menu_bar_->IsServerStarted()) {
+  if(global_menu_bar_ && global_menu_bar_->IsServerStarted()) {
     global_menu_bar_->SetMenu(menu_model);
     return;
   }
 #endif
 
   // Do not show menu bar in frameless window.
-  if (!has_frame_)
+  if(!has_frame_)
     return;
 
-  if (!menu_bar_) {
+  if(!menu_bar_) {
     gfx::Size content_size = PlatformContentSize();
     menu_bar_.reset(new MenuBar);
     menu_bar_->set_owned_by_client();
