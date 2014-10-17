@@ -9,8 +9,7 @@ cp ../../../out/Release/thrust_shell .
 cp ../../../out/Release/*.pak .
 cp ../../../out/Release/*.so .
 cp ../../../out/Release/*.dat .
-cd ..
-zip -r thrust-v0.7.0-linux-x64.zip thrust-v0.7.0-linux-x64
-cd ..
+zip -r ../thrust-v0.7.0-linux-x64.zip *
+cd .. && cd ..
 
 
