@@ -304,8 +304,8 @@
       ],
       'include_dirs': [
         '.',
-      'chromium_src',
-      'vendor/brightray',
+        'chromium_src',
+        'vendor/brightray',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -400,6 +400,13 @@
               'files': [
                 '<(libchromiumcontent_library_dir)/ffmpegsumo.so',
                 '<(libchromiumcontent_library_dir)/libchromiumcontent.dylib',
+              ],
+            },
+            {
+              'destination': '<(PRODUCT_DIR)/<(framework_name).framework/Versions/A/Resources',
+              'files': [
+                '<(PRODUCT_DIR)/Inspector',
+                '<(PRODUCT_DIR)/crash_report_sender.app',
               ],
             },
           ],
