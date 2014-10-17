@@ -60,6 +60,8 @@ require('node-thrust')(function(err, api) {
 });
 ```
 
+See [breach/node-thrust](https://github.com/breach/node-thrust) for more details.
+
 #### Go
 
 ```
