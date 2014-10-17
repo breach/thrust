@@ -1,5 +1,6 @@
 #!/bin/sh
 
+cd .. && GYP_GENERATORS=ninja gyp --depth . thrust_shell.gyp && cd dist/
 cd .. && ninja -C out/Release thrust_shell -t clean && cd dist/
 cd .. && ninja -C out/Release thrust_shell -j 4 && cd dist/
 mkdir -p out && cd out
