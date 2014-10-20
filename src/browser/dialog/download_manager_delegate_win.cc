@@ -2,7 +2,7 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#include "content/nw/src/browser/shell_download_manager_delegate.h"
+#include "src/browser/dialog/download_manager_delegate.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
