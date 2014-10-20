@@ -87,7 +87,12 @@ ThrustSession::ThrustSession(
   if (cmd_line->HasSwitch(switches::kIgnoreCertificateErrors)) {
     ignore_certificate_errors_ = true;
   }
+#if defined(OS_WIN)
+  std::wstring tmp(path.begin(), path.end());
+  path_ = base::FilePath(tmp);
+#elif
   path_ = base::FilePath(path);
+#endif
 
   visitedlink_store_->Init();
 
