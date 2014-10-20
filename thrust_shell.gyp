@@ -198,9 +198,6 @@
     'vendor/brightray/brightray.gypi',
   ],
   'target_defaults': {
-    'mac_framework_dirs': [
-      '<(thrust_shell_source_root)/external_binaries',
-    ],
     'includes': [
        # Rules for excluding e.g. foo_win.cc from the build on non-Windows.
       'filename_rules.gypi',
@@ -306,11 +303,6 @@
                 '<(libchromiumcontent_resources_dir)/content_shell.pak',
                 '<(libchromiumcontent_resources_dir)/ui_resources_200_percent.pak',
                 '<(libchromiumcontent_resources_dir)/webkit_resources_200_percent.pak',
-                'external_binaries/d3dcompiler_43.dll',
-                'external_binaries/msvcp120.dll',
-                'external_binaries/msvcr120.dll',
-                'external_binaries/vccorlib120.dll',
-                'external_binaries/xinput1_3.dll',
               ],
             },
           ],
@@ -556,31 +548,5 @@
         },
       ],
     }],  # OS!="mac"
-    # Using Visual Studio Express.
-    ['msvs_express==1', {
-      'target_defaults': {
-        'defines!': [
-          '_SECURE_ATL',
-        ],
-        'msvs_settings': {
-          'VCLibrarianTool': {
-            'AdditionalLibraryDirectories': [
-              '<(thrust_shell_source_root)/external_binaries/atl/lib',
-            ],
-          },
-          'VCLinkerTool': {
-            'AdditionalLibraryDirectories': [
-              '<(thrust_shell_source_root)/external_binaries/atl/lib',
-            ],
-            'AdditionalDependencies': [
-              'atls.lib',
-            ],
-          },
-        },
-        'msvs_system_include_dirs': [
-          '<(thrust_shell_source_root)/external_binaries/atl/include',
-        ],
-      },
-    }],  # msvs_express==1
   ],
 }
