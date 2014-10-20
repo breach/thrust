@@ -23,6 +23,8 @@
 #include "ui/aura/window.h"
 #include "ui/aura/window_tree_host.h"
 
+using namespace content;
+
 namespace thrust_shell {
 
 void ThrustShellDownloadManagerDelegate::ChooseDownloadPath(
