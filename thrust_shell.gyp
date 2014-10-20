@@ -67,6 +67,7 @@
       'src/browser/dialog/download_manager_delegate.h',
       'src/browser/dialog/download_manager_delegate.cc',
       'src/browser/dialog/download_manager_delegate_gtk.cc',
+      'src/browser/dialog/download_manager_delegate_win.cc',
       'src/browser/dialog/download_manager_delegate_mac.mm',
       'src/browser/ui/accelerator_util.h',
       'src/browser/ui/accelerator_util.cc',
