@@ -173,6 +173,15 @@
       'src/app/library_main.cc',
       'src/app/library_main.h',
     ],
+    'locales': [
+      'am', 'ar', 'bg', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en-GB',
+      'en-US', 'es-419', 'es', 'et', 'fa', 'fi', 'fil', 'fr', 'gu', 'he',
+      'hi', 'hr', 'hu', 'id', 'it', 'ja', 'kn', 'ko', 'lt', 'lv',
+      'ml', 'mr', 'ms', 'nb', 'nl', 'pl', 'pt-BR', 'pt-PT', 'ro', 'ru',
+      'sk', 'sl', 'sr', 'sv', 'sw', 'ta', 'te', 'th', 'tr', 'uk',
+      'vi', 'zh-CN', 'zh-TW',
+    ],
+    'thrust_shell_source_root': '<!(python tools/source_root.py)',
     'conditions': [
       ['OS=="win"', {
         'app_sources': [
@@ -185,9 +194,13 @@
     ],
   },
   'includes': [
+    'common.gypi',
     'vendor/brightray/brightray.gypi',
   ],
   'target_defaults': {
+    'mac_framework_dirs': [
+      '<(thrust_shell_source_root)/external_binaries',
+    ],
     'includes': [
        # Rules for excluding e.g. foo_win.cc from the build on non-Windows.
       'filename_rules.gypi',
@@ -259,8 +272,27 @@
                 '<(product_name)',
               ],
             },
+            {
+              # The application doesn't have real localizations, it just has
+              # empty .lproj directories, which is enough to convince Cocoa
+              # thrust supports those languages.
+              'postbuild_name': 'Make Empty Localizations',
+              'variables': {
+                'locale_dirs': [
+                  '>!@(<(apply_locales_cmd) -d ZZLOCALE.lproj <(locales))',
+                ],
+              },
+              'action': [
+                'tools/mac/make_locale_dirs.sh',
+                '<@(locale_dirs)',
+              ],
+            },
           ]
-        }],
+        }, {  # OS=="mac"
+          'dependencies': [
+            'make_locale_paks',
+          ],
+        }],  # OS!="mac"
         ['OS=="win"', {
           'copies': [
             {
@@ -274,6 +306,11 @@
                 '<(libchromiumcontent_resources_dir)/content_shell.pak',
                 '<(libchromiumcontent_resources_dir)/ui_resources_200_percent.pak',
                 '<(libchromiumcontent_resources_dir)/webkit_resources_200_percent.pak',
+                'external_binaries/d3dcompiler_43.dll',
+                'external_binaries/msvcp120.dll',
+                'external_binaries/msvcr120.dll',
+                'external_binaries/vccorlib120.dll',
+                'external_binaries/xinput1_3.dll',
               ],
             },
           ],
@@ -297,13 +334,17 @@
           ],
         }],
       ],
-    },
+    },  # target <(project_name)
     {
       'target_name': '<(project_name)_lib',
       'type': 'static_library',
       'dependencies': [
         '<(project_name)_js',
         'vendor/brightray/brightray.gyp:brightray',
+      ],
+      'defines': [
+        # This is defined in skia/skia_common.gypi.
+        'SK_SUPPORT_LEGACY_GETTOPDEVICE',
       ],
       'sources': [
         '<@(lib_sources)',
@@ -322,6 +363,20 @@
         'vendor/brightray/brightray.gyp:brightray',
       ],
       'conditions': [
+        ['OS=="win"', {
+          'link_settings': {
+            'libraries': [
+              '-limm32.lib',
+              '-loleacc.lib',
+              '-lComdlg32.lib',
+              '-lWininet.lib',
+            ],
+          },
+        }],  # OS=="win"
+        ['OS=="mac"', {
+          'dependencies': [
+          ],
+        }],  # OS=="mac"
          ['OS=="linux"', {
            'link_settings': {
              'ldflags': [
@@ -333,9 +388,13 @@
                '-rdynamic',
              ],
            },
-        }],
+          'cflags': [
+            '-Wno-deprecated-register',
+            '-Wno-empty-body',
+          ],
+        }],  # OS=="linux"
       ],
-    },
+    },  # target <(product_name)_lib
     {
       'target_name': '<(project_name)_js',
       'type': 'none',
@@ -353,7 +412,36 @@
           'src/renderer/extensions/resources/web_view.js.bin'],
         },
       ],
-    },
+    },  # target <(product_name)_js
+    {
+      'target_name': '<(project_name)_strip',
+      'type': 'none',
+      'dependencies': [
+        '<(project_name)',
+      ],
+      'conditions': [
+        ['OS=="linux"', {
+          'actions': [
+            {
+              'action_name': 'Strip Binary',
+              'inputs': [
+                '<(PRODUCT_DIR)/libchromiumcontent.so',
+                '<(PRODUCT_DIR)/libffmpegsumo.so',
+                '<(PRODUCT_DIR)/<(project_name)',
+              ],
+              'outputs': [
+                # Gyp action requires a output file, add a fake one here.
+                '<(PRODUCT_DIR)/dummy_file',
+              ],
+              'action': [
+                'tools/posix/strip.sh',
+                '<@(_inputs)',
+              ],
+            },
+          ],
+        }],  # OS=="linux"
+      ],
+    },  # target <(project_name>_strip
   ],
   'conditions': [
     ['OS=="mac"', {
@@ -420,7 +508,7 @@
               ],
             },
           ],
-        },
+        },  # target framework
         {
           'target_name': '<(project_name)_helper',
           'product_name': '<(product_name) Helper',
@@ -441,8 +529,58 @@
               '@executable_path/../../..',
             ],
           },
+        },  # target helper
+      ],
+    }, {  # OS=="mac"
+      'targets': [
+        {
+          'target_name': 'make_locale_paks',
+          'type': 'none',
+          'actions': [
+            {
+              'action_name': 'Make Empty Paks',
+              'inputs': [
+                'tools/posix/make_locale_paks.sh',
+              ],
+              'outputs': [
+                '<(PRODUCT_DIR)/locales'
+              ],
+              'action': [
+                'tools/posix/make_locale_paks.sh',
+                '<(PRODUCT_DIR)',
+                '<@(locales)',
+              ],
+              'msvs_cygwin_shell': 0,
+            },
+          ],
         },
       ],
-    }],
+    }],  # OS!="mac"
+    # Using Visual Studio Express.
+    ['msvs_express==1', {
+      'target_defaults': {
+        'defines!': [
+          '_SECURE_ATL',
+        ],
+        'msvs_settings': {
+          'VCLibrarianTool': {
+            'AdditionalLibraryDirectories': [
+              '<(thrust_shell_source_root)/external_binaries/atl/lib',
+            ],
+          },
+          'VCLinkerTool': {
+            'AdditionalLibraryDirectories': [
+              '<(thrust_shell_source_root)/external_binaries/atl/lib',
+            ],
+            'AdditionalDependencies': [
+              'atls.lib',
+            ],
+          },
+        },
+        'msvs_system_include_dirs': [
+          '<(thrust_shell_source_root)/external_binaries/atl/include',
+        ],
+      },
+    }],  # msvs_express==1
   ],
 }
