@@ -122,6 +122,18 @@
     ['OS=="linux"', {
       'target_defaults': {
         'cflags': [ '-g' ],
+        'conditions': [
+          ['target_arch=="ia32"', {
+            'target_conditions': [
+              ['_toolset=="target"', {
+                'ldflags': [
+                  # Workaround for linker OOM.
+                  '-Wl,--no-keep-memory',
+                ],
+              }],
+            ],
+          }],
+        ],
       },
     }],
   ],

@@ -27,6 +27,7 @@ def main():
   update_submodules()
   bootstrap_brightray(args.url)
   create_chrome_version_h()
+  update_thrust_shell()
 
 
 def parse_args():
@@ -64,6 +65,10 @@ def create_chrome_version_h():
     content = template.replace('{PLACEHOLDER}', version.strip())
     if f.read() != content:
       f.write(content)
+
+def update_thrust_shell():
+  update = os.path.join(SOURCE_ROOT, 'scripts', 'update.py')
+  execute([sys.executable, update])
 
 
 if __name__ == '__main__':
