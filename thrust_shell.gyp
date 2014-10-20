@@ -391,18 +391,6 @@
       'target_name': '<(project_name)_js',
       'type': 'none',
       'actions': [
-        {
-          'inputs': [
-            'src/renderer/extensions/resources/web_view.js',
-          ],
-          'outputs': [
-            'src/renderer/extensions/resources/web_view.js.bin',
-          ],
-          'action_name': 'xxd web_view.js',
-          'action': ['xxd', '-i', 
-          'src/renderer/extensions/resources/web_view.js',
-          'src/renderer/extensions/resources/web_view.js.bin'],
-        },
       ],
     },  # target <(product_name)_js
     {

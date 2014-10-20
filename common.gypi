@@ -42,6 +42,7 @@
     'msvs_disabled_warnings': [
       4189,  # local variable is initialized but not referenced
       4819,  # The file contains a character that cannot be represented in the current code page
+      4201,  # nameless struct/union
       4996,  # (atlapp.h) 'GetVersionExW': was declared deprecated
     ],
     'msvs_settings': {
