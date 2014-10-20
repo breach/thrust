@@ -176,9 +176,12 @@
     'conditions': [
       ['OS=="win"', {
         'app_sources': [
+          'src/browser/resources/win/resource.h',
+          'src/browser/resources/win/thrust_shell.ico',
+          'src/browser/resources/win/thrust_shell.rc',
           '<(libchromiumcontent_src_dir)/content/app/startup_helper_win.cc',
         ],
-      }],
+      }],  # OS=="win"
     ],
   },
   'includes': [
@@ -205,6 +208,9 @@
       ],
       'sources': [
         '<@(app_sources)',
+      ],
+      'include_dirs': [
+        '.',
       ],
       'conditions': [
         ['OS=="mac"', {
