@@ -3,8 +3,6 @@
 /******************************************************************************/
 
 >>v0.x<<
-:windows
-  - Windows support
 :package
   - Proper package scripts
 
@@ -27,6 +25,7 @@
 DONE:
 >>v0.7.2<<
 - Fix Menu not working Ubuntu #193
+- Windows support
 
 >>v0.7.1<<
 - Drop Unix Domain Socket in favor of stdin/stout API
