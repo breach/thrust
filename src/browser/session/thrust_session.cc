@@ -90,7 +90,7 @@ ThrustSession::ThrustSession(
 #if defined(OS_WIN)
   std::wstring tmp(path.begin(), path.end());
   path_ = base::FilePath(tmp);
-#elif
+#else
   path_ = base::FilePath(path);
 #endif
 

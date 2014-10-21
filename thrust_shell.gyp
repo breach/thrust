@@ -192,6 +192,9 @@
           '<(libchromiumcontent_src_dir)/content/app/startup_helper_win.cc',
         ],
       }],  # OS=="win"
+      ['OS=="mac"', {
+        'apply_locales_cmd': ['python', 'tools/mac/apply_locales.py'],
+      }],  # OS=="mac"
     ],
   },
   'includes': [
@@ -392,6 +395,18 @@
       'target_name': '<(project_name)_js',
       'type': 'none',
       'actions': [
+        {
+          'inputs': [
+            'src/renderer/extensions/resources/web_view.js',
+          ],
+          'outputs': [
+            'src/renderer/extensions/resources/web_view.js.bin',
+          ],
+          'action_name': 'xxd web_view.js',
+          'action': ['xxd', '-i', 
+          'src/renderer/extensions/resources/web_view.js',
+          'src/renderer/extensions/resources/web_view.js.bin'],
+        },
       ],
     },  # target <(product_name)_js
     {
