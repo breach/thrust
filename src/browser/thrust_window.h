@@ -62,7 +62,7 @@ class MenuBar;
 //
 // This represents an ThrustShell window. The window opens on a `root_url` 
 // provided at creation. The window exposes only one webcontents with support 
-// for the <exoframe> tag.
+// for the <webview> tag.
 //
 // The ThrustWindow lives on the BrowserThread::UI thread
 class ThrustWindow : public brightray::DefaultWebContentsDelegate,
@@ -195,6 +195,11 @@ public:
   // Returns whether the window is closed or not
   bool is_closed() { return is_closed_; }
 
+  // ### HasFrame
+  //
+  // Returns wether the window has frame or not
+  bool HasFrame() { return has_frame_; }
+
   // ### WindowSize
   //
   // Retrieves the native Window size
@@ -210,7 +215,7 @@ public:
   // Returns the NativeWindow for this Shell
   gfx::NativeWindow GetNativeWindow() { return PlatformGetNativeWindow(); }
 
-  // ### web_contents
+  // ### GetWebContents
   //
   // Returns the underlying web_contents
   content::WebContents* GetWebContents() const;

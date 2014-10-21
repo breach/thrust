@@ -67,6 +67,7 @@
       'src/browser/dialog/download_manager_delegate.h',
       'src/browser/dialog/download_manager_delegate.cc',
       'src/browser/dialog/download_manager_delegate_gtk.cc',
+      'src/browser/dialog/download_manager_delegate_win.cc',
       'src/browser/dialog/download_manager_delegate_mac.mm',
       'src/browser/ui/accelerator_util.h',
       'src/browser/ui/accelerator_util.cc',
@@ -173,15 +174,31 @@
       'src/app/library_main.cc',
       'src/app/library_main.h',
     ],
+    'locales': [
+      'am', 'ar', 'bg', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en-GB',
+      'en-US', 'es-419', 'es', 'et', 'fa', 'fi', 'fil', 'fr', 'gu', 'he',
+      'hi', 'hr', 'hu', 'id', 'it', 'ja', 'kn', 'ko', 'lt', 'lv',
+      'ml', 'mr', 'ms', 'nb', 'nl', 'pl', 'pt-BR', 'pt-PT', 'ro', 'ru',
+      'sk', 'sl', 'sr', 'sv', 'sw', 'ta', 'te', 'th', 'tr', 'uk',
+      'vi', 'zh-CN', 'zh-TW',
+    ],
+    'thrust_shell_source_root': '<!(python tools/source_root.py)',
     'conditions': [
       ['OS=="win"', {
         'app_sources': [
+          'src/browser/resources/win/resource.h',
+          'src/browser/resources/win/thrust_shell.ico',
+          'src/browser/resources/win/thrust_shell.rc',
           '<(libchromiumcontent_src_dir)/content/app/startup_helper_win.cc',
         ],
-      }],
+      }],  # OS=="win"
+      ['OS=="mac"', {
+        'apply_locales_cmd': ['python', 'tools/mac/apply_locales.py'],
+      }],  # OS=="mac"
     ],
   },
   'includes': [
+    'common.gypi',
     'vendor/brightray/brightray.gypi',
   ],
   'target_defaults': {
@@ -205,6 +222,9 @@
       ],
       'sources': [
         '<@(app_sources)',
+      ],
+      'include_dirs': [
+        '.',
       ],
       'conditions': [
         ['OS=="mac"', {
@@ -253,8 +273,27 @@
                 '<(product_name)',
               ],
             },
+            {
+              # The application doesn't have real localizations, it just has
+              # empty .lproj directories, which is enough to convince Cocoa
+              # thrust supports those languages.
+              'postbuild_name': 'Make Empty Localizations',
+              'variables': {
+                'locale_dirs': [
+                  '>!@(<(apply_locales_cmd) -d ZZLOCALE.lproj <(locales))',
+                ],
+              },
+              'action': [
+                'tools/mac/make_locale_dirs.sh',
+                '<@(locale_dirs)',
+              ],
+            },
           ]
-        }],
+        }, {  # OS=="mac"
+          'dependencies': [
+            'make_locale_paks',
+          ],
+        }],  # OS!="mac"
         ['OS=="win"', {
           'copies': [
             {
@@ -291,13 +330,17 @@
           ],
         }],
       ],
-    },
+    },  # target <(project_name)
     {
       'target_name': '<(project_name)_lib',
       'type': 'static_library',
       'dependencies': [
         '<(project_name)_js',
         'vendor/brightray/brightray.gyp:brightray',
+      ],
+      'defines': [
+        # This is defined in skia/skia_common.gypi.
+        'SK_SUPPORT_LEGACY_GETTOPDEVICE',
       ],
       'sources': [
         '<@(lib_sources)',
@@ -316,6 +359,20 @@
         'vendor/brightray/brightray.gyp:brightray',
       ],
       'conditions': [
+        ['OS=="win"', {
+          'link_settings': {
+            'libraries': [
+              '-limm32.lib',
+              '-loleacc.lib',
+              '-lComdlg32.lib',
+              '-lWininet.lib',
+            ],
+          },
+        }],  # OS=="win"
+        ['OS=="mac"', {
+          'dependencies': [
+          ],
+        }],  # OS=="mac"
          ['OS=="linux"', {
            'link_settings': {
              'ldflags': [
@@ -327,9 +384,13 @@
                '-rdynamic',
              ],
            },
-        }],
+          'cflags': [
+            '-Wno-deprecated-register',
+            '-Wno-empty-body',
+          ],
+        }],  # OS=="linux"
       ],
-    },
+    },  # target <(product_name)_lib
     {
       'target_name': '<(project_name)_js',
       'type': 'none',
@@ -347,7 +408,36 @@
           'src/renderer/extensions/resources/web_view.js.bin'],
         },
       ],
-    },
+    },  # target <(product_name)_js
+    {
+      'target_name': '<(project_name)_strip',
+      'type': 'none',
+      'dependencies': [
+        '<(project_name)',
+      ],
+      'conditions': [
+        ['OS=="linux"', {
+          'actions': [
+            {
+              'action_name': 'Strip Binary',
+              'inputs': [
+                '<(PRODUCT_DIR)/libchromiumcontent.so',
+                '<(PRODUCT_DIR)/libffmpegsumo.so',
+                '<(PRODUCT_DIR)/<(project_name)',
+              ],
+              'outputs': [
+                # Gyp action requires a output file, add a fake one here.
+                '<(PRODUCT_DIR)/dummy_file',
+              ],
+              'action': [
+                'tools/posix/strip.sh',
+                '<@(_inputs)',
+              ],
+            },
+          ],
+        }],  # OS=="linux"
+      ],
+    },  # target <(project_name>_strip
   ],
   'conditions': [
     ['OS=="mac"', {
@@ -414,7 +504,7 @@
               ],
             },
           ],
-        },
+        },  # target framework
         {
           'target_name': '<(project_name)_helper',
           'product_name': '<(product_name) Helper',
@@ -435,8 +525,32 @@
               '@executable_path/../../..',
             ],
           },
+        },  # target helper
+      ],
+    }, {  # OS=="mac"
+      'targets': [
+        {
+          'target_name': 'make_locale_paks',
+          'type': 'none',
+          'actions': [
+            {
+              'action_name': 'Make Empty Paks',
+              'inputs': [
+                'tools/posix/make_locale_paks.sh',
+              ],
+              'outputs': [
+                '<(PRODUCT_DIR)/locales'
+              ],
+              'action': [
+                'tools/posix/make_locale_paks.sh',
+                '<(PRODUCT_DIR)',
+                '<@(locales)',
+              ],
+              'msvs_cygwin_shell': 0,
+            },
+          ],
         },
       ],
-    }],
+    }],  # OS!="mac"
   ],
 }

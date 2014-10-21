@@ -15,7 +15,6 @@
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "net/socket/socket_descriptor.h"
-#include "net/socket/unix_domain_socket_posix.h"
 #include "content/public/browser/browser_thread.h"
 
 using namespace content;

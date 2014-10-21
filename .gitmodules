@@ -1,3 +1,6 @@
 [submodule "vendor/brightray"]
 	path = vendor/brightray
 	url = https://github.com/brightray/brightray.git
+[submodule "vendor/depot_tools"]
+	path = vendor/depot_tools
+	url = https://chromium.googlesource.com/chromium/tools/depot_tools.git

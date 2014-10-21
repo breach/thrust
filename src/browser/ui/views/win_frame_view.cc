@@ -41,7 +41,7 @@ int
 WinFrameView::NonClientHitTest(
     const gfx::Point& point) 
 {
-  if (shell_->has_frame())
+  if (window_->HasFrame())
     return frame_->client_view()->NonClientHitTest(point);
   else
     return FramelessView::NonClientHitTest(point);
