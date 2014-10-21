@@ -39,12 +39,13 @@ Thrust will be used by next releases of Breach.
 To use thrust you need to rely on a binding library for your language of choice.
 Libraries are currently available for `Go` and `NodeJS`.
 
-Thrust is currently supported on Linux and MacOSX (Windows coming right away!).
+Thrust is supported on `Linux`, `MacOSX` and `Windows`.
 
 #### NodeJS
 
 Simply install `node-thrust` as any other package. At `postinstall` a binary
-image of `thrust` is downloaded from this repository's releases.
+image of `thrust` is downloaded for your platform (form this repository's 
+[releases downloads](https://github.com/breach/thrust/releases))
 
 ```
 require('node-thrust')(function(err, api) {
@@ -72,17 +73,16 @@ See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust
 
 ### Building Thrust
 
-First you'll need to make sure you have the Chromium `depot_tools` installed.
-Check out the instructions here: 
-[Install depot_tools](http://www.chromium.org/developers/how-tos/install-depot-tools)
-
-Then you can build with the following commands:
-
+You'll need to have `python` and `git` installed. You can then boostrap the
+project with:
 ```
 ./scripts/boostrap.py                                
+```
 
-GYP_GENERATORS=ninja gyp --depth . thrust_shell.gyp
-ninja -C out/Debug thrust_shell -j 1
+Build both the `Release` and `Debug` target with the following commands:
+```
+./scripts/update.py
+./scripts/build.py
 ```
 
 Note that `bootstrap.py` may take some time as it checks out `brightray` and
