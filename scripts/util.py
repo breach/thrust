@@ -142,7 +142,7 @@ def execute(argv):
     raise e
 
 
-def get_thrust_shell_version():
+def get_thrust_version():
   return subprocess.check_output(['git', 'describe', '--tags']).strip()
 
 

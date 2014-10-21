@@ -10,7 +10,7 @@ import tarfile
 
 from config import LIBCHROMIUMCONTENT_COMMIT, BASE_URL, TARGET_PLATFORM, \
                    DIST_ARCH
-from util import scoped_cwd, rm_rf, get_thrust_shell_version, make_zip, \
+from util import scoped_cwd, rm_rf, get_thrust_version, make_zip, \
                  safe_mkdir, execute
 
 
@@ -155,8 +155,9 @@ def create_version():
 
 
 def create_dist_zip():
-  dist_name = 'thrust_shell-{0}-{1}-{2}.zip'.format(THRUST_SHELL_VERSION,
-                                                    TARGET_PLATFORM, DIST_ARCH)
+  dist_name = 'thrust-{0}-{1}-{2}.zip'.format(THRUST_SHELL_VERSION,
+                                              TARGET_PLATFORM, 
+                                              DIST_ARCH)
   zip_file = os.path.join(SOURCE_ROOT, 'dist', dist_name)
 
   with scoped_cwd(DIST_DIR):
