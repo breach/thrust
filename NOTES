@@ -3,6 +3,11 @@
 /******************************************************************************/
 
 >>v0.x<<
+:windows
+  - Windows support
+:package
+  - Proper package scripts
+
 :webview
   - Webview support
 
