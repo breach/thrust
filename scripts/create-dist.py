@@ -33,17 +33,12 @@ TARGET_BINARIES = {
     'thrust_shell.exe',
     'chromiumcontent.dll',
     'content_shell.pak',
-    'd3dcompiler_43.dll',
     'ffmpegsumo.dll',
     'icudtl.dat',
     'libEGL.dll',
     'libGLESv2.dll',
-    'msvcp120.dll',
-    'msvcr120.dll',
     'ui_resources_200_percent.pak',
-    'vccorlib120.dll',
     'webkit_resources_200_percent.pak',
-    'xinput1_3.dll',
   ],
   'linux': [
     'thrust_shell',
@@ -58,7 +53,7 @@ TARGET_DIRECTORIES = {
     'ThrustShell.app',
   ],
   'win32': [
-    'resources',
+#    'resources',
     'locales',
   ],
   'linux': [
