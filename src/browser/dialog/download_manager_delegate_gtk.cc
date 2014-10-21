@@ -21,10 +21,12 @@ using namespace content;
 
 namespace thrust_shell {
 
-void ThrustShellDownloadManagerDelegate::ChooseDownloadPath(
+void 
+ThrustShellDownloadManagerDelegate::ChooseDownloadPath(
     uint32 download_id,
     const DownloadTargetCallback& callback,
-    const base::FilePath& suggested_path) {
+    const base::FilePath& suggested_path) 
+{
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   DownloadItem* item = download_manager_->GetDownload(download_id);
   if (!item || (item->GetState() != DownloadItem::IN_PROGRESS))
