@@ -27,3 +27,5 @@ npm-debug.log
 
 src/common/chrome_version.h
 dummy_session
+
+dist

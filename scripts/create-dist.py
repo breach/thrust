@@ -14,7 +14,7 @@ from util import scoped_cwd, rm_rf, get_thrust_version, make_zip, \
                  safe_mkdir, execute
 
 
-THRUST_SHELL_VERSION = get_thrust_shell_version()
+THRUST_SHELL_VERSION = get_thrust_version()
 
 SOURCE_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 DIST_DIR = os.path.join(SOURCE_ROOT, 'dist')
@@ -30,7 +30,7 @@ TARGET_BINARIES = {
   'darwin': [
   ],
   'win32': [
-    'atom.exe',
+    'thrust_shell.exe',
     'chromiumcontent.dll',
     'content_shell.pak',
     'd3dcompiler_43.dll',
@@ -46,7 +46,7 @@ TARGET_BINARIES = {
     'xinput1_3.dll',
   ],
   'linux': [
-    'atom',
+    'thrust_shell',
     'content_shell.pak',
     'icudtl.dat',
     'libchromiumcontent.so',
@@ -55,14 +55,14 @@ TARGET_BINARIES = {
 }
 TARGET_DIRECTORIES = {
   'darwin': [
-    'Atom.app',
+    'ThrustShell.app',
   ],
   'win32': [
     'resources',
     'locales',
   ],
   'linux': [
-    'resources',
+#    'resources',
     'locales',
   ],
 }
@@ -115,7 +115,7 @@ def parse_args():
 
 
 def force_build():
-  build = os.path.join(SOURCE_ROOT, 'script', 'build.py')
+  build = os.path.join(SOURCE_ROOT, 'scripts', 'build.py')
   execute([sys.executable, build, '-c', 'Release'])
 
 
@@ -135,7 +135,7 @@ def copy_license():
 
 
 def copy_system_libraries():
-  ldd = execute(['ldd', os.path.join(OUT_DIR, 'thrust')])
+  ldd = execute(['ldd', os.path.join(OUT_DIR, 'thrust_shell')])
   lib_re = re.compile('\t(.*) => (.+) \(.*\)$')
   for line in ldd.splitlines():
     m = lib_re.match(line)
