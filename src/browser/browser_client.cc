@@ -28,6 +28,7 @@
 #include "src/common/switches.h"
 #include "src/browser/session/thrust_session.h"
 #include "src/geolocation/access_token_store.h"
+#include "src/common/chrome_version.h"
 
 
 using namespace content;
@@ -36,7 +37,72 @@ namespace thrust_shell {
 
 // static
 ThrustShellBrowserClient* ThrustShellBrowserClient::self_ = NULL;
+std::string               ThrustShellBrowserClient::app_name_override_ = "";
+std::string               ThrustShellBrowserClient::app_version_override_ = "";
 
+
+// static
+ThrustShellBrowserClient* 
+ThrustShellBrowserClient::Get() 
+{
+  DCHECK(self_);
+  return self_;
+}
+
+// static
+void
+ThrustShellBrowserClient::OverrideAppName(
+    const std::string& name)
+{
+  app_name_override_ = name;
+}
+
+// static
+void
+ThrustShellBrowserClient::OverrideAppVersion(
+    const std::string& version)
+{
+  app_version_override_ = version;
+}
+
+// static
+std::string
+ThrustShellBrowserClient::GetAppName()
+{
+  if(app_name_override_.empty()) {
+#if defined(OS_MACOSX)
+    NSDictionary* infoDictionary = base::mac::OuterBundle().infoDictionary;
+    std::string name =  base::SysNSStringToUTF8(
+        [infoDictionary objectForKey:@"CFBundleName"]);
+#else
+    std::string name = "Thrust";
+#endif
+    if(!name.empty()) {
+      return name;
+    }
+  }
+  return app_name_override_;
+}
+
+// static
+std::string
+ThrustShellBrowserClient::GetAppVersion()
+{
+  if(app_version_override_.empty()) {
+#if defined(OS_MACOSX)
+    NSDictionary* infoDictionary = base::mac::OuterBundle().infoDictionary;
+    std::string version =  base::SysNSStringToUTF8(
+        [infoDictionary objectForKey:@"CFBundleVersion"]);
+#else
+  std::string version = CHROME_VERSION_STRING;
+#endif
+    if(!version.empty()) {
+      return version;
+    }
+  }
+  return app_version_override_;
+}
+    
 
 ThrustShellBrowserClient::ThrustShellBrowserClient()
 {
@@ -47,13 +113,6 @@ ThrustShellBrowserClient::~ThrustShellBrowserClient()
 {
 }
 
-// static
-ThrustShellBrowserClient* 
-ThrustShellBrowserClient::Get() 
-{
-  DCHECK(self_);
-  return self_;
-}
 
 std::string 
 ThrustShellBrowserClient::GetApplicationLocale() {

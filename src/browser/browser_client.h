@@ -28,7 +28,34 @@ class ThrustShellBrowserClient : public brightray::BrowserClient {
   ThrustShellBrowserClient();
   virtual ~ThrustShellBrowserClient();
 
+  /****************************************************************************/
+  /* STATIC API */
+  /****************************************************************************/
+  // ### Get
+  //
+  // Returns the ThrustShellBrowserClient singleton
   static ThrustShellBrowserClient* Get();
+
+  // ### OverrideAppName
+  //
+  // Override application name.
+  static void OverrideAppName(const std::string& name);
+
+  // ### OverrideAppVersion
+  //
+  // Override application version.
+  static void OverrideAppVersion(const std::string& name);
+
+  // ### GetAppName
+  //
+  // Retrieves the Executable File Product Name or the overridden App Name
+  static std::string GetAppName();
+
+  // ### GetAppVersion
+  //
+  // Retrieves the Executable File Version
+  static std::string GetAppVersion();
+
 
   /****************************************************************************/
   /* CONTENTBROWSERCLIENT IMPLEMENTATION */
@@ -108,8 +135,11 @@ class ThrustShellBrowserClient : public brightray::BrowserClient {
   scoped_ptr<ThrustShellResourceDispatcherHostDelegate>
                             resource_dispatcher_host_delegate_;
 
-  static ThrustShellBrowserClient*    self_;
   std::vector<ThrustSession*>           sessions_;
+
+  static ThrustShellBrowserClient*      self_;
+  static std::string                    app_name_override_;
+  static std::string                    app_version_override_;
 };
 
 } // namespace thrust_shell

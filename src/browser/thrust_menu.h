@@ -23,6 +23,7 @@ public:
   /****************************************************************************/
   // ### ThrustMenu
   ThrustMenu(ThrustMenuBinding* binding);
+
   // ### ~ThrustMenu
   virtual ~ThrustMenu();
 

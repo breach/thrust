@@ -190,25 +190,35 @@ public:
   // Sets the menu for this shell
   void SetMenu(ui::MenuModel* menu) { return PlatformSetMenu(menu); }
 
-  // ### is_closed
+  // ### IsClosed
   //
   // Returns whether the window is closed or not
-  bool is_closed() { return is_closed_; }
+  bool IsClosed() { return is_closed_; }
 
   // ### HasFrame
   //
   // Returns wether the window has frame or not
   bool HasFrame() { return has_frame_; }
 
-  // ### WindowSize
+  // ### GetSize
   //
   // Retrieves the native Window size
-  gfx::Size size() { return PlatformSize(); }
+  gfx::Size GetSize() { return PlatformSize(); }
 
-  // ### WindowPosition
+  // ### GetPosition
   //
   // Retrieves the native Window position
-  gfx::Point position() { return PlatformPosition(); }
+  gfx::Point GetPosition() { return PlatformPosition(); }
+
+  // ### IsMaximized
+  //
+  // Retrieves whether the window is maximized
+  bool IsMaximized() { return PlatformIsMaximized(); }
+
+  // ### IsMinimized
+  //
+  // Retrieves whether the window is minimized
+  bool IsMinimized() { return PlatformIsMinimized(); }
 
   // ### GetNativeWindow
   //
@@ -220,7 +230,15 @@ public:
   // Returns the underlying web_contents
   content::WebContents* GetWebContents() const;
 
-  SkRegion* draggable_region() const { 
+  // ### GetBinding
+  //
+  // Returns the binding for that window
+  ThrustWindowBinding* GetBinding() const { return binding_; }
+
+  // ### GetDraggableRegion
+  //
+  // Returns the draggable region
+  SkRegion* GetDraggableRegion() const { 
     return draggable_region_.get(); 
   }
 
@@ -266,6 +284,10 @@ public:
                        const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
 protected:
+  // ### CloseImmediately
+  //
+  // Closes the window immediately (WebContents already gone)
+  void CloseImmediately();
 
   // ### inspectable_web_contents
   //
@@ -287,12 +309,12 @@ private:
       const std::string& icon_path,
       const bool has_frame);
 
-#if defined(USE_AURA)
+  void DestroyWebContents();
 
+#if defined(USE_AURA)
   /****************************************************************************/
   /* VIEWS::WIDGETOBSERVER IMPLEMENTATION */
   /****************************************************************************/
-  // views::WidgetObserver:
   virtual void OnWidgetActivationChanged(
       views::Widget* widget, bool active) OVERRIDE;
 
@@ -318,6 +340,12 @@ private:
       views::Widget* widget) OVERRIDE;
 
 #elif defined(OS_MACOSX)
+  /****************************************************************************/
+  /* OSX SPECIFIC HELPER METHODS */
+  /****************************************************************************/
+  void InstallView();
+  void UninstallView();
+  void ClipWebView();
 #endif
 
   /****************************************************************************/
@@ -385,16 +413,12 @@ private:
   // Let each platform close the window.
   void PlatformClose();
 
-
-  // ### PlatformSize
+  // ### PlatformCloseImmediately
   //
-  // Retrieves the size of the window.
-  gfx::Size PlatformSize();
+  // Let each platform close the window.
+  void PlatformCloseImmediately();
 
-  // ### PlatformPosition
-  //
-  // Retrieves the position of the window.
-  gfx::Point PlatformPosition();
+
   //
   // ### PlatformMove
   //
@@ -406,15 +430,35 @@ private:
   // Resize the window.
   void PlatformResize(int width, int height);
 
+  // ### PlatformSetContentSize
+  //
+  // Sets the size of the shell content
+  void PlatformSetContentSize(int width, int height);
+
   // ### PlatformContentSize
   //
   // Retrieves the size of the ThrustWindow content
   gfx::Size PlatformContentSize();
 
-  // ### PlatformSetContentSize
+  // ### PlatformSize
   //
-  // Sets the size of the shell content
-  void PlatformSetContentSize(int width, int height);
+  // Retrieves the size of the window.
+  gfx::Size PlatformSize();
+
+  // ### PlatformPosition
+  //
+  // Retrieves the position of the window.
+  gfx::Point PlatformPosition();
+
+  // ### PlatformIsMaximized
+  //
+  // Retrieves whether the window is maximized
+  bool PlatformIsMaximized();
+
+  // ### IsMinimized
+  //
+  // Retrieves whether the window is minimized
+  bool PlatformIsMinimized();
 
 
   // ### PlatformSetMenu

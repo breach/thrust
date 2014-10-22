@@ -20,6 +20,9 @@
 
 
 DONE:
+>>v0.7.3<<
+- Window events and accessors #190
+
 >>v0.7.2<<
 - Fix Menu not working Ubuntu #193
 - Windows support
