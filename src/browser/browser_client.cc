@@ -30,7 +30,6 @@
 #include "src/geolocation/access_token_store.h"
 #include "src/common/chrome_version.h"
 
-
 using namespace content;
 
 namespace thrust_shell {
@@ -70,13 +69,13 @@ std::string
 ThrustShellBrowserClient::GetAppName()
 {
   if(app_name_override_.empty()) {
-#if defined(OS_MACOSX)
-    NSDictionary* infoDictionary = base::mac::OuterBundle().infoDictionary;
-    std::string name =  base::SysNSStringToUTF8(
-        [infoDictionary objectForKey:@"CFBundleName"]);
-#else
+//#if defined(OS_MACOSX)
+//    NSDictionary* infoDictionary = base::mac::OuterBundle().infoDictionary;
+//    std::string name =  base::SysNSStringToUTF8(
+//        [infoDictionary objectForKey:@"CFBundleName"]);
+//#else
     std::string name = "Thrust";
-#endif
+//#endif
     if(!name.empty()) {
       return name;
     }
@@ -89,13 +88,13 @@ std::string
 ThrustShellBrowserClient::GetAppVersion()
 {
   if(app_version_override_.empty()) {
-#if defined(OS_MACOSX)
-    NSDictionary* infoDictionary = base::mac::OuterBundle().infoDictionary;
-    std::string version =  base::SysNSStringToUTF8(
-        [infoDictionary objectForKey:@"CFBundleVersion"]);
-#else
+//#if defined(OS_MACOSX)
+//    NSDictionary* infoDictionary = base::mac::OuterBundle().infoDictionary;
+//    std::string version =  base::SysNSStringToUTF8(
+//        [infoDictionary objectForKey:@"CFBundleVersion"]);
+//#else
   std::string version = CHROME_VERSION_STRING;
-#endif
+//#endif
     if(!version.empty()) {
       return version;
     }
