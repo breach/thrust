@@ -18,6 +18,7 @@ ThrustMenu::ThrustMenu(ThrustMenuBinding* binding)
 }
 
 ThrustMenu::~ThrustMenu() {
+  PlatformCleanup();
 }
 
 bool 

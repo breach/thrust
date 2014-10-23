@@ -135,7 +135,7 @@ ThrustWindowBinding::CallLocalMethod(
   }
   /* Accessors */
   else if(method.compare("is_closed") == 0) {
-    res->SetBoolean("is_closed", window_->IsClosed());
+    res->SetBoolean("closed", window_->IsClosed());
   }
   else if(method.compare("size") == 0) {
     res->SetInteger("size.width", window_->GetSize().width());

@@ -12,6 +12,7 @@
 namespace thrust_shell {
 
 static base::scoped_nsobject<ThrustShellMenuController> menu_controller_;
+static ThrustMenu*                                      application_menu_ = NULL;
 
 void 
 ThrustMenu::PlatformPopup(ThrustWindow* window) {
@@ -41,6 +42,15 @@ ThrustMenu::PlatformPopup(ThrustWindow* window) {
                    forView:web_contents->GetContentNativeView()];
 }
 
+void
+ThrustMenu::PlatformCleanup()
+{
+  if(application_menu_ == this) {
+    [NSApp setMainMenu: nil];
+    application_menu_ = NULL;
+  }
+}
+
 // static
 void 
 ThrustMenu::SetApplicationMenu(ThrustMenu* menu) {
@@ -48,8 +58,11 @@ ThrustMenu::SetApplicationMenu(ThrustMenu* menu) {
       [[ThrustShellMenuController alloc] initWithModel:menu->model_.get()]);
   [NSApp setMainMenu:[menu_controller menu]];
 
-  // Ensure the menu_controller_ is destroyed after main menu is set.
+  /* Ensure the menu_controller_ is destroyed after main menu is set. */
   menu_controller.swap(menu_controller_);
+  /* We store the menu in a static pointer to make sure to clean after */
+  /* ourselves when the menu get destroyed (see PlatformCleanup)       */
+  application_menu_ = menu;
 }
 
 // static

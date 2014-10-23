@@ -90,6 +90,7 @@ public:
   /* PLATFORM INTERFACE */
   /****************************************************************************/
   void PlatformPopup(ThrustWindow* window);
+  void PlatformCleanup();
 
   ThrustMenuBinding*                        binding_;
 

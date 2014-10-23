@@ -27,4 +27,10 @@ ThrustMenu::PlatformPopup(
       views::MenuRunner::HAS_MNEMONICS | views::MenuRunner::CONTEXT_MENU));
 }
 
+void
+ThrustMenu::PlatformCleanup()
+{
+}
+
+
 } // namespace thrust_shell
