@@ -6,11 +6,11 @@
 #include <algorithm>
 
 #include "base/logging.h"
-#import "base/mac/scoped_nsobject.h"
+#import  "base/mac/scoped_nsobject.h"
 #include "base/strings/string_piece.h"
 #include "base/strings/sys_string_conversions.h"
 #include "url/gurl.h"
-#import "ui/base/cocoa/underlay_opengl_hosting_window.h"
+#import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
@@ -18,6 +18,7 @@
 #include "vendor/brightray/browser/inspectable_web_contents_view.h"
 
 #include "src/api/thrust_window_binding.h"
+#import  "src/browser/ui/cocoa/event_processing_window.h"
 
 using namespace content;
 
@@ -35,7 +36,7 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
   thrust_shell::ThrustWindow* window_;
   BOOL acceptsFirstMouse_;
 }
-- (id)initWithShell:(thrust_shell::ThrustWindow*)window;
+- (id)initWithWindow:(thrust_shell::ThrustWindow*)window;
 - (void)setAcceptsFirstMouse:(BOOL)accept;
 @end
 
@@ -54,36 +55,41 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
 }
 
 - (void)windowDidBecomeMain:(NSNotification*)notification {
-  content::WebContents* web_contents = shell_->GetWebContents();
-  if (!web_contents)
+  content::WebContents* web_contents = window_->GetWebContents();
+  if(!web_contents) {
     return;
+  }
 
   web_contents->RestoreFocus();
 
   content::RenderWidgetHostView* rwhv = web_contents->GetRenderWidgetHostView();
-  if (rwhv)
+  if(rwhv) {
     rwhv->SetActive(true);
+  }
 
   window_->GetBinding()->EmitFocus();
 }
 
 - (void)windowDidResignMain:(NSNotification*)notification {
-  content::WebContents* web_contents = shell_->GetWebContents();
-  if (!web_contents)
+  content::WebContents* web_contents = window_->GetWebContents();
+  if(!web_contents) {
     return;
+  }
 
   web_contents->StoreFocus();
 
   content::RenderWidgetHostView* rwhv = web_contents->GetRenderWidgetHostView();
-  if (rwhv)
+  if(rwhv) {
     rwhv->SetActive(false);
+  }
 
   window_->GetBinding()->EmitBlur();
 }
 
 - (void)windowDidResize:(NSNotification*)notification {
-  if (!window_->HasFrame())
+  if(!window_->HasFrame()) {
     window_->ClipWebView();
+  }
 }
 
 - (void)windowDidExitFullScreen:(NSNotification*)notification {
@@ -121,13 +127,13 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
   thrust_shell::ThrustWindow* window_;
   bool                        enable_larger_than_screen_;
 }
-- (void)setWIndow:(thrust_shell::ThrustWindow*)window;
+- (void)setWindow:(thrust_shell::ThrustWindow*)window;
 - (void)setEnableLargerThanScreen:(bool)enable;
 @end
 
 @implementation ThrustNSWindow
 
-- (void)setShell:(thrust_shell::ThrustWindow*)window {
+- (void)setWindow:(thrust_shell::ThrustWindow*)window {
   window_ = window;
 }
 
@@ -175,19 +181,23 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
   return NO;
 }
 
-- (NSView*)hitTest:(NSPoint)aPoint {
-  if (!window_->IsWithinDraggableRegion(aPoint)) {
+- (NSView*)hitTest:(NSPoint)point {
+  SkRegion* draggable_region = window_->GetDraggableRegion();
+  NSView* webView = window_->GetWebContents()->GetNativeView();
+  NSInteger webViewHeight = NSHeight([webView bounds]);
+  if(draggable_region && 
+     draggable_region->contains(point.x, webViewHeight - point.y)) {
     return nil;
   }
   return self;
 }
 
 - (void)mouseDown:(NSEvent*)event {
-  window_->HandleMouseEvent(event);
+  /* TODO(spolu) */
 }
 
 - (void)mouseDragged:(NSEvent*)event {
-  window_->HandleMouseEvent(event);
+  /* TODO(spolu) */
 }
 
 @end
@@ -222,7 +232,7 @@ ThrustWindow::PlatformCreateWindow(
       width,
       height);
 
-  ThrustNSWindow* window = [[AtomNSWindow alloc]
+  ThrustNSWindow* window = [[ThrustNSWindow alloc]
       initWithContentRect:cocoa_bounds
                 styleMask:NSTitledWindowMask | NSClosableWindowMask |
                           NSMiniaturizableWindowMask | NSResizableWindowMask |
@@ -238,8 +248,8 @@ ThrustWindow::PlatformCreateWindow(
 
   /* Create a window delegate to watch for when it's asked to go away. It */
   /* will clean itself up so we don't need to hold a reference.           */
-  ThrustWindowDelegate* delegate =
-      [[ThrustWindowDelegate alloc] initWithWindow:this];
+  ThrustNSWindowDelegate* delegate =
+      [[ThrustNSWindowDelegate alloc] initWithWindow:this];
   [window_ setDelegate:delegate];
 
   [window_ setTitle:kWindowTitle];
@@ -249,7 +259,7 @@ ThrustWindow::PlatformCreateWindow(
   /* TODO(spolu): Option to add */
   //options.Get(switches::kUseContentSize, &use_content_size);
   if(has_frame_ && !use_content_size) {
-    Resize(gfx::Size(width, height));
+    Resize(width, height);
   }
 
   // Enable the NSView to accept first mouse event.
@@ -466,6 +476,5 @@ ThrustWindow::PlatformSetMenu(
 {
   /* No action on MacOSX should use ThrustMenu::SetApplicationMenu. */
 }
-
 
 } // namespace thrust_shell

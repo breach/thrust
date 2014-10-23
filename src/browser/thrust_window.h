@@ -283,6 +283,14 @@ public:
   virtual void Observe(int type,
                        const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
+
+#if defined(OS_MACOSX)
+  /****************************************************************************/
+  /* OSX SPECIFIC INTERFACE */
+  /****************************************************************************/
+  void ClipWebView();
+#endif
+
 protected:
   // ### CloseImmediately
   //
@@ -345,7 +353,6 @@ private:
   /****************************************************************************/
   void InstallView();
   void UninstallView();
-  void ClipWebView();
 #endif
 
   /****************************************************************************/
