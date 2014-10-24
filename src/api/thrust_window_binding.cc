@@ -116,6 +116,16 @@ ThrustWindowBinding::CallLocalMethod(
     args->GetString("title", &title);
     window_->SetTitle(title);
   }
+  else if(method.compare("set_fullscreen") == 0) {
+    bool fullscreen;
+    args->GetBoolean("fullscreen", &fullscreen);
+    window_->SetFullscreen(fullscreen);
+  }
+  else if(method.compare("set_kiosk") == 0) {
+    bool kiosk;
+    args->GetBoolean("kiosk", &kiosk);
+    window_->SetKiosk(kiosk);
+  }
   else if(method.compare("move") == 0) {
     int x, y;
     args->GetInteger("x", &x);
@@ -150,6 +160,12 @@ ThrustWindowBinding::CallLocalMethod(
   }
   else if(method.compare("is_minimized") == 0) {
     res->SetBoolean("minimized", window_->IsMinimized());
+  }
+  else if(method.compare("is_fullscreen") == 0) {
+    res->SetBoolean("fullscreen", window_->IsFullscreen());
+  }
+  else if(method.compare("is_kiosk") == 0) {
+    res->SetBoolean("kiosk", window_->IsKiosk());
   }
   /* Default */
   else {

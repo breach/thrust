@@ -222,6 +222,32 @@ ThrustWindow::PlatformSetTitle(
   window_->UpdateWindowTitle();
 }
 
+void 
+ThrustWindow::PlatformSetFullscreen(
+    bool fullscreen) 
+{
+  window_->SetFullscreen(fullscreen);
+}
+
+bool 
+ThrustWindow::PlatformIsFullscreen() 
+{
+  return window_->IsFullscreen();
+}
+
+void 
+ThrustWindow::PlatformSetKiosk(
+    bool kiosk) 
+{
+  PlatformSetFullscreen(kiosk);
+}
+
+bool
+ThrustWindow::PlatformIsKiosk()
+{
+  return PlatformIsFullscreen();
+}
+
 void
 ThrustWindow::PlatformFocus(bool focus)
 {

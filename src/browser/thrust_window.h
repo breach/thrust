@@ -170,6 +170,26 @@ public:
   // Sets the window title
   void SetTitle(const std::string& title);
 
+  // ### SetFullscreen
+  //
+  // Sets the window in kiosk mode
+  void SetFullscreen(bool fullscreen) { PlatformSetFullscreen(fullscreen); }
+
+  // ### IsFullscreen
+  //
+  // Returns whether the window is in kiosk mode
+  bool IsFullscreen() { return PlatformIsFullscreen(); }
+
+  // ### SetKiosk
+  //
+  // Sets the window in kiosk mode
+  void SetKiosk(bool kiosk) { PlatformSetKiosk(kiosk); }
+
+  // ### IsKiosk
+  //
+  // Returns whether the window is in kiosk mode
+  bool IsKiosk() { return PlatformIsKiosk(); }
+
   // ### Close
   //
   // Closes the window and reclaim underlying WebContents
@@ -414,6 +434,26 @@ private:
   //
   // Set the title of window.
   void PlatformSetTitle(const std::string& title);
+
+  // ### PlatformSetFullscreen
+  //
+  // Sets the window in kiosk mode
+  void PlatformSetFullscreen(bool fullscreen);
+
+  // ### IsFullscreen
+  //
+  // Returns whether the window is in kiosk mode
+  bool PlatformIsFullscreen();
+
+  // ### PlatformSetKiosk
+  //
+  // Sets the window in kiosk mode
+  void PlatformSetKiosk(bool kiosk);
+
+  // ### IsKiosk
+  //
+  // Returns whether the window is in kiosk mode
+  bool PlatformIsKiosk();
 
   // ### PlatformClose
   //

@@ -23,6 +23,7 @@ DONE:
 >>v0.7.3<<
 - Window events and accessors #190
 - Application menu cleanup OSX #180
+- Kiosk support #197
 
 >>v0.7.2<<
 - Fix Menu not working Ubuntu #193
