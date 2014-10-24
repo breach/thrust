@@ -56,7 +56,7 @@ class ThrustShellJavaScriptDialogManager;
 class ThrustWindowBinding;
 
 class GlobalMenuBarX11;
-class MenuBar;
+class NSApplicationPresentationOptions;
 
 // ### ThrustWindow
 //
@@ -537,6 +537,7 @@ private:
 #elif defined(OS_MACOSX)
   gfx::NativeWindow                                window_;
   bool                                             is_kiosk_;
+  NSApplicationPresentationOptions                 kiosk_options_;
 #endif
   bool                                             is_closed_;
   gfx::ImageSkia                                   icon_;
