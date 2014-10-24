@@ -503,7 +503,7 @@ private:
   gfx::NativeWindow                                window_;
 #endif
   bool                                             is_closed_;
-  gfx::Image                                       icon_;
+  gfx::ImageSkia                                   icon_;
   std::string                                      title_;
   bool                                             has_frame_;
   scoped_ptr<SkRegion>                             draggable_region_;

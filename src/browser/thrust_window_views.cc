@@ -451,7 +451,7 @@ ThrustWindow::ShouldHandleSystemCommands() const
 gfx::ImageSkia 
 ThrustWindow::GetWindowAppIcon() 
 {
-  return *(icon_.ToImageSkia());
+  return icon_;
 }
 
 gfx::ImageSkia 

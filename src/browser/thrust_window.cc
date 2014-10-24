@@ -13,6 +13,7 @@
 #include "base/threading/thread_restrictions.h"
 #include "base/file_util.h"
 #include "ui/gfx/codec/png_codec.h"
+#include "ui/gfx/codec/jpeg_codec.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -80,14 +81,16 @@ ThrustWindow::ThrustWindow(
     // Decode the bitmap using WebKit's image decoder.
     const unsigned char* data =
       reinterpret_cast<const unsigned char*>(file_contents.data());
+    size_t size = file_contents.size();
     scoped_ptr<SkBitmap> decoded(new SkBitmap());
-    gfx::PNGCodec::Decode(data, file_contents.length(), decoded.get());
-    if(!decoded->empty()) {
-      icon_ = gfx::Image::CreateFrom1xBitmap(*decoded.release());
+
+    if(!gfx::PNGCodec::Decode(data, size, decoded.get())) {
+      decoded.reset(gfx::JPEGCodec::Decode(data, size));                             
     }
-    else {
-      icon_ = gfx::Image();
-    }
+    if(decoded) {                                                                   
+      icon_.AddRepresentation(gfx::ImageSkiaRep(
+            *decoded.release(), 1.0f));     
+    }                                  
   }
   base::ThreadRestrictions::SetIOAllowed(false);
 
