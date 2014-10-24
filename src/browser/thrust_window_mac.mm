@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "base/logging.h"
+#include "base/mac/mac_util.h"
 #import  "base/mac/scoped_nsobject.h"
 #include "base/strings/string_piece.h"
 #include "base/strings/sys_string_conversions.h"
@@ -221,6 +222,8 @@ void
 ThrustWindow::PlatformCreateWindow(
   const gfx::Size& size)
 {
+  is_kiosk_ = false;
+
   LOG(INFO) << "Create Window: " << size.width() << "x" << size.height();
   int width = size.width();
   int height = size.height();
@@ -348,6 +351,57 @@ ThrustWindow::PlatformSetTitle(
   [window_ setTitle:title_string];
 }
 
+void 
+ThrustWindow::PlatformSetFullscreen(
+    bool fullscreen) 
+{
+  if(fullscreen == PlatformIsFullscreen()) {
+    return;
+  }
+  if(!base::mac::IsOSLionOrLater()) {
+    LOG(ERROR) << "Fullscreen mode is only supported above Lion";
+    return;
+  }
+
+  [window_ toggleFullScreen:nil];
+}
+
+bool 
+ThrustWindow::PlatformIsFullscreen() 
+{
+  return [window_ styleMask] & NSFullScreenWindowMask;
+}
+
+void 
+ThrustWindow::PlatformSetKiosk(
+    bool kiosk) 
+{
+  if(kiosk && !is_kiosk_) {
+    kiosk_options_ = [NSApp currentSystemPresentationOptions];
+    NSApplicationPresentationOptions options =
+        NSApplicationPresentationHideDock +
+        NSApplicationPresentationHideMenuBar +
+        NSApplicationPresentationDisableAppleMenu +
+        NSApplicationPresentationDisableProcessSwitching +
+        NSApplicationPresentationDisableForceQuit +
+        NSApplicationPresentationDisableSessionTermination +
+        NSApplicationPresentationDisableHideApplication;
+    [NSApp setPresentationOptions:options];
+    is_kiosk_ = true;
+    PlatformSetFullscreen(true);
+  } 
+  else if(!kiosk && is_kiosk_) {
+    is_kiosk_ = false;
+    SetFullscreen(false);
+    [NSApp setPresentationOptions:kiosk_options_];
+  }
+}
+
+bool
+ThrustWindow::PlatformIsKiosk()
+{
+  return is_kiosk_;
+}
 
 
 void

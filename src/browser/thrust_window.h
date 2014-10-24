@@ -536,6 +536,7 @@ private:
 #endif
 #elif defined(OS_MACOSX)
   gfx::NativeWindow                                window_;
+  bool                                             is_kiosk_;
 #endif
   bool                                             is_closed_;
   gfx::ImageSkia                                   icon_;
