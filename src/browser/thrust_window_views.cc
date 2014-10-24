@@ -66,53 +66,11 @@ namespace thrust_shell {
 
 namespace {
 
-// The menu bar height in pixels.
-#if defined(OS_WIN)
-const int kMenuBarHeight = 20;
-#else
-const int kMenuBarHeight = 25;
-#endif
 
 #if defined(USE_X11)
 // Counts how many window has already been created, it will be used to set the
 // window role for X11.
 static int kWindowsCreated = 0;
-
-// Returns true if the bus name "com.canonical.AppMenu.Registrar" is available.
-bool ShouldUseGlobalMenuBar() {
-  /*
-  dbus::Bus::Options options;
-  scoped_refptr<dbus::Bus> bus(new dbus::Bus(options));
-
-  dbus::ObjectProxy* object_proxy =
-      bus->GetObjectProxy(DBUS_SERVICE_DBUS, dbus::ObjectPath(DBUS_PATH_DBUS));
-  dbus::MethodCall method_call(DBUS_INTERFACE_DBUS, "ListNames");
-  scoped_ptr<dbus::Response> response(object_proxy->CallMethodAndBlock(
-      &method_call, dbus::ObjectProxy::TIMEOUT_USE_DEFAULT));
-  if (!response) {
-    bus->ShutdownAndBlock();
-    return false;
-  }
-
-  dbus::MessageReader reader(response.get());
-  dbus::MessageReader array_reader(NULL);
-  if (!reader.PopArray(&array_reader)) {
-    bus->ShutdownAndBlock();
-    return false;
-  }
-  while (array_reader.HasMoreData()) {
-    std::string name;
-    if (array_reader.PopString(&name) &&
-        name == "com.canonical.AppMenu.Registrar") {
-      bus->ShutdownAndBlock();
-      return true;
-    }
-  }
-
-  bus->ShutdownAndBlock();
-  */
-  return false;
-}
 #endif
 
 bool IsAltKey(const content::NativeWebKeyboardEvent& event) {
@@ -222,7 +180,7 @@ ThrustWindow::PlatformCreateWindow(
 #endif
 
   // Add web view.
-  SetLayoutManager(new MenuLayout(kMenuBarHeight));
+  SetLayoutManager(new views::FillLayout());
   set_background(views::Background::CreateStandardPanelBackground());
   AddChildView(inspectable_web_contents()->GetView()->GetView());
 
@@ -318,8 +276,6 @@ ThrustWindow::PlatformContentSize()
 
   gfx::Size content_size =
       window_->non_client_view()->frame_view()->GetBoundsForClientView().size();
-  if (menu_bar_ && menu_bar_visible_)
-    content_size.set_height(content_size.height() - kMenuBarHeight);
   return content_size;
 }
 
@@ -341,8 +297,6 @@ ThrustWindow::ContentBoundsToWindowBounds(
 {
   gfx::Rect window_bounds =
       window_->non_client_view()->GetWindowBoundsForClientBounds(bounds);
-  if(menu_bar_ && menu_bar_visible_)
-    window_bounds.set_height(window_bounds.height() + kMenuBarHeight);
   return window_bounds;
 }
 
@@ -501,7 +455,7 @@ ThrustWindow::PlatformSetMenu(
   */
 
 #if defined(USE_X11)
-  if(!global_menu_bar_ && ShouldUseGlobalMenuBar()) {
+  if(!global_menu_bar_) {
     global_menu_bar_.reset(new GlobalMenuBarX11(this));
   }
 
@@ -512,24 +466,9 @@ ThrustWindow::PlatformSetMenu(
   }
 #endif
 
-  // Do not show menu bar in frameless window.
-  if(!has_frame_)
-    return;
-
-  if(!menu_bar_) {
-    gfx::Size content_size = PlatformContentSize();
-    menu_bar_.reset(new MenuBar);
-    menu_bar_->set_owned_by_client();
-
-    if (!menu_bar_autohide_) {
-      SetMenuBarVisibility(true);
-      PlatformSetContentSize(content_size.width(), 
-                             content_size.height());
-    }
-  }
-
-  menu_bar_->SetMenu(menu_model);
-  Layout();
+  /* We do not show menu relative to the window, they should be implemented */
+  /* in the window main document.                                           */
+  return;
 }
 
 bool 
@@ -581,27 +520,5 @@ ThrustWindow::CreateNonClientFrameView(
   return NULL;
 #endif
 }
-
-void 
-ThrustWindow::SetMenuBarVisibility(
-    bool visible) 
-{
-  if (!menu_bar_)
-    return;
-
-  // Always show the accelerator when the auto-hide menu bar shows.
-  if(menu_bar_autohide_)
-    menu_bar_->SetAcceleratorVisibility(visible);
-
-  menu_bar_visible_ = visible;
-  if (visible) {
-    DCHECK_EQ(child_count(), 1);
-    AddChildView(menu_bar_.get());
-  } else {
-    DCHECK_EQ(child_count(), 2);
-    RemoveChildView(menu_bar_.get());
-  }
-}
-
 
 } // namespace thrust_shell
