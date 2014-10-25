@@ -124,6 +124,7 @@ ThrustWindowBinding::CallLocalMethod(
   else if(method.compare("set_kiosk") == 0) {
     bool kiosk;
     args->GetBoolean("kiosk", &kiosk);
+    LOG(INFO) << "*************************************** KIOSK " << kiosk;
     window_->SetKiosk(kiosk);
   }
   else if(method.compare("move") == 0) {

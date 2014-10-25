@@ -34,14 +34,18 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
 //  Listens for event that the window should close.
 @interface ThrustNSWindowDelegate : NSObject<NSWindowDelegate> {
  @private
-  thrust_shell::ThrustWindow* window_;
-  BOOL acceptsFirstMouse_;
+  thrust_shell::ThrustWindow*      window_;
+  BOOL                             acceptsFirstMouse_;
 }
 - (id)initWithWindow:(thrust_shell::ThrustWindow*)window;
 - (void)setAcceptsFirstMouse:(BOOL)accept;
+
+@property NSApplicationPresentationOptions options;
 @end
 
 @implementation ThrustNSWindowDelegate
+
+@synthesize options;
 
 - (id)initWithWindow:(thrust_shell::ThrustWindow*)window {
   if((self = [super init])) {
@@ -377,7 +381,8 @@ ThrustWindow::PlatformSetKiosk(
     bool kiosk) 
 {
   if(kiosk && !is_kiosk_) {
-    kiosk_options_ = [NSApp currentSystemPresentationOptions];
+    [((ThrustNSWindowDelegate*)[window_ delegate]) 
+        setOptions: [NSApp currentSystemPresentationOptions]];
     NSApplicationPresentationOptions options =
         NSApplicationPresentationHideDock +
         NSApplicationPresentationHideMenuBar +
@@ -393,7 +398,8 @@ ThrustWindow::PlatformSetKiosk(
   else if(!kiosk && is_kiosk_) {
     is_kiosk_ = false;
     SetFullscreen(false);
-    [NSApp setPresentationOptions:kiosk_options_];
+    [NSApp setPresentationOptions:
+        [((ThrustNSWindowDelegate*)[window_ delegate]) options]];
   }
 }
 
