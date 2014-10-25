@@ -23,6 +23,7 @@ public:
   /****************************************************************************/
   // ### ThrustMenu
   ThrustMenu(ThrustMenuBinding* binding);
+
   // ### ~ThrustMenu
   virtual ~ThrustMenu();
 
@@ -89,6 +90,7 @@ public:
   /* PLATFORM INTERFACE */
   /****************************************************************************/
   void PlatformPopup(ThrustWindow* window);
+  void PlatformCleanup();
 
   ThrustMenuBinding*                        binding_;
 

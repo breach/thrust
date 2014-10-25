@@ -89,6 +89,8 @@ ThrustWindowBinding::CallLocalMethod(
   base::DictionaryValue* res = new base::DictionaryValue;
 
   LOG(INFO) << "ThrustWindow call [" << method << "]";
+
+  /* Methods */
   if(method.compare("show") == 0) {
     window_->Show();
   }
@@ -114,35 +116,59 @@ ThrustWindowBinding::CallLocalMethod(
     args->GetString("title", &title);
     window_->SetTitle(title);
   }
+  else if(method.compare("set_fullscreen") == 0) {
+    bool fullscreen;
+    args->GetBoolean("fullscreen", &fullscreen);
+    window_->SetFullscreen(fullscreen);
+  }
+  else if(method.compare("set_kiosk") == 0) {
+    bool kiosk;
+    args->GetBoolean("kiosk", &kiosk);
+    LOG(INFO) << "*************************************** KIOSK " << kiosk;
+    window_->SetKiosk(kiosk);
+  }
   else if(method.compare("move") == 0) {
-	int x, y;
-	args->GetInteger("x", &x);
-	args->GetInteger("y", &y);
+    int x, y;
+    args->GetInteger("x", &x);
+    args->GetInteger("y", &y);
 
-	window_->Move(x, y);
+    window_->Move(x, y);
   }
   else if(method.compare("resize") == 0) {
-	int width, height;
-	args->GetInteger("width", &width);
-	args->GetInteger("height", &height);
+    int width, height;
+    args->GetInteger("width", &width);
+    args->GetInteger("height", &height);
 
-	LOG(INFO) << "calling window_->Resize(" << width << ", " << height << ")";
-	window_->Resize(width, height);
+    window_->Resize(width, height);
   }
   else if(method.compare("close") == 0) {
     window_->Close();
   }
+  /* Accessors */
   else if(method.compare("is_closed") == 0) {
-    res->SetBoolean("is_closed", window_->is_closed());
+    res->SetBoolean("closed", window_->IsClosed());
   }
   else if(method.compare("size") == 0) {
-    res->SetInteger("size.width", window_->size().width());
-    res->SetInteger("size.height", window_->size().height());
+    res->SetInteger("size.width", window_->GetSize().width());
+    res->SetInteger("size.height", window_->GetSize().height());
   }
   else if(method.compare("position") == 0) {
-    res->SetInteger("position.x", window_->position().x());
-    res->SetInteger("position.y", window_->position().y());
+    res->SetInteger("position.x", window_->GetPosition().x());
+    res->SetInteger("position.y", window_->GetPosition().y());
   }
+  else if(method.compare("is_maximized") == 0) {
+    res->SetBoolean("maximized", window_->IsMaximized());
+  }
+  else if(method.compare("is_minimized") == 0) {
+    res->SetBoolean("minimized", window_->IsMinimized());
+  }
+  else if(method.compare("is_fullscreen") == 0) {
+    res->SetBoolean("fullscreen", window_->IsFullscreen());
+  }
+  else if(method.compare("is_kiosk") == 0) {
+    res->SetBoolean("kiosk", window_->IsKiosk());
+  }
+  /* Default */
   else {
     err = "thrust_window_binding:method_not_found";
   }
@@ -154,5 +180,48 @@ ThrustWindow*
 ThrustWindowBinding::GetWindow() {
   return window_.get();
 }
+
+void 
+ThrustWindowBinding::EmitClosed()
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  this->EmitEvent("closed", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void 
+ThrustWindowBinding::EmitBlur()
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  this->EmitEvent("blur", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void 
+ThrustWindowBinding::EmitFocus()
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  this->EmitEvent("focus", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void 
+ThrustWindowBinding::EmitUnresponsive()
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  this->EmitEvent("unresponsive", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void 
+ThrustWindowBinding::EmitResponsive()
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  this->EmitEvent("responsive", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void 
+ThrustWindowBinding::EmitWorkerCrashed()
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  this->EmitEvent("worker_crashed", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
 
 } // namespace thrust_shell

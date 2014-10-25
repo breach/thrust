@@ -31,6 +31,16 @@ public:
   /****************************************************************************/
   ThrustWindow* GetWindow();
 
+  // API used by ThrustWindow implementations to emit UI related notifications 
+  // to the API.
+  void EmitClosed();
+  void EmitBlur();
+  void EmitFocus();
+
+  void EmitUnresponsive();
+  void EmitResponsive();
+  void EmitWorkerCrashed();
+
 private:
   scoped_ptr<ThrustWindow> window_;
 };

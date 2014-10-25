@@ -1,4 +1,4 @@
-Thrust
+thrust
 ======
 
 Thrust is a cross-platform (Linux, OSX, Windows) application shell bindable from

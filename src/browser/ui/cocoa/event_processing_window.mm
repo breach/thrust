@@ -57,9 +57,11 @@
 
   // Convert the event's location from the original window's coordinates into
   // our own.
-  NSPoint eventLoc = [event locationInWindow];
-  eventLoc = [[event window] convertBaseToScreen:eventLoc];
-  eventLoc = [self convertScreenToBase:eventLoc];
+  NSPoint eventLoc = [event locationInWindow];                                     
+  NSRect eventRect = NSMakeRect(eventLoc.x, eventLoc.y, 0, 0);                               
+  eventRect = [[event window] convertRectToScreen:eventRect];                      
+  eventRect = [self convertRectFromScreen: eventRect];                             
+  eventLoc = eventRect.origin;          
 
   // Various things *only* apply to key down/up.
   BOOL eventIsARepeat = NO;

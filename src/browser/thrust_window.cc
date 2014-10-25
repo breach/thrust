@@ -13,6 +13,7 @@
 #include "base/threading/thread_restrictions.h"
 #include "base/file_util.h"
 #include "ui/gfx/codec/png_codec.h"
+#include "ui/gfx/codec/jpeg_codec.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -32,6 +33,7 @@
 #include "src/common/messages.h"
 #include "src/browser/ui/views/menu_bar.h"
 #include "src/browser/ui/views/menu_layout.h"
+#include "src/api/thrust_window_binding.h"
 
 #if defined(USE_X11)
 #include "src/browser/ui/views/global_menu_bar_x11.h"
@@ -79,14 +81,16 @@ ThrustWindow::ThrustWindow(
     // Decode the bitmap using WebKit's image decoder.
     const unsigned char* data =
       reinterpret_cast<const unsigned char*>(file_contents.data());
+    size_t size = file_contents.size();
     scoped_ptr<SkBitmap> decoded(new SkBitmap());
-    gfx::PNGCodec::Decode(data, file_contents.length(), decoded.get());
-    if(!decoded->empty()) {
-      icon_ = gfx::Image::CreateFrom1xBitmap(*decoded.release());
+
+    if(!gfx::PNGCodec::Decode(data, size, decoded.get())) {
+      decoded.reset(gfx::JPEGCodec::Decode(data, size));                             
     }
-    else {
-      icon_ = gfx::Image();
-    }
+    if(decoded) {                                                                   
+      icon_.AddRepresentation(gfx::ImageSkiaRep(
+            *decoded.release(), 1.0f));     
+    }                                  
   }
   base::ThreadRestrictions::SetIOAllowed(false);
 
@@ -106,7 +110,7 @@ ThrustWindow::~ThrustWindow()
 {
   LOG(INFO) << "ThrustWindow Destructor [" << inspectable_web_contents() << "]";
 
-  Close();
+  CloseImmediately();
   PlatformCleanUp();
 
   for (size_t i = 0; i < s_instances.size(); ++i) {
@@ -186,23 +190,38 @@ ThrustWindow::SetTitle(
 void
 ThrustWindow::Close()
 {
+  content::WebContents* web_contents(GetWebContents());
+  if(!web_contents) {
+    CloseImmediately();
+    return;
+  }
+
+  if(web_contents->NeedToFireBeforeUnload())
+    web_contents->DispatchBeforeUnload(false);
+  else
+    web_contents->Close();
+}
+
+void
+ThrustWindow::CloseImmediately()
+{
   registrar_.RemoveAll();
   if(!is_closed_) {
     is_closed_ = true;
-    PlatformClose();
+    PlatformCloseImmediately();
   }
 }
 
 void
 ThrustWindow::Move(int x, int y)
 {
-	PlatformMove(x, y);
+  PlatformMove(x, y);
 }
 
 void
 ThrustWindow::Resize(int width, int height)
 {
-	PlatformResize(width, height);
+  PlatformResize(width, height);
 }
 
 WebContents* 
@@ -248,10 +267,12 @@ void
 ThrustWindow::CloseContents(
     WebContents* source) 
 {
-  if(inspectable_web_contents_) {
-    inspectable_web_contents_.reset();
-  }
-  Close();
+  /* The WebContents has closed so we start by destroying it. */
+  DestroyWebContents();
+
+  /* Once the WebContents is gone, we can close the window. The object itself */
+  /* won't be freed, it will be freed when its binding is gone.               */
+  CloseImmediately();
 }
 
 
@@ -269,7 +290,7 @@ ThrustWindow::ActivateContents(
     WebContents* contents) 
 {
   LOG(INFO) << "Activate Content";
-  /* TODO(spolu): Call into Platform */
+  GetWebContents()->GetRenderViewHost()->Focus();
 }
 
 void 
@@ -277,7 +298,7 @@ ThrustWindow::DeactivateContents(
     WebContents* contents) 
 {
   LOG(INFO) << "Deactivate Content";
-  /* TODO(spolu): Call into Platform */
+  GetWebContents()->GetRenderViewHost()->Blur();
 }
 
 void 
@@ -285,7 +306,7 @@ ThrustWindow::RendererUnresponsive(
     WebContents* source) 
 {
   LOG(INFO) << "RendererUnresponsive";
-  /* TODO(spolu): Notify */
+  binding_->EmitUnresponsive();
 }
 
 void 
@@ -293,7 +314,7 @@ ThrustWindow::RendererResponsive(
     WebContents* source) 
 {
   LOG(INFO) << "RendererResponsive";
-  /* TODO(spolu): Notify */
+  binding_->EmitResponsive();
 }
 
 void 
@@ -301,7 +322,7 @@ ThrustWindow::WorkerCrashed(
     WebContents* source) 
 {
   LOG(INFO) << "WorkerCrashed";
-  /* TODO(spolu): Notify */
+  binding_->EmitWorkerCrashed();
 }
 
 void 
@@ -351,6 +372,12 @@ ThrustWindow::OnMessageReceived(
   handled = false;
 
   return handled;
+}
+
+void ThrustWindow::DestroyWebContents() {
+  if(inspectable_web_contents_) {
+    inspectable_web_contents_.reset();
+  }
 }
 
 } // namespace thrust_shell

@@ -88,7 +88,7 @@ FramelessView::NonClientHitTest(
 
   // Check for possible draggable region in the client area for the frameless
   // window.
-  SkRegion* draggable_region = window_->draggable_region();
+  SkRegion* draggable_region = window_->GetDraggableRegion();
   if (draggable_region && draggable_region->contains(cursor.x(), cursor.y()))
     return HTCAPTION;
 

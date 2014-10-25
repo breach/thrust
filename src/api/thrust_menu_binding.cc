@@ -123,7 +123,7 @@ ThrustMenuBinding::CallLocalMethod(
       menu_->AddSubMenu(command_id, base::UTF8ToUTF16(label), mb->GetMenu());
     }
     else {
-      err = "exo_menu_binding:menu_not_found";
+      err = "thrust_menu_binding:menu_not_found";
     }
   }
   else if(method.compare("clear") == 0) {
@@ -143,44 +143,17 @@ ThrustMenuBinding::CallLocalMethod(
       LOG(INFO) << "ATTACH TO WINDOW" << window_id;
     }
     else {
-      err = "exo_menu_binding:window_not_found";
+      err = "thrust_menu_binding:window_not_found";
     }
   }
 #if defined(OS_MACOSX)
   else if(method.compare("set_application_menu") == 0) {
-    int menu_id = -1;
-    args->GetInteger("menu_id", &menu_id);
-
-    ThrustMenu* menu = NULL;
-
-    ThrustMenuBinding* mb = 
-      (ThrustMenuBinding*)(API::Get()->GetBinding(menu_id));
-    if(mb != NULL) {
-      menu = mb->GetMenu();
-      ThrustMenu::SetApplicationMenu(menu);
-    }
-    else {
-      err = "exo_menu_binding:menu_not_found";
-    }
+    ThrustMenu::SetApplicationMenu(menu_.get());
   }
 #endif
   else {
-    err = "exo_menu_binding:method_not_found";
+    err = "thrust_menu_binding:method_not_found";
   }
-
-  /*
-  else if(method.compare("is_closed") == 0) {
-    res->SetBoolean("is_closed", shell_->is_closed());
-  }
-  else if(method.compare("size") == 0) {
-    res->SetInteger("size.width", shell_->size().width());
-    res->SetInteger("size.height", shell_->size().height());
-  }
-  else if(method.compare("position") == 0) {
-    res->SetInteger("position.x", shell_->position().x());
-    res->SetInteger("position.y", shell_->position().y());
-  }
-  */
 
   callback.Run(err, scoped_ptr<base::DictionaryValue>(res).Pass());
 }

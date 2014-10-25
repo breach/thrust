@@ -19,6 +19,7 @@
 #include "base/file_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/strings/stringprintf.h"
 #include "ui/gfx/image/image.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/image/image_skia_rep.h"
@@ -37,10 +38,13 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/layout/fill_layout.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "vendor/brightray/browser/inspectable_web_contents_view.h"
 
 #include "src/browser/ui/views/menu_bar.h"
 #include "src/browser/ui/views/menu_layout.h"
+#include "src/browser/browser_client.h"
+#include "src/api/thrust_window_binding.h"
 
 #if defined(USE_X11)
 #include "base/environment.h"
@@ -62,27 +66,28 @@ namespace thrust_shell {
 
 namespace {
 
-// The menu bar height in pixels.
-#if defined(OS_WIN)
-const int kMenuBarHeight = 20;
-#else
-const int kMenuBarHeight = 25;
-#endif
 
 #if defined(USE_X11)
-bool ShouldUseGlobalMenuBar() {
-  // Some DE would pretend to be Unity but don't have global application menu,
-  // so we can not trust unity::IsRunning().
-  scoped_ptr<base::Environment> env(base::Environment::Create());
-  bool is_unity = unity::IsRunning() &&
-    base::nix::GetDesktopEnvironment(env.get()) ==
-    base::nix::DESKTOP_ENVIRONMENT_UNITY;
-  std::string menu_proxy;
-  return is_unity; 
-  /* TODO(spolu): Revert when stable. */
-  /* && env->GetVar("UBUNTU_MENUPROXY", &menu_proxy) && menu_proxy.length() > 1; */
-}
+// Counts how many window has already been created, it will be used to set the
+// window role for X11.
+static int kWindowsCreated = 0;
 #endif
+
+bool IsAltKey(const content::NativeWebKeyboardEvent& event) {
+#if defined(USE_X11)
+  // 164 and 165 represent VK_LALT and VK_RALT.
+  return event.windowsKeyCode == 164 || event.windowsKeyCode == 165;
+#else
+  return event.windowsKeyCode == ui::VKEY_MENU;
+#endif
+}
+
+bool IsAltModifier(const content::NativeWebKeyboardEvent& event) {
+  typedef content::NativeWebKeyboardEvent::Modifiers Modifiers;
+  return (event.modifiers == Modifiers::AltKey) ||
+         (event.modifiers == (Modifiers::AltKey | Modifiers::IsLeft)) ||
+         (event.modifiers == (Modifiers::AltKey | Modifiers::IsRight));
+}
 
 
 class ThrustWindowClientView : public views::ClientView {
@@ -131,13 +136,63 @@ ThrustWindow::PlatformCreateWindow(
   params.type = views::Widget::InitParams::TYPE_WINDOW;
   params.remove_standard_frame = !has_frame_;
 
+#if defined(USE_X11)
+  // Set WM_WINDOW_ROLE.
+  params.wm_role_name = base::StringPrintf(
+      "%s/%s/%d", "Thrust", 
+      ThrustShellBrowserClient::Get()->GetAppName().c_str(),
+      ++kWindowsCreated);
+  // Set WM_CLASS.
+  params.wm_class_name = "thrust";
+  params.wm_class_class = "Thrust";
+#endif
+
   window_->Init(params);
+
+#if defined(USE_X11)
+  // Set _GTK_THEME_VARIANT to dark if we have "dark-theme" option set.
+  bool use_dark_theme = false;
+  /* TODO(spolu): Add option */
+  /*
+  if (options.Get(switches::kDarkTheme, &use_dark_theme) && use_dark_theme) {
+    XDisplay* xdisplay = gfx::GetXDisplay();
+    XChangeProperty(xdisplay, GetAcceleratedWidget(),
+                    XInternAtom(xdisplay, "_GTK_THEME_VARIANT", False),
+                    XInternAtom(xdisplay, "UTF8_STRING", False),
+                    8, PropModeReplace,
+                    reinterpret_cast<const unsigned char*>("dark"),
+                    4);
+  }
+  */
+
+  // Before the window is mapped the SetWMSpecState can not work, so we have
+  // to manually set the _NET_WM_STATE.
+  bool skip_taskbar = false;
+  /* TODO(spolu): Add option */
+  /*
+  if (options.Get(switches::kSkipTaskbar, &skip_taskbar) && skip_taskbar) {
+    std::vector<::Atom> state_atom_list;
+    state_atom_list.push_back(GetAtom("_NET_WM_STATE_SKIP_TASKBAR"));
+    ui::SetAtomArrayProperty(GetAcceleratedWidget(), "_NET_WM_STATE", "ATOM",
+                             state_atom_list);
+  }
+  */
+#endif
 
   // Add web view.
   SetLayoutManager(new views::FillLayout());
   set_background(views::Background::CreateStandardPanelBackground());
   AddChildView(inspectable_web_contents()->GetView()->GetView());
 
+  /* TODO(spolu): Add option */
+  /*
+  if(has_frame_ &&
+     options.Get(switches::kUseContentSize, &use_content_size_) &&
+     use_content_size_)
+    bounds = ContentBoundsToWindowBounds(bounds);
+  */
+
+  window_->UpdateWindowIcon();
   window_->CenterWindow(bounds.size());
   Layout();
 }
@@ -155,10 +210,42 @@ ThrustWindow::PlatformClose()
 }
 
 void 
+ThrustWindow::PlatformCloseImmediately() 
+{
+  window_->CloseNow();
+}
+
+void 
 ThrustWindow::PlatformSetTitle(
     const std::string& title) 
 {
   window_->UpdateWindowTitle();
+}
+
+void 
+ThrustWindow::PlatformSetFullscreen(
+    bool fullscreen) 
+{
+  window_->SetFullscreen(fullscreen);
+}
+
+bool 
+ThrustWindow::PlatformIsFullscreen() 
+{
+  return window_->IsFullscreen();
+}
+
+void 
+ThrustWindow::PlatformSetKiosk(
+    bool kiosk) 
+{
+  PlatformSetFullscreen(kiosk);
+}
+
+bool
+ThrustWindow::PlatformIsKiosk()
+{
+  return PlatformIsFullscreen();
 }
 
 void
@@ -199,6 +286,11 @@ ThrustWindow::PlatformRestore()
 gfx::Size
 ThrustWindow::PlatformSize()
 {
+#if defined(OS_WIN)
+  if(window_->IsMinimized()) {
+    return window_->GetRestoredBounds().size();
+  }
+#endif
   return window_->GetWindowBoundsInScreen().size();
 }
 
@@ -210,9 +302,19 @@ ThrustWindow::PlatformContentSize()
 
   gfx::Size content_size =
       window_->non_client_view()->frame_view()->GetBoundsForClientView().size();
-  if (menu_bar_ && menu_bar_visible_)
-    content_size.set_height(content_size.height() - kMenuBarHeight);
   return content_size;
+}
+
+bool
+ThrustWindow::PlatformIsMaximized()
+{
+  return window_->IsMaximized();
+}
+
+bool
+ThrustWindow::PlatformIsMinimized()
+{
+  return window_->IsMinimized();
 }
 
 gfx::Rect
@@ -221,8 +323,6 @@ ThrustWindow::ContentBoundsToWindowBounds(
 {
   gfx::Rect window_bounds =
       window_->non_client_view()->GetWindowBoundsForClientBounds(bounds);
-  if(menu_bar_ && menu_bar_visible_)
-    window_bounds.set_height(window_bounds.height() + kMenuBarHeight);
   return window_bounds;
 }
 
@@ -280,10 +380,10 @@ ThrustWindow::OnWidgetActivationChanged(
     return;
 
   if(active) {
-    /* TODO(spoluy): Notify */
+    binding_->EmitFocus();
   }
   else {
-    /* TODO(spoluy): Notify */
+    binding_->EmitBlur();
   }
 
   if(active && web_contents()) {
@@ -294,6 +394,7 @@ ThrustWindow::OnWidgetActivationChanged(
 
 void 
 ThrustWindow::DeleteDelegate() {
+  binding_->EmitClosed();
   Close();
 }
 
@@ -330,7 +431,7 @@ ThrustWindow::ShouldHandleSystemCommands() const
 gfx::ImageSkia 
 ThrustWindow::GetWindowAppIcon() 
 {
-  return *(icon_.ToImageSkia());
+  return icon_;
 }
 
 gfx::ImageSkia 
@@ -380,7 +481,7 @@ ThrustWindow::PlatformSetMenu(
   */
 
 #if defined(USE_X11)
-  if(!global_menu_bar_ && ShouldUseGlobalMenuBar()) {
+  if(!global_menu_bar_) {
     global_menu_bar_.reset(new GlobalMenuBarX11(this));
   }
 
@@ -391,24 +492,9 @@ ThrustWindow::PlatformSetMenu(
   }
 #endif
 
-  // Do not show menu bar in frameless window.
-  if(!has_frame_)
-    return;
-
-  if(!menu_bar_) {
-    gfx::Size content_size = PlatformContentSize();
-    menu_bar_.reset(new MenuBar);
-    menu_bar_->set_owned_by_client();
-
-    if (!menu_bar_autohide_) {
-      SetMenuBarVisibility(true);
-      PlatformSetContentSize(content_size.width(), 
-                             content_size.height());
-    }
-  }
-
-  menu_bar_->SetMenu(menu_model);
-  Layout();
+  /* We do not show menu relative to the window, they should be implemented */
+  /* in the window main document.                                           */
+  return;
 }
 
 bool 
@@ -460,27 +546,5 @@ ThrustWindow::CreateNonClientFrameView(
   return NULL;
 #endif
 }
-
-void 
-ThrustWindow::SetMenuBarVisibility(
-    bool visible) 
-{
-  if (!menu_bar_)
-    return;
-
-  // Always show the accelerator when the auto-hide menu bar shows.
-  if (menu_bar_autohide_)
-    menu_bar_->SetAcceleratorVisibility(visible);
-
-  menu_bar_visible_ = visible;
-  if (visible) {
-    DCHECK_EQ(child_count(), 1);
-    AddChildView(menu_bar_.get());
-  } else {
-    DCHECK_EQ(child_count(), 2);
-    RemoveChildView(menu_bar_.get());
-  }
-}
-
 
 } // namespace thrust_shell

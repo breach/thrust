@@ -56,7 +56,6 @@ class ThrustShellJavaScriptDialogManager;
 class ThrustWindowBinding;
 
 class GlobalMenuBarX11;
-class MenuBar;
 
 // ### ThrustWindow
 //
@@ -170,6 +169,26 @@ public:
   // Sets the window title
   void SetTitle(const std::string& title);
 
+  // ### SetFullscreen
+  //
+  // Sets the window in kiosk mode
+  void SetFullscreen(bool fullscreen) { PlatformSetFullscreen(fullscreen); }
+
+  // ### IsFullscreen
+  //
+  // Returns whether the window is in kiosk mode
+  bool IsFullscreen() { return PlatformIsFullscreen(); }
+
+  // ### SetKiosk
+  //
+  // Sets the window in kiosk mode
+  void SetKiosk(bool kiosk) { PlatformSetKiosk(kiosk); }
+
+  // ### IsKiosk
+  //
+  // Returns whether the window is in kiosk mode
+  bool IsKiosk() { return PlatformIsKiosk(); }
+
   // ### Close
   //
   // Closes the window and reclaim underlying WebContents
@@ -190,25 +209,35 @@ public:
   // Sets the menu for this shell
   void SetMenu(ui::MenuModel* menu) { return PlatformSetMenu(menu); }
 
-  // ### is_closed
+  // ### IsClosed
   //
   // Returns whether the window is closed or not
-  bool is_closed() { return is_closed_; }
+  bool IsClosed() { return is_closed_; }
 
   // ### HasFrame
   //
   // Returns wether the window has frame or not
   bool HasFrame() { return has_frame_; }
 
-  // ### WindowSize
+  // ### GetSize
   //
   // Retrieves the native Window size
-  gfx::Size size() { return PlatformSize(); }
+  gfx::Size GetSize() { return PlatformSize(); }
 
-  // ### WindowPosition
+  // ### GetPosition
   //
   // Retrieves the native Window position
-  gfx::Point position() { return PlatformPosition(); }
+  gfx::Point GetPosition() { return PlatformPosition(); }
+
+  // ### IsMaximized
+  //
+  // Retrieves whether the window is maximized
+  bool IsMaximized() { return PlatformIsMaximized(); }
+
+  // ### IsMinimized
+  //
+  // Retrieves whether the window is minimized
+  bool IsMinimized() { return PlatformIsMinimized(); }
 
   // ### GetNativeWindow
   //
@@ -220,7 +249,15 @@ public:
   // Returns the underlying web_contents
   content::WebContents* GetWebContents() const;
 
-  SkRegion* draggable_region() const { 
+  // ### GetBinding
+  //
+  // Returns the binding for that window
+  ThrustWindowBinding* GetBinding() const { return binding_; }
+
+  // ### GetDraggableRegion
+  //
+  // Returns the draggable region
+  SkRegion* GetDraggableRegion() const { 
     return draggable_region_.get(); 
   }
 
@@ -265,7 +302,19 @@ public:
   virtual void Observe(int type,
                        const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
+
+#if defined(OS_MACOSX)
+  /****************************************************************************/
+  /* OSX SPECIFIC INTERFACE */
+  /****************************************************************************/
+  void ClipWebView();
+#endif
+
 protected:
+  // ### CloseImmediately
+  //
+  // Closes the window immediately (WebContents already gone)
+  void CloseImmediately();
 
   // ### inspectable_web_contents
   //
@@ -287,12 +336,12 @@ private:
       const std::string& icon_path,
       const bool has_frame);
 
-#if defined(USE_AURA)
+  void DestroyWebContents();
 
+#if defined(USE_AURA)
   /****************************************************************************/
   /* VIEWS::WIDGETOBSERVER IMPLEMENTATION */
   /****************************************************************************/
-  // views::WidgetObserver:
   virtual void OnWidgetActivationChanged(
       views::Widget* widget, bool active) OVERRIDE;
 
@@ -318,6 +367,11 @@ private:
       views::Widget* widget) OVERRIDE;
 
 #elif defined(OS_MACOSX)
+  /****************************************************************************/
+  /* OSX SPECIFIC HELPER METHODS */
+  /****************************************************************************/
+  void InstallView();
+  void UninstallView();
 #endif
 
   /****************************************************************************/
@@ -380,21 +434,37 @@ private:
   // Set the title of window.
   void PlatformSetTitle(const std::string& title);
 
+  // ### PlatformSetFullscreen
+  //
+  // Sets the window in kiosk mode
+  void PlatformSetFullscreen(bool fullscreen);
+
+  // ### IsFullscreen
+  //
+  // Returns whether the window is in kiosk mode
+  bool PlatformIsFullscreen();
+
+  // ### PlatformSetKiosk
+  //
+  // Sets the window in kiosk mode
+  void PlatformSetKiosk(bool kiosk);
+
+  // ### IsKiosk
+  //
+  // Returns whether the window is in kiosk mode
+  bool PlatformIsKiosk();
+
   // ### PlatformClose
   //
   // Let each platform close the window.
   void PlatformClose();
 
-
-  // ### PlatformSize
+  // ### PlatformCloseImmediately
   //
-  // Retrieves the size of the window.
-  gfx::Size PlatformSize();
+  // Let each platform close the window.
+  void PlatformCloseImmediately();
 
-  // ### PlatformPosition
-  //
-  // Retrieves the position of the window.
-  gfx::Point PlatformPosition();
+
   //
   // ### PlatformMove
   //
@@ -406,15 +476,35 @@ private:
   // Resize the window.
   void PlatformResize(int width, int height);
 
+  // ### PlatformSetContentSize
+  //
+  // Sets the size of the shell content
+  void PlatformSetContentSize(int width, int height);
+
   // ### PlatformContentSize
   //
   // Retrieves the size of the ThrustWindow content
   gfx::Size PlatformContentSize();
 
-  // ### PlatformSetContentSize
+  // ### PlatformSize
   //
-  // Sets the size of the shell content
-  void PlatformSetContentSize(int width, int height);
+  // Retrieves the size of the window.
+  gfx::Size PlatformSize();
+
+  // ### PlatformPosition
+  //
+  // Retrieves the position of the window.
+  gfx::Point PlatformPosition();
+
+  // ### PlatformIsMaximized
+  //
+  // Retrieves whether the window is maximized
+  bool PlatformIsMaximized();
+
+  // ### IsMinimized
+  //
+  // Retrieves whether the window is minimized
+  bool PlatformIsMinimized();
 
 
   // ### PlatformSetMenu
@@ -429,7 +519,6 @@ private:
 
 #if defined(USE_AURA)
   gfx::Rect ContentBoundsToWindowBounds(const gfx::Rect& bounds);
-  void SetMenuBarVisibility(bool visible) ;
 #endif
 
   /****************************************************************************/
@@ -441,18 +530,15 @@ private:
 
 #if defined(USE_AURA)
   scoped_ptr<views::Widget>                        window_;
-  scoped_ptr<MenuBar>                              menu_bar_;
-  bool                                             menu_bar_autohide_;
-  bool                                             menu_bar_visible_;
-  bool                                             menu_bar_alt_pressed_;
 #if defined(USE_X11)
   scoped_ptr<GlobalMenuBarX11>                     global_menu_bar_;
 #endif
 #elif defined(OS_MACOSX)
   gfx::NativeWindow                                window_;
+  bool                                             is_kiosk_;
 #endif
   bool                                             is_closed_;
-  gfx::Image                                       icon_;
+  gfx::ImageSkia                                   icon_;
   std::string                                      title_;
   bool                                             has_frame_;
   scoped_ptr<SkRegion>                             draggable_region_;
