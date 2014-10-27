@@ -515,11 +515,11 @@ ThrustWindow::CreateNonClientFrameView(
 #endif
 }
 
-#if defined(USE_X11)
 void 
 ThrustWindow::AttachMenu(
     ui::MenuModel* menu_model) 
 {
+#if defined(USE_X11)
   /* TODO(spolu) Menu accelerators */
   /*
   // Clear previous accelerators.
@@ -547,6 +547,7 @@ ThrustWindow::AttachMenu(
     global_menu_bar_->SetMenu(menu_model);
     return;
   }
+ #endif
 
   /* We do not show menu relative to the window, they should be implemented */
   /* in the window main document.                                           */
@@ -556,10 +557,10 @@ ThrustWindow::AttachMenu(
 void
 ThrustWindow::DetachMenu()
 {
+#if defined(USE_X11)
   global_menu_bar_.reset();
-}
-
 #endif
+}
 
 
 } // namespace thrust_shell

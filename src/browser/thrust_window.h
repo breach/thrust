@@ -303,11 +303,9 @@ public:
   /* OSX SPECIFIC INTERFACE */
   /****************************************************************************/
   void ClipWebView();
-#endif
-
-#if defined(USE_X11)
+#elif defined(USE_AURA)
   /****************************************************************************/
-  /* X11 SPECIFIC INTERFACE */
+  /* AURA SPECIFIC INTERFACE */
   /****************************************************************************/
   void AttachMenu(ui::MenuModel* menu);
   void DetachMenu();
