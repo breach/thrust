@@ -44,6 +44,7 @@
 #include "src/browser/ui/views/menu_bar.h"
 #include "src/browser/ui/views/menu_layout.h"
 #include "src/browser/browser_client.h"
+#include "src/browser/thrust_menu.h"
 #include "src/api/thrust_window_binding.h"
 
 #if defined(USE_X11)
@@ -195,6 +196,12 @@ ThrustWindow::PlatformCreateWindow(
   window_->UpdateWindowIcon();
   window_->CenterWindow(bounds.size());
   Layout();
+
+#if defined(USE_X11)
+  if(ThrustMenu::GetApplicationMenu() != NULL) {
+    ThrustWindow::AttachMenu(ThrustMenu::GetApplicationMenu()->model_.get());
+  }
+#endif
 }
 
 void 
@@ -458,45 +465,6 @@ ThrustWindow::GetContentsView()
   return this;
 }
 
-void 
-ThrustWindow::PlatformSetMenu(
-    ui::MenuModel* menu_model) 
-{
-  /* TODO(spolu) Menu accelerators */
-  /*
-  // Clear previous accelerators.
-  views::FocusManager* focus_manager = GetFocusManager();
-  accelerator_table_.clear();
-  focus_manager->UnregisterAccelerators(this);
-
-  // Register accelerators with focus manager.
-  accelerator_util::GenerateAcceleratorTable(&accelerator_table_, menu_model);
-  accelerator_util::AcceleratorTable::const_iterator iter;
-  for (iter = accelerator_table_.begin();
-       iter != accelerator_table_.end();
-       ++iter) {
-    focus_manager->RegisterAccelerator(
-        iter->first, ui::AcceleratorManager::kNormalPriority, this);
-  }
-  */
-
-#if defined(USE_X11)
-  if(!global_menu_bar_) {
-    global_menu_bar_.reset(new GlobalMenuBarX11(this));
-  }
-
-  // Use global application menu bar when possible.
-  if(global_menu_bar_ && global_menu_bar_->IsServerStarted()) {
-    global_menu_bar_->SetMenu(menu_model);
-    return;
-  }
-#endif
-
-  /* We do not show menu relative to the window, they should be implemented */
-  /* in the window main document.                                           */
-  return;
-}
-
 bool 
 ThrustWindow::ShouldDescendIntoChildForEventHandling(
     gfx::NativeView child,
@@ -546,5 +514,52 @@ ThrustWindow::CreateNonClientFrameView(
   return NULL;
 #endif
 }
+
+#if defined(USE_X11)
+void 
+ThrustWindow::AttachMenu(
+    ui::MenuModel* menu_model) 
+{
+  /* TODO(spolu) Menu accelerators */
+  /*
+  // Clear previous accelerators.
+  views::FocusManager* focus_manager = GetFocusManager();
+  accelerator_table_.clear();
+  focus_manager->UnregisterAccelerators(this);
+
+  // Register accelerators with focus manager.
+  accelerator_util::GenerateAcceleratorTable(&accelerator_table_, menu_model);
+  accelerator_util::AcceleratorTable::const_iterator iter;
+  for (iter = accelerator_table_.begin();
+       iter != accelerator_table_.end();
+       ++iter) {
+    focus_manager->RegisterAccelerator(
+        iter->first, ui::AcceleratorManager::kNormalPriority, this);
+  }
+  */
+
+  if(!global_menu_bar_) {
+    global_menu_bar_.reset(new GlobalMenuBarX11(this));
+  }
+
+  // Use global application menu bar when possible.
+  if(global_menu_bar_ && global_menu_bar_->IsServerStarted()) {
+    global_menu_bar_->SetMenu(menu_model);
+    return;
+  }
+
+  /* We do not show menu relative to the window, they should be implemented */
+  /* in the window main document.                                           */
+  return;
+}
+
+void
+ThrustWindow::DetachMenu()
+{
+  global_menu_bar_.reset();
+}
+
+#endif
+
 
 } // namespace thrust_shell

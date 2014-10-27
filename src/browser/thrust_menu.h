@@ -55,14 +55,15 @@ public:
   bool IsEnabledAt(int index) const;
   bool IsVisibleAt(int index) const;
 
-  virtual void AttachToWindow(ThrustWindow* window);
   virtual void Popup(ThrustWindow* window) {
     return PlatformPopup(window);
   }
 
-#if defined(OS_MACOSX)
-  // Set the global menubar.
+  // Set the global menubar (MacOSX, X11/Unity)
   static void SetApplicationMenu(ThrustMenu* menu);
+  static ThrustMenu* GetApplicationMenu();
+
+#if defined(OS_MACOSX)
   // Fake sending an action from the application menu.
   static void SendActionToFirstResponder(const std::string& action);
 #endif
@@ -91,6 +92,7 @@ public:
   /****************************************************************************/
   void PlatformPopup(ThrustWindow* window);
   void PlatformCleanup();
+  static void PlatformSetApplicationMenu(ThrustMenu* menu);
 
   ThrustMenuBinding*                        binding_;
 
@@ -101,6 +103,10 @@ public:
   std::map<int, bool>                       enabled_;
   std::map<int, bool>                       visible_;
   std::map<int, std::string>                accelerator_;
+
+  static ThrustMenu*                        application_menu_;
+
+  friend class ThrustWindow;
 
   DISALLOW_COPY_AND_ASSIGN(ThrustMenu);
 };

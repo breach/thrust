@@ -204,11 +204,6 @@ public:
   // Resizes the window
   void Resize(int width, int height);
 
-  // ### SetMenu
-  //
-  // Sets the menu for this shell
-  void SetMenu(ui::MenuModel* menu) { return PlatformSetMenu(menu); }
-
   // ### IsClosed
   //
   // Returns whether the window is closed or not
@@ -309,6 +304,15 @@ public:
   /****************************************************************************/
   void ClipWebView();
 #endif
+
+#if defined(USE_X11)
+  /****************************************************************************/
+  /* X11 SPECIFIC INTERFACE */
+  /****************************************************************************/
+  void AttachMenu(ui::MenuModel* menu);
+  void DetachMenu();
+#endif
+
 
 protected:
   // ### CloseImmediately
@@ -506,12 +510,6 @@ private:
   // Retrieves whether the window is minimized
   bool PlatformIsMinimized();
 
-
-  // ### PlatformSetMenu
-  //
-  // Sets the menu for this shell
-  void PlatformSetMenu(ui::MenuModel* menu);
-  
   // ### PlatformGetNativeWindow
   //
   // Returns the NativeWindow for this Shell

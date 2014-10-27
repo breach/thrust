@@ -10,6 +10,28 @@
 
 namespace thrust_shell {
 
+ThrustMenu* ThrustMenu::application_menu_ = NULL;
+
+// static
+void
+ThrustMenu::SetApplicationMenu(
+    ThrustMenu* menu)
+{
+  /* We store the menu in a static pointer to make sure to clean after */
+  /* ourselves when the menu get destroyed (see PlatformCleanup)       */
+  application_menu_ = menu;
+
+  PlatformSetApplicationMenu(menu);
+}
+
+// static
+ThrustMenu*
+ThrustMenu::GetApplicationMenu()
+{
+  return application_menu_;
+}
+
+
 ThrustMenu::ThrustMenu(ThrustMenuBinding* binding)
   : binding_(binding),
     model_(new ui::SimpleMenuModel(this)),
@@ -19,6 +41,9 @@ ThrustMenu::ThrustMenu(ThrustMenuBinding* binding)
 
 ThrustMenu::~ThrustMenu() {
   PlatformCleanup();
+  if(application_menu_ == this) {
+    application_menu_ = NULL;
+  }
 }
 
 bool 
@@ -82,12 +107,6 @@ void
 ThrustMenu::MenuClosed(
     ui::SimpleMenuModel* source) 
 {
-}
-
-void 
-ThrustMenu::AttachToWindow(ThrustWindow* window) 
-{
-  window->SetMenu(model_.get());
 }
 
 void 
@@ -216,5 +235,6 @@ ThrustMenu::IsVisibleAt(
 {
   return model_->IsVisibleAt(index);
 }
+
 
 } // namespace thrust_shell

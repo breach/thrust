@@ -129,7 +129,7 @@ ThrustMenuBinding::CallLocalMethod(
   else if(method.compare("clear") == 0) {
     menu_->Clear();
   }
-  else if(method.compare("attach") == 0) {
+  else if(method.compare("popup") == 0) {
     int window_id = -1;
     args->GetInteger("window_id", &window_id);
 
@@ -139,18 +139,15 @@ ThrustMenuBinding::CallLocalMethod(
       (ThrustWindowBinding*)(API::Get()->GetBinding(window_id));
     if(sb != NULL) {
       window = sb->GetWindow();
-      menu_->AttachToWindow(window);
-      LOG(INFO) << "ATTACH TO WINDOW" << window_id;
+      menu_->Popup(window);
     }
     else {
       err = "thrust_menu_binding:window_not_found";
     }
   }
-#if defined(OS_MACOSX)
   else if(method.compare("set_application_menu") == 0) {
     ThrustMenu::SetApplicationMenu(menu_.get());
   }
-#endif
   else {
     err = "thrust_menu_binding:method_not_found";
   }
