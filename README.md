@@ -96,6 +96,7 @@ See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust
 - [x] **kiosk** kiosk mode
 - [x] **application menu** global application menu (MacOSX, X11/Unity)
 - [ ] **webview** webview tag (secure navigation, tabs management)
+- [ ] **frameless** frameless window and draggable regions
 - [ ] **tray icon** tray icon native integration
 - [ ] **remote** thrust specific IPC mechanism for client/server communication
 - [ ] **protocol** specific protocol reigstration (`fille://`, ...)
