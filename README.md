@@ -21,17 +21,17 @@ Thrust is used by [Breach](http://breach.cc)
             (Platform)                [stdio]       (Your Implementation)
                                                                            
                                          #
-                 +------------------+    #        +-----------------------+ | 
-                 |   Cocoa / Aura   |    #    +---|    win3: (HTML/JS)    | |
-                 +---------+--------+    #    |  +-----------------------++ |
-                           |             #    +--|    win2: (HTML/JS)    |  | client
-+--------------+ +---------+--------+    #    | +-----------------------++  |
-|              +-+   thrust (C++)   +---------+-+    win1: (HTML/JS)    |   |
-|  ContentAPI  | +---------+--------+    #      +-----------------------+   |
+                 +------------------+    #        +-----------------------+  | 
+                 |   Cocoa / Aura   |    #    +---|    win3: (HTML/JS)    |  |
+                 +---------+--------+    #    |  +-----------------------++  |
+                           |             #    +--|    win2: (HTML/JS)    |   | client
++--------------+ +---------+--------+    #    | +-----------------------++   |
+|              +-+   thrust (C++)   +---------+-+    win1: (HTML/JS)    |    |
+|  ContentAPI  | +---------+--------+    #      +-----------------------+    |
 |              |           |             #                 | (TCP/FS)      
-|  (Blink/v8)  | +---------+--------+    #      +-----------------------+   |
-|              | +   JSON RPC srv   +-----------+ Client App (any Lang) |   | server
-+--------------+ +------------------+    #      +-----------------------+   |
+|  (Blink/v8)  | +---------+--------+    #      +-----------------------+    |
+|              | +   JSON RPC srv   +-----------+ Client App (any Lang) |    | server
++--------------+ +------------------+    #      +-----------------------+    |
                                          #
 ```
 
@@ -96,6 +96,7 @@ See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust
 - [x] **kiosk** kiosk mode
 - [x] **application menu** global application menu (MacOSX, X11/Unity)
 - [ ] **webview** webview tag (secure navigation, tabs management)
+- [ ] **python** python bindings library
 - [ ] **frameless** frameless window and draggable regions
 - [ ] **tray icon** tray icon native integration
 - [ ] **remote** thrust specific IPC mechanism for client/server communication
