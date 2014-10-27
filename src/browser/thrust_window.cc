@@ -101,7 +101,6 @@ ThrustWindow::ThrustWindow(
    */
   PlatformCreateWindow(size);
 
-
   LOG(INFO) << "ThrustWindow Constructor [" << web_contents << "]";
   s_instances.push_back(this);
 }

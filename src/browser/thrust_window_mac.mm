@@ -530,11 +530,4 @@ ThrustWindow::PlatformSetContentSize(
   [window_ setFrame:frame_nsrect display:YES];
 }
 
-void 
-ThrustWindow::PlatformSetMenu(
-    ui::MenuModel* menu_model) 
-{
-  /* No action on MacOSX should use ThrustMenu::SetApplicationMenu. */
-}
-
 } // namespace thrust_shell

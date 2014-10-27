@@ -30,7 +30,21 @@ ThrustMenu::PlatformPopup(
 void
 ThrustMenu::PlatformCleanup()
 {
+  if(application_menu_ == this) {
+    for (size_t i = 0; i < ThrustWindow::s_instances.size(); ++i) {
+      ThrustWindow::s_instances[i]->DetachMenu();
+    }
+  }
 }
+
+// static
+void 
+ThrustMenu::PlatformSetApplicationMenu(ThrustMenu* menu) {
+  for (size_t i = 0; i < ThrustWindow::s_instances.size(); ++i) {
+    ThrustWindow::s_instances[i]->AttachMenu(menu->model_.get());
+  }
+}
+
 
 
 } // namespace thrust_shell

@@ -88,6 +88,7 @@ def main():
   args = parse_args()
 
   force_build()
+  strip_binaries()
   copy_binaries()
   copy_license()
 
@@ -113,6 +114,10 @@ def force_build():
   build = os.path.join(SOURCE_ROOT, 'scripts', 'build.py')
   execute([sys.executable, build, '-c', 'Release'])
 
+def strip_binaries():
+  build = os.path.join(SOURCE_ROOT, 'scripts', 'build.py')
+  subprocess.check_output([sys.executable, build, '-c', 'Release',
+                           '-t', 'thrust_shell_strip'])
 
 def copy_binaries():
   for binary in TARGET_BINARIES[TARGET_PLATFORM]:

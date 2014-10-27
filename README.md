@@ -93,11 +93,13 @@ See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust
 - [x] **window events** close, blur, focus, unresponsive, crashed
 - [x] **cross-platform** equivalent support on `MacOSX`, `Windows` and `Linux`
 - [x] **sessions** off the record, custom storage path, custom cookie store
-- [x] **application menu** global application menu (MacOSX, Unity)
+- [x] **kiosk** kiosk mode
+- [x] **application menu** global application menu (MacOSX, X11/Unity)
 - [ ] **webview** webview tag (secure navigation, tabs management)
 - [ ] **tray icon** tray icon native integration
 - [ ] **remote** thrust specific IPC mechanism for client/server communication
 - [ ] **protocol** specific protocol reigstration (`fille://`, ...)
+- [ ] **proxy** enable traffic proxying (Tor, header injection, ...)
 
 ### Building thrust
 
