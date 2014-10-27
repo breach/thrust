@@ -87,6 +87,18 @@ See [breach/node-thrust](https://github.com/breach/node-thrust) for more details
 
 See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust) for more details.
 
+### Roadmap
+
+- [x] **window creation** create, show, close resize, minimize, maximize, ...
+- [x] **window events** close, blur, focus, unresponsive, crashed
+- [x] **cross-platform** equivalent support on `MacOSX`, `Windows` and `Linux`
+- [x] **sessions** off the record, custom storage path, custom cookie store
+- [x] **application menu** global application menu (MacOSX, Unity)
+- [ ] **webview** webview tag (secure navigation, tabs management)
+- [ ] **tray icon** tray icon native integration
+- [ ] **remote** thrust specific IPC mechanism for client/server communication
+- [ ] **protocol** specific protocol reigstration (`fille://`, ...)
+
 ### Building thrust
 
 You will generally don't need to build thrust yourself. A binary version of 
