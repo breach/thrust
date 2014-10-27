@@ -90,7 +90,8 @@ See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust
 ### Building thrust
 
 You will generally don't need to build thrust yourself. A binary version of 
-thrust should be automatically fetched by the library you're at installation.
+thrust should be automatically fetched by the library you're reyling on at 
+installation.
 
 To build thrust, you'll need to have `python 2.7.x` and `git` installed. You can 
 then boostrap the project with:
