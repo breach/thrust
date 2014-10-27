@@ -93,6 +93,7 @@ See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust
 - [x] **window events** close, blur, focus, unresponsive, crashed
 - [x] **cross-platform** equivalent support on `MacOSX`, `Windows` and `Linux`
 - [x] **sessions** off the record, custom storage path, custom cookie store
+- [x] **kiosk** kiosk mode
 - [x] **application menu** global application menu (MacOSX, Unity)
 - [ ] **webview** webview tag (secure navigation, tabs management)
 - [ ] **tray icon** tray icon native integration
