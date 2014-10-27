@@ -46,7 +46,7 @@ class ThrustShellDevToolsDelegate : public content::DevToolsHttpHandlerDelegate 
  private:
   virtual ~ThrustShellDevToolsDelegate();
 
-  content::DevToolsHttpHandler* devtools_http_handler_;
+  content::DevToolsHttpHandler*    devtools_http_handler_;
   ThrustSession*                   session_;
 
   DISALLOW_COPY_AND_ASSIGN(ThrustShellDevToolsDelegate);

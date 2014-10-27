@@ -13,7 +13,7 @@
 #include "url/gurl.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "ui/base/l10n/l10n_util.h"
-#include "webkit/common/webpreferences.h"
+#include "content/public/common/web_preferences.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -209,7 +209,7 @@ ThrustShellBrowserClient::IsHandledURL(
 {
   if (!url.is_valid())
     return false;
-  DCHECK_EQ(url.scheme(), StringToLowerASCII(url.scheme()));
+  DCHECK_EQ(url.scheme(), base::StringToLowerASCII(url.scheme()));
   // Keep in sync with ProtocolHandlers added by
   // ThrustShellURLRequestContextGetter::GetURLRequestContext().
   /* TODO(spolu): Check in sync */

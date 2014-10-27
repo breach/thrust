@@ -103,11 +103,6 @@ public:
   /****************************************************************************/
   /* BROWSER_PLUGIN_GUEST_MANAGER_IMPLEMENTATION */
   /****************************************************************************/
-  virtual content::WebContents* CreateGuest(
-      content::SiteInstance* embedder_site_instance,
-      int instance_id,
-      scoped_ptr<base::DictionaryValue> extra_params) OVERRIDE;
-  virtual int GetNextInstanceID() OVERRIDE;
   virtual void MaybeGetGuestByInstanceIDOrKill(
       int guest_instance_id,
       int embedder_render_process_id,

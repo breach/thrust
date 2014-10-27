@@ -7,7 +7,6 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/platform_file.h"
 #include "content/public/renderer/content_renderer_client.h"
 
 namespace visitedlink {                                                         
