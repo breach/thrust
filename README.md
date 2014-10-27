@@ -1,31 +1,28 @@
 thrust
 ======
 
-Thrust is a cross-platform (Linux, OSX, Windows) application shell bindable from
-any language. It is designed to ease the creation, packaging and distribution of
-cross-platform native desktop appplication.
+Thrust enables you to create rich cross-platform desktop applications from the
+language of your choice (Go, NodeJS, Python, Java, ...). Thrust is based on
+Chromium and uses web-pages as its GUI, so you can see it as a minimal Chromium
+browser controlled by your code.
 
-Thrust embeds Chromium Content API and exposes its API through a local JSON RPC
-server listening on unix domain socket. Through the use of a language library,
-developers can control Thrust and create shell window, sessions, menus, etc...
+Thrust lets you create and manage native windows, load web contents, manage 
+native OS integrations (dock, menus, ...) through a standard IO API.
 
-Thrust also come with support for the `<webview>` tag allowing the execution of
-remote pages in a entirely secure setting.
-
-Thrust will be used by next releases of Breach.
+Thrust is used by [Breach](http://breach.cc)
 
 ```
 [Thurst Architecture]
 
-              (Platform)                        (Client Implementation)
-                                                                       
+              (Platform)                [stdio]    (Client Implementation)
+                                                                            
                                            #
                    +------------------+    #        +-----------------------+
-                   |   Cocoa / Aura   |    #    +---|  shell3: (HTML/JS)    |
+                   |   Cocoa / Aura   |    #    +---|    win3: (HTML/JS)    |
                    +---------+--------+    #    |  +-----------------------++
-                             |             #    +--|  shell2: (HTML/JS)    |
+                             |             #    +--|    win2: (HTML/JS)    |
 +----------------+ +---------+--------+    #    | +-----------------------++
-|                +-+   Thrust (C++)   +---------+-+  shell1: (HTML/JS)    |
+|                +-+   Thrust (C++)   +---------+-+    win1: (HTML/JS)    |
 |  Content  API  | +---------+--------+    #      +-----------------------+
 |                |           |             #                 | (TCP/FS)      
 |  (Blink / v8)  | +---------+--------+    #      +-----------------------+
@@ -34,20 +31,28 @@ Thrust will be used by next releases of Breach.
                                            #
 ```
 
-### Using Thrust
+### Using thrust
 
-To use thrust you need to rely on a binding library for your language of choice.
-Libraries are currently available for `Go` and `NodeJS`.
+To use thrust you need to rely on a binding library for your programming 
+language.  Libraries are currently available for `Go` and `NodeJS`. 
+
+If you want to create a binding library for another language, please get in 
+touch ASAP (We're especially looking for people willing to contribute for 
+Python, Ruby, Java, Rust).
 
 Thrust is supported on `Linux`, `MacOSX` and `Windows`.
 
 #### NodeJS
 
-Simply install `node-thrust` as any other package. At `postinstall` a binary
-image of `thrust` is downloaded for your platform (form this repository's 
-[releases downloads](https://github.com/breach/thrust/releases))
+Install `node-thrust`. 
+```
+npm install node-thrust
+```
+At `postinstall` a binary image of `thrust` is automatically downloaded for your 
+platform (form this repository's [releases](https://github.com/breach/thrust/releases))
 
 ```
+// test.js
 require('node-thrust')(function(err, api) {
   api.window({
     root_url: 'https://www.google.com/',
@@ -71,15 +76,18 @@ See [breach/node-thrust](https://github.com/breach/node-thrust) for more details
 
 See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust) for more details.
 
-### Building Thrust
+### Building thrust
 
-You'll need to have `python` and `git` installed. You can then boostrap the
-project with:
+You will generally don't need to build Thrust yourself. A binary version of 
+Thrust should be automatically fetched by the library you're at installation.
+
+To build Thrust, you'll need to have `python 2.7.x` and `git` installed. You can 
+then boostrap the project with:
 ```
 ./scripts/boostrap.py                                
 ```
 
-Build both the `Release` and `Debug` target with the following commands:
+Build both the `Release` and `Debug` targets with the following commands:
 ```
 ./scripts/update.py
 ./scripts/build.py
