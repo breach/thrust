@@ -98,6 +98,7 @@ See [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust
 - [ ] **tray icon** tray icon native integration
 - [ ] **remote** thrust specific IPC mechanism for client/server communication
 - [ ] **protocol** specific protocol reigstration (`fille://`, ...)
+- [ ] **proxy** enable traffic proxying (Tor)
 
 ### Building thrust
 
