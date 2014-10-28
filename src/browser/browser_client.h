@@ -66,7 +66,7 @@ class ThrustShellBrowserClient : public brightray::BrowserClient {
 
   virtual void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
                                    const GURL& url,
-                                   WebPreferences* prefs) OVERRIDE;
+                                   content::WebPreferences* prefs) OVERRIDE;
 
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 

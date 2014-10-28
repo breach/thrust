@@ -17,14 +17,15 @@ ThrustMenu::PlatformPopup(
     ThrustWindow* window) 
 {
   gfx::Point cursor = gfx::Screen::GetNativeScreen()->GetCursorScreenPoint();
-  views::MenuRunner menu_runner(model());
+  views::MenuRunner menu_runner(
+      model(),
+      views::MenuRunner::CONTEXT_MENU | views::MenuRunner::HAS_MNEMONICS);
   ignore_result(menu_runner.RunMenuAt(
       window->window_.get(),
       NULL,
       gfx::Rect(cursor, gfx::Size()),
       views::MENU_ANCHOR_TOPLEFT,
-      ui::MENU_SOURCE_MOUSE,
-      views::MenuRunner::HAS_MNEMONICS | views::MenuRunner::CONTEXT_MENU));
+      ui::MENU_SOURCE_MOUSE));
 }
 
 void

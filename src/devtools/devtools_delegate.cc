@@ -23,6 +23,9 @@
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"
 
+#include "src/browser/browser_client.h"
+#include "src/browser/session/thrust_session.h"
+
 using namespace content;
 
 namespace {
@@ -85,8 +88,7 @@ class Target : public content::DevToolsTarget {
 Target::Target(
     WebContents* web_contents) 
 {
-  agent_host_ =
-      DevToolsAgentHost::GetOrCreateFor(web_contents->GetRenderViewHost());
+  agent_host_ = DevToolsAgentHost::GetOrCreateFor(web_contents);
   id_ = agent_host_->GetId();
   title_ = base::UTF16ToUTF8(web_contents->GetTitle());
   url_ = web_contents->GetURL();
@@ -100,12 +102,10 @@ Target::Target(
 bool 
 Target::Activate() const 
 {
-  RenderViewHost* rvh = agent_host_->GetRenderViewHost();
-  if (!rvh)
+  WebContents* web_contents = agent_host_->GetWebContents();
+  if(!web_contents) {
     return false;
-  WebContents* web_contents = WebContents::FromRenderViewHost(rvh);
-  if (!web_contents)
-    return false;
+  }
   web_contents->GetDelegate()->ActivateContents(web_contents);
   return true;
 }
@@ -113,10 +113,11 @@ Target::Activate() const
 bool 
 Target::Close() const 
 {
-  RenderViewHost* rvh = agent_host_->GetRenderViewHost();
-  if (!rvh)
+  WebContents* web_contents = agent_host_->GetWebContents();
+  if(!web_contents) {
     return false;
-  rvh->ClosePage();
+  }
+  web_contents->GetRenderViewHost()->ClosePage();
   return true;
 }
 
@@ -179,20 +180,17 @@ ThrustShellDevToolsDelegate::CreateNewTarget(const GURL& url) {
 void 
 ThrustShellDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   TargetList targets;
-  std::vector<RenderViewHost*> rvh_list =
-    content::DevToolsAgentHost::GetValidRenderViewHosts();
-  for(std::vector<RenderViewHost*>::iterator it = rvh_list.begin();
-      it != rvh_list.end(); ++it) {
-    WebContents* web_contents = WebContents::FromRenderViewHost(*it);
-    if(web_contents) {
-      /* TODO(spolu): FixMe */
-      /*
-      ExoFrame* frame = ExoFrame::ExoFrameForWebContents(web_contents);
-      if(frame->session() == session_) {
-        targets.push_back(new Target(web_contents));
-      }
-      */
-      targets.push_back(new Target(web_contents));
+  std::vector<WebContents*> wc_list =
+      content::DevToolsAgentHost::GetInspectableWebContents();
+  for (std::vector<WebContents*>::iterator it = wc_list.begin();
+       it != wc_list.end();
+       ++it) {
+    /* We push only if this WebContents is part of this session. */
+    /* TODO(spolu) Check this filtering is working. */
+    if(ThrustShellBrowserClient::Get()
+        ->ThrustSessionForBrowserContext(
+          (*it)->GetBrowserContext()) == session_) {
+      targets.push_back(new Target(*it));
     }
   }
   callback.Run(targets);
