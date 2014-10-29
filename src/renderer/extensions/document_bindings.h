@@ -17,7 +17,6 @@ class DocumentBindings : public ObjectBackedNativeHandler {
   DocumentBindings(ScriptContext* context);
 
  private:
-
   // ### RegisterElement
   //
   // Registers the provided element as a custom element in Blink.

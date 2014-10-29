@@ -153,10 +153,10 @@ var webview = function(spec, my) {
     }
     var params = {};
 
-    WebViewNatives.createGuest('webview', params, function(instance_id) {
+    WebViewNatives.CreateGuest('webview', params, function(instance_id) {
       my.guest_pending = false;
       if(!my.attached) {
-        WebViewNatives.destroyGuest(instance_id);
+        WebViewNatives.DestroyGuest(instance_id);
         return;
       }
       attach_window(instance_id, false);
@@ -197,7 +197,7 @@ var webview = function(spec, my) {
   // @url {string} the url to load
   // ```
   api_loadUrl = function(url) {
-    WebViewNatives.loadUrl(my.guest_instance_id, url);
+    WebViewNatives.LoadUrl(my.guest_instance_id, url);
   };
 
   // ### api_go
@@ -207,7 +207,7 @@ var webview = function(spec, my) {
   // @index {integer} the relative index
   // ```
   api_go = function(index) {
-    WebViewNatives.go(my.guest_instance_id, index);
+    WebViewNatives.Go(my.guest_instance_id, index);
   };
 
   // ### api_reload
@@ -217,7 +217,7 @@ var webview = function(spec, my) {
   // @ignore_cache {boolean} ignore cache
   // ```
   api_reload = function(ignore_cache) {
-    WebViewNatives.reload(my.guest_instance_id, ignore_cache ? true : false);
+    WebViewNatives.Reload(my.guest_instance_id, ignore_cache ? true : false);
   };
 
   /****************************************************************************/
@@ -293,7 +293,7 @@ var webview = function(spec, my) {
   // Resets the state upon detachment of the element
   reset = function() {
     if(my.guest_instance_id) {
-      /* TODO(spolu): WebViewNatives.DestroyGuest */
+      WebViewNatives.DestroyGuest(my.guest_instance_id);
       my.guest_instance_id = null;
       my.before_first_navigation = true;
     }

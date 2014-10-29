@@ -7,6 +7,7 @@
 #include "base/lazy_instance.h"
 #include "net/base/escape.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/browser/host_zoom_map.h"
@@ -87,15 +88,17 @@ WebViewGuest::Event::GetArguments()
 }
 
 WebViewGuest::WebViewGuest(
+    int embedder_render_process_id,
     int guest_instance_id,
     WebContents* guest_web_contents)
 : WebContentsObserver(guest_web_contents),
   guest_web_contents_(guest_web_contents),
   embedder_web_contents_(NULL),
-  embedder_render_process_id_(0),
+  embedder_render_process_id_(embedder_render_process_id),
   browser_context_(guest_web_contents->GetBrowserContext()),
   guest_instance_id_(guest_instance_id),
   view_instance_id_(webview::kInstanceIDNone),
+  auto_size_enabled_(false),
   weak_ptr_factory_(this) 
 {
   WebContentsObserver::Observe(guest_web_contents);
@@ -119,10 +122,14 @@ WebViewGuest::WebViewGuest(
 // static
 WebViewGuest* 
 WebViewGuest::Create(
+    int embedder_render_process_id,
     int guest_instance_id,
     WebContents* guest_web_contents)
 {
-  return new WebViewGuest(guest_instance_id, guest_web_contents);
+  return new WebViewGuest(
+      embedder_render_process_id,
+      guest_instance_id, 
+      guest_web_contents);
 }
 
 // static
@@ -228,6 +235,18 @@ WebViewGuest::GetGuestInstanceID() const
 }
 
 void 
+WebViewGuest::GuestSizeChanged(
+    const gfx::Size& old_size,
+    const gfx::Size& new_size) 
+{
+  if (!auto_size_enabled_)
+    return;
+  guest_size_ = new_size;
+  //GuestSizeChangedDueToAutoSize(old_size, new_size);
+}
+
+
+void 
 WebViewGuest::RegisterDestructionCallback(
     const DestructionCallback& callback) 
 {
@@ -257,14 +276,19 @@ content::WebContents*
 WebViewGuest::CreateNewGuestWindow(
     const content::WebContents::CreateParams& create_params) 
 {
-  GuestViewManager* guest_manager =
-      GuestViewManager::FromBrowserContext(browser_context());
-  ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
-    CreateGuestWithWebContentsParams(
-      "webview"
-      embedder_extension_id(),
+  int guest_instance_id = 
+    ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
+      GetNextInstanceID();
+
+  content::WebContents* guest_web_contents =
+      WebContents::Create(create_params);
+
+  WebViewGuest* guest = WebViewGuest::Create(
+      guest_instance_id, 
       embedder_web_contents()->GetRenderProcessHost()->GetID(),
-      create_params);
+      guest_web_contents);
+
+  return guest_web_contents;
 }
 
 WebViewGuest::~WebViewGuest() 
@@ -282,7 +306,8 @@ WebViewGuest::~WebViewGuest()
 }
 
 void 
-WebViewGuest::Observe(int type,
+WebViewGuest::Observe(
+    int type,
     const content::NotificationSource& source,
     const content::NotificationDetails& details) 
 {
@@ -347,8 +372,9 @@ WebViewGuest::Go(
 }
 
 void 
-WebViewGuest::Reload() 
+WebViewGuest::Reload(bool ignore_cache) 
 {
+  /* TODO(spolu): Handle ignore_cache */
   // TODO(fsamuel): Don't check for repost because we don't want to show
   // Chromium's repost warning. We might want to implement a separate API
   // for registering a callback if a repost is about to happen.
@@ -361,6 +387,43 @@ WebViewGuest::Stop()
   guest_web_contents()->Stop();
 }
 
+
+/******************************************************************************/
+/* PUBLIC API */
+/******************************************************************************/
+void 
+WebViewGuest::SetAutoSize(
+    bool enabled,
+    const gfx::Size& min_size,
+    const gfx::Size& max_size) 
+{
+  min_auto_size_ = min_size;
+  min_auto_size_.SetToMin(max_size);
+  max_auto_size_ = max_size;
+  max_auto_size_.SetToMax(min_size);
+
+  enabled &= !min_auto_size_.IsEmpty() && !max_auto_size_.IsEmpty();
+  if (!enabled && !auto_size_enabled_)
+    return;
+
+  auto_size_enabled_ = enabled;
+
+  if (!attached())
+    return;
+
+  content::RenderViewHost* rvh = guest_web_contents()->GetRenderViewHost();
+  if (auto_size_enabled_) {
+    rvh->EnableAutoResize(min_auto_size_, max_auto_size_);
+  } else {
+    rvh->DisableAutoResize(element_size_);
+    guest_size_ = element_size_;
+    //GuestSizeChangedDueToAutoSize(guest_size_, element_size_);
+  }
+}
+
+/******************************************************************************/
+/* PRIVATE & PROTECTED API */
+/******************************************************************************/
 void 
 WebViewGuest::DispatchEvent(
     Event* event) 
@@ -402,5 +465,36 @@ WebViewGuest::SendQueuedEvents()
     DispatchEvent(event_ptr.release());
   }
 }
+
+/******************************************************************************/
+/* WEBCONTENTSOBSERVER IMPLEMENTATION */
+/******************************************************************************/
+void 
+WebViewGuest::DidStopLoading(
+    content::RenderViewHost* render_view_host) 
+{
+  //DidStopLoading();
+}
+
+void 
+WebViewGuest::RenderViewReady() 
+{
+  //GuestReady();
+  content::RenderViewHost* rvh = guest_web_contents()->GetRenderViewHost();
+  if (auto_size_enabled_) {
+    rvh->EnableAutoResize(min_auto_size_, max_auto_size_);
+  } 
+  else {
+    rvh->DisableAutoResize(element_size_);
+  }
+}
+
+void 
+WebViewGuest::WebContentsDestroyed() 
+{
+  //GuestDestroyed();
+  delete this;
+}
+
 
 } // namespace thrust_shell

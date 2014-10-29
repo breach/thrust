@@ -56,6 +56,7 @@ public:
   /* STATIC API */
   /****************************************************************************/
   static WebViewGuest* Create(int guest_instance_id,
+                              int embedder_render_process_id,
                               content::WebContents* guest_web_contents);
 
   static WebViewGuest* From(int embedder_process_id, int instance_id);
@@ -79,10 +80,8 @@ public:
   virtual void ElementSizeChanged(const gfx::Size& old_size,
                                   const gfx::Size& new_size) OVERRIDE FINAL;
   virtual int GetGuestInstanceID() const OVERRIDE;
-  /*
   virtual void GuestSizeChanged(const gfx::Size& old_size,
                                 const gfx::Size& new_size) OVERRIDE FINAL;
-  */
   virtual void RegisterDestructionCallback(
       const DestructionCallback& callback) OVERRIDE FINAL;
   virtual void WillAttach(
@@ -108,19 +107,35 @@ public:
   /****************************************************************************/
   /* WEBVIEW API */
   /****************************************************************************/
+  // ### SetZoom
+  //
   // Set the zoom factor.
   void SetZoom(double zoom_factor);
 
+  // ### GetZoom
+  //
   // Returns the current zoom factor.
   double GetZoom();
 
+  // ### Go
+  //
   // If possible, navigate the guest to |relative_index| entries away from the
   // current navigation entry.
+  // ```
+  // @relative_index {int}
+  // ```
   void Go(int relative_index);
 
+  // ### Reload
+  //
   // Reload the guest.
-  void Reload();
+  // ```
+  // @ignore_cache {bool}
+  // ```
+  void Reload(bool ignore_cache);
 
+  // ### Stop
+  //
   // Stop loading the guest.
   void Stop();
 
@@ -128,6 +143,11 @@ public:
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/
+  // Toggles autosize mode for this GuestView.
+  void SetAutoSize(bool enabled,
+                   const gfx::Size& min_size,
+                   const gfx::Size& max_size);
+
   content::WebContents* embedder_web_contents() const {
     return embedder_web_contents_;
   }
@@ -152,8 +172,12 @@ public:
   // Returns the embedder's process ID.
   int embedder_render_process_id() const { return embedder_render_process_id_; }
 
+  /****************************************************************************/
+  /* PROTECTED & PRIVATE API */
+  /****************************************************************************/
  protected:
-  WebViewGuest(int guest_instance_id,
+  WebViewGuest(int embedder_render_process_id,
+               int guest_instance_id,
                content::WebContents* guest_web_contents);
   virtual ~WebViewGuest();
 
@@ -168,6 +192,10 @@ public:
   /****************************************************************************/
   /* WEBCONTENTSOBSERVER IMPLEMENTATION */
   /****************************************************************************/
+  virtual void DidStopLoading(
+      content::RenderViewHost* render_view_host) OVERRIDE FINAL;
+  virtual void RenderViewReady() OVERRIDE FINAL;
+  virtual void WebContentsDestroyed() OVERRIDE FINAL;
   /*
   virtual void DidCommitProvisionalLoadForFrame(
       int64 frame_id,
@@ -195,16 +223,14 @@ public:
   virtual void DocumentLoadedInFrame(
       int64 frame_id,
       content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void DidStopLoading(
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void WebContentsDestroyed(
-      content::WebContents* web_contents) OVERRIDE;
   virtual void UserAgentOverrideSet(const std::string& user_agent) OVERRIDE;
   */
 
+  /****************************************************************************/
+  /* DATA FIELDS */
+  /****************************************************************************/
   content::WebContents* const               guest_web_contents_;
   content::WebContents*                     embedder_web_contents_;
-  const std::string                         embedder_extension_id_;
   int                                       embedder_render_process_id_;
   content::BrowserContext* const            browser_context_;
   // |guest_instance_id_| is a profile-wide unique identifier for a guest
@@ -227,6 +253,17 @@ public:
   // are passed along to new guests that are created from this guest.
   scoped_ptr<base::DictionaryValue>         extra_params_;
   scoped_ptr<EmbedderWebContentsObserver>   embedder_web_contents_observer_;
+  // The size of the container element.
+  gfx::Size element_size_;
+  // The size of the guest content. Note: In autosize mode, the container
+  // element may not match the size of the guest.
+  gfx::Size guest_size_;
+  // Indicates whether autosize mode is enabled or not.
+  bool auto_size_enabled_;
+  // The maximum size constraints of the container element in autosize mode.
+  gfx::Size max_auto_size_;
+  // The minimum size constraints of the container element in autosize mode.
+  gfx::Size min_auto_size_;
   // This is used to ensure pending tasks will not fire after this object is
   // destroyed.
   base::WeakPtrFactory<WebViewGuest>        weak_ptr_factory_;

@@ -118,8 +118,6 @@
       'src/renderer/extensions/native_handler.cc',
       'src/renderer/extensions/object_backed_native_handler.cc',
       'src/renderer/extensions/object_backed_native_handler.h',
-      'src/renderer/extensions/document_bindings.h',
-      'src/renderer/extensions/document_bindings.cc',
       'src/renderer/extensions/safe_builtins.h',
       'src/renderer/extensions/safe_builtins.cc',
       'src/renderer/extensions/console.h',
@@ -130,6 +128,11 @@
       'src/renderer/extensions/script_context.cc',
       'src/renderer/extensions/dispatcher.h',
       'src/renderer/extensions/dispatcher.cc',
+
+      'src/renderer/extensions/document_bindings.h',
+      'src/renderer/extensions/document_bindings.cc',
+      'src/renderer/extensions/web_view_bindings.h',
+      'src/renderer/extensions/web_view_bindings.cc',
 
       'src/geolocation/access_token_store.cc',
       'src/geolocation/access_token_store.h',

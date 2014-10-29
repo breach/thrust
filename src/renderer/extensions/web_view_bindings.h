@@ -8,22 +8,49 @@
 #include "src/renderer/extensions/object_backed_native_handler.h"
 
 namespace extensions {
+
 class ScriptContext;
 
 class WebViewBindings : public ObjectBackedNativeHandler {
  public:
+  // ### WebViewBindings
   WebViewBindings(ScriptContext* context);
 
  private:
-  // Registers the provided element as a custom element in Blink.
-  //void RegisterElement(const v8::FunctionCallbackInfo<v8::Value>& args);
-  
   // ### CreateGuest
   //
   // ```
   // @args {FunctionCallbackInfo} v8 args and return
   // ```
   void CreateGuest(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+  // ### DestroyGuest
+  //
+  // ```
+  // @args {FunctionCallbackInfo} v8 args and return
+  // ```
+  void DestroyGuest(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+  // ### LoadUrl
+  //
+  // ```
+  // @args {FunctionCallbackInfo} v8 args and return
+  // ```
+  void LoadUrl(const v8::FunctionCallbackInfo<v8::Value>& args);
+  
+  // ### Go
+  //
+  // ```
+  // @args {FunctionCallbackInfo} v8 args and return
+  // ```
+  void Go(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+  // ### Reload
+  //
+  // ```
+  // @args {FunctionCallbackInfo} v8 args and return
+  // ```
+  void Reload(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 }  // namespace extensions

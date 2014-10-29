@@ -24,6 +24,7 @@
 #include "src/renderer/extensions/script_context.h"
 #include "src/renderer/extensions/module_system.h"
 #include "src/renderer/extensions/document_bindings.h"
+#include "src/renderer/extensions/web_view_bindings.h"
 
 using blink::WebDataSource;
 using blink::WebDocument;
@@ -64,7 +65,7 @@ Dispatcher::PopulateSourceMap()
   std::string web_view_src(
       (char*)src_renderer_extensions_resources_web_view_js,
       src_renderer_extensions_resources_web_view_js_len);
-  source_map_.RegisterSource("webView", web_view_src);
+  source_map_.RegisterSource("webview", web_view_src);
 
   /*
   // Note: webView not webview so that this doesn't interfere with the
@@ -133,7 +134,7 @@ Dispatcher::DidCreateScriptContext(
           manifest_version, send_request_disabled)));
   */
 
-  module_system->Require("webView");
+  module_system->Require("webview");
   LOG(INFO) << "Module requires called!";
 
   //VLOG(1) << "Num tracked contexts: " << v8_context_set_.size();
@@ -148,6 +149,9 @@ Dispatcher::RegisterNativeHandlers(
   module_system->RegisterNativeHandler("document_natives",
       scoped_ptr<NativeHandler>(
           new DocumentBindings(context)));
+  module_system->RegisterNativeHandler("web_view_natives",
+      scoped_ptr<NativeHandler>(
+          new WebViewBindings(context)));
   /*
   module_system->RegisterNativeHandler("event_natives",
       scoped_ptr<NativeHandler>(EventBindings::Create(this, context)));
