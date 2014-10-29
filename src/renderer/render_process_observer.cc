@@ -48,6 +48,7 @@ ThrustShellRenderProcessObserver::~ThrustShellRenderProcessObserver()
 void 
 ThrustShellRenderProcessObserver::WebKitInitialized() 
 {
+  EnableWebRuntimeFeatures();
 }
 
 bool 
@@ -64,5 +65,31 @@ ThrustShellRenderProcessObserver::OnControlMessageReceived(
 
   return handled;
 }
+
+void 
+ThrustShellRendererProcessObserver::EnableWebRuntimeFeatures() 
+{
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  bool b;
+  if(IsSwitchEnabled(command_line, switches::kExperimentalFeatures, &b)) {
+    blink::WebRuntimeFeatures::enableExperimentalFeatures(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kExperimentalCanvasFeatures, &b)) {
+    blink::WebRuntimeFeatures::enableExperimentalCanvasFeatures(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kSubpixelFontScaling, &b)) {
+    blink::WebRuntimeFeatures::enableSubpixelFontScaling(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kOverlayScrollbars, &b)) {
+    blink::WebRuntimeFeatures::enableOverlayScrollbars(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kOverlayFullscreenVideo, &b)) {
+    blink::WebRuntimeFeatures::enableOverlayFullscreenVideo(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kSharedWorker, &b)) {
+    blink::WebRuntimeFeatures::enableSharedWorker(b);
+  }
+}
+
 
 } // namespace thrust_shell

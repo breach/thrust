@@ -200,6 +200,10 @@ WebViewGuest::Destroy()
 {
   if(!destruction_callback_.is_null())
     destruction_callback_.Run();
+
+  ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
+    RemoveGuest(guest_instance_id_);
+
   delete guest_web_contents();
 }
 
@@ -207,6 +211,20 @@ void
 WebViewGuest::DidAttach() 
 {
   SendQueuedEvents();
+}
+
+void 
+WebViewGuest::ElementSizeChanged(
+    const gfx::Size& old_size,
+    const gfx::Size& new_size) 
+{
+  element_size_ = new_size;
+}
+
+int 
+WebViewGuest::GetGuestInstanceID() const 
+{
+  return guest_instance_id_;
 }
 
 void 
@@ -235,6 +253,19 @@ WebViewGuest::WillAttach(
   embedder_webview_map.Get().insert(std::make_pair(key, this));
 }
 
+content::WebContents* 
+WebViewGuest::CreateNewGuestWindow(
+    const content::WebContents::CreateParams& create_params) 
+{
+  GuestViewManager* guest_manager =
+      GuestViewManager::FromBrowserContext(browser_context());
+  ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
+    CreateGuestWithWebContentsParams(
+      "webview"
+      embedder_extension_id(),
+      embedder_web_contents()->GetRenderProcessHost()->GetID(),
+      create_params);
+}
 
 WebViewGuest::~WebViewGuest() 
 {

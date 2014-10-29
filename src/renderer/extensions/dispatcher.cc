@@ -23,7 +23,7 @@
 
 #include "src/renderer/extensions/script_context.h"
 #include "src/renderer/extensions/module_system.h"
-#include "src/renderer/extensions/document_custom_bindings.h"
+#include "src/renderer/extensions/document_bindings.h"
 
 using blink::WebDataSource;
 using blink::WebDocument;
@@ -147,7 +147,7 @@ Dispatcher::RegisterNativeHandlers(
 {
   module_system->RegisterNativeHandler("document_natives",
       scoped_ptr<NativeHandler>(
-          new DocumentCustomBindings(context)));
+          new DocumentBindings(context)));
   /*
   module_system->RegisterNativeHandler("event_natives",
       scoped_ptr<NativeHandler>(EventBindings::Create(this, context)));

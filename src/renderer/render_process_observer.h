@@ -32,6 +32,7 @@ class ThrustShellRenderProcessObserver : public content::RenderProcessObserver {
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
+  void EnableWebRuntimeFeatures();
 
   DISALLOW_COPY_AND_ASSIGN(ThrustShellRenderProcessObserver);
 };

@@ -130,5 +130,4 @@ ThrustShellRendererClient::IsLinkVisited(
   return visited_link_slave_->IsVisited(link_hash);
 }
 
-
 } // namespace thrust_shell

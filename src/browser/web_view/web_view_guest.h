@@ -76,11 +76,27 @@ public:
   /****************************************************************************/
   virtual void Destroy() OVERRIDE FINAL;
   virtual void DidAttach() OVERRIDE FINAL;
+  virtual void ElementSizeChanged(const gfx::Size& old_size,
+                                  const gfx::Size& new_size) OVERRIDE FINAL;
+  virtual int GetGuestInstanceID() const OVERRIDE;
+  /*
+  virtual void GuestSizeChanged(const gfx::Size& old_size,
+                                const gfx::Size& new_size) OVERRIDE FINAL;
+  */
   virtual void RegisterDestructionCallback(
       const DestructionCallback& callback) OVERRIDE FINAL;
   virtual void WillAttach(
       content::WebContents* embedder_web_contents,
       const base::DictionaryValue& extra_params) OVERRIDE FINAL;
+
+  virtual content::WebContents* CreateNewGuestWindow(
+      const content::WebContents::CreateParams& create_params) OVERRIDE;
+  /*
+  virtual void RequestPointerLockPermission(
+      bool user_gesture,
+      bool last_unlocked_by_target,
+      const base::Callback<void(bool)>& callback) OVERRIDE;
+  */
 
   /****************************************************************************/
   /* NOTIFICATION_OBSERVER IMPLEMENTATION */

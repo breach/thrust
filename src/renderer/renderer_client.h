@@ -60,8 +60,8 @@ class ThrustShellRendererClient : public content::ContentRendererClient {
 
  private:
   scoped_ptr<ThrustShellRenderProcessObserver> observer_;
-  scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
-  scoped_ptr<extensions::Dispatcher>        extension_dispatcher_;
+  scoped_ptr<visitedlink::VisitedLinkSlave>    visited_link_slave_;
+  scoped_ptr<extensions::Dispatcher>           extension_dispatcher_;
 };
 
 } // namespace thrust_shell
