@@ -40,8 +40,8 @@ void
 WebViewBindings::CreateGuest(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
-  if (args.Length() != 3 || 
-      !args[0]->IsString() || !args[1]->IsObject() || !args[3]->IsFunction()) {
+  if(args.Length() != 3 || 
+     !args[0]->IsString() || !args[1]->IsObject() || !args[2]->IsFunction()) {
     NOTREACHED();
     return;
   }
@@ -59,7 +59,7 @@ void
 WebViewBindings::DestroyGuest(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
-  if (args.Length() != 1 || !args[0]->IsNumber()) {
+  if(args.Length() != 1 || !args[0]->IsNumber()) {
     NOTREACHED();
     return;
   }
@@ -75,7 +75,7 @@ void
 WebViewBindings::LoadUrl(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
-  if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString()) {
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString()) {
     NOTREACHED();
     return;
   }
@@ -92,7 +92,7 @@ void
 WebViewBindings::Go(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
-  if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsNumber()) {
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsNumber()) {
     NOTREACHED();
     return;
   }
@@ -109,7 +109,7 @@ void
 WebViewBindings::Reload(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
-  if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsBoolean()) {
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsBoolean()) {
     NOTREACHED();
     return;
   }

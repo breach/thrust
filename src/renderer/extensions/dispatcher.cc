@@ -149,7 +149,7 @@ Dispatcher::RegisterNativeHandlers(
   module_system->RegisterNativeHandler("document_natives",
       scoped_ptr<NativeHandler>(
           new DocumentBindings(context)));
-  module_system->RegisterNativeHandler("web_view_natives",
+  module_system->RegisterNativeHandler("webview_natives",
       scoped_ptr<NativeHandler>(
           new WebViewBindings(context)));
   /*
@@ -282,7 +282,7 @@ Dispatcher::IdleNotification()
 void 
 Dispatcher::EnableCustomElementWhiteList()
 {
-  blink::WebCustomElement::addEmbedderCustomElementName("browser-plugin"); 
+  blink::WebCustomElement::addEmbedderCustomElementName("browserplugin"); 
   blink::WebCustomElement::addEmbedderCustomElementName("webview");
 }
 

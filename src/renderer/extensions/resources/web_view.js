@@ -3,7 +3,7 @@
 // See the LICENSE file.
 
 var DocumentNatives = requireNative('document_natives');
-var WebViewNatives = requireNative('web_view_natives');
+var WebViewNatives = requireNative('webview_natives');
 
 /******************************************************************************/
 /* ID GENERATOR */
@@ -153,6 +153,7 @@ var webview = function(spec, my) {
     }
     var params = {};
 
+    console.log('+++++++++++++++++++++++ CREATE GUEST');
     WebViewNatives.CreateGuest('webview', params, function(instance_id) {
       my.guest_pending = false;
       if(!my.attached) {
@@ -249,7 +250,7 @@ var webview = function(spec, my) {
     /* TODO(spolu): see handleBrowserPluginAttributeMutation */
 
     /* TODO(spolu): FixMe Chrome 39 */
-    if (name == 'internalbindings' && !oldValue && newValue) {
+    if (name == 'internalbindings' && !old_value && new_value) {
       my.browser_plugin_node.removeAttribute('internalbindings');
 
       /* If we already created the guest but the plugin was not in the render */
@@ -312,11 +313,11 @@ var webview = function(spec, my) {
     // We create BrowserPlugin as a custom element in order to observe changes
     // to attributes synchronously.
     my.browser_plugin_node = new window.BrowserPlugin();
-    privates(browserPluginNode).internal = that;
+    privates(my.browser_plugin_node).internal = that;
 
     /* We create the shadow root for this element and append the browser */
     /* plugin node to it.                                                */
-    my.web_view_node.createShadowRoot().appendChild(my.browser_plugin_node);
+    my.webview_node.createShadowRoot().appendChild(my.browser_plugin_node);
 
     /* Set up webview autoresize attributes */
     AUTO_SIZE_ATTRIBUTES.forEach(function(attr) {
@@ -412,12 +413,12 @@ var webview = function(spec, my) {
     /* spawns off a new process.                                               */
     my.src_observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
-        var oldValue = mutation.oldValue;
-        var newValue = my.webview_node.getAttribute(mutation.attributeName);
-        if(oldValue != newValue) {
+        var old_value = mutation.oldValue;
+        var new_value = my.webview_node.getAttribute(mutation.attributeName);
+        if(old_value != new_value) {
           return;
         }
-        webview_mutation_handler(mutation.attributeName, oldValue, newValue);
+        webview_mutation_handler(mutation.attributeName, old_value, new_value);
       });
     });
     my.src_observer.observe(my.webview_node, {
@@ -445,9 +446,6 @@ var webview = function(spec, my) {
     parse_attributes();
   };
   
-  init();
-
-
   that.webview_mutation_handler = webview_mutation_handler;
   that.browser_plugin_mutation_handler = browser_plugin_mutation_handler;
 
@@ -458,6 +456,8 @@ var webview = function(spec, my) {
   that.api_loadUrl = api_loadUrl;
   that.api_go = api_go;
   that.api_reload = api_reload;
+
+  init();
 
   return that;
 };
@@ -480,12 +480,12 @@ function registerBrowserPluginElement() {
     this.style.height = '100%';
   };
 
-  proto.attributeChangedCallback = function(name, oldValue, newValue) {
+  proto.attributeChangedCallback = function(name, old_value, new_value) {
     var internal = privates(this).internal;
     if(!internal) {
       return;
     }
-    internal.browser_plugin_mutation_handler(name, oldValue, newValue);
+    internal.browser_plugin_mutation_handler(name, old_value, new_value);
   };
 
   proto.attachedCallback = function() {
@@ -518,12 +518,12 @@ function registerWebViewElement() {
     webview({ node: this });
   };
 
-  proto.attributeChangedCallback = function(name, oldValue, newValue) {
+  proto.attributeChangedCallback = function(name, old_value, new_value) {
     var internal = privates(this).internal;
     if(!internal) {
       return;
     }
-    internal.webview_mutation_handler(name, oldValue, newValue);
+    internal.webview_mutation_handler(name, old_value, new_value);
   };
 
   proto.detachedCallback = function() {
