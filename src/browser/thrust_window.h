@@ -306,6 +306,7 @@ public:
   /****************************************************************************/
   void CreateWebViewGuest(const base::DictionaryValue& params,
                           int* guest_instance_id); 
+  void DestroyWebViewGuest(int guest_instance_id); 
 
   void WebViewEmit(int guest_instance_id,
                    const std::string type,

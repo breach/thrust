@@ -376,8 +376,6 @@ ThrustWindow::OnMessageReceived(
   /*
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(ThrustWindow, message)
-    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_CreateWebViewGuest,
-                        CreateWebViewGuest)
     //IPC_MESSAGE_HANDLER(ShellViewHostMsg_UpdateDraggableRegions,
     //                    UpdateDraggableRegions)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -396,6 +394,8 @@ ThrustWindow::OnMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(ThrustWindow, message)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_CreateWebViewGuest,
                         CreateWebViewGuest)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_DestroyWebViewGuest,
+                        DestroyWebViewGuest)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestSetAutoSize,
                         WebViewGuestSetAutoSize)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestLoadUrl,
@@ -436,6 +436,23 @@ ThrustWindow::CreateWebViewGuest(
 
   guest->Init(guest_web_contents);
 }
+
+void 
+ThrustWindow::DestroyWebViewGuest(
+    int guest_instance_id)
+{
+  LOG(INFO) << "ThrustWindow DestroyWebViewGuest " << guest_instance_id;
+
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Destroy();
+}
+
 
 void 
 ThrustWindow::WebViewEmit(

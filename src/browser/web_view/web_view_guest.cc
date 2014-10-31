@@ -46,6 +46,7 @@ class WebViewGuest::EmbedderWebContentsObserver : public WebContentsObserver {
  public:
   explicit EmbedderWebContentsObserver(WebViewGuest* guest)
       : WebContentsObserver(guest->embedder_web_contents()),
+        destroyed_(false),
         guest_(guest) {
   }
 
@@ -54,12 +55,25 @@ class WebViewGuest::EmbedderWebContentsObserver : public WebContentsObserver {
 
   // WebContentsObserver implementation.
   virtual void WebContentsDestroyed() OVERRIDE {
+    Destroy();
+  }
+
+  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE {
+    Destroy();
+  }
+
+ private:
+  void Destroy() {
+    if(destroyed_) {
+      return;
+    }
+    destroyed_ = true;
     guest_->embedder_web_contents_ = NULL;
     //guest_->EmbedderDestroyed();
     guest_->Destroy();
   }
 
- private:
+  bool          destroyed_;
   WebViewGuest* guest_;
 
   DISALLOW_COPY_AND_ASSIGN(EmbedderWebContentsObserver);
@@ -176,8 +190,12 @@ WebViewGuest::ParsePartitionParam(
 void 
 WebViewGuest::Destroy() 
 {
+  LOG(INFO) << "WebViewGuest Destroy: " << this;
+
   if(!destruction_callback_.is_null())
     destruction_callback_.Run();
+
+  webcontents_webview_map.Get().erase(guest_web_contents());
 
   ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
     RemoveGuest(guest_instance_id_);
@@ -254,11 +272,6 @@ WebViewGuest::CreateNewGuestWindow(
 WebViewGuest::~WebViewGuest() 
 {
   LOG(INFO) << "WebViewGuest Destructor: " << this;
-
-  webcontents_webview_map.Get().erase(guest_web_contents());
-
-  ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
-    RemoveGuest(guest_instance_id_);
 }
 
 void 
