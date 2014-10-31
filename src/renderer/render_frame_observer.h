@@ -18,6 +18,10 @@ namespace content {
 class RenderFrame;
 }
 
+namespace extensions {
+class WebViewBindings;
+}
+
 namespace thrust_shell {
 
 class ThrustShellRenderFrameObserver : public content::RenderFrameObserver {
@@ -36,13 +40,18 @@ class ThrustShellRenderFrameObserver : public content::RenderFrameObserver {
   /****************************************************************************/
   /* WEBVIEW MESSAGE HANDLING */
   /****************************************************************************/
-  void WebViewGuestEmit(int guest_instance_id,
-                        const std::string type,
-                        const base::DictionaryValue& params);
+  void AddWebViewBindings(extensions::WebViewBindings* bindings);
+  void RemoveWebViewBindings(extensions::WebViewBindings* bindings);
+
+  void WebViewEmit(int guest_instance_id,
+                   const std::string type,
+                   const base::DictionaryValue& event);
 
  private:
   // A static container of all the instances.
   static std::vector<ThrustShellRenderFrameObserver*> s_instances;
+
+  std::vector<extensions::WebViewBindings*>           bindings_;
 
   DISALLOW_COPY_AND_ASSIGN(ThrustShellRenderFrameObserver);
 };

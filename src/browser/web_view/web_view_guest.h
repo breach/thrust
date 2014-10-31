@@ -43,7 +43,6 @@ public:
   /****************************************************************************/
   static WebViewGuest* Create(int guest_instance_id);
 
-  static WebViewGuest* From(int embedder_process_id, int instance_id);
   static WebViewGuest* FromWebContents(content::WebContents* web_contents);
 
   // Returns guestview::kInstanceIDNone if |contents| does not correspond to a
@@ -91,6 +90,11 @@ public:
   /****************************************************************************/
   /* WEBVIEW API */
   /****************************************************************************/
+  // ### LoadUrl
+  //
+  // Loads the specified url
+  void LoadUrl(const GURL& url);
+
   // ### SetZoom
   //
   // Set the zoom factor.
@@ -206,6 +210,30 @@ public:
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void UserAgentOverrideSet(const std::string& user_agent) OVERRIDE;
   */
+
+  /****************************************************************************/
+  /* WEBCONTENTSDELEGATE IMPLEMENTATION */
+  /****************************************************************************/
+  virtual bool ShouldCreateWebContents(
+      content::WebContents* web_contents,
+      int route_id,
+      WindowContainerType window_container_type,
+      const base::string16& frame_name,
+      const GURL& target_url,
+      const std::string& partition_id,
+      content::SessionStorageNamespace* session_storage_namespace) OVERRIDE;
+  virtual void CloseContents(content::WebContents* source) OVERRIDE;
+  virtual content::WebContents* OpenURLFromTab(
+      content::WebContents* source,
+      const content::OpenURLParams& params) OVERRIDE;
+  virtual bool AddMessageToConsole(content::WebContents* source,
+                                   int32 level,
+                                   const base::string16& message,
+                                   int32 line_no,
+                                   const base::string16& source_id) OVERRIDE;
+  virtual void HandleKeyboardEvent(
+      content::WebContents* source,
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
 
   /****************************************************************************/
   /* DATA FIELDS */

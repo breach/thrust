@@ -26,6 +26,8 @@ using content::V8ValueConverter;
 
 namespace extensions {
 
+std::vector<ScriptContext*> ScriptContext::s_instances;
+
 ScriptContext::ScriptContext(const v8::Handle<v8::Context>& v8_context,
                              blink::WebFrame* web_frame)
     : v8_context_(v8_context),
@@ -34,12 +36,33 @@ ScriptContext::ScriptContext(const v8::Handle<v8::Context>& v8_context,
       isolate_(v8_context->GetIsolate()) {
   VLOG(1) << "Created context:\n"
           << "  frame:        " << web_frame_;
+  s_instances.push_back(this);
 }
 
 ScriptContext::~ScriptContext() {
   VLOG(1) << "Destroyed context for extension";
+  for(size_t i = 0; i < s_instances.size(); ++i) {
+    if(s_instances[i] == this) {
+      s_instances.erase(s_instances.begin() + i);
+      break;
+    }
+  }
   Invalidate();
 }
+
+// static
+ScriptContext* 
+ScriptContext::FromV8Context(
+    const v8::Handle<v8::Context>& v8_context)
+{
+  for(size_t i = 0; i < s_instances.size(); ++i) {
+    if(s_instances[i]->v8_context() == v8_context) {
+      return s_instances[i];
+    }
+  }
+  return NULL;
+}
+
 
 void ScriptContext::Invalidate() {
   if (!is_valid())

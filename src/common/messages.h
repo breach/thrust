@@ -37,6 +37,11 @@ IPC_SYNC_MESSAGE_ROUTED1_1(ThrustFrameHostMsg_CreateWebViewGuest,
 IPC_MESSAGE_ROUTED1(ThrustFrameHostMsg_DestroyWebViewGuest,
                     int /* guest_instance_id */)
 
+// WebViewSetAutoSize
+IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestSetAutoSize,
+                    int, /* guest_instance_id */
+                    base::DictionaryValue /* params */)
+
 // WebViewGuestLoadUrl
 IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestLoadUrl,
                     int, /* guest_instance_id */
@@ -52,8 +57,8 @@ IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestReload,
                     int, /* guest_instance_id */
                     int /* relative_index */)
 
-// WebViewGuestEmit
-IPC_MESSAGE_ROUTED3(ThrustFrameMsg_WebViewGuestEmit,
+// WebViewEmit
+IPC_MESSAGE_ROUTED3(ThrustFrameMsg_WebViewEmit,
                     int, /* guest_instance_id */
                     std::string, /* type */
                     base::DictionaryValue /* event */);

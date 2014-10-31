@@ -17,6 +17,8 @@
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/resource_request_details.h"
+#include "content/public/browser/navigation_controller.h"
+#include "content/public/browser/navigation_entry.h"
 #include "content/public/common/page_zoom.h"
 
 #include "src/browser/web_view/web_view_constants.h"
@@ -27,12 +29,6 @@
 using content::WebContents;
 
 namespace {
-
-// <embedder_process_id, guest_instance_id> => WebViewGuest*
-typedef std::map<std::pair<int, int>, thrust_shell::WebViewGuest*> 
-  EmbedderWebViewGuestMap;
-static base::LazyInstance<EmbedderWebViewGuestMap> embedder_webview_map =
-    LAZY_INSTANCE_INITIALIZER;
 
 // WebContents* => WebViewGuest*
 typedef std::map<WebContents*, thrust_shell::WebViewGuest*> 
@@ -129,18 +125,6 @@ WebViewGuest::FromWebContents(
   return it == webview_map->end() ? NULL : it->second;
 }
 
-// static
-WebViewGuest* 
-WebViewGuest::From(
-    int embedder_process_id, 
-    int guest_instance_id) 
-{
-  EmbedderWebViewGuestMap* guest_map = embedder_webview_map.Pointer();
-  EmbedderWebViewGuestMap::iterator it = guest_map->find(
-      std::make_pair(embedder_process_id, guest_instance_id));
-  return it == guest_map->end() ? NULL : it->second;
-}
-
 // static.
 int 
 WebViewGuest::GetViewInstanceId(
@@ -204,10 +188,10 @@ WebViewGuest::Destroy()
 void 
 WebViewGuest::DidAttach() 
 {
-  GetThrustWindow()->WebViewGuestEmit(
+  GetThrustWindow()->WebViewEmit(
       guest_instance_id_,
       "did-attach",
-      base::DictionaryValue());
+      *(extra_params_.get()));
 }
 
 void 
@@ -257,35 +241,20 @@ WebViewGuest::WillAttach(
   extra_params_.reset(extra_params.DeepCopy());
 
   LOG(INFO) << "WebViewGuest WillAttach: " << embedder_web_contents << " " << view_instance_id_;
-
-  std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
-  embedder_webview_map.Get().insert(std::make_pair(key, this));
 }
 
 content::WebContents* 
 WebViewGuest::CreateNewGuestWindow(
     const content::WebContents::CreateParams& create_params) 
 {
-  int guest_instance_id = 
-    ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
-      GetNextInstanceID();
-
-  WebViewGuest* guest = WebViewGuest::Create(guest_instance_id);
-
-  content::WebContents* guest_web_contents =
-      WebContents::Create(create_params);
-
-  guest->Init(guest_web_contents);
-
-  return guest_web_contents;
+  NOTREACHED() << "Should not create new window from guest";
+  return NULL;
 }
 
 WebViewGuest::~WebViewGuest() 
 {
   LOG(INFO) << "WebViewGuest Destructor: " << this;
 
-  std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
-  embedder_webview_map.Get().erase(key);
   webcontents_webview_map.Get().erase(guest_web_contents());
 
   ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
@@ -327,6 +296,22 @@ WebViewGuest::Observe(
   }
 }
 
+/******************************************************************************/
+/* WEBVIEW API */
+/******************************************************************************/
+void
+WebViewGuest::LoadUrl(
+    const GURL& url)
+{
+  content::NavigationController::LoadURLParams params(url);
+  params.transition_type = content::PageTransitionFromInt(
+      content::PAGE_TRANSITION_TYPED | 
+      content::PAGE_TRANSITION_FROM_ADDRESS_BAR);
+  params.override_user_agent = content::NavigationController::UA_OVERRIDE_TRUE; 
+  guest_web_contents_->GetController().LoadURLWithParams(params);
+}
+
+
 void 
 WebViewGuest::SetZoom(
     double zoom_factor) 
@@ -361,7 +346,6 @@ WebViewGuest::Go(
 void 
 WebViewGuest::Reload(bool ignore_cache) 
 {
-  /* TODO(spolu): Handle ignore_cache */
   // TODO(fsamuel): Don't check for repost because we don't want to show
   // Chromium's repost warning. We might want to implement a separate API
   // for registering a callback if a repost is about to happen.
@@ -389,7 +373,6 @@ WebViewGuest::SetAutoSize(
     const gfx::Size& min_size,
     const gfx::Size& max_size) 
 {
-  LOG(INFO) << "SET AUTO SIZE ****************** " << enabled;
   min_auto_size_ = min_size;
   min_auto_size_.SetToMin(max_size);
   max_auto_size_ = max_size;
@@ -401,7 +384,7 @@ WebViewGuest::SetAutoSize(
 
   auto_size_enabled_ = enabled;
 
-  if (!attached())
+  if(!attached())
     return;
 
   content::RenderViewHost* rvh = guest_web_contents()->GetRenderViewHost();
@@ -457,6 +440,111 @@ WebViewGuest::WebContentsDestroyed()
 {
   //GuestDestroyed();
   delete this;
+}
+
+/******************************************************************************/
+/* WEBCONTENTSDELEGATE IMPLEMENTATION */
+/******************************************************************************/
+bool 
+WebViewGuest::AddMessageToConsole(
+    content::WebContents* source,
+    int32 level,
+    const base::string16& message,
+    int32 line_no,
+    const base::string16& source_id) 
+{
+  base::DictionaryValue event;
+  event.SetInteger("level", level);
+  event.SetString("message", message);
+  event.SetInteger("integer", line_no);
+  event.SetString("source_id", source_id);
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "console",
+      event);
+  return true;
+}
+
+bool 
+WebViewGuest::ShouldCreateWebContents(
+    content::WebContents* web_contents,
+    int route_id,
+    WindowContainerType window_container_type,
+    const base::string16& frame_name,
+    const GURL& target_url,
+    const std::string& partition_id,
+    content::SessionStorageNamespace* session_storage_namespace) 
+{
+  base::DictionaryValue event;
+  event.SetString("target_url", target_url.spec());
+  event.SetString("frame_name", frame_name);
+  event.SetInteger("window_container_type", window_container_type);
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "new-window",
+      event);
+  return false;
+}
+
+void 
+WebViewGuest::CloseContents(
+    content::WebContents* source) 
+{
+  base::DictionaryValue event;
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "close",
+      event);
+}
+
+content::WebContents* 
+WebViewGuest::OpenURLFromTab(
+    content::WebContents* source,
+    const content::OpenURLParams& params) 
+{
+  if(params.disposition == CURRENT_TAB) {
+    content::NavigationController::LoadURLParams load_url_params(params.url);
+    load_url_params.referrer = params.referrer;
+    load_url_params.transition_type = params.transition;
+    load_url_params.extra_headers = params.extra_headers;
+    load_url_params.should_replace_current_entry =
+      params.should_replace_current_entry;
+    load_url_params.is_renderer_initiated = params.is_renderer_initiated;
+    load_url_params.transferred_global_request_id =
+      params.transferred_global_request_id;
+
+    guest_web_contents_->GetController().LoadURLWithParams(load_url_params);
+    return guest_web_contents_;
+  }
+  else {
+    base::DictionaryValue event;
+    event.SetString("target_url", params.url.spec());
+    event.SetInteger("diposition", params.disposition);
+
+    GetThrustWindow()->WebViewEmit(
+        guest_instance_id_,
+        "new-window",
+        event);
+    return NULL;
+  }
+}
+
+void 
+WebViewGuest::HandleKeyboardEvent(
+    content::WebContents* source,
+    const content::NativeWebKeyboardEvent& event) 
+{
+  if(!attached())
+    return;
+
+  /* TODO(spolu): emit event? */
+
+  // Send the unhandled keyboard events back to the embedder to reprocess them.
+  embedder_web_contents_->GetDelegate()->HandleKeyboardEvent(
+      guest_web_contents_, event);
 }
 
 

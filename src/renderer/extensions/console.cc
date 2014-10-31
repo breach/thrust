@@ -1,4 +1,4 @@
-// Copyright 2013 The Chromium Authors. All rights reserved.
+// Copyright 2014 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -11,10 +11,13 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/render_view.h"
+#include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_view_visitor.h"
 #include "third_party/WebKit/public/web/WebConsoleMessage.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
+
+#include "src/renderer/extensions/script_context.h"
 
 namespace extensions {
 namespace console {
@@ -25,8 +28,8 @@ namespace {
 void CheckWithMinidump(const std::string& message) {
   char minidump[1024];
   base::debug::Alias(&minidump);
-  base::snprintf(minidump, arraysize(minidump),
-                 "e::console: %s", message.c_str());
+  base::snprintf(
+      minidump, arraysize(minidump), "e::console: %s", message.c_str());
   CHECK(false) << message;
 }
 
@@ -34,8 +37,8 @@ typedef void (*LogMethod)(v8::Handle<v8::Context> context,
                           const std::string& message);
 
 void BoundLogMethodCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  LogMethod log_method = reinterpret_cast<LogMethod>(
-      info.Data().As<v8::External>()->Value());
+  LogMethod log_method =
+      reinterpret_cast<LogMethod>(info.Data().As<v8::External>()->Value());
   std::string message;
   for (int i = 0; i < info.Length(); ++i) {
     if (i > 0)
@@ -134,9 +137,19 @@ void AddMessage(v8::Handle<v8::Context> context,
     LOG(WARNING) << "Could not log \"" << message << "\": no context given";
     return;
   }
-  /* TODO(spolu): Mechanism to retrieve RenderView by V8 Context */
-  content::RenderView* render_view = NULL; //ByContextFinder::Find(context);
-  if (!render_view) {
+  ScriptContext* sc = ScriptContext::FromV8Context(context);
+  if(!sc) {
+    LOG(WARNING) << "Could not log \"" << message << "\": no script context found";
+    return;
+  }
+  content::RenderFrame* render_frame =
+    content::RenderFrame::FromWebFrame(sc->web_frame());
+  if(!render_frame) {
+    LOG(WARNING) << "Could not log \"" << message << "\": no render frame found";
+    return;
+  }
+  content::RenderView* render_view = render_frame->GetRenderView();
+  if(!render_view) {
     LOG(WARNING) << "Could not log \"" << message << "\": no render view found";
     return;
   }

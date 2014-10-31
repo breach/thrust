@@ -37,6 +37,20 @@ var WEB_VIEW_ATTRIBUTES = [
     'allowtransparency',
 ];
 
+var WEB_VIEW_EVENTS = {
+  'did-finish-load': [],
+  'did-fail-load': ['errorCode', 'errorDescription'],
+  'did-frame-finish-load': ['isMainFrame'],
+  'did-start-loading': [],
+  'did-stop-loading': [],
+  'did-get-redirect-request': ['oldUrl', 'newUrl', 'isMainFrame'],
+  'console': ['level', 'message', 'line', 'source_id'],
+  'new-window': ['target_url', 'frame_name', 'window_container_type', 'disposition'],
+  'close': [],
+  'crashed': [],
+  'destroyed': []
+};
+
 /* TODO(spolu): FixMe Chrome 39 */
 var PLUGIN_METHOD_ATTACH = '-internal-attach';
 
@@ -57,7 +71,6 @@ var webview = function(spec, my) {
   my.src = null;
   my.attached = false;
   my.element_attached = false;
-  my.deferred_attach = null;
 
   my.before_first_navigation = true;
   my.view_instance_id = getNextId();
@@ -75,6 +88,7 @@ var webview = function(spec, my) {
   var parse_attributes;                /* parse_attributes(); */
   var reset;                           /* reset(); */
 
+  var api_setAutoSize;                 /* api_setAutoSize(params); */
   var api_loadUrl;                     /* api_loadUrl(url); */
   var api_go;                          /* api_go(index); */
   var api_reload;                      /* api_reload(ignore_cache); */
@@ -84,9 +98,10 @@ var webview = function(spec, my) {
   //
   var init;                            /* init(); */
 
+  var event_handler;                   /* event_handler(); */
   var is_plugin_in_render_tree;        /* is_plugin_in_render_tree(); */
-  var build_attach_params;             /* build_attach_params(new_window); */
-  var attach_window;                   /* attach_window(instance_id, new_window); */
+  var build_attach_params;             /* build_attach_params(); */
+  var attach_window;                   /* attach_window(instance_id); */
   var create_guest;                    /* create_guest(); */
   var attr_src_parse;                  /* attr_src_parse(); */
 
@@ -98,6 +113,42 @@ var webview = function(spec, my) {
   /****************************************************************************/
   /* PRIVATE HELPERS */
   /****************************************************************************/
+  // ### event_handler
+  //
+  // Handles an event emitted from the WebViewGuest
+  // ```
+  // @type  {string} event type
+  // @event {object} the event dictionary
+  // ```
+  event_handler = function(type, event) {
+    if(type === 'did-attach') {
+      var params = {
+        enabled: event.autosize
+      };
+      if(event.minwidth && event.minheight) {
+        params.min_size = { width: event.minwidth, height: event.minheight };
+      }
+      if(event.maxwidth && event.maxheight) {
+        params.max_size = { width: event.maxwidth, height: event.maxheight };
+      }
+      api_setAutoSize(params);
+      if(event.src) {
+        api_loadUrl(event.src);
+      }
+      console.log('EVENT did-attach');
+      console.log(JSON.stringify(event));
+    }
+    else if(WEB_VIEW_EVENTS[type]) {
+      console.log('WEB_VIEW_EVENT ' + type);
+      console.log(JSON.stringify(event));
+      var dom_event = new Event(type);
+      WEB_VIEW_EVENTS[type].forEach(function(f) {
+        dom_event[f] = event[f];
+      });
+      my.webview_node.dispatchEvent(dom_event);
+    }
+  };
+
   // ### is_plugin_in_render_tree
   //
   // Returns whether <object> is in the render tree
@@ -109,7 +160,7 @@ var webview = function(spec, my) {
   // ### build_attach_params
   //
   // Returns the attach params for plugin attachment
-  build_attach_params = function(new_window) {
+  build_attach_params = function() {
     var params = {
       'autosize': my.webview_node.hasAttribute(WEB_VIEW_ATTRIBUTE_AUTOSIZE),
       'instanceId': my.view_instance_id,
@@ -118,7 +169,7 @@ var webview = function(spec, my) {
       'minheight': my[WEB_VIEW_ATTRIBUTE_MINHEIGHT],
       'minwidth': my[WEB_VIEW_ATTRIBUTE_MINWIDTH],
       // We don't need to navigate new window from here.
-      'src': new_window ? undefined : my.src,
+      'src': my.src,
       // 'userAgentOverride': this.userAgentOverride
     };
     return params;
@@ -129,17 +180,15 @@ var webview = function(spec, my) {
   // Attaches the guest 
   // ```
   // @instance_id {string} the guest instance id
-  // @new_window  {boolean}
-  attach_window = function(instance_id, new_window) {
+  // ```
+  attach_window = function(instance_id) {
     my.guest_instance_id = instance_id;
 
-    var params = build_attach_params(new_window);
+    var params = build_attach_params();
 
     if(!is_plugin_in_render_tree()) {
-      my.deferred_attach = { new_window: new_window };
       return false;
     }
-    my.deferred_attach = null;
     return my.browser_plugin_node[PLUGIN_METHOD_ATTACH](instance_id, params);
   };
 
@@ -150,6 +199,10 @@ var webview = function(spec, my) {
     var params = {};
 
     var instance_id = WebViewNatives.CreateGuest(params);
+
+    /* We register the event handler for events coming from the WebViewGuest. */
+    WebViewNatives.SetEventHandler(instance_id, event_handler);
+
     if(!my.attached) {
       WebViewNatives.DestroyGuest(instance_id);
       return;
@@ -182,6 +235,16 @@ var webview = function(spec, my) {
   /****************************************************************************/
   /* WEBVIEW API */
   /****************************************************************************/
+  // ### api_setAutoSize
+  //
+  // Sets the autosize properties of the webview
+  // ```
+  // @params {object} autosize params (enabled, min_size, max_size)
+  // ```
+  api_setAutoSize = function(params) {
+    WebViewNatives.SetAutoSize(my.guest_instance_id, params);
+  };
+
   // ### api_loadUrl
   //
   // Loads the specified URL (similar as updating `src`)
@@ -248,10 +311,7 @@ var webview = function(spec, my) {
       /* If we already created the guest but the plugin was not in the render */
       /* tree, then we attach the plugin now.                                 */
       if(my.guest_instance_id) {
-        var new_window =
-          my.deferred_attach ? my.deferred_attach.new_window : false;
-        my.deferred_attach = null;
-        var params = build_attach_params(new_window);
+        var params = build_attach_params();
         my.browser_plugin_node[PLUGIN_METHOD_ATTACH](instance_id, params);
       }
     }

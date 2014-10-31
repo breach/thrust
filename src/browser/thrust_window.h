@@ -307,10 +307,18 @@ public:
   void CreateWebViewGuest(const base::DictionaryValue& params,
                           int* guest_instance_id); 
 
-  void WebViewGuestEmit(int guest_instance_id,
-                        const std::string type,
-                        const base::DictionaryValue& params);
-                        
+  void WebViewEmit(int guest_instance_id,
+                   const std::string type,
+                   const base::DictionaryValue& params);
+
+  void WebViewGuestSetAutoSize(int guest_instance_id,
+                               const base::DictionaryValue& params);
+  void WebViewGuestLoadUrl(int guest_instance_id,
+                           const std::string& url);
+  void WebViewGuestGo(int guest_instance_id,
+                      int relative_index);
+  void WebViewGuestReload(int guest_instance_id,
+                          bool ignore_cache);
 
 #if defined(OS_MACOSX)
   /****************************************************************************/

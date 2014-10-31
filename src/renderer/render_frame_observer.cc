@@ -12,6 +12,7 @@
 
 #include "src/common/switches.h"
 #include "src/common/messages.h"
+#include "src/renderer/extensions/web_view_bindings.h"
 
 using namespace content;
 
@@ -57,8 +58,8 @@ ThrustShellRenderFrameObserver::OnMessageReceived(
 {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(ThrustShellRenderFrameObserver, message)
-    IPC_MESSAGE_HANDLER(ThrustFrameMsg_WebViewGuestEmit, 
-                        WebViewGuestEmit)
+    IPC_MESSAGE_HANDLER(ThrustFrameMsg_WebViewEmit, 
+                        WebViewEmit)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -66,12 +67,34 @@ ThrustShellRenderFrameObserver::OnMessageReceived(
 }
 
 void 
-ThrustShellRenderFrameObserver::WebViewGuestEmit(
+ThrustShellRenderFrameObserver::AddWebViewBindings(
+    extensions::WebViewBindings* bindings)
+{
+  /* Does not own bindings just stores a pointer to it. */
+  bindings_.push_back(bindings);
+}
+
+void 
+ThrustShellRenderFrameObserver::RemoveWebViewBindings(
+    extensions::WebViewBindings* bindings)
+{
+  for(size_t i = 0; i < bindings_.size(); ++i) {
+    if(bindings_[i] == bindings) {
+      bindings_.erase(bindings_.begin() + i);
+      break;
+    }
+  }
+}
+
+void 
+ThrustShellRenderFrameObserver::WebViewEmit(
     int guest_instance_id,
     const std::string type,
-    const base::DictionaryValue& params)
+    const base::DictionaryValue& event)
 {
-  LOG(INFO) << "++++++++++++++ EVENT : " << guest_instance_id << " " << type;
+  for(size_t i = 0; i < bindings_.size(); ++i) {
+    bindings_[i]->AttemptEmitEvent(guest_instance_id, type, event);
+  }
 }
 
 }  // namespace thrust_shell

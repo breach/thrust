@@ -16,6 +16,7 @@
 #include "ui/gfx/codec/jpeg_codec.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/notification_details.h"
@@ -395,6 +396,14 @@ ThrustWindow::OnMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(ThrustWindow, message)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_CreateWebViewGuest,
                         CreateWebViewGuest)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestSetAutoSize,
+                        WebViewGuestSetAutoSize)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestLoadUrl,
+                        WebViewGuestLoadUrl)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestGo,
+                        WebViewGuestGo)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestReload,
+                        WebViewGuestReload)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -429,16 +438,98 @@ ThrustWindow::CreateWebViewGuest(
 }
 
 void 
-ThrustWindow::WebViewGuestEmit(
+ThrustWindow::WebViewEmit(
     int guest_instance_id,
     const std::string type,
     const base::DictionaryValue& params)
 {
+  /* We emit to the MainFrame as this is the only one that is authorized to */
+  /* have <webview> tags.                                                   */
   GetWebContents()->GetMainFrame()->Send(
-      new ThrustFrameMsg_WebViewGuestEmit(
+      new ThrustFrameMsg_WebViewEmit(
         GetWebContents()->GetMainFrame()->GetRoutingID(),
         guest_instance_id, type, params));
 }
+
+void 
+ThrustWindow::WebViewGuestSetAutoSize(
+    int guest_instance_id,
+    const base::DictionaryValue& params)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  int min_width = 0;
+  int min_height = 0;
+  gfx::Size min_size;
+  if(params.GetInteger("min_size.width", &min_width) &&
+     params.GetInteger("min_size.height", &min_height)) {
+     min_size = gfx::Size(min_width, min_height);
+  }
+
+  int max_width = 0;
+  int max_height = 0;
+  gfx::Size max_size;
+  if(params.GetInteger("max_size.width", &max_width) &&
+     params.GetInteger("max_size.height", &max_height)) {
+     max_size = gfx::Size(max_width, max_height);
+  }
+
+  bool enabled = false;
+  params.GetBoolean("enabled", &enabled);
+
+  guest->SetAutoSize(enabled, min_size, max_size);
+}
+        
+void 
+ThrustWindow::WebViewGuestLoadUrl(
+    int guest_instance_id,
+    const std::string& url)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->LoadUrl(GURL(url));
+}
+
+void 
+ThrustWindow::WebViewGuestGo(
+    int guest_instance_id,
+    int relative_index)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Go(relative_index);
+}
+
+void 
+ThrustWindow::WebViewGuestReload(
+    int guest_instance_id,
+    bool ignore_cache)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Reload(ignore_cache);
+}
+
 
 /******************************************************************************/
 /* PRIVATE INTERFACE */
