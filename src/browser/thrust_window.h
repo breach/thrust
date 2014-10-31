@@ -68,11 +68,11 @@ class ThrustWindow : public brightray::DefaultWebContentsDelegate,
                      public brightray::InspectableWebContentsDelegate,
                      public content::WebContentsObserver,
 #if defined(USE_AURA)
-                 public views::WidgetDelegateView,
-                 public views::WidgetObserver,
+                     public views::WidgetDelegateView,
+                     public views::WidgetObserver,
 #elif defined(OS_MACOSX)
 #endif
-                 public content::NotificationObserver {
+                     public content::NotificationObserver {
 public:
 
   /****************************************************************************/
@@ -286,10 +286,6 @@ public:
   virtual void EnumerateDirectory(content::WebContents* web_contents,
                                   int request_id,
                                   const base::FilePath& path) OVERRIDE;
-  /****************************************************************************/
-  /* WEBCONTENTSOBSERVER IMPLEMENTATION                                       */
-  /****************************************************************************/
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE; 
 
   /****************************************************************************/
   /* NOTIFICATIONOBSERFVER IMPLEMENTATION */
@@ -297,6 +293,24 @@ public:
   virtual void Observe(int type,
                        const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
+
+  /****************************************************************************/
+  /* WEBCONTENTSOBSERVER IMPLEMENTATION */
+  /****************************************************************************/
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE; 
+  virtual bool OnMessageReceived(const IPC::Message& message,
+                                 content::RenderFrameHost* render_frame_host) OVERRIDE; 
+
+  /****************************************************************************/
+  /* WEBVIEWGUEST MESSAGE HANDLING */
+  /****************************************************************************/
+  void CreateWebViewGuest(const base::DictionaryValue& params,
+                          int* guest_instance_id); 
+
+  void WebViewGuestEmit(int guest_instance_id,
+                        const std::string type,
+                        const base::DictionaryValue& params);
+                        
 
 #if defined(OS_MACOSX)
   /****************************************************************************/

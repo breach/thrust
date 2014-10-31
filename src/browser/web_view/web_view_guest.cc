@@ -22,6 +22,7 @@
 #include "src/browser/web_view/web_view_constants.h"
 #include "src/browser/browser_client.h"
 #include "src/browser/session/thrust_session.h"
+#include "src/browser/thrust_window.h"
 
 using content::WebContents;
 
@@ -69,40 +70,29 @@ class WebViewGuest::EmbedderWebContentsObserver : public WebContentsObserver {
 };
 
 
-WebViewGuest::Event::Event(
-    const std::string& name,
-    scoped_ptr<base::DictionaryValue> args)
-  : name_(name),
-    args_(args.Pass()) 
-{
-}
-
-WebViewGuest::Event::~Event() 
-{
-}
-
-scoped_ptr<base::DictionaryValue> 
-WebViewGuest::Event::GetArguments() 
-{
-  return args_.Pass();
-}
-
 WebViewGuest::WebViewGuest(
-    int embedder_render_process_id,
-    int guest_instance_id,
-    WebContents* guest_web_contents)
-: WebContentsObserver(guest_web_contents),
-  guest_web_contents_(guest_web_contents),
+    int guest_instance_id)
+: guest_web_contents_(NULL),
   embedder_web_contents_(NULL),
-  embedder_render_process_id_(embedder_render_process_id),
-  browser_context_(guest_web_contents->GetBrowserContext()),
+  embedder_render_process_id_(0),
+  browser_context_(NULL),
   guest_instance_id_(guest_instance_id),
   view_instance_id_(webview::kInstanceIDNone),
   auto_size_enabled_(false),
   weak_ptr_factory_(this) 
 {
+  LOG(INFO) << "WebViewGuest Constructor: " << this;
+}
+
+void
+WebViewGuest::Init(
+    WebContents* guest_web_contents)
+{
   WebContentsObserver::Observe(guest_web_contents);
-  guest_web_contents->SetDelegate(this);
+  guest_web_contents_ = guest_web_contents;
+  guest_web_contents_->SetDelegate(this);
+  browser_context_ = guest_web_contents->GetBrowserContext();
+
   webcontents_webview_map.Get().insert(
       std::make_pair(guest_web_contents, this));
 
@@ -114,22 +104,19 @@ WebViewGuest::WebViewGuest(
       this, content::NOTIFICATION_RESOURCE_RECEIVED_REDIRECT,
       content::Source<WebContents>(guest_web_contents));
 
-  LOG(INFO) << "WebViewGuest Constructor: " << this;
   ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
     AddGuest(guest_instance_id_, guest_web_contents);
+
+  LOG(INFO) << "WebViewGuest Init: " << this;
 }
+
 
 // static
 WebViewGuest* 
 WebViewGuest::Create(
-    int embedder_render_process_id,
-    int guest_instance_id,
-    WebContents* guest_web_contents)
+    int guest_instance_id)
 {
-  return new WebViewGuest(
-      embedder_render_process_id,
-      guest_instance_id, 
-      guest_web_contents);
+  return new WebViewGuest(guest_instance_id);
 }
 
 // static
@@ -217,7 +204,10 @@ WebViewGuest::Destroy()
 void 
 WebViewGuest::DidAttach() 
 {
-  SendQueuedEvents();
+  GetThrustWindow()->WebViewGuestEmit(
+      guest_instance_id_,
+      "did-attach",
+      base::DictionaryValue());
 }
 
 void 
@@ -258,8 +248,6 @@ WebViewGuest::WillAttach(
     content::WebContents* embedder_web_contents,
     const base::DictionaryValue& extra_params) 
 {
-  LOG(INFO) << "WILL ATTACH ***************";
-  LOG(INFO) << "WebViewGuest WillAttach: " << embedder_web_contents;
   embedder_web_contents_ = embedder_web_contents;
   embedder_web_contents_observer_.reset(
       new EmbedderWebContentsObserver(this));
@@ -267,6 +255,8 @@ WebViewGuest::WillAttach(
       embedder_web_contents->GetRenderProcessHost()->GetID();
   extra_params.GetInteger(webview::kParameterInstanceId, &view_instance_id_);
   extra_params_.reset(extra_params.DeepCopy());
+
+  LOG(INFO) << "WebViewGuest WillAttach: " << embedder_web_contents << " " << view_instance_id_;
 
   std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
   embedder_webview_map.Get().insert(std::make_pair(key, this));
@@ -280,13 +270,12 @@ WebViewGuest::CreateNewGuestWindow(
     ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
       GetNextInstanceID();
 
+  WebViewGuest* guest = WebViewGuest::Create(guest_instance_id);
+
   content::WebContents* guest_web_contents =
       WebContents::Create(create_params);
 
-  WebViewGuest* guest = WebViewGuest::Create(
-      guest_instance_id, 
-      embedder_web_contents()->GetRenderProcessHost()->GetID(),
-      guest_web_contents);
+  guest->Init(guest_web_contents);
 
   return guest_web_contents;
 }
@@ -298,8 +287,6 @@ WebViewGuest::~WebViewGuest()
   std::pair<int, int> key(embedder_render_process_id_, guest_instance_id_);
   embedder_webview_map.Get().erase(key);
   webcontents_webview_map.Get().erase(guest_web_contents());
-
-  pending_events_.clear();
 
   ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
     RemoveGuest(guest_instance_id_);
@@ -378,7 +365,12 @@ WebViewGuest::Reload(bool ignore_cache)
   // TODO(fsamuel): Don't check for repost because we don't want to show
   // Chromium's repost warning. We might want to implement a separate API
   // for registering a callback if a repost is about to happen.
-  guest_web_contents()->GetController().Reload(false);
+  if(ignore_cache) {
+    guest_web_contents()->GetController().ReloadIgnoringCache(false);
+  }
+  else {
+    guest_web_contents()->GetController().Reload(false);
+  }
 }
 
 void 
@@ -397,6 +389,7 @@ WebViewGuest::SetAutoSize(
     const gfx::Size& min_size,
     const gfx::Size& max_size) 
 {
+  LOG(INFO) << "SET AUTO SIZE ****************** " << enabled;
   min_auto_size_ = min_size;
   min_auto_size_.SetToMin(max_size);
   max_auto_size_ = max_size;
@@ -424,46 +417,16 @@ WebViewGuest::SetAutoSize(
 /******************************************************************************/
 /* PRIVATE & PROTECTED API */
 /******************************************************************************/
-void 
-WebViewGuest::DispatchEvent(
-    Event* event) 
+ThrustWindow*
+WebViewGuest::GetThrustWindow()
 {
-  scoped_ptr<Event> event_ptr(event);
-
-  if (!attached()) {
-    pending_events_.push_back(linked_ptr<Event>(event_ptr.release()));
-    return;
+  std::vector<ThrustWindow*> instances = ThrustWindow::instances();
+  for(size_t i = 0; i < instances.size(); ++i) {
+    if(instances[i]->GetWebContents() == embedder_web_contents_) {
+      return instances[i];
+    }
   }
-
-  /*
-  Profile* profile = Profile::FromBrowserContext(browser_context_);
-
-  extensions::EventFilteringInfo info;
-  info.SetURL(GURL());
-  info.SetInstanceID(guest_instance_id_);
-  scoped_ptr<base::ListValue> args(new base::ListValue());
-  args->Append(event->GetArguments().release());
-
-  extensions::EventRouter::DispatchEvent(
-      embedder_web_contents_, profile, embedder_extension_id_,
-      event->name(), args.Pass(),
-      extensions::EventRouter::USER_GESTURE_UNKNOWN, info);
-  */
-
-  delete event;
-}
-
-void 
-WebViewGuest::SendQueuedEvents() 
-{
-  if (!attached())
-    return;
-
-  while (!pending_events_.empty()) {
-    linked_ptr<Event> event_ptr = pending_events_.front();
-    pending_events_.pop_front();
-    DispatchEvent(event_ptr.release());
-  }
+  return NULL;
 }
 
 /******************************************************************************/

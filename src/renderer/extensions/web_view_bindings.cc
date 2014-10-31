@@ -10,8 +10,15 @@
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "v8/include/v8.h"
+#include "content/public/renderer/v8_value_converter.h"
+#include "content/public/renderer/render_frame.h"
+#include "content/public/renderer/render_frame_observer.h"
 
 #include "src/renderer/extensions/script_context.h"
+#include "src/common/messages.h"
+#include "src/renderer/render_frame_observer.h"
+
+using namespace content;
 
 namespace extensions {
 
@@ -40,19 +47,39 @@ void
 WebViewBindings::CreateGuest(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
-  if(args.Length() != 3 || 
-     !args[0]->IsString() || !args[1]->IsObject() || !args[2]->IsFunction()) {
+  if(args.Length() != 1 || !args[0]->IsObject()) {
     NOTREACHED();
     return;
   }
 
-  std::string type(*v8::String::Utf8Value(args[0]));
-  v8::Local<v8::Object> params = args[1]->ToObject();
-  LOG(INFO) << "WEB_VIEW_BINDINGS: CreateGuest " << type;
+  v8::Local<v8::Object> object = args[0]->ToObject();
+  LOG(INFO) << "WEB_VIEW_BINDINGS: CreateGuest";
 
-  //context()->CallFunction(v8::Handle<v8::Function>::Cast(args[0]), 0, &no_args);
+  scoped_ptr<V8ValueConverter> converter(V8ValueConverter::create());
+  scoped_ptr<base::Value> value(
+      converter->FromV8Value(object, context()->v8_context()));
 
-  /* TODO(spolu): call CreateGuest */
+  if(!value) {
+    return;                                                             
+  }
+  if(!value->IsType(base::Value::TYPE_DICTIONARY)) {
+    return;
+  }
+
+  scoped_ptr<base::DictionaryValue> params(
+      static_cast<base::DictionaryValue*>(value.release()));
+
+  thrust_shell::ThrustShellRenderFrameObserver* render_frame_observer = 
+    thrust_shell::ThrustShellRenderFrameObserver::FromRenderFrame(
+        RenderFrame::FromWebFrame(context()->web_frame()));
+
+  int id = 0;
+  render_frame_observer->Send(
+      new ThrustFrameHostMsg_CreateWebViewGuest(
+        render_frame_observer->routing_id(), 
+        *params.get(), &id));
+
+  args.GetReturnValue().Set(v8::Integer::New(context()->isolate(), id));
 }
 
 void 
@@ -86,6 +113,14 @@ WebViewBindings::LoadUrl(
   LOG(INFO) << "WEB_VIEW_BINDINGS: LoadUrl " << guest_instance_id << " " << url;
   
   /* TODO(spolu): call LoadUrl */
+  thrust_shell::ThrustShellRenderFrameObserver* render_frame_observer = 
+    thrust_shell::ThrustShellRenderFrameObserver::FromRenderFrame(
+        RenderFrame::FromWebFrame(context()->web_frame()));
+
+  render_frame_observer->Send(
+      new ThrustFrameHostMsg_WebViewGuestLoadUrl(
+        render_frame_observer->routing_id(), 
+        guest_instance_id, url));
 }
 
 void 

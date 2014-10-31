@@ -56,7 +56,6 @@ ThrustShellRenderProcessObserver::ThrustShellRenderProcessObserver()
 {
   CHECK(!g_instance);
   g_instance = this;
-  RenderThread::Get()->AddObserver(this);
 }
 
 ThrustShellRenderProcessObserver::~ThrustShellRenderProcessObserver() 
@@ -69,6 +68,8 @@ void
 ThrustShellRenderProcessObserver::WebKitInitialized() 
 {
   EnableWebRuntimeFeatures();
+  blink::WebCustomElement::addEmbedderCustomElementName("browserplugin"); 
+  blink::WebCustomElement::addEmbedderCustomElementName("webview");
 }
 
 bool 

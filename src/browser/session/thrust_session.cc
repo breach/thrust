@@ -159,7 +159,6 @@ ThrustSession::GetDownloadManagerDelegate()
 BrowserPluginGuestManager* 
 ThrustSession::GetGuestManager() 
 {
-  LOG(INFO) << "************++++++++++++++++++ RETURN PLUGIN GUEST MANAGER";
   return this;
 }
 

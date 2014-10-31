@@ -18,7 +18,7 @@
 
 namespace thrust_shell {
 
-struct RendererContentSettingRules;
+class ThrustWindow;
 
 // ## WebViewGuest
 //
@@ -38,26 +38,10 @@ class WebViewGuest : public content::BrowserPluginGuestDelegate,
                      public content::WebContentsObserver {
 public:
 
-  class Event {
-   public:
-    Event(const std::string& name, scoped_ptr<base::DictionaryValue> args);
-    ~Event();
-
-    const std::string& name() const { return name_; }
-
-    scoped_ptr<base::DictionaryValue> GetArguments();
-
-   private:
-    const std::string name_;
-    scoped_ptr<base::DictionaryValue> args_;
-  };
-
   /****************************************************************************/
   /* STATIC API */
   /****************************************************************************/
-  static WebViewGuest* Create(int guest_instance_id,
-                              int embedder_render_process_id,
-                              content::WebContents* guest_web_contents);
+  static WebViewGuest* Create(int guest_instance_id);
 
   static WebViewGuest* From(int embedder_process_id, int instance_id);
   static WebViewGuest* FromWebContents(content::WebContents* web_contents);
@@ -143,6 +127,8 @@ public:
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/
+  void Init(content::WebContents* guest_web_contents);
+
   // Toggles autosize mode for this GuestView.
   void SetAutoSize(bool enabled,
                    const gfx::Size& min_size,
@@ -176,18 +162,13 @@ public:
   /* PROTECTED & PRIVATE API */
   /****************************************************************************/
  protected:
-  WebViewGuest(int embedder_render_process_id,
-               int guest_instance_id,
-               content::WebContents* guest_web_contents);
+  WebViewGuest(int guest_instance_id);
   virtual ~WebViewGuest();
-
-  // Dispatches an event |event_name| to the embedder with the |event| fields.
-  void DispatchEvent(Event* event);
 
  private:
   class EmbedderWebContentsObserver;
 
-  void SendQueuedEvents();
+  ThrustWindow* GetThrustWindow();
 
   /****************************************************************************/
   /* WEBCONTENTSOBSERVER IMPLEMENTATION */
@@ -229,10 +210,10 @@ public:
   /****************************************************************************/
   /* DATA FIELDS */
   /****************************************************************************/
-  content::WebContents* const               guest_web_contents_;
+  content::WebContents*                     guest_web_contents_;
   content::WebContents*                     embedder_web_contents_;
   int                                       embedder_render_process_id_;
-  content::BrowserContext* const            browser_context_;
+  content::BrowserContext*                  browser_context_;
   // |guest_instance_id_| is a profile-wide unique identifier for a guest
   // WebContents.
   const int                                 guest_instance_id_;
@@ -243,9 +224,6 @@ public:
   content::NotificationRegistrar            notification_registrar_;
   // Stores the current zoom factor.
   double                                    current_zoom_factor_;
-  // This is a queue of Events that are destined to be sent to the embedder once
-  // the guest is attached to a particular embedder.
-  std::deque<linked_ptr<Event> >            pending_events_;
   DestructionCallback                       destruction_callback_;
   // The extra parameters associated with this GuestView passed
   // in from JavaScript. This will typically be the view instance ID,
@@ -254,16 +232,16 @@ public:
   scoped_ptr<base::DictionaryValue>         extra_params_;
   scoped_ptr<EmbedderWebContentsObserver>   embedder_web_contents_observer_;
   // The size of the container element.
-  gfx::Size element_size_;
+  gfx::Size                                 element_size_;
   // The size of the guest content. Note: In autosize mode, the container
   // element may not match the size of the guest.
-  gfx::Size guest_size_;
+  gfx::Size                                 guest_size_;
   // Indicates whether autosize mode is enabled or not.
-  bool auto_size_enabled_;
+  bool                                      auto_size_enabled_;
   // The maximum size constraints of the container element in autosize mode.
-  gfx::Size max_auto_size_;
+  gfx::Size                                 max_auto_size_;
   // The minimum size constraints of the container element in autosize mode.
-  gfx::Size min_auto_size_;
+  gfx::Size                                 min_auto_size_;
   // This is used to ensure pending tasks will not fire after this object is
   // destroyed.
   base::WeakPtrFactory<WebViewGuest>        weak_ptr_factory_;

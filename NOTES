@@ -110,4 +110,10 @@ https://code.google.com/p/chromium/issues/detail?id=304341#c60
 /* NOTES ATOM_SHELL */
 /******************************************************************************/
 Linux High DPI Support: https://github.com/atom/atom-shell/issues/615#event-181505020
-Global Menu Linux: https://github.com/atom/atom-shell/pull/726
+
+/******************************************************************************/
+/* NOTES WEBVIEW */
+/******************************************************************************/
+- replace render_view_observer by dispatcher and move it in renderer/
+- use DictionaryValue and request_id to route messages to <webview> API
+

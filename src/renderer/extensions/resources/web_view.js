@@ -62,7 +62,6 @@ var webview = function(spec, my) {
   my.before_first_navigation = true;
   my.view_instance_id = getNextId();
 
-  my.guest_pending = false;
   my.guest_instance_id = null;
 
 
@@ -114,10 +113,10 @@ var webview = function(spec, my) {
     var params = {
       'autosize': my.webview_node.hasAttribute(WEB_VIEW_ATTRIBUTE_AUTOSIZE),
       'instanceId': my.view_instance_id,
-      'maxheight': my[WEBVIEW_ATTRIBUTES_MAXHEIGHT],
-      'maxwidth': my[WEBVIEW_ATTRIBUTES_MAXWIDTH],
-      'minheight': my[WEBVIEW_ATTRIBUTES_MINHEIGHT],
-      'minwidth': my[WEBVIEW_ATTRIBUTES_MINWIDTH],
+      'maxheight': my[WEB_VIEW_ATTRIBUTE_MAXHEIGHT],
+      'maxwidth': my[WEB_VIEW_ATTRIBUTE_MAXWIDTH],
+      'minheight': my[WEB_VIEW_ATTRIBUTE_MINHEIGHT],
+      'minwidth': my[WEB_VIEW_ATTRIBUTE_MINWIDTH],
       // We don't need to navigate new window from here.
       'src': new_window ? undefined : my.src,
       // 'userAgentOverride': this.userAgentOverride
@@ -148,21 +147,14 @@ var webview = function(spec, my) {
   //
   // Triggers the creation of the guest
   create_guest = function() {
-    if(my.guest_pending) {
-      return;
-    }
     var params = {};
 
-    console.log('+++++++++++++++++++++++ CREATE GUEST');
-    WebViewNatives.CreateGuest('webview', params, function(instance_id) {
-      my.guest_pending = false;
-      if(!my.attached) {
-        WebViewNatives.DestroyGuest(instance_id);
-        return;
-      }
-      attach_window(instance_id, false);
-    });
-    my.guest_pending = true;
+    var instance_id = WebViewNatives.CreateGuest(params);
+    if(!my.attached) {
+      WebViewNatives.DestroyGuest(instance_id);
+      return;
+    }
+    attach_window(instance_id, false);
   };
 
   // ### attr_src_parse
@@ -174,7 +166,6 @@ var webview = function(spec, my) {
     if(!my.src) {
       return;
     }
-
     if(!my.guest_instance_id) {
       if(my.before_first_navigation) {
         my.before_first_navigation = false;
@@ -237,6 +228,7 @@ var webview = function(spec, my) {
   // ```
   webview_mutation_handler = function(name, old_value, new_value) {
     /* TODO(spolu): see handleWebviewAttributeMutation */
+    console.log("HANDLER: " + name + " " + old_value + " " + new_value);
   };
 
   // ### browser_plugin_mutation_handler

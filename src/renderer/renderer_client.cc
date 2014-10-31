@@ -26,9 +26,14 @@
 #include "src/common/switches.h"
 #include "src/renderer/render_process_observer.h"
 #include "src/renderer/render_view_observer.h"
-#include "src/renderer/extensions/dispatcher.h"
+#include "src/renderer/render_frame_observer.h"
+#include "src/renderer/extensions/script_context.h"
+#include "src/renderer/extensions/module_system.h"
+#include "src/renderer/extensions/document_bindings.h"
+#include "src/renderer/extensions/web_view_bindings.h"
 
 using namespace content;
+using namespace extensions;
 
 using blink::WebAudioDevice;
 using blink::WebClipboard;
@@ -42,6 +47,11 @@ using blink::WebPluginParams;
 using blink::WebRTCPeerConnectionHandler;
 using blink::WebRTCPeerConnectionHandlerClient;
 using blink::WebThemeEngine;
+using blink::WebDataSource;
+using blink::WebDocument;
+using blink::WebString;
+using blink::WebVector;
+using blink::WebView;
 
 namespace thrust_shell {
 
@@ -73,8 +83,6 @@ ThrustShellRendererClient::RenderThreadStarted()
 {
   observer_.reset(new ThrustShellRenderProcessObserver());
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave());
-  if (!extension_dispatcher_)
-    extension_dispatcher_.reset(new extensions::Dispatcher());
 #if defined(OS_MACOSX)
   // We need to call this once before the sandbox was initialized to cache the
   // value.
@@ -82,8 +90,17 @@ ThrustShellRendererClient::RenderThreadStarted()
 #endif
 
   RenderThread* thread = RenderThread::Get();
+
+  thread->RegisterExtension(SafeBuiltins::CreateV8Extension());
+
+#include "./extensions/resources/web_view.js.bin"
+  std::string web_view_src(
+      (char*)src_renderer_extensions_resources_web_view_js,
+      src_renderer_extensions_resources_web_view_js_len);
+  source_map_.RegisterSource("webview", web_view_src);
+
+  thread->AddObserver(observer_.get());
   thread->AddObserver(visited_link_slave_.get());
-  thread->AddObserver(extension_dispatcher_.get());
 }
 
 void 
@@ -93,12 +110,20 @@ ThrustShellRendererClient::RenderViewCreated(
   new ThrustShellRenderViewObserver(render_view);
 }
 
+void 
+ThrustShellRendererClient::RenderFrameCreated(
+    RenderFrame* render_frame) 
+{
+  new ThrustShellRenderFrameObserver(render_frame);
+}
+
 bool 
 ThrustShellRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
     blink::WebLocalFrame* frame,
     const WebPluginParams& params,
-    WebPlugin** plugin) {
+    WebPlugin** plugin) 
+{
   std::string mime_type = params.mimeType.utf8();
   return false;
 }
@@ -106,12 +131,31 @@ ThrustShellRendererClient::OverrideCreatePlugin(
 void 
 ThrustShellRendererClient::DidCreateScriptContext(
     blink::WebFrame* frame, 
-    v8::Handle<v8::Context> context, 
+    v8::Handle<v8::Context> v8_context, 
     int extension_group,
-    int world_id) {
-  extension_dispatcher_->DidCreateScriptContext(frame, context, 
-                                                extension_group, 
-                                                world_id);
+    int world_id) 
+{
+  ScriptContext* context = new ScriptContext(v8_context, frame);
+  {
+    scoped_ptr<ModuleSystem> module_system(new ModuleSystem(context,
+                                                            &source_map_));
+    context->set_module_system(module_system.Pass());
+  }
+  ModuleSystem* module_system = context->module_system();
+
+  // Enable natives in startup.
+  ModuleSystem::NativesEnabledScope natives_enabled_scope(module_system);
+
+  /* NOTE: please use the naming convention "foo_natives" for these. */
+  module_system->RegisterNativeHandler("document_natives",
+      scoped_ptr<NativeHandler>(
+          new DocumentBindings(context)));
+  module_system->RegisterNativeHandler("webview_natives",
+      scoped_ptr<NativeHandler>(
+          new WebViewBindings(context)));
+
+  module_system->Require("webview");
+  LOG(INFO) << "Module requires called!";
 }
 
 unsigned long long 

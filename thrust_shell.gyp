@@ -101,12 +101,14 @@
       'src/browser/web_view/web_view_constants.h',
       'src/browser/web_view/web_view_constants.cc',
 
-      'src/renderer/renderer_client.cc',
       'src/renderer/renderer_client.h',
-      'src/renderer/render_process_observer.cc',
+      'src/renderer/renderer_client.cc',
       'src/renderer/render_process_observer.h',
-      'src/renderer/render_view_observer.cc',
+      'src/renderer/render_process_observer.cc',
       'src/renderer/render_view_observer.h',
+      'src/renderer/render_view_observer.cc',
+      'src/renderer/render_frame_observer.h',
+      'src/renderer/render_frame_observer.cc',
 
       'src/renderer/extensions/scoped_persistent.h',
       'src/renderer/extensions/unsafe_persistent.h',
@@ -126,8 +128,6 @@
       'src/renderer/extensions/module_system.cc',
       'src/renderer/extensions/script_context.h',
       'src/renderer/extensions/script_context.cc',
-      'src/renderer/extensions/dispatcher.h',
-      'src/renderer/extensions/dispatcher.cc',
 
       'src/renderer/extensions/document_bindings.h',
       'src/renderer/extensions/document_bindings.cc',
