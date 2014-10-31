@@ -177,39 +177,39 @@ public:
   /****************************************************************************/
   /* WEBCONTENTSOBSERVER IMPLEMENTATION */
   /****************************************************************************/
-  virtual void DidStopLoading(
-      content::RenderViewHost* render_view_host) OVERRIDE FINAL;
   virtual void RenderViewReady() OVERRIDE FINAL;
   virtual void WebContentsDestroyed() OVERRIDE FINAL;
-  /*
+
+  virtual void DidFinishLoad(content::RenderFrameHost* render_frame_host,
+                             const GURL& validated_url) override;
+  virtual void DidFailLoad(content::RenderFrameHost* render_frame_host,
+                           const GURL& validated_url,
+                           int error_code,
+                           const base::string16& error_description) override;
+  virtual void DidStartLoading(
+      content::RenderViewHost* render_view_host) override;
+  virtual void DidStopLoading(
+      content::RenderViewHost* render_view_host) override;
+  virtual void DidGetRedirectForResourceRequest(
+      content::RenderViewHost* render_view_host,
+      const content::ResourceRedirectDetails& details) override;
+
   virtual void DidCommitProvisionalLoadForFrame(
-      int64 frame_id,
-      const base::string16& frame_unique_name,
-      bool is_main_frame,
+      content::RenderFrameHost* render_frame_host,
       const GURL& url,
-      content::PageTransition transition_type,
-      content::RenderViewHost* render_view_host) OVERRIDE;
+      content::PageTransition transition_type) OVERRIDE;
   virtual void DidFailProvisionalLoad(
-      int64 frame_id,
-      const base::string16& frame_unique_name,
-      bool is_main_frame,
+      content::RenderFrameHost* render_frame_host,
       const GURL& validated_url,
       int error_code,
-      const base::string16& error_description,
-      content::RenderViewHost* render_view_host) OVERRIDE;
+      const base::string16& error_description) OVERRIDE;
   virtual void DidStartProvisionalLoadForFrame(
-      int64 frame_id,
-      int64 parent_frame_id,
-      bool is_main_frame,
+      content::RenderFrameHost* render_frame_host,
       const GURL& validated_url,
       bool is_error_page,
-      bool is_iframe_srcdoc,
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void DocumentLoadedInFrame(
-      int64 frame_id,
-      content::RenderViewHost* render_view_host) OVERRIDE;
+      bool is_iframe_srcdoc) OVERRIDE;
+  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void UserAgentOverrideSet(const std::string& user_agent) OVERRIDE;
-  */
 
   /****************************************************************************/
   /* WEBCONTENTSDELEGATE IMPLEMENTATION */

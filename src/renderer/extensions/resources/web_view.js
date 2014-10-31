@@ -39,7 +39,7 @@ var WEB_VIEW_ATTRIBUTES = [
 
 var WEB_VIEW_EVENTS = {
   'did-finish-load': [],
-  'did-fail-load': ['errorCode', 'errorDescription'],
+  'did-fail-load': ['url', 'is_top_level', 'error_type'],
   'did-frame-finish-load': ['isMainFrame'],
   'did-start-loading': [],
   'did-stop-loading': [],

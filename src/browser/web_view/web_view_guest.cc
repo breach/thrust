@@ -6,8 +6,10 @@
 
 #include "base/lazy_instance.h"
 #include "net/base/escape.h"
+#include "net/base/net_errors.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/browser/host_zoom_map.h"
@@ -20,6 +22,7 @@
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/common/page_zoom.h"
+#include "third_party/WebKit/public/web/WebView.h"
 
 #include "src/browser/web_view/web_view_constants.h"
 #include "src/browser/browser_client.h"
@@ -36,6 +39,46 @@ typedef std::map<WebContents*, thrust_shell::WebViewGuest*>
 static base::LazyInstance<WebContentsWebViewGuestMap> webcontents_webview_map =
     LAZY_INSTANCE_INITIALIZER;
 
+std::string WindowOpenDispositionToString(
+  WindowOpenDisposition window_open_disposition) {
+  switch (window_open_disposition) {
+    case IGNORE_ACTION:
+      return "ignore";
+    case SAVE_TO_DISK:
+      return "save_to_disk";
+    case CURRENT_TAB:
+      return "current_tab";
+    case NEW_BACKGROUND_TAB:
+      return "new_background_tab";
+    case NEW_FOREGROUND_TAB:
+      return "new_foreground_tab";
+    case NEW_WINDOW:
+      return "new_window";
+    case NEW_POPUP:
+      return "new_popup";
+    default:
+      NOTREACHED() << "Unknown Window Open Disposition";
+      return "ignore";
+  }
+}
+
+static std::string TerminationStatusToString(base::TerminationStatus status) {
+  switch (status) {
+    case base::TERMINATION_STATUS_NORMAL_TERMINATION:
+      return "normal";
+    case base::TERMINATION_STATUS_ABNORMAL_TERMINATION:
+    case base::TERMINATION_STATUS_STILL_RUNNING:
+      return "abnormal";
+    case base::TERMINATION_STATUS_PROCESS_WAS_KILLED:
+      return "killed";
+    case base::TERMINATION_STATUS_PROCESS_CRASHED:
+      return "crashed";
+    case base::TERMINATION_STATUS_MAX_ENUM:
+      break;
+  }
+  NOTREACHED() << "Unknown Termination Status.";
+  return "unknown";
+}
 }  // namespace
 
 namespace thrust_shell {
@@ -332,13 +375,14 @@ WebViewGuest::SetZoom(
   double zoom_level = content::ZoomFactorToZoomLevel(zoom_factor);
   content::HostZoomMap::SetZoomLevel(guest_web_contents(), zoom_level);
 
-  /*
-  scoped_ptr<base::DictionaryValue> args(new base::DictionaryValue());
-  args->SetDouble(webview::kOldZoomFactor, current_zoom_factor_);
-  args->SetDouble(webview::kNewZoomFactor, zoom_factor);
-  DispatchEvent(
-      new GuestViewBase::Event(webview::kEventZoomChange, args.Pass()));
-  */
+  base::DictionaryValue event;
+  event.SetBoolean("old_zoom_factor", current_zoom_factor_);
+  event.SetDouble("new_zoom_factor", zoom_factor);
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "zoom-changed",
+      event);
 
   current_zoom_factor_ = zoom_factor;
 }
@@ -429,13 +473,6 @@ WebViewGuest::GetThrustWindow()
 /* WEBCONTENTSOBSERVER IMPLEMENTATION */
 /******************************************************************************/
 void 
-WebViewGuest::DidStopLoading(
-    content::RenderViewHost* render_view_host) 
-{
-  //DidStopLoading();
-}
-
-void 
 WebViewGuest::RenderViewReady() 
 {
   //GuestReady();
@@ -451,9 +488,210 @@ WebViewGuest::RenderViewReady()
 void 
 WebViewGuest::WebContentsDestroyed() 
 {
-  //GuestDestroyed();
+  base::DictionaryValue event;
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "destroyed",
+      event);
+
   delete this;
 }
+
+
+
+void 
+WebViewGuest::DidFinishLoad(
+    content::RenderFrameHost* render_frame_host,
+    const GURL& validated_url) 
+{
+  bool is_main_frame = !render_frame_host->GetParent();
+
+  base::DictionaryValue event;
+  event.SetBoolean("is_top_level", !render_frame_host->GetParent());
+  event.SetString("url", validated_url.spec());
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-frame-finish-load",
+      event);
+  if(is_main_frame) {
+    GetThrustWindow()->WebViewEmit(
+        guest_instance_id_,
+        "did-finish-load",
+        event);
+  }
+}
+
+void 
+WebViewGuest::DidFailLoad(
+    content::RenderFrameHost* render_frame_host,
+    const GURL& validated_url,
+    int error_code,
+    const base::string16& error_description) 
+{
+  base::DictionaryValue event;
+  event.SetBoolean("is_top_level", !render_frame_host->GetParent());
+  event.SetString("url", validated_url.spec());
+  event.SetInteger("error_code", error_code);
+  event.SetString("error_description", error_description);
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-fail-load",
+      event);
+}
+
+void 
+WebViewGuest::DidStartLoading(
+    content::RenderViewHost* render_view_host) 
+{
+  base::DictionaryValue event;
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-start-loading",
+      event);
+}
+
+void 
+WebViewGuest::DidStopLoading(
+    content::RenderViewHost* render_view_host) 
+{
+  base::DictionaryValue event;
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-stop-loading",
+      event);
+}
+
+void 
+WebViewGuest::DidGetRedirectForResourceRequest(
+    content::RenderViewHost* render_view_host,
+    const content::ResourceRedirectDetails& details) 
+{
+  base::DictionaryValue event;
+  event.SetString("current_url", details.url.spec());
+  event.SetString("new_url", details.new_url.spec());
+  event.SetBoolean("is_top_level", 
+                   details.resource_type == content::RESOURCE_TYPE_MAIN_FRAME);
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-get-redirect-request",
+      event);
+}
+
+
+
+
+
+void 
+WebViewGuest::DidCommitProvisionalLoadForFrame(
+    content::RenderFrameHost* render_frame_host,
+    const GURL& url,
+    content::PageTransition transition_type) 
+{
+  //find_helper_.CancelAllFindSessions();
+
+  base::DictionaryValue event;
+  event.SetString("url", url.spec());
+  event.SetBoolean("is_top_level", !render_frame_host->GetParent());
+  event.SetInteger("entry_index",
+                   guest_web_contents()->GetController().GetCurrentEntryIndex());
+  event.SetInteger("entry_count",
+                   guest_web_contents()->GetController().GetEntryCount());
+  event.SetInteger("process_id",
+                   guest_web_contents()->GetRenderProcessHost()->GetID());
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-commit-provisional-load",
+      event);
+
+  /* TODO(spolu) */
+  /*
+  current_zoom_factor_ = 
+    blink::WebView::zoomLevelToZoomFactor(
+        guest_web_contents()->GetMainFrame()->view()->zoomLevel());
+  */
+  // Update the current zoom factor for the new page.
+  //ZoomController* zoom_controller =
+      ///ZoomController::FromWebContents(guest_web_contents());
+  //DCHECK(zoom_controller);
+  //current_zoom_factor_ = zoom_controller->GetZoomLevel();
+}
+
+void 
+WebViewGuest::DidFailProvisionalLoad(
+    content::RenderFrameHost* render_frame_host,
+    const GURL& validated_url,
+    int error_code,
+    const base::string16& error_description) 
+{
+  base::DictionaryValue event;
+  event.SetBoolean("is_top_level", !render_frame_host->GetParent());
+  event.SetString("url", validated_url.spec());
+  event.SetString("error_type", net::ErrorToShortString(error_code));
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-fail-provisional-load",
+      event);
+}
+
+void 
+WebViewGuest::DidStartProvisionalLoadForFrame(
+    content::RenderFrameHost* render_frame_host,
+    const GURL& validated_url,
+    bool is_error_page,
+    bool is_iframe_srcdoc) 
+{
+  base::DictionaryValue event;
+  event.SetString("url", validated_url.spec());
+  event.SetBoolean("is_top_level", !render_frame_host->GetParent());
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "did-start-provisional-load",
+      event);
+}
+
+void 
+WebViewGuest::UserAgentOverrideSet(
+    const std::string& user_agent) 
+{
+  if(!attached()) {
+    return;
+  }
+  content::NavigationController& controller =
+      guest_web_contents()->GetController();
+  content::NavigationEntry* entry = controller.GetVisibleEntry();
+  if(!entry) {
+    return;
+  }
+  entry->SetIsOverridingUserAgent(!user_agent.empty());
+  guest_web_contents()->GetController().Reload(false);
+}
+
+void 
+WebViewGuest::RenderProcessGone(
+    base::TerminationStatus status) 
+{
+  // Cancel all find sessions in progress.
+  // find_helper_.CancelAllFindSessions();
+
+  base::DictionaryValue event;
+  event.SetInteger("process_id",
+                   guest_web_contents()->GetRenderProcessHost()->GetID());
+  event.SetString("reason", TerminationStatusToString(status));
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "crashed",
+      event);
+}
+
+
 
 /******************************************************************************/
 /* WEBCONTENTSDELEGATE IMPLEMENTATION */
@@ -535,7 +773,8 @@ WebViewGuest::OpenURLFromTab(
   else {
     base::DictionaryValue event;
     event.SetString("target_url", params.url.spec());
-    event.SetInteger("disposition", params.disposition);
+    event.SetString("disposition", 
+        WindowOpenDispositionToString(params.disposition));
 
     GetThrustWindow()->WebViewEmit(
         guest_instance_id_,
