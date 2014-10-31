@@ -135,12 +135,12 @@ var webview = function(spec, my) {
       if(event.src) {
         api_loadUrl(event.src);
       }
-      console.log('EVENT did-attach');
-      console.log(JSON.stringify(event));
+      //console.log('EVENT did-attach');
+      //console.log(JSON.stringify(event));
     }
     else if(WEB_VIEW_EVENTS[type]) {
-      console.log('WEB_VIEW_EVENT ' + type);
-      console.log(JSON.stringify(event));
+      //console.log('WEB_VIEW_EVENT ' + type);
+      //console.log(JSON.stringify(event));
       var dom_event = new Event(type);
       WEB_VIEW_EVENTS[type].forEach(function(f) {
         dom_event[f] = event[f];

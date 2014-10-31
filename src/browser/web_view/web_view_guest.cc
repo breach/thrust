@@ -522,7 +522,7 @@ WebViewGuest::OpenURLFromTab(
   else {
     base::DictionaryValue event;
     event.SetString("target_url", params.url.spec());
-    event.SetInteger("diposition", params.disposition);
+    event.SetInteger("disposition", params.disposition);
 
     GetThrustWindow()->WebViewEmit(
         guest_instance_id_,
