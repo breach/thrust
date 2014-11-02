@@ -531,8 +531,8 @@ WebViewGuest::DidFailLoad(
     const base::string16& error_description) 
 {
   base::DictionaryValue event;
-  event.SetBoolean("is_top_level", !render_frame_host->GetParent());
   event.SetString("url", validated_url.spec());
+  event.SetBoolean("is_top_level", !render_frame_host->GetParent());
   event.SetInteger("error_code", error_code);
   event.SetString("error_description", error_description);
 
@@ -707,7 +707,7 @@ WebViewGuest::AddMessageToConsole(
   base::DictionaryValue event;
   event.SetInteger("level", level);
   event.SetString("message", message);
-  event.SetInteger("integer", line_no);
+  event.SetInteger("line", line_no);
   event.SetString("source_id", source_id);
 
   GetThrustWindow()->WebViewEmit(

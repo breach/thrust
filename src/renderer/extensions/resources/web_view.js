@@ -38,16 +38,16 @@ var WEB_VIEW_ATTRIBUTES = [
 ];
 
 var WEB_VIEW_EVENTS = {
-  'did-finish-load': [],
-  'did-fail-load': ['url', 'is_top_level', 'error_type'],
-  'did-frame-finish-load': ['isMainFrame'],
+  'did-finish-load': ['url', 'is_top_level'],
+  'did-fail-load': ['url', 'is_top_level', 'error_code', 'error-description'],
+  'did-frame-finish-load': ['url', 'is_top_level'],
   'did-start-loading': [],
   'did-stop-loading': [],
-  'did-get-redirect-request': ['oldUrl', 'newUrl', 'isMainFrame'],
+  'did-get-redirect-request': ['current_url', 'new_url', 'is_top_level'],
   'console': ['level', 'message', 'line', 'source_id'],
   'new-window': ['target_url', 'frame_name', 'window_container_type', 'disposition'],
   'close': [],
-  'crashed': [],
+  'crashed': ['process_id', 'reason'],
   'destroyed': []
 };
 
