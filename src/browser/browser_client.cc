@@ -170,6 +170,7 @@ ThrustShellBrowserClient::OverrideWebkitPrefs(
 {
   prefs->javascript_enabled = true;
   prefs->web_security_enabled = true;
+  prefs->plugins_enabled = true;
   prefs->allow_file_access_from_file_urls = true;
   prefs->allow_universal_access_from_file_urls = true;
   prefs->allow_file_access_from_file_urls = true;

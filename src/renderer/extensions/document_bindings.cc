@@ -1,8 +1,8 @@
-// Copyright 2013 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright (c) 2014 Stanislas Polu.
+// Copyright (c) 2013 The Chromium Authors.
+// See the LICENSE file.
 
-#include "src/renderer/extensions/document_custom_bindings.h"
+#include "src/renderer/extensions/document_bindings.h"
 
 #include <string>
 
@@ -15,17 +15,17 @@
 
 namespace extensions {
 
-DocumentCustomBindings::DocumentCustomBindings(
+DocumentBindings::DocumentBindings(
     ScriptContext* context)
   : ObjectBackedNativeHandler(context) 
 {
   RouteFunction("RegisterElement",
-      base::Bind(&DocumentCustomBindings::RegisterElement,
+      base::Bind(&DocumentBindings::RegisterElement,
                  base::Unretained(this)));
 }
 
-// Attach an event name to an object.
-void DocumentCustomBindings::RegisterElement(
+void 
+DocumentBindings::RegisterElement(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
   if (args.Length() != 2 || !args[0]->IsString() || !args[1]->IsObject()) {

@@ -9,7 +9,11 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/test/layouttest_support.h"
-#include "third_party/WebKit/public/web/WebCustomElement.h" 
+#include "third_party/WebKit/public/web/WebCustomElement.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebPluginParams.h"
+#include "third_party/WebKit/public/web/WebKit.h"
+#include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
 
 #include "src/common/messages.h"
 #include "src/common/switches.h"
@@ -22,6 +26,22 @@ namespace thrust_shell {
 namespace {
 
 ThrustShellRenderProcessObserver* g_instance = NULL;
+
+bool 
+IsSwitchEnabled(
+    base::CommandLine* command_line,
+    const char* switch_string,
+    bool* enabled) 
+{
+  std::string value = command_line->GetSwitchValueASCII(switch_string);
+  if (value == "true")
+    *enabled = true;
+  else if (value == "false")
+    *enabled = false;
+  else
+    return false;
+  return true;
+}
  
 }
 
@@ -36,7 +56,6 @@ ThrustShellRenderProcessObserver::ThrustShellRenderProcessObserver()
 {
   CHECK(!g_instance);
   g_instance = this;
-  RenderThread::Get()->AddObserver(this);
 }
 
 ThrustShellRenderProcessObserver::~ThrustShellRenderProcessObserver() 
@@ -48,6 +67,9 @@ ThrustShellRenderProcessObserver::~ThrustShellRenderProcessObserver()
 void 
 ThrustShellRenderProcessObserver::WebKitInitialized() 
 {
+  EnableWebRuntimeFeatures();
+  blink::WebCustomElement::addEmbedderCustomElementName("browserplugin"); 
+  blink::WebCustomElement::addEmbedderCustomElementName("webview");
 }
 
 bool 
@@ -64,5 +86,31 @@ ThrustShellRenderProcessObserver::OnControlMessageReceived(
 
   return handled;
 }
+
+void 
+ThrustShellRenderProcessObserver::EnableWebRuntimeFeatures() 
+{
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  bool b;
+  if(IsSwitchEnabled(command_line, switches::kExperimentalFeatures, &b)) {
+    blink::WebRuntimeFeatures::enableExperimentalFeatures(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kExperimentalCanvasFeatures, &b)) {
+    blink::WebRuntimeFeatures::enableExperimentalCanvasFeatures(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kSubpixelFontScaling, &b)) {
+    blink::WebRuntimeFeatures::enableSubpixelFontScaling(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kOverlayScrollbars, &b)) {
+    blink::WebRuntimeFeatures::enableOverlayScrollbars(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kOverlayFullscreenVideo, &b)) {
+    blink::WebRuntimeFeatures::enableOverlayFullscreenVideo(b);
+  }
+  if(IsSwitchEnabled(command_line, switches::kSharedWorker, &b)) {
+    blink::WebRuntimeFeatures::enableSharedWorker(b);
+  }
+}
+
 
 } // namespace thrust_shell

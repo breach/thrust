@@ -24,6 +24,7 @@ DONE:
 - Upgrade to Chrome 38.0.x.x
 - Global application menu #201
 - Menu popup on specific window
+- <webview> support
 
 >>v0.7.3<<
 - Window events and accessors #190
@@ -110,4 +111,4 @@ https://code.google.com/p/chromium/issues/detail?id=304341#c60
 /* NOTES ATOM_SHELL */
 /******************************************************************************/
 Linux High DPI Support: https://github.com/atom/atom-shell/issues/615#event-181505020
-Global Menu Linux: https://github.com/atom/atom-shell/pull/726
+

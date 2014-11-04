@@ -15,6 +15,8 @@
 #include "ui/gfx/codec/png_codec.h"
 #include "ui/gfx/codec/jpeg_codec.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/notification_details.h"
@@ -24,12 +26,15 @@
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/browser/favicon_status.h"
+#include "third_party/WebKit/public/web/WebFindOptions.h"
 
 #include "src/common/switches.h"
 #include "src/browser/browser_main_parts.h"
 #include "src/browser/browser_client.h"
 #include "src/browser/dialog/javascript_dialog_manager.h"
 #include "src/browser/dialog/file_select_helper.h"
+#include "src/browser/web_view/web_view_guest.h"
+#include "src/browser/session/thrust_session.h"
 #include "src/common/messages.h"
 #include "src/browser/ui/views/menu_bar.h"
 #include "src/browser/ui/views/menu_layout.h"
@@ -64,7 +69,7 @@ ThrustWindow::ThrustWindow(
 {
   web_contents->SetDelegate(this);
   inspectable_web_contents()->SetDelegate(this);
-  WebContentsObserver::Observe(web_contents);
+  //WebContentsObserver::Observe(web_contents);
 
   // Get notified of title updated message.
   registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
@@ -112,7 +117,7 @@ ThrustWindow::~ThrustWindow()
   CloseImmediately();
   PlatformCleanUp();
 
-  for (size_t i = 0; i < s_instances.size(); ++i) {
+  for(size_t i = 0; i < s_instances.size(); ++i) {
     if (s_instances[i] == this) {
       s_instances.erase(s_instances.begin() + i);
       break;
@@ -341,6 +346,9 @@ ThrustWindow::EnumerateDirectory(
   //FileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
 }
 
+/******************************************************************************/
+/* NOTIFICATIONOBSERFVER IMPLEMENTATION */
+/******************************************************************************/
 void 
 ThrustWindow::Observe(
     int type,
@@ -358,20 +366,313 @@ ThrustWindow::Observe(
   }
 }
 
+/******************************************************************************/
+/* WEBCONTENTSOBSERVER IMPLEMENTATION */
+/******************************************************************************/
 bool 
 ThrustWindow::OnMessageReceived(
     const IPC::Message& message) 
 {
-  bool handled = true;
+  return false;
   /*
+  bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(ThrustWindow, message)
+    //IPC_MESSAGE_HANDLER(ShellViewHostMsg_UpdateDraggableRegions,
+    //                    UpdateDraggableRegions)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
+
+  return handled;
   */
-  handled = false;
+}
+
+bool 
+ThrustWindow::OnMessageReceived(
+    const IPC::Message& message,
+    RenderFrameHost* render_frame_host)
+{
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(ThrustWindow, message)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_CreateWebViewGuest,
+                        CreateWebViewGuest)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_DestroyWebViewGuest,
+                        DestroyWebViewGuest)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestSetAutoSize,
+                        WebViewGuestSetAutoSize)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestGo,
+                        WebViewGuestGo)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestLoadUrl,
+                        WebViewGuestLoadUrl)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestReload,
+                        WebViewGuestReload)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestStop,
+                        WebViewGuestStop)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestSetZoom,
+                        WebViewGuestSetZoom)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestFind,
+                        WebViewGuestFind)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestStopFinding,
+                        WebViewGuestStopFinding)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestInsertCSS,
+                        WebViewGuestInsertCSS)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestExecuteScript,
+                        WebViewGuestExecuteScript)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
 
   return handled;
 }
+
+/******************************************************************************/
+/* WEBVIEWGUEST MESSAGE HANDLING */
+/******************************************************************************/
+void 
+ThrustWindow::CreateWebViewGuest(
+    const base::DictionaryValue& params,
+    int* guest_instance_id)
+{
+
+  *guest_instance_id = 
+    ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+        GetWebContents()->GetBrowserContext())->
+      GetNextInstanceID();
+
+  LOG(INFO) << "ThrustWindow CreateWebViewGuest " << *guest_instance_id;
+
+  WebViewGuest* guest = WebViewGuest::Create(*guest_instance_id);
+
+  WebContents::CreateParams create_params(
+      GetWebContents()->GetBrowserContext());
+  create_params.guest_delegate = guest;
+  WebContents* guest_web_contents =
+      WebContents::Create(create_params);
+
+  guest->Init(guest_web_contents);
+}
+
+void 
+ThrustWindow::DestroyWebViewGuest(
+    int guest_instance_id)
+{
+  LOG(INFO) << "ThrustWindow DestroyWebViewGuest " << guest_instance_id;
+
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Destroy();
+}
+
+
+void 
+ThrustWindow::WebViewEmit(
+    int guest_instance_id,
+    const std::string type,
+    const base::DictionaryValue& params)
+{
+  /* We emit to the MainFrame as this is the only one that is authorized to */
+  /* have <webview> tags.                                                   */
+  GetWebContents()->GetMainFrame()->Send(
+      new ThrustFrameMsg_WebViewEmit(
+        GetWebContents()->GetMainFrame()->GetRoutingID(),
+        guest_instance_id, type, params));
+}
+
+void 
+ThrustWindow::WebViewGuestSetAutoSize(
+    int guest_instance_id,
+    const base::DictionaryValue& params)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  int min_width = 0;
+  int min_height = 0;
+  gfx::Size min_size;
+  if(params.GetInteger("min_size.width", &min_width) &&
+     params.GetInteger("min_size.height", &min_height)) {
+     min_size = gfx::Size(min_width, min_height);
+  }
+
+  int max_width = 0;
+  int max_height = 0;
+  gfx::Size max_size;
+  if(params.GetInteger("max_size.width", &max_width) &&
+     params.GetInteger("max_size.height", &max_height)) {
+     max_size = gfx::Size(max_width, max_height);
+  }
+
+  bool enabled = false;
+  params.GetBoolean("enabled", &enabled);
+
+  guest->SetAutoSize(enabled, min_size, max_size);
+}
+        
+void 
+ThrustWindow::WebViewGuestLoadUrl(
+    int guest_instance_id,
+    const std::string& url)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->LoadUrl(GURL(url));
+}
+
+void 
+ThrustWindow::WebViewGuestGo(
+    int guest_instance_id,
+    int relative_index)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Go(relative_index);
+}
+
+void 
+ThrustWindow::WebViewGuestReload(
+    int guest_instance_id,
+    bool ignore_cache)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Reload(ignore_cache);
+}
+
+void 
+ThrustWindow::WebViewGuestStop(
+    int guest_instance_id)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Stop();
+}
+
+void 
+ThrustWindow::WebViewGuestSetZoom(
+    int guest_instance_id,
+    double zoom_factor)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->SetZoom(zoom_factor);
+}
+
+void 
+ThrustWindow::WebViewGuestFind(
+    int guest_instance_id,
+    int request_id,
+    const std::string& search_text,
+    const base::DictionaryValue& options)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  blink::WebFindOptions find_options;
+  options.GetBoolean("forward", &find_options.forward);
+  options.GetBoolean("match_case", &find_options.matchCase);
+  options.GetBoolean("find_next", &find_options.findNext);
+  options.GetBoolean("word_start", &find_options.wordStart);
+  options.GetBoolean("medial_capital_as_word_start", 
+                     &find_options.medialCapitalAsWordStart);
+
+  guest->Find(request_id, search_text, find_options);
+}
+
+void 
+ThrustWindow::WebViewGuestStopFinding(
+    int guest_instance_id,
+    const std::string& action)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  content::StopFindAction action_value = 
+    content::STOP_FIND_ACTION_CLEAR_SELECTION;
+  if(action.compare("clear") == 0) {
+    action_value = content::STOP_FIND_ACTION_CLEAR_SELECTION;
+  }
+  if(action.compare("keep") == 0) {
+    action_value = content::STOP_FIND_ACTION_KEEP_SELECTION;
+  }
+  if(action.compare("activate") == 0) {
+    action_value = content::STOP_FIND_ACTION_ACTIVATE_SELECTION;
+  }
+  guest->StopFinding(action_value);
+}
+
+void 
+ThrustWindow::WebViewGuestInsertCSS(
+    int guest_instance_id,
+    const std::string& css)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->InsertCSS(css);
+}
+
+void 
+ThrustWindow::WebViewGuestExecuteScript(
+    int guest_instance_id,
+    const std::string& script)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->ExecuteScript(script);
+}
+
+/******************************************************************************/
+/* PRIVATE INTERFACE */
+/******************************************************************************/
 
 void ThrustWindow::DestroyWebContents() {
   if(inspectable_web_contents_) {

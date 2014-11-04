@@ -18,7 +18,7 @@
 
 namespace thrust_shell {
 
-struct RendererContentSettingRules;
+class ThrustWindow;
 
 // ## WebViewGuest
 //
@@ -38,27 +38,11 @@ class WebViewGuest : public content::BrowserPluginGuestDelegate,
                      public content::WebContentsObserver {
 public:
 
-  class Event {
-   public:
-    Event(const std::string& name, scoped_ptr<base::DictionaryValue> args);
-    ~Event();
-
-    const std::string& name() const { return name_; }
-
-    scoped_ptr<base::DictionaryValue> GetArguments();
-
-   private:
-    const std::string name_;
-    scoped_ptr<base::DictionaryValue> args_;
-  };
-
   /****************************************************************************/
   /* STATIC API */
   /****************************************************************************/
-  static WebViewGuest* Create(int guest_instance_id,
-                              content::WebContents* guest_web_contents);
+  static WebViewGuest* Create(int guest_instance_id);
 
-  static WebViewGuest* From(int embedder_process_id, int instance_id);
   static WebViewGuest* FromWebContents(content::WebContents* web_contents);
 
   // Returns guestview::kInstanceIDNone if |contents| does not correspond to a
@@ -76,11 +60,25 @@ public:
   /****************************************************************************/
   virtual void Destroy() OVERRIDE FINAL;
   virtual void DidAttach() OVERRIDE FINAL;
+  virtual void ElementSizeChanged(const gfx::Size& old_size,
+                                  const gfx::Size& new_size) OVERRIDE FINAL;
+  virtual int GetGuestInstanceID() const OVERRIDE;
+  virtual void GuestSizeChanged(const gfx::Size& old_size,
+                                const gfx::Size& new_size) OVERRIDE FINAL;
   virtual void RegisterDestructionCallback(
       const DestructionCallback& callback) OVERRIDE FINAL;
   virtual void WillAttach(
       content::WebContents* embedder_web_contents,
       const base::DictionaryValue& extra_params) OVERRIDE FINAL;
+
+  virtual content::WebContents* CreateNewGuestWindow(
+      const content::WebContents::CreateParams& create_params) OVERRIDE;
+  /*
+  virtual void RequestPointerLockPermission(
+      bool user_gesture,
+      bool last_unlocked_by_target,
+      const base::Callback<void(bool)>& callback) OVERRIDE;
+  */
 
   /****************************************************************************/
   /* NOTIFICATION_OBSERVER IMPLEMENTATION */
@@ -92,26 +90,95 @@ public:
   /****************************************************************************/
   /* WEBVIEW API */
   /****************************************************************************/
+  // ### LoadUrl
+  //
+  // Loads the specified url
+  void LoadUrl(const GURL& url);
+
+  // ### SetZoom
+  //
   // Set the zoom factor.
   void SetZoom(double zoom_factor);
 
+  // ### GetZoom
+  //
   // Returns the current zoom factor.
   double GetZoom();
 
+  // ### Go
+  //
   // If possible, navigate the guest to |relative_index| entries away from the
   // current navigation entry.
+  // ```
+  // @relative_index {int}
+  // ```
   void Go(int relative_index);
 
+  // ### Reload
+  //
   // Reload the guest.
-  void Reload();
+  // ```
+  // @ignore_cache {bool}
+  // ```
+  void Reload(bool ignore_cache);
 
+  // ### Stop
+  //
   // Stop loading the guest.
   void Stop();
 
+  // ### Terminate
+  //
+  // Terminates the renderer process for this guest webview
+  void Terminate();
+
+  // ### Find
+  //
+  // Searches for a string in the guesst webview
+  //
+  //```
+  // @request_id  {int} the request_id for this request
+  // @search_text {string} the search text
+  // @options     {WebFindOptions} the find options
+  // ```
+  void Find(int request_id, 
+            const std::string& search_text,
+            const blink::WebFindOptions& options);
+
+  //  ### StopFinding
+  //
+  //  Stops a findin query and specifiy which action to perform
+  //  ```
+  //  @action {StopFindingAction} the action to perform
+  //  ```
+  void StopFinding(content::StopFindAction action);
+
+  // ### InsertCSS
+  //
+  // Inserts some CSS in the main frame document
+  // ```
+  // @css {string} css text
+  // ```
+  void InsertCSS(const std::string& css);
+
+  // ### executeScript
+  //
+  // Executes script in the main frame document
+  // ```
+  // @css {string} script text
+  // ```
+  void ExecuteScript(const std::string& script);
 
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/
+  void Init(content::WebContents* guest_web_contents);
+
+  // Toggles autosize mode for this GuestView.
+  void SetAutoSize(bool enabled,
+                   const gfx::Size& min_size,
+                   const gfx::Size& max_size);
+
   content::WebContents* embedder_web_contents() const {
     return embedder_web_contents_;
   }
@@ -136,61 +203,86 @@ public:
   // Returns the embedder's process ID.
   int embedder_render_process_id() const { return embedder_render_process_id_; }
 
+  /****************************************************************************/
+  /* PROTECTED & PRIVATE API */
+  /****************************************************************************/
  protected:
-  WebViewGuest(int guest_instance_id,
-               content::WebContents* guest_web_contents);
+  WebViewGuest(int guest_instance_id);
   virtual ~WebViewGuest();
-
-  // Dispatches an event |event_name| to the embedder with the |event| fields.
-  void DispatchEvent(Event* event);
 
  private:
   class EmbedderWebContentsObserver;
 
-  void SendQueuedEvents();
+  ThrustWindow* GetThrustWindow();
 
   /****************************************************************************/
   /* WEBCONTENTSOBSERVER IMPLEMENTATION */
   /****************************************************************************/
-  /*
+  virtual void RenderViewReady() OVERRIDE FINAL;
+  virtual void WebContentsDestroyed() OVERRIDE FINAL;
+
+  virtual void DidFinishLoad(content::RenderFrameHost* render_frame_host,
+                             const GURL& validated_url) override;
+  virtual void DidFailLoad(content::RenderFrameHost* render_frame_host,
+                           const GURL& validated_url,
+                           int error_code,
+                           const base::string16& error_description) override;
+  virtual void DidStartLoading(
+      content::RenderViewHost* render_view_host) override;
+  virtual void DidStopLoading(
+      content::RenderViewHost* render_view_host) override;
+  virtual void DidGetRedirectForResourceRequest(
+      content::RenderViewHost* render_view_host,
+      const content::ResourceRedirectDetails& details) override;
+
   virtual void DidCommitProvisionalLoadForFrame(
-      int64 frame_id,
-      const base::string16& frame_unique_name,
-      bool is_main_frame,
+      content::RenderFrameHost* render_frame_host,
       const GURL& url,
-      content::PageTransition transition_type,
-      content::RenderViewHost* render_view_host) OVERRIDE;
+      content::PageTransition transition_type) OVERRIDE;
   virtual void DidFailProvisionalLoad(
-      int64 frame_id,
-      const base::string16& frame_unique_name,
-      bool is_main_frame,
+      content::RenderFrameHost* render_frame_host,
       const GURL& validated_url,
       int error_code,
-      const base::string16& error_description,
-      content::RenderViewHost* render_view_host) OVERRIDE;
+      const base::string16& error_description) OVERRIDE;
   virtual void DidStartProvisionalLoadForFrame(
-      int64 frame_id,
-      int64 parent_frame_id,
-      bool is_main_frame,
+      content::RenderFrameHost* render_frame_host,
       const GURL& validated_url,
       bool is_error_page,
-      bool is_iframe_srcdoc,
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void DocumentLoadedInFrame(
-      int64 frame_id,
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void DidStopLoading(
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void WebContentsDestroyed(
-      content::WebContents* web_contents) OVERRIDE;
+      bool is_iframe_srcdoc) OVERRIDE;
+  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void UserAgentOverrideSet(const std::string& user_agent) OVERRIDE;
-  */
 
-  content::WebContents* const               guest_web_contents_;
+  /****************************************************************************/
+  /* WEBCONTENTSDELEGATE IMPLEMENTATION */
+  /****************************************************************************/
+  virtual bool ShouldCreateWebContents(
+      content::WebContents* web_contents,
+      int route_id,
+      WindowContainerType window_container_type,
+      const base::string16& frame_name,
+      const GURL& target_url,
+      const std::string& partition_id,
+      content::SessionStorageNamespace* session_storage_namespace) OVERRIDE;
+  virtual void CloseContents(content::WebContents* source) OVERRIDE;
+  virtual content::WebContents* OpenURLFromTab(
+      content::WebContents* source,
+      const content::OpenURLParams& params) OVERRIDE;
+  virtual bool AddMessageToConsole(content::WebContents* source,
+                                   int32 level,
+                                   const base::string16& message,
+                                   int32 line_no,
+                                   const base::string16& source_id) OVERRIDE;
+  virtual void HandleKeyboardEvent(
+      content::WebContents* source,
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
+
+  /****************************************************************************/
+  /* DATA FIELDS */
+  /****************************************************************************/
+  content::WebContents*                     guest_web_contents_;
   content::WebContents*                     embedder_web_contents_;
-  const std::string                         embedder_extension_id_;
   int                                       embedder_render_process_id_;
-  content::BrowserContext* const            browser_context_;
+  content::BrowserContext*                  browser_context_;
   // |guest_instance_id_| is a profile-wide unique identifier for a guest
   // WebContents.
   const int                                 guest_instance_id_;
@@ -201,9 +293,6 @@ public:
   content::NotificationRegistrar            notification_registrar_;
   // Stores the current zoom factor.
   double                                    current_zoom_factor_;
-  // This is a queue of Events that are destined to be sent to the embedder once
-  // the guest is attached to a particular embedder.
-  std::deque<linked_ptr<Event> >            pending_events_;
   DestructionCallback                       destruction_callback_;
   // The extra parameters associated with this GuestView passed
   // in from JavaScript. This will typically be the view instance ID,
@@ -211,6 +300,17 @@ public:
   // are passed along to new guests that are created from this guest.
   scoped_ptr<base::DictionaryValue>         extra_params_;
   scoped_ptr<EmbedderWebContentsObserver>   embedder_web_contents_observer_;
+  // The size of the container element.
+  gfx::Size                                 element_size_;
+  // The size of the guest content. Note: In autosize mode, the container
+  // element may not match the size of the guest.
+  gfx::Size                                 guest_size_;
+  // Indicates whether autosize mode is enabled or not.
+  bool                                      auto_size_enabled_;
+  // The maximum size constraints of the container element in autosize mode.
+  gfx::Size                                 max_auto_size_;
+  // The minimum size constraints of the container element in autosize mode.
+  gfx::Size                                 min_auto_size_;
   // This is used to ensure pending tasks will not fire after this object is
   // destroyed.
   base::WeakPtrFactory<WebViewGuest>        weak_ptr_factory_;

@@ -113,16 +113,24 @@ public:
   content::WebContents* GetGuestByInstanceID(int guest_instance_id,
                                              int embedder_render_process_id);
 
-private:
-  class ExoResourceContext;
-
   /****************************************************************************/
-  /* PRIVATE INTERFACE                                                        */
+  /* GUEST_MANAGER INTERFACE*/
   /****************************************************************************/
   virtual void AddGuest(int guest_instance_id,
                         content::WebContents* guest_web_contents);
-
   void RemoveGuest(int guest_instance_id);
+  content::WebContents* CreateGuestWithWebContentsParams(
+      const std::string& view_type,
+      const std::string& embedder_extension_id,
+      int embedder_render_process_id,
+      const content::WebContents::CreateParams& create_params);
+  int GetNextInstanceID();
+
+
+
+
+private:
+  class ExoResourceContext;
 
   /****************************************************************************/
   /* MEMBERS                                                                   */

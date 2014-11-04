@@ -159,7 +159,6 @@ ThrustSession::GetDownloadManagerDelegate()
 BrowserPluginGuestManager* 
 ThrustSession::GetGuestManager() 
 {
-  LOG(INFO) << "************++++++++++++++++++ RETURN PLUGIN GUEST MANAGER";
   return this;
 }
 
@@ -236,8 +235,9 @@ ThrustSession::GetGuestByInstanceID(
 {
   std::map<int, content::WebContents*>::const_iterator it =
       guest_web_contents_.find(guest_instance_id);
-  if (it == guest_web_contents_.end())
+  if(it == guest_web_contents_.end()) {
     return NULL;
+  }
   return it->second;
 }
 
@@ -251,14 +251,19 @@ ThrustSession::ForEachGuest(
        it != guest_web_contents_.end(); ++it) {
     WebContents* guest = it->second;
     WebViewGuest* guest_view = WebViewGuest::FromWebContents(guest);
-    if (embedder_web_contents != guest_view->embedder_web_contents())
+    if(embedder_web_contents != guest_view->embedder_web_contents()) {
       continue;
-    if (callback.Run(guest))
+    }
+    if(callback.Run(guest)) {
       return true;
+    }
   }
   return false;
 }
 
+/******************************************************************************/
+/* GUEST_MANAGER INTERFACE*/
+/******************************************************************************/
 void 
 ThrustSession::AddGuest(
     int guest_instance_id,
@@ -276,6 +281,12 @@ ThrustSession::RemoveGuest(
       guest_web_contents_.find(guest_instance_id);
   DCHECK(it != guest_web_contents_.end());
   guest_web_contents_.erase(it);
+}
+
+int 
+ThrustSession::GetNextInstanceID() 
+{
+  return ++current_instance_id_;
 }
 
 }  // namespace thrust_shell

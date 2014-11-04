@@ -34,6 +34,9 @@ class ScriptContext {
                 blink::WebFrame* frame);
   virtual ~ScriptContext();
 
+  static ScriptContext* 
+    FromV8Context(const v8::Handle<v8::Context>& v8_context);
+
   // Clears the WebFrame for this contexts and invalidates the associated
   // ModuleSystem.
   void Invalidate();
@@ -110,6 +113,9 @@ class ScriptContext {
   SafeBuiltins safe_builtins_;
 
   v8::Isolate* isolate_;
+
+  // A static container of all the script contexts.
+  static std::vector<ScriptContext*> s_instances;
 
   DISALLOW_COPY_AND_ASSIGN(ScriptContext);
 };
