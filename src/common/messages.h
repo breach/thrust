@@ -78,6 +78,16 @@ IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestStopFinding,
                     int, /* guest_instance_id */
                     std::string /* action */)
 
+// WebViewGuestInsertCSS
+IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestInsertCSS,
+                    int, /* guest_instance_id */
+                    std::string /* css */)
+
+// WebViewGuestExecuteScript
+IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestExecuteScript,
+                    int, /* guest_instance_id */
+                    std::string /* script */)
+
 
 // WebViewEmit
 IPC_MESSAGE_ROUTED3(ThrustFrameMsg_WebViewEmit,

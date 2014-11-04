@@ -452,6 +452,21 @@ WebViewGuest::StopFinding(
   guest_web_contents()->StopFinding(action);
 }
 
+void 
+WebViewGuest::InsertCSS(
+    const std::string& css)
+{
+  guest_web_contents()->InsertCSS(css);
+}
+
+void 
+WebViewGuest::ExecuteScript(
+    const std::string& script)
+{
+  base::string16 code = base::UTF8ToUTF16(script);
+  guest_web_contents()->GetMainFrame()->ExecuteJavaScript(code);
+}
+
 /******************************************************************************/
 /* PUBLIC API */
 /******************************************************************************/

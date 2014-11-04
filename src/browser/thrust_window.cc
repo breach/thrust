@@ -413,6 +413,10 @@ ThrustWindow::OnMessageReceived(
                         WebViewGuestFind)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestStopFinding,
                         WebViewGuestStopFinding)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestInsertCSS,
+                        WebViewGuestInsertCSS)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestExecuteScript,
+                        WebViewGuestExecuteScript)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -634,6 +638,36 @@ ThrustWindow::WebViewGuestStopFinding(
     action_value = content::STOP_FIND_ACTION_ACTIVATE_SELECTION;
   }
   guest->StopFinding(action_value);
+}
+
+void 
+ThrustWindow::WebViewGuestInsertCSS(
+    int guest_instance_id,
+    const std::string& css)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->InsertCSS(css);
+}
+
+void 
+ThrustWindow::WebViewGuestExecuteScript(
+    int guest_instance_id,
+    const std::string& script)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->ExecuteScript(script);
 }
 
 /******************************************************************************/

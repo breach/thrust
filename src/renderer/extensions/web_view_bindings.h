@@ -49,6 +49,8 @@ class WebViewBindings : public ObjectBackedNativeHandler {
   void SetZoom(const v8::FunctionCallbackInfo<v8::Value>& args);
   void Find(const v8::FunctionCallbackInfo<v8::Value>& args);
   void StopFinding(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void InsertCSS(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void ExecuteScript(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 
   std::map<int, v8::Persistent<v8::Function> >   guest_handlers_;

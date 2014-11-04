@@ -59,6 +59,12 @@ WebViewBindings::WebViewBindings(
   RouteFunction("StopFinding",
       base::Bind(&WebViewBindings::StopFinding,
                  base::Unretained(this)));
+  RouteFunction("InsertCSS",
+      base::Bind(&WebViewBindings::InsertCSS,
+                 base::Unretained(this)));
+  RouteFunction("ExecuteScript",
+      base::Bind(&WebViewBindings::ExecuteScript,
+                 base::Unretained(this)));
 
   render_frame_observer_ = 
     thrust_shell::ThrustShellRenderFrameObserver::FromRenderFrame(
@@ -359,6 +365,46 @@ WebViewBindings::StopFinding(
       new ThrustFrameHostMsg_WebViewGuestStopFinding(
         render_frame_observer_->routing_id(), 
         guest_instance_id, action));
+}
+
+void 
+WebViewBindings::InsertCSS(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+  std::string css(*v8::String::Utf8Value(args[1]));
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: InsertCSS " << guest_instance_id;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestInsertCSS(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, css));
+}
+
+void 
+WebViewBindings::ExecuteScript(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+  std::string script(*v8::String::Utf8Value(args[1]));
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: ExecuteScript " << guest_instance_id;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestExecuteScript(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, script));
 }
 
 

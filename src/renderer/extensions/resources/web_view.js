@@ -109,6 +109,8 @@ var webview = function(spec, my) {
   var api_setZoom;                     /* api_setZoom(zoom_factor); */
   var api_find;                        /* api_find(request_id, search_text, options); */
   var api_stopFinding;                 /* api_stopFinding(action); */
+  var api_insertCSS;                   /* api_insertCSS(css); */
+  var api_executeScript;               /* api_executeScript(script); */
   
   //
   // _private_
@@ -431,7 +433,35 @@ var webview = function(spec, my) {
       return;
     }
 
-    WebViewNatives.StopFinding(action);
+    WebViewNatives.StopFinding(my.guest_instance_id, action);
+  };
+
+  // ### api_insertCSS
+  //
+  // Insert CSS in the webview
+  // ```
+  // @css {string} css text
+  // ```
+  api_insertCSS = function(css) {
+    if(!my.guest_instance_id) {
+      return;
+    }
+
+    WebViewNatives.InsertCSS(my.guest_instance_id, css);
+  };
+
+  // ### api_executeScript
+  //
+  // Executes a script in the webview
+  // ```
+  // @script {string} script code
+  // ```
+  api_executeScript = function(script) {
+    if(!my.guest_instance_id) {
+      return;
+    }
+
+    WebViewNatives.ExecuteScript(my.guest_instance_id, script);
   };
 
 
@@ -709,18 +739,16 @@ var webview = function(spec, my) {
   that.api_forward = api_forward;
   that.api_canGoBack = api_canGoBack;
   that.api_canGoForward = api_canGoForward;
-
   that.api_loadUrl = api_loadUrl;
   that.api_reload = api_reload;
   that.api_stop = api_stop;
-
   that.api_getProcessId = api_getProcessId;
-
   that.api_getZoom = api_getZoom;
   that.api_setZoom = api_setZoom;
-
   that.api_find = api_find;
   that.api_stopFinding = api_stopFinding;
+  that.api_insertCSS = api_insertCSS;
+  that.api_executeScript = api_executeScript;
 
   init();
 
@@ -825,12 +853,12 @@ function registerWebViewElement() {
     'setZoom',
     'find',
     'stopFinding',
+    'insertCSS',
+    'executeScript',
     /*
     'clearData',
     'print',
     'terminate',
-    'executeScript',
-    'insertCSS',
     'getUserAgent',
     'isUserAgentOverridden',
     'setUserAgentOverride'

@@ -153,6 +153,21 @@ public:
   //  ```
   void StopFinding(content::StopFindAction action);
 
+  // ### InsertCSS
+  //
+  // Inserts some CSS in the main frame document
+  // ```
+  // @css {string} css text
+  // ```
+  void InsertCSS(const std::string& css);
+
+  // ### executeScript
+  //
+  // Executes script in the main frame document
+  // ```
+  // @css {string} script text
+  // ```
+  void ExecuteScript(const std::string& script);
 
   /****************************************************************************/
   /* PUBLIC API */

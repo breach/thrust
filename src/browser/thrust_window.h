@@ -329,6 +329,10 @@ public:
                         const base::DictionaryValue& options);
   void WebViewGuestStopFinding(int guest_instance_id,
                                const std::string& action);
+  void WebViewGuestInsertCSS(int guest_instance_id,
+                             const std::string& css);
+  void WebViewGuestExecuteScript(int guest_instance_id,
+                                 const std::string& script);
 
 #if defined(OS_MACOSX)
   /****************************************************************************/
