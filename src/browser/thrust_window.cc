@@ -26,6 +26,7 @@
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/browser/favicon_status.h"
+#include "third_party/WebKit/public/web/WebFindOptions.h"
 
 #include "src/common/switches.h"
 #include "src/browser/browser_main_parts.h"
@@ -398,12 +399,20 @@ ThrustWindow::OnMessageReceived(
                         DestroyWebViewGuest)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestSetAutoSize,
                         WebViewGuestSetAutoSize)
-    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestLoadUrl,
-                        WebViewGuestLoadUrl)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestGo,
                         WebViewGuestGo)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestLoadUrl,
+                        WebViewGuestLoadUrl)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestReload,
                         WebViewGuestReload)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestStop,
+                        WebViewGuestStop)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestSetZoom,
+                        WebViewGuestSetZoom)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestFind,
+                        WebViewGuestFind)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestStopFinding,
+                        WebViewGuestStopFinding)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -547,6 +556,85 @@ ThrustWindow::WebViewGuestReload(
   guest->Reload(ignore_cache);
 }
 
+void 
+ThrustWindow::WebViewGuestStop(
+    int guest_instance_id)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->Stop();
+}
+
+void 
+ThrustWindow::WebViewGuestSetZoom(
+    int guest_instance_id,
+    double zoom_factor)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->SetZoom(zoom_factor);
+}
+
+void 
+ThrustWindow::WebViewGuestFind(
+    int guest_instance_id,
+    int request_id,
+    const std::string& search_text,
+    const base::DictionaryValue& options)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  blink::WebFindOptions find_options;
+  options.GetBoolean("forward", &find_options.forward);
+  options.GetBoolean("match_case", &find_options.matchCase);
+  options.GetBoolean("find_next", &find_options.findNext);
+  options.GetBoolean("word_start", &find_options.wordStart);
+  options.GetBoolean("medial_capital_as_word_start", 
+                     &find_options.medialCapitalAsWordStart);
+
+  guest->Find(request_id, search_text, find_options);
+}
+
+void 
+ThrustWindow::WebViewGuestStopFinding(
+    int guest_instance_id,
+    const std::string& action)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  content::StopFindAction action_value = 
+    content::STOP_FIND_ACTION_CLEAR_SELECTION;
+  if(action.compare("clear") == 0) {
+    action_value = content::STOP_FIND_ACTION_CLEAR_SELECTION;
+  }
+  if(action.compare("keep") == 0) {
+    action_value = content::STOP_FIND_ACTION_KEEP_SELECTION;
+  }
+  if(action.compare("activate") == 0) {
+    action_value = content::STOP_FIND_ACTION_ACTIVATE_SELECTION;
+  }
+  guest->StopFinding(action_value);
+}
 
 /******************************************************************************/
 /* PRIVATE INTERFACE */

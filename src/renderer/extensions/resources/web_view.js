@@ -77,6 +77,13 @@ var webview = function(spec, my) {
 
   my.guest_instance_id = null;
 
+  /* Navigation information */
+  my.entry_index = 0;
+  my.entry_count = 0;
+  my.process_id = null;
+  my.ignore_next_src = false;
+  my.zoom_factor = 1.0;
+
 
   //
   // _public_
@@ -89,9 +96,19 @@ var webview = function(spec, my) {
   var reset;                           /* reset(); */
 
   var api_setAutoSize;                 /* api_setAutoSize(params); */
-  var api_loadUrl;                     /* api_loadUrl(url); */
   var api_go;                          /* api_go(index); */
+  var api_back;                        /* api_back(); */
+  var api_forward;                     /* api_forward(); */
+  var api_canGoBack;                   /* api_canGoBack(); */
+  var api_canGoForward;                /* api_canGoForward(); */
+  var api_loadUrl;                     /* api_loadUrl(url); */
   var api_reload;                      /* api_reload(ignore_cache); */
+  var api_stop;                        /* api_stop(); */
+  var api_getProcessId;                /* api_getProcessId(); */
+  var api_getZoom;                     /* api_getZoom(); */
+  var api_setZoom;                     /* api_setZoom(zoom_factor); */
+  var api_find;                        /* api_find(request_id, search_text, options); */
+  var api_stopFinding;                 /* api_stopFinding(action); */
   
   //
   // _private_
@@ -136,6 +153,28 @@ var webview = function(spec, my) {
         api_loadUrl(event.src);
       }
       //console.log('EVENT did-attach');
+      //console.log(JSON.stringify(event));
+    }
+    else if(type === 'did-commit-provisional-load') {
+      my.entry_index = event.entry_index;
+      my.entry_count = event.entry_count;
+      my.process_id = event.process_id;
+      var old_value = my.webview_node.getAttribute('src');
+      var new_value = event.url;
+
+      if(event.is_top_level && (old_value != new_value)) {
+        /* Touching the src attribute triggers a navigation. To avoid    */
+        /* triggering a page reload on every guest-initiated navigation, */
+        /* we use the flag `ignore_next_src` here.                       */
+        my.ignore_next_src = true;
+        my.webview_node.setAttribute('src', new_value);
+      }
+      //console.log('EVENT did-commit-provisional-load');
+      //console.log(JSON.stringify(event));
+    }
+    else if(type === 'zoom-changed') {
+      my.zoom_factor = event.new_zoom_factor;
+      //console.log('EVENT zoom-changed');
       //console.log(JSON.stringify(event));
     }
     else if(WEB_VIEW_EVENTS[type]) {
@@ -242,17 +281,10 @@ var webview = function(spec, my) {
   // @params {object} autosize params (enabled, min_size, max_size)
   // ```
   api_setAutoSize = function(params) {
+    if(!my.guest_instance_id) {
+      return;
+    }
     WebViewNatives.SetAutoSize(my.guest_instance_id, params);
-  };
-
-  // ### api_loadUrl
-  //
-  // Loads the specified URL (similar as updating `src`)
-  // ```
-  // @url {string} the url to load
-  // ```
-  api_loadUrl = function(url) {
-    WebViewNatives.LoadUrl(my.guest_instance_id, url);
   };
 
   // ### api_go
@@ -262,7 +294,52 @@ var webview = function(spec, my) {
   // @index {integer} the relative index
   // ```
   api_go = function(index) {
+    if(!my.guest_instance_id) {
+      return;
+    }
     WebViewNatives.Go(my.guest_instance_id, index);
+  };
+
+  // ### api_back
+  //
+  // Navigates back in history
+  api_back = function() {
+    return that.api_go(-1);
+  };
+
+  // ### api_forward
+  //
+  // Navigates forward in history
+  api_forward = function() {
+    return that.api_go(1);
+  };
+
+  // ### api_canGoBack
+  //
+  // Whether the webview can go back
+  api_canGoBack = function() {
+    return my.entry_count > 1 && my.entry_index > 0;
+  };
+
+  // ### api_canGoForward
+  //
+  // Whether the webview can go forward
+  api_canGoForward = function() {
+    return this.entry_index >= 0 &&
+      this.entry_index < (this.entry_count - 1);
+  };
+
+  // ### api_loadUrl
+  //
+  // Loads the specified URL (similar as updating `src`)
+  // ```
+  // @url {string} the url to load
+  // ```
+  api_loadUrl = function(url) {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    WebViewNatives.LoadUrl(my.guest_instance_id, url);
   };
 
   // ### api_reload
@@ -272,8 +349,92 @@ var webview = function(spec, my) {
   // @ignore_cache {boolean} ignore cache
   // ```
   api_reload = function(ignore_cache) {
+    if(!my.guest_instance_id) {
+      return;
+    }
     WebViewNatives.Reload(my.guest_instance_id, ignore_cache ? true : false);
   };
+
+  // ### api_stop
+  //
+  // Stops loading
+  api_stop = function() {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    WebViewNatives.Stop(my.guest_instance_id);
+  };
+
+  // ### api_getProcessId
+  //
+  // Returns the Renderer process id for this webview
+  api_getProcessId = function() {
+    return my.process_id;
+  };
+
+  // ### api_getZoom
+  //
+  // Returns the current zoom factor
+  api_getZoom = function() {
+    return my.zoom_factor;
+  };
+
+  // ### api_setZoom
+  //
+  // Sets the zoom factor for this webview
+  // ```
+  // @zoom_factor {number} the new zoom factor
+  // ```
+  api_setZoom = function(zoom_factor) {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    WebViewNatives.SetZoom(my.guest_instance_id, zoom_factor);
+  };
+
+  // ### api_find
+  //
+  // Starts or continue a find request
+  // ```
+  // @request_id  {number} request id
+  // @search_text {string} the search string
+  // @options     {object} forward, match_case, find_next, 
+  //                       world_start, medial_capital_as_word_start
+  // ```
+  api_find = function(request_id, search_text, options) {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    var opt = {};
+    opt.forward = (options || {}).forward || false;
+    opt.match_case = (options || {}).match_case || false;
+    opt.find_next = (options || {}).find_next || false;
+    opt.word_start = (options || {}).word_start || false;
+    opt.medial_capital_as_word_start = 
+      (options || {}).medial_capital_as_word_start || false;
+
+    WebViewNatives.Find(my.guest_instance_id, request_id, search_text, opt);
+  };
+  
+  // ### api_stopFinding
+  //
+  // Stops a find request and perform an action
+  // ```
+  // @action {string} "clear" | "keep" | "activate"
+  // ```
+  api_stopFinding = function(action) {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    action = action || "clear";
+    if(action !== "clear" && action !== "keep" && action !== "activate") {
+      return;
+    }
+
+    WebViewNatives.StopFinding(action);
+  };
+
+
 
   /****************************************************************************/
   /* PUBLIC METHODS */
@@ -290,8 +451,50 @@ var webview = function(spec, my) {
   // @new_value {value} the new value
   // ```
   webview_mutation_handler = function(name, old_value, new_value) {
-    /* TODO(spolu): see handleWebviewAttributeMutation */
     console.log("HANDLER: " + name + " " + old_value + " " + new_value);
+
+    if(AUTO_SIZE_ATTRIBUTES.indexOf(name) > -1) {
+      my[name] = new_value;
+      if(!my.guest_instance_id) {
+        return;
+      }
+      var params = {
+        enabled: my.webview_node.hasAttribute(WEB_VIEW_ATTRIBUTE_AUTOSIZE),
+        'min_size': {
+          'width': parseInt(my.minwidth || 0),
+          'height': parseInt(my.minheight || 0)
+        },
+        'max_size': {
+          'width': parseInt(my.maxwidth || 0),
+          'height': parseInt(my.maxheight || 0)
+        }
+      };
+      api_setAutoSize(params);
+    }
+    else if(name === 'src') {
+      /* We treat null attribute (attribute removed) and the empty string as */
+      /* one case.                                                           */
+      old_value = old_value || '';
+      new_value = new_value || '';
+
+      /* Once we have navigated, we don't allow clearing the src attribute. */
+      /* Once <webview> enters a navigated state, it cannot be return back  */
+      /* to a placeholder state.                                            */
+      if(new_value === '' && old_value !== '') {
+        /* src attribute changes normally initiate a navigation. We suppress */
+        /* the next src attribute handler call to avoid reloading the page   */
+        /* on every guest-initiated navigation.                              */
+        my.ignore_next_src = true;
+        my.webview_node.setAttribute('src', old_value);
+        return;
+      }
+      my.src = new_value;
+      if(my.ignore_next_src) {
+        my.ignore_next_src = false;
+        return;
+      }
+      attr_src_parse();
+    }
   };
 
   // ### browser_plugin_mutation_handler
@@ -302,10 +505,8 @@ var webview = function(spec, my) {
   // @new_value {value} the new value
   // ```
   browser_plugin_mutation_handler = function(name, old_value, new_value) {
-    /* TODO(spolu): see handleBrowserPluginAttributeMutation */
-
     /* TODO(spolu): FixMe Chrome 39 */
-    if (name == 'internalbindings' && !old_value && new_value) {
+    if(name == 'internalbindings' && !old_value && new_value) {
       my.browser_plugin_node.removeAttribute('internalbindings');
 
       /* If we already created the guest but the plugin was not in the render */
@@ -491,8 +692,6 @@ var webview = function(spec, my) {
       my.browser_plugin_node.blur();
     });
 
-    /* TODO(spolu): Register Events */
-    
     /* Finally triggers the guest creation and first navigation. If the */
     /* element is attached.                                             */
     parse_attributes();
@@ -505,9 +704,23 @@ var webview = function(spec, my) {
   that.parse_attributes = parse_attributes;
   that.reset = reset;
 
-  that.api_loadUrl = api_loadUrl;
   that.api_go = api_go;
+  that.api_back = api_back;
+  that.api_forward = api_forward;
+  that.api_canGoBack = api_canGoBack;
+  that.api_canGoForward = api_canGoForward;
+
+  that.api_loadUrl = api_loadUrl;
   that.api_reload = api_reload;
+  that.api_stop = api_stop;
+
+  that.api_getProcessId = api_getProcessId;
+
+  that.api_getZoom = api_getZoom;
+  that.api_setZoom = api_setZoom;
+
+  that.api_find = api_find;
+  that.api_stopFinding = api_stopFinding;
 
   init();
 
@@ -599,24 +812,22 @@ function registerWebViewElement() {
   };
 
   var methods = [
-    /*
+    'go',
     'back',
     'forward',
     'canGoBack',
     'canGoForward',
-    */
     'loadUrl',
-    'go',
     'reload',
-    /*
     'stop',
-    'clearData',
     'getProcessId',
     'getZoom',
     'setZoom',
-    'print',
     'find',
     'stopFinding',
+    /*
+    'clearData',
+    'print',
     'terminate',
     'executeScript',
     'insertCSS',

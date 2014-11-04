@@ -127,6 +127,32 @@ public:
   // Stop loading the guest.
   void Stop();
 
+  // ### Terminate
+  //
+  // Terminates the renderer process for this guest webview
+  void Terminate();
+
+  // ### Find
+  //
+  // Searches for a string in the guesst webview
+  //
+  //```
+  // @request_id  {int} the request_id for this request
+  // @search_text {string} the search text
+  // @options     {WebFindOptions} the find options
+  // ```
+  void Find(int request_id, 
+            const std::string& search_text,
+            const blink::WebFindOptions& options);
+
+  //  ### StopFinding
+  //
+  //  Stops a findin query and specifiy which action to perform
+  //  ```
+  //  @action {StopFindingAction} the action to perform
+  //  ```
+  void StopFinding(content::StopFindAction action);
+
 
   /****************************************************************************/
   /* PUBLIC API */

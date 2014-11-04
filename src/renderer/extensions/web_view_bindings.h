@@ -32,54 +32,23 @@ class WebViewBindings : public ObjectBackedNativeHandler {
                         const base::DictionaryValue& event);
 
  private:
-  // ### CreateGuest
+
+  // ### [RouteFunction]
   //
   // ```
   // @args {FunctionCallbackInfo} v8 args and return
   // ```
   void CreateGuest(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  // ### DestroyGuest
-  //
-  // ```
-  // @args {FunctionCallbackInfo} v8 args and return
-  // ```
   void DestroyGuest(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  // ### SetEventHandler
-  //
-  // ```
-  // @args {FunctionCallbackInfo} v8 args and return
-  // ```
   void SetEventHandler(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  // ### SetAutoSize
-  //
-  // ```
-  // @args {FunctionCallbackInfo} v8 args and return
-  // ```
   void SetAutoSize(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  // ### LoadUrl
-  //
-  // ```
-  // @args {FunctionCallbackInfo} v8 args and return
-  // ```
-  void LoadUrl(const v8::FunctionCallbackInfo<v8::Value>& args);
-  
-  // ### Go
-  //
-  // ```
-  // @args {FunctionCallbackInfo} v8 args and return
-  // ```
   void Go(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-  // ### Reload
-  //
-  // ```
-  // @args {FunctionCallbackInfo} v8 args and return
-  // ```
+  void LoadUrl(const v8::FunctionCallbackInfo<v8::Value>& args);
   void Reload(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void Stop(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void SetZoom(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void Find(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void StopFinding(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 
   std::map<int, v8::Persistent<v8::Function> >   guest_handlers_;

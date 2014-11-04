@@ -38,14 +38,26 @@ WebViewBindings::WebViewBindings(
   RouteFunction("SetAutoSize",
       base::Bind(&WebViewBindings::SetAutoSize,
                  base::Unretained(this)));
-  RouteFunction("LoadUrl",
-      base::Bind(&WebViewBindings::LoadUrl,
-                 base::Unretained(this)));
   RouteFunction("Go",
       base::Bind(&WebViewBindings::Go,
                  base::Unretained(this)));
+  RouteFunction("LoadUrl",
+      base::Bind(&WebViewBindings::LoadUrl,
+                 base::Unretained(this)));
   RouteFunction("Reload",
       base::Bind(&WebViewBindings::Reload,
+                 base::Unretained(this)));
+  RouteFunction("Stop",
+      base::Bind(&WebViewBindings::Stop,
+                 base::Unretained(this)));
+  RouteFunction("SetZoom",
+      base::Bind(&WebViewBindings::SetZoom,
+                 base::Unretained(this)));
+  RouteFunction("Find",
+      base::Bind(&WebViewBindings::Find,
+                 base::Unretained(this)));
+  RouteFunction("StopFinding",
+      base::Bind(&WebViewBindings::StopFinding,
                  base::Unretained(this)));
 
   render_frame_observer_ = 
@@ -193,26 +205,6 @@ WebViewBindings::SetAutoSize(
 }
 
 void 
-WebViewBindings::LoadUrl(
-    const v8::FunctionCallbackInfo<v8::Value>& args) 
-{
-  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString()) {
-    NOTREACHED();
-    return;
-  }
-
-  int guest_instance_id = args[0]->NumberValue();
-  std::string url(*v8::String::Utf8Value(args[1]));
-
-  LOG(INFO) << "WEB_VIEW_BINDINGS: LoadUrl " << guest_instance_id << " " << url;
-  
-  render_frame_observer_->Send(
-      new ThrustFrameHostMsg_WebViewGuestLoadUrl(
-        render_frame_observer_->routing_id(), 
-        guest_instance_id, url));
-}
-
-void 
 WebViewBindings::Go(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
@@ -233,6 +225,26 @@ WebViewBindings::Go(
 }
 
 void 
+WebViewBindings::LoadUrl(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+  std::string url(*v8::String::Utf8Value(args[1]));
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: LoadUrl " << guest_instance_id << " " << url;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestLoadUrl(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, url));
+}
+
+void 
 WebViewBindings::Reload(
     const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
@@ -250,6 +262,103 @@ WebViewBindings::Reload(
       new ThrustFrameHostMsg_WebViewGuestReload(
         render_frame_observer_->routing_id(), 
         guest_instance_id, ignore_cache));
+}
+
+void 
+WebViewBindings::Stop(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 1 || !args[0]->IsNumber()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: Stop " << guest_instance_id;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestStop(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id));
+}
+
+void 
+WebViewBindings::SetZoom(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsNumber()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+  double zoom_factor = args[1]->NumberValue();
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: SetZoom " << guest_instance_id << " " << zoom_factor;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestSetZoom(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, zoom_factor));
+}
+
+void 
+WebViewBindings::Find(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 4 || !args[0]->IsNumber() || 
+     !args[1]->IsNumber() || !args[2]->IsString() || !args[3]->IsObject()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+  int request_id = args[1]->NumberValue();
+  std::string search_text(*v8::String::Utf8Value(args[2]));
+  v8::Local<v8::Object> object = args[3]->ToObject();
+
+  scoped_ptr<V8ValueConverter> converter(V8ValueConverter::create());
+  scoped_ptr<base::Value> value(
+      converter->FromV8Value(object, context()->v8_context()));
+
+  if(!value) {
+    return;                                                             
+  }
+  if(!value->IsType(base::Value::TYPE_DICTIONARY)) {
+    return;
+  }
+
+  scoped_ptr<base::DictionaryValue> options(
+      static_cast<base::DictionaryValue*>(value.release()));
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: Find " << guest_instance_id << " " 
+            << request_id << " " << search_text;
+
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestFind(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, request_id, search_text, *options.get()));
+}
+
+void 
+WebViewBindings::StopFinding(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+  std::string action(*v8::String::Utf8Value(args[1]));
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: StopFinding " << guest_instance_id << " " << action;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestStopFinding(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, action));
 }
 
 

@@ -320,6 +320,15 @@ public:
                       int relative_index);
   void WebViewGuestReload(int guest_instance_id,
                           bool ignore_cache);
+  void WebViewGuestStop(int guest_instance_id);
+  void WebViewGuestSetZoom(int guest_instance_id,
+                           double zoom_factor);
+  void WebViewGuestFind(int guest_instance_id,
+                        int request_id,
+                        const std::string& search_text,
+                        const base::DictionaryValue& options);
+  void WebViewGuestStopFinding(int guest_instance_id,
+                               const std::string& action);
 
 #if defined(OS_MACOSX)
   /****************************************************************************/

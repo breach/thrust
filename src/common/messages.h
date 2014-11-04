@@ -55,10 +55,33 @@ IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestGo,
 // WebViewGuestReload
 IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestReload,
                     int, /* guest_instance_id */
-                    int /* relative_index */)
+                    bool /* ignore_cache */)
+
+// WebViewGuestStop
+IPC_MESSAGE_ROUTED1(ThrustFrameHostMsg_WebViewGuestStop,
+                    int /* guest_instance_id */)
+
+// WebViewGuestSetZoom
+IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestSetZoom,
+                    int, /* guest_instance_id */
+                    double /* zoom_factor */)
+
+// WebViewGuestFind
+IPC_MESSAGE_ROUTED4(ThrustFrameHostMsg_WebViewGuestFind,
+                    int, /* guest_instance_id */
+                    int, /* request_id */
+                    std::string, /* search_text */
+                    base::DictionaryValue /* options */)
+
+// WebViewGuestStopFinding
+IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestStopFinding,
+                    int, /* guest_instance_id */
+                    std::string /* action */)
+
 
 // WebViewEmit
 IPC_MESSAGE_ROUTED3(ThrustFrameMsg_WebViewEmit,
                     int, /* guest_instance_id */
                     std::string, /* type */
                     base::DictionaryValue /* event */);
+

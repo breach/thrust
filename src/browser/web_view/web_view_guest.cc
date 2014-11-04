@@ -5,8 +5,12 @@
 #include "src/browser/web_view/web_view_guest.h"
 
 #include "base/lazy_instance.h"
+#include "base/process/kill.h"
+#include "base/process/process_handle.h" 
+#include "base/strings/utf_string_conversions.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
+#include "content/public/common/result_codes.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_frame_host.h"
@@ -23,6 +27,7 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/common/page_zoom.h"
 #include "third_party/WebKit/public/web/WebView.h"
+#include "third_party/WebKit/public/web/WebFindOptions.h"
 
 #include "src/browser/web_view/web_view_constants.h"
 #include "src/browser/browser_client.h"
@@ -376,7 +381,7 @@ WebViewGuest::SetZoom(
   content::HostZoomMap::SetZoomLevel(guest_web_contents(), zoom_level);
 
   base::DictionaryValue event;
-  event.SetBoolean("old_zoom_factor", current_zoom_factor_);
+  event.SetDouble("old_zoom_factor", current_zoom_factor_);
   event.SetDouble("new_zoom_factor", zoom_factor);
 
   GetThrustWindow()->WebViewEmit(
@@ -420,6 +425,32 @@ WebViewGuest::Stop()
   guest_web_contents()->Stop();
 }
 
+void
+WebViewGuest::Terminate() 
+{
+  base::ProcessHandle process_handle =
+      guest_web_contents()->GetRenderProcessHost()->GetHandle();
+  if (process_handle)
+    base::KillProcess(process_handle, content::RESULT_CODE_KILLED, false);
+}
+
+
+void 
+WebViewGuest::Find(
+    int request_id, 
+    const std::string& search_text,
+    const blink::WebFindOptions& options)
+{
+  base::string16 text = base::UTF8ToUTF16(search_text);
+  guest_web_contents()->Find(request_id, text, options);
+}
+
+void 
+WebViewGuest::StopFinding(
+    content::StopFindAction action)
+{
+  guest_web_contents()->StopFinding(action);
+}
 
 /******************************************************************************/
 /* PUBLIC API */
@@ -608,17 +639,19 @@ WebViewGuest::DidCommitProvisionalLoadForFrame(
       "did-commit-provisional-load",
       event);
 
-  /* TODO(spolu) */
-  /*
-  current_zoom_factor_ = 
-    blink::WebView::zoomLevelToZoomFactor(
-        guest_web_contents()->GetMainFrame()->view()->zoomLevel());
-  */
-  // Update the current zoom factor for the new page.
-  //ZoomController* zoom_controller =
-      ///ZoomController::FromWebContents(guest_web_contents());
-  //DCHECK(zoom_controller);
-  //current_zoom_factor_ = zoom_controller->GetZoomLevel();
+  double zoom_factor = blink::WebView::zoomLevelToZoomFactor(
+      content::HostZoomMap::GetZoomLevel(guest_web_contents()));
+  if(current_zoom_factor_ != zoom_factor) {
+    base::DictionaryValue event;
+    event.SetDouble("old_zoom_factor", current_zoom_factor_);
+    event.SetDouble("new_zoom_factor", zoom_factor);
+
+    GetThrustWindow()->WebViewEmit(
+        guest_instance_id_,
+        "zoom-changed",
+        event);
+    current_zoom_factor_ = zoom_factor;
+  }
 }
 
 void 
@@ -729,6 +762,8 @@ WebViewGuest::ShouldCreateWebContents(
 {
   base::DictionaryValue event;
   event.SetString("target_url", target_url.spec());
+  event.SetString("disposition", 
+      WindowOpenDispositionToString(NEW_FOREGROUND_TAB));
   event.SetString("frame_name", frame_name);
   event.SetInteger("window_container_type", window_container_type);
 
