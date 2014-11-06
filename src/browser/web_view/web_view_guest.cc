@@ -470,8 +470,7 @@ WebViewGuest::ExecuteScript(
 void 
 WebViewGuest::OpenDevTools()
 {
-  LOG(INFO) << "SHOW DEV TOOL *******************";
-  //guest_web_contents_.get()->SetCanDock(false);
+  guest_web_contents_.get()->SetCanDock(false);
   guest_web_contents_.get()->ShowDevTools();
 }
 
