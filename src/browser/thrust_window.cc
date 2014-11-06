@@ -32,13 +32,14 @@
 #include "src/browser/browser_main_parts.h"
 #include "src/browser/browser_client.h"
 #include "src/browser/dialog/javascript_dialog_manager.h"
-#include "src/browser/dialog/file_select_helper.h"
+#include "src/browser/dialog/web_dialog_helper.h"
 #include "src/browser/web_view/web_view_guest.h"
 #include "src/browser/session/thrust_session.h"
 #include "src/common/messages.h"
 #include "src/browser/ui/views/menu_bar.h"
 #include "src/browser/ui/views/menu_layout.h"
 #include "src/api/thrust_window_binding.h"
+#include "src/browser/dialog/browser_dialogs.h"
 
 #if defined(USE_X11)
 #include "src/browser/ui/views/global_menu_bar_x11.h"
@@ -350,12 +351,24 @@ ThrustWindow::WorkerCrashed(
   binding_->EmitWorkerCrashed();
 }
 
+ColorChooser* 
+ThrustWindow::OpenColorChooser(
+    WebContents* web_contents,
+    SkColor color,
+    const std::vector<ColorSuggestion>& suggestions)
+{
+  return chrome::ShowColorChooser(web_contents, color);
+}
+
 void 
 ThrustWindow::RunFileChooser(
     WebContents* web_contents,
     const FileChooserParams& params)
 {
-  //FileSelectHelper::RunFileChooser(web_contents, params);
+  if(!web_dialog_helper_) {
+    web_dialog_helper_.reset(new ThrustShellWebDialogHelper(this));
+  }
+  web_dialog_helper_->RunFileChooser(web_contents, params);
 }
 
 void 
@@ -364,7 +377,10 @@ ThrustWindow::EnumerateDirectory(
     int request_id,
     const base::FilePath& path)
 {
-  //FileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
+  if(!web_dialog_helper_) {
+    web_dialog_helper_.reset(new ThrustShellWebDialogHelper(this));
+  }
+  web_dialog_helper_->EnumerateDirectory(web_contents, request_id, path);
 }
 
 /******************************************************************************/

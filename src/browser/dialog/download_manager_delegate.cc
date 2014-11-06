@@ -26,6 +26,7 @@ ThrustShellDownloadManagerDelegate::ThrustShellDownloadManagerDelegate()
     suppress_prompting_(false),
     weak_ptr_factory_(this)
 {
+  LOG(INFO) << "ThrustShellDownloadManagerDelegate Constructor " << this;
 }
 
 ThrustShellDownloadManagerDelegate::~ThrustShellDownloadManagerDelegate()
@@ -36,7 +37,7 @@ ThrustShellDownloadManagerDelegate::~ThrustShellDownloadManagerDelegate()
     download_manager_->SetDelegate(NULL);
     download_manager_ = NULL;
   }
-  LOG(INFO) << "ThrustShellDownloadManagerDelegate Destructor";
+  LOG(INFO) << "ThrustShellDownloadManagerDelegate Destructor " << this;
 }
 
 
