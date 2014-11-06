@@ -194,6 +194,21 @@ public:
   // Closes the window and reclaim underlying WebContents
   void Close();
 
+  // ### OpenDevTools
+  //
+  // Opens the DevTools view for the main document frame
+  void OpenDevTools();
+
+  // ### CloseDevTools
+  //
+  // Closes the DevTools view for the main document frame
+  void CloseDevTools();
+
+  // ### IsDevToolsOpened
+  //
+  // Returns wether the DevTools View is opened
+  bool IsDevToolsOpened();
+
   // ### Move
   //
   // Moves the window

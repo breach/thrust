@@ -181,7 +181,7 @@ public:
   // Closes the DevTools view
   void CloseDevTools();
 
-  // ### CloseDevTools
+  // ### IsDevToolsOpened
   //
   // Returns whether the DevTools are opened
   bool IsDevToolsOpened();

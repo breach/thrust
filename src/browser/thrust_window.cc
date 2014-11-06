@@ -51,7 +51,9 @@ namespace thrust_shell {
 
 std::vector<ThrustWindow*> ThrustWindow::s_instances;
 
-
+/******************************************************************************/
+/* CONSTRUCTOR / DESTRUCTOR */
+/******************************************************************************/
 ThrustWindow::ThrustWindow(
     ThrustWindowBinding* binding,
     WebContents* web_contents,
@@ -125,7 +127,10 @@ ThrustWindow::~ThrustWindow()
   }
 }
 
-
+/******************************************************************************/
+/* STATIC INTERFACE */
+/******************************************************************************/
+// static
 ThrustWindow*
 ThrustWindow::CreateNew(
     ThrustWindowBinding* binding,
@@ -140,6 +145,7 @@ ThrustWindow::CreateNew(
   return browser;
 }
 
+// static
 ThrustWindow*
 ThrustWindow::CreateNew(
     ThrustWindowBinding* binding,
@@ -167,13 +173,7 @@ ThrustWindow::CreateNew(
   return CreateNew(binding, web_contents, size, title, icon_path, has_frame);
 }
 
-WebContents* 
-ThrustWindow::GetWebContents() const {
-  if (!inspectable_web_contents_)
-    return NULL;
-  return inspectable_web_contents()->GetWebContents();
-}
-
+// static
 void 
 ThrustWindow::CloseAll() 
 {
@@ -183,12 +183,27 @@ ThrustWindow::CloseAll()
   }
 }
 
+/******************************************************************************/
+/* PUBLIC INTERFACE */
+/******************************************************************************/
 void 
 ThrustWindow::SetTitle(
     const std::string& title)
 {
   title_ = title;
   PlatformSetTitle(title);
+}
+
+void
+ThrustWindow::Move(int x, int y)
+{
+  PlatformMove(x, y);
+}
+
+void
+ThrustWindow::Resize(int width, int height)
+{
+  PlatformResize(width, height);
 }
 
 void
@@ -206,28 +221,34 @@ ThrustWindow::Close()
     web_contents->Close();
 }
 
-void
-ThrustWindow::CloseImmediately()
+void 
+ThrustWindow::OpenDevTools()
 {
-  registrar_.RemoveAll();
-  if(!is_closed_) {
-    is_closed_ = true;
-    PlatformCloseImmediately();
-  }
+  inspectable_web_contents()->ShowDevTools();
 }
 
-void
-ThrustWindow::Move(int x, int y)
+void 
+ThrustWindow::CloseDevTools()
 {
-  PlatformMove(x, y);
+  inspectable_web_contents()->ShowDevTools();
 }
 
-void
-ThrustWindow::Resize(int width, int height)
+bool
+ThrustWindow::IsDevToolsOpened()
 {
-  PlatformResize(width, height);
+  return inspectable_web_contents()->IsDevToolsViewShowing();
 }
 
+WebContents* 
+ThrustWindow::GetWebContents() const {
+  if (!inspectable_web_contents_)
+    return NULL;
+  return inspectable_web_contents()->GetWebContents();
+}
+
+/******************************************************************************/
+/* WEBCONTENTSDELEGATE IMPLEMENTATION */
+/******************************************************************************/
 WebContents* 
 ThrustWindow::OpenURLFromTab(
     WebContents* source,
@@ -718,6 +739,20 @@ ThrustWindow::WebViewGuestIsDevToolsOpened(
 
   *open = guest->IsDevToolsOpened();
 }
+
+/******************************************************************************/
+/* PROTECTED INTERFACE */
+/******************************************************************************/
+void
+ThrustWindow::CloseImmediately()
+{
+  registrar_.RemoveAll();
+  if(!is_closed_) {
+    is_closed_ = true;
+    PlatformCloseImmediately();
+  }
+}
+
 
 /******************************************************************************/
 /* PRIVATE INTERFACE */
