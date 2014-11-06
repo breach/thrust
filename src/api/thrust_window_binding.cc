@@ -124,8 +124,13 @@ ThrustWindowBinding::CallLocalMethod(
   else if(method.compare("set_kiosk") == 0) {
     bool kiosk;
     args->GetBoolean("kiosk", &kiosk);
-    LOG(INFO) << "*************************************** KIOSK " << kiosk;
     window_->SetKiosk(kiosk);
+  }
+  else if(method.compare("open_devtools") == 0) {
+    window_->OpenDevTools();
+  }
+  else if(method.compare("close_devtools") == 0) {
+    window_->CloseDevTools();
   }
   else if(method.compare("move") == 0) {
     int x, y;
@@ -167,6 +172,9 @@ ThrustWindowBinding::CallLocalMethod(
   }
   else if(method.compare("is_kiosk") == 0) {
     res->SetBoolean("kiosk", window_->IsKiosk());
+  }
+  else if(method.compare("is_devtools_opened") == 0) {
+    res->SetBoolean("opened", window_->IsDevToolsOpened());
   }
   /* Default */
   else {

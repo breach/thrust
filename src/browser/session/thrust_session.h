@@ -21,7 +21,6 @@
 namespace thrust_shell {
 
 class DownloadManagerDelegate;
-class ThrustShellDevToolsDelegate;
 class ResourceContext;
 class ThrustShellURLRequestContextGetter;
 class ThrustShellDownloadManagerDelegate;
@@ -60,18 +59,6 @@ public:
                 bool dummy_cookie_store = false);
   // ### ~ThrustSession
   virtual ~ThrustSession();
-
-  /****************************************************************************/
-  /* EXOFRAME / DEVTOOLS I/F */
-  /****************************************************************************/
-  ThrustShellDevToolsDelegate* devtools_delegate() {
-    return devtools_delegate_;
-  }
-
-  // ### GetDevToolsURL
-  //
-  // Returns the DevTools URL for this session
-  GURL GetDevToolsURL();
 
   ThrustSessionCookieStore* GetCookieStore();
   ThrustSessionVisitedLinkStore* GetVisitedLinkStore();
@@ -147,13 +134,10 @@ private:
   scoped_refptr<ThrustSessionCookieStore>             cookie_store_;
   scoped_refptr<ThrustSessionVisitedLinkStore>        visitedlink_store_;
 
-  ThrustShellDevToolsDelegate*                        devtools_delegate_;
-
   std::map<int, content::WebContents*>                guest_web_contents_;
   int                                                 current_instance_id_;
 
   friend class ThrustSessionCookieStore;
-  friend class ThrustShellDevToolsDelegate;
   friend class WebViewGuest;
   friend class GuestWebContentsObserver;
 

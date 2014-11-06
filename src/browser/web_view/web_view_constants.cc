@@ -6,6 +6,11 @@
 
 namespace webview {
 
+// Events types.
+const char kDidAttach[] = "did-attach";
+const char kZoomChanged[] = "zoom-changed";
+const char kDestroyed[] = "destroyed";
+
 // Parameters/properties on events.
 const char kIsTopLevel[] = "isTopLevel";
 const char kReason[] = "reason";

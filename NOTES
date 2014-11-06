@@ -3,12 +3,8 @@
 /******************************************************************************/
 
 >>v0.x<<
-:webview
-  - Webview support
-
 :print #108
   - Printing Support
-
 :cleanser #90
   - Reintroduce ClearDataForOrigin
   - Ability to list Data
@@ -18,8 +14,10 @@
 :html_auth #106
   - User authorization API
 
-
 DONE:
+>>v0.7.5<<
+- ThrustWindow and <webview> DevTools #205
+
 >>v0.7.4<<
 - Upgrade to Chrome 38.0.x.x
 - Global application menu #201

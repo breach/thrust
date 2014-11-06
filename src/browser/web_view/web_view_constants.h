@@ -9,6 +9,14 @@
 
 namespace webview {
 
+
+// Events types.
+extern const char kDidAttach[];
+extern const char kZoomChanged[];
+extern const char kDestroyed[];
+
+/* TODO(spolu): Finish and cleanup */
+
 // Parameters/properties on events.
 extern const char kIsTopLevel[];
 extern const char kReason[];

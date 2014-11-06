@@ -88,6 +88,19 @@ IPC_MESSAGE_ROUTED2(ThrustFrameHostMsg_WebViewGuestExecuteScript,
                     int, /* guest_instance_id */
                     std::string /* script */)
 
+// WebViewGuestOpenDevTools
+IPC_MESSAGE_ROUTED1(ThrustFrameHostMsg_WebViewGuestOpenDevTools,
+                    int /* guest_instance_id */)
+
+// WebViewGuestCloseDevTools
+IPC_MESSAGE_ROUTED1(ThrustFrameHostMsg_WebViewGuestCloseDevTools,
+                    int /* guest_instance_id */)
+
+// WebViewGuestIsDevToolsOpened
+IPC_SYNC_MESSAGE_ROUTED1_1(ThrustFrameHostMsg_WebViewGuestIsDevToolsOpened,
+                           int, /* guest_instance_id */
+                           bool /* open */)
+
 
 // WebViewEmit
 IPC_MESSAGE_ROUTED3(ThrustFrameMsg_WebViewEmit,
