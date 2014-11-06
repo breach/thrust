@@ -686,6 +686,8 @@ ThrustWindow::WebViewGuestOpenDevTools(
           GetWebContents()->GetBrowserContext())->
         GetGuestByInstanceID(guest_instance_id, 
           GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->OpenDevTools();
 }
 
 void 
@@ -698,6 +700,8 @@ ThrustWindow::WebViewGuestCloseDevTools(
           GetWebContents()->GetBrowserContext())->
         GetGuestByInstanceID(guest_instance_id, 
           GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->CloseDevTools();
 }
 
 void 
@@ -712,7 +716,7 @@ ThrustWindow::WebViewGuestIsDevToolsOpened(
         GetGuestByInstanceID(guest_instance_id, 
           GetWebContents()->GetRenderProcessHost()->GetID()));
 
-  *open = false;
+  *open = guest->IsDevToolsOpened();
 }
 
 /******************************************************************************/

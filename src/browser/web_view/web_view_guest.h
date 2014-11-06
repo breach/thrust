@@ -171,6 +171,21 @@ public:
   // ```
   void ExecuteScript(const std::string& script);
 
+  // ### OpenDevTools
+  //
+  // Opens the DevTools view
+  void OpenDevTools();
+
+  // ### CloseDevTools
+  //
+  // Closes the DevTools view
+  void CloseDevTools();
+
+  // ### CloseDevTools
+  //
+  // Returns whether the DevTools are opened
+  bool IsDevToolsOpened();
+
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/

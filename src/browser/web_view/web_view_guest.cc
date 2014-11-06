@@ -467,6 +467,26 @@ WebViewGuest::ExecuteScript(
   guest_web_contents()->GetMainFrame()->ExecuteJavaScript(code);
 }
 
+void 
+WebViewGuest::OpenDevTools()
+{
+  LOG(INFO) << "SHOW DEV TOOL *******************";
+  //guest_web_contents_.get()->SetCanDock(false);
+  guest_web_contents_.get()->ShowDevTools();
+}
+
+void 
+WebViewGuest::CloseDevTools()
+{
+  guest_web_contents_.get()->CloseDevTools();
+}
+
+bool
+WebViewGuest::IsDevToolsOpened()
+{
+  return guest_web_contents_.get()->IsDevToolsViewShowing();
+}
+
 /******************************************************************************/
 /* PUBLIC API */
 /******************************************************************************/
