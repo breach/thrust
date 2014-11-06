@@ -53,8 +53,9 @@ class WebViewBindings : public ObjectBackedNativeHandler {
   void ExecuteScript(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 
-  std::map<int, v8::Persistent<v8::Function> >   guest_handlers_;
-  thrust_shell::ThrustShellRenderFrameObserver*  render_frame_observer_;
+  std::map<int, v8::Persistent<v8::Function, 
+           v8::CopyablePersistentTraits<v8::Function>> >   guest_handlers_;
+  thrust_shell::ThrustShellRenderFrameObserver*             render_frame_observer_;
 };
 
 }  // namespace extensions
