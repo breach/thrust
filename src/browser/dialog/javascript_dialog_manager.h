@@ -38,30 +38,12 @@ class ThrustShellJavaScriptDialogManager :
       const DialogClosedCallback& callback) OVERRIDE;
 
   virtual void CancelActiveAndPendingDialogs(
-      content::WebContents* web_contents) OVERRIDE;
+      content::WebContents* web_contents) OVERRIDE {}
 
   virtual void WebContentsDestroyed(
-      content::WebContents* web_contents) OVERRIDE;
-
-  // Called by the JavaScriptDialog when it closes.
-  // void DialogClosed(JavaScriptDialog* dialog);
-
-  // Used for content_browsertests.
-  void set_dialog_request_callback(const base::Closure& callback) {
-    dialog_request_callback_ = callback;
-  }
+      content::WebContents* web_contents) OVERRIDE {}
 
  private:
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  // The dialog being shown. No queueing.
-  // scoped_ptr<JavaScriptDialog> dialog_;
-#else
-  /* TODO(spolu): implement JavaScriptDialog for other platforms, */
-  /* and then drop this #if                                       */
-#endif
-
-  base::Closure dialog_request_callback_;
-
   DISALLOW_COPY_AND_ASSIGN(ThrustShellJavaScriptDialogManager);
 };
 

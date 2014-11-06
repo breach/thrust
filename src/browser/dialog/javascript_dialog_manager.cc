@@ -35,16 +35,7 @@ ThrustShellJavaScriptDialogManager::RunJavaScriptDialog(
     const DialogClosedCallback& callback,
     bool* did_suppress_message) 
 {
-  if (!dialog_request_callback_.is_null()) {
-    dialog_request_callback_.Run();
-    callback.Run(true, base::string16());
-    dialog_request_callback_.Reset();
-    return;
-  }
-
-  /* TODO(spolu): Expose to API */
   *did_suppress_message = true;
-  return;
 }
 
 void 
@@ -54,38 +45,8 @@ ThrustShellJavaScriptDialogManager::RunBeforeUnloadDialog(
     bool is_reload,
     const DialogClosedCallback& callback) 
 {
-  if (!dialog_request_callback_.is_null()) {
-    dialog_request_callback_.Run();
-    callback.Run(true, base::string16());
-    dialog_request_callback_.Reset();
-    return;
-  }
-
-  /* TODO(spolu): Expose to API */
   callback.Run(true, base::string16());
-  return;
 }
 
-
-void 
-ThrustShellJavaScriptDialogManager::CancelActiveAndPendingDialogs(
-    WebContents* web_contents) 
-{
-  /* TODO(spolu): Expose to API */
-}
-
-void 
-ThrustShellJavaScriptDialogManager::WebContentsDestroyed(
-    WebContents* web_contents) 
-{
-}
-
-/*
-void 
-ThrustShellJavaScriptDialogManager::DialogClosed(
-    JavaScriptDialog* dialog) 
-{
-}
-*/
 
 } // namespace thrust_shell
