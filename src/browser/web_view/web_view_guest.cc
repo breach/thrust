@@ -868,6 +868,15 @@ WebViewGuest::HandleKeyboardEvent(
       guest_web_contents(), event);
 }
 
+content::ColorChooser* 
+WebViewGuest::OpenColorChooser(
+    content::WebContents* web_contents,
+    SkColor color,
+    const std::vector<content::ColorSuggestion>& suggestions)
+{
+  return GetThrustWindow()->OpenColorChooser(web_contents, color, suggestions);
+}
+
 void 
 WebViewGuest::RunFileChooser(
     content::WebContents* web_contents,

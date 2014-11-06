@@ -39,6 +39,7 @@
 #include "src/browser/ui/views/menu_bar.h"
 #include "src/browser/ui/views/menu_layout.h"
 #include "src/api/thrust_window_binding.h"
+#include "src/browser/dialog/browser_dialogs.h"
 
 #if defined(USE_X11)
 #include "src/browser/ui/views/global_menu_bar_x11.h"
@@ -348,6 +349,15 @@ ThrustWindow::WorkerCrashed(
 {
   LOG(INFO) << "WorkerCrashed";
   binding_->EmitWorkerCrashed();
+}
+
+ColorChooser* 
+ThrustWindow::OpenColorChooser(
+    WebContents* web_contents,
+    SkColor color,
+    const std::vector<ColorSuggestion>& suggestions)
+{
+  return chrome::ShowColorChooser(web_contents, color);
 }
 
 void 
