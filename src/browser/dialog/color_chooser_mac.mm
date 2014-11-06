@@ -6,10 +6,11 @@
 
 #include "base/logging.h"
 #import "base/mac/scoped_nsobject.h"
-#include "chrome/browser/ui/browser_dialogs.h"
 #include "content/public/browser/color_chooser.h"
 #include "content/public/browser/web_contents.h"
 #include "skia/ext/skia_utils_mac.h"
+
+#include "src/browser/dialog/browser_dialogs.h"
 
 class ColorChooserMac;
 
