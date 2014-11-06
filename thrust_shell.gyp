@@ -73,6 +73,11 @@
       'src/browser/dialog/download_manager_delegate_gtk.cc',
       'src/browser/dialog/download_manager_delegate_win.cc',
       'src/browser/dialog/download_manager_delegate_mac.mm',
+      'src/browser/dialog/browser_dialogs.h',
+      'src/browser/dialog/color_chooser_aura.cc',
+      'src/browser/dialog/color_chooser_aura.h',
+      'src/browser/dialog/color_chooser_mac.mm',
+
       'src/browser/ui/accelerator_util.h',
       'src/browser/ui/accelerator_util.cc',
       'src/browser/ui/accelerator_util_mac.mm',
@@ -173,6 +178,11 @@
       'src/api/thrust_session_binding.cc',
       'src/api/thrust_menu_binding.h',
       'src/api/thrust_menu_binding.cc',
+    ],
+    'lib_sources_win': [
+      'src/browser/dialog/color_chooser_win.cc',
+      'src/browser/dialog/color_chooser_dialog.cc',
+      'src/browser/dialog/color_chooser_dialog.h',
     ],
     'framework_sources': [
       'src/app/library_main.cc',
@@ -364,6 +374,9 @@
       ],
       'conditions': [
         ['OS=="win"', {
+          'sources': [
+            '<@(lib_sources_win)',
+          ],
           'link_settings': {
             'libraries': [
               '-limm32.lib',
