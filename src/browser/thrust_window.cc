@@ -417,6 +417,12 @@ ThrustWindow::OnMessageReceived(
                         WebViewGuestInsertCSS)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestExecuteScript,
                         WebViewGuestExecuteScript)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestOpenDevTools,
+                        WebViewGuestOpenDevTools)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestCloseDevTools,
+                        WebViewGuestCloseDevTools)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestIsDevToolsOpened,
+                        WebViewGuestIsDevToolsOpened)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -668,6 +674,45 @@ ThrustWindow::WebViewGuestExecuteScript(
           GetWebContents()->GetRenderProcessHost()->GetID()));
 
   guest->ExecuteScript(script);
+}
+
+void 
+ThrustWindow::WebViewGuestOpenDevTools(
+    int guest_instance_id)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+}
+
+void 
+ThrustWindow::WebViewGuestCloseDevTools(
+    int guest_instance_id)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+}
+
+void 
+ThrustWindow::WebViewGuestIsDevToolsOpened(
+    int guest_instance_id,
+    bool* open)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  *open = false;
 }
 
 /******************************************************************************/

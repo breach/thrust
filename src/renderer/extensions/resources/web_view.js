@@ -111,6 +111,9 @@ var webview = function(spec, my) {
   var api_stopFinding;                 /* api_stopFinding(action); */
   var api_insertCSS;                   /* api_insertCSS(css); */
   var api_executeScript;               /* api_executeScript(script); */
+  var api_openDevTools;                /* api_openDevTools(); */
+  var api_closeDevTools;               /* api_closeDevTools(); */
+  var api_isDevToolsOpened;            /* api_isDevToolsOpened(); */
   
   //
   // _private_
@@ -464,7 +467,35 @@ var webview = function(spec, my) {
     WebViewNatives.ExecuteScript(my.guest_instance_id, script);
   };
 
+  // ### api_openDevTools
+  //
+  // Opens the DevTools view for this webview
+  api_openDevTools = function() {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    WebViewNatives.OpenDevTools(my.guest_instance_id);
+  };
 
+  // ### api_closeDevTools
+  //
+  // Closes the DevTools view for this webview
+  api_closeDevTools = function() {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    WebViewNatives.CloseDevTools(my.guest_instance_id);
+  };
+
+  // ### api_isDevToolsOpened
+  //
+  // Returns wether the DevTools view is opened or not.
+  api_isDevToolsOpened = function() {
+    if(!my.guest_instance_id) {
+      return;
+    }
+    return WebViewNatives.IsDevToolsOpened(my.guest_instance_id);
+  };
 
   /****************************************************************************/
   /* PUBLIC METHODS */
@@ -750,6 +781,9 @@ var webview = function(spec, my) {
   that.api_stopFinding = api_stopFinding;
   that.api_insertCSS = api_insertCSS;
   that.api_executeScript = api_executeScript;
+  that.api_openDevTools = api_openDevTools;
+  that.api_closeDevTools = api_closeDevTools;
+  that.api_isDevToolsOpened = api_isDevToolsOpened;
 
   init();
 
@@ -856,6 +890,9 @@ function registerWebViewElement() {
     'stopFinding',
     'insertCSS',
     'executeScript',
+    'openDevTools',
+    'closeDevTools',
+    'isDevToolsOpened',
     /*
     'clearData',
     'print',

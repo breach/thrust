@@ -65,6 +65,15 @@ WebViewBindings::WebViewBindings(
   RouteFunction("ExecuteScript",
       base::Bind(&WebViewBindings::ExecuteScript,
                  base::Unretained(this)));
+  RouteFunction("OpenDevTools",
+      base::Bind(&WebViewBindings::OpenDevTools,
+                 base::Unretained(this)));
+  RouteFunction("CloseDevTools",
+      base::Bind(&WebViewBindings::CloseDevTools,
+                 base::Unretained(this)));
+  RouteFunction("IsDevToolsOpened",
+      base::Bind(&WebViewBindings::IsDevToolsOpened,
+                 base::Unretained(this)));
 
   render_frame_observer_ = 
     thrust_shell::ThrustShellRenderFrameObserver::FromRenderFrame(
@@ -407,5 +416,64 @@ WebViewBindings::ExecuteScript(
         guest_instance_id, script));
 }
 
+void 
+WebViewBindings::OpenDevTools(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  if(args.Length() != 1 || !args[0]->IsNumber()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: OpenDevTools " << guest_instance_id;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestOpenDevTools(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id));
+}
+
+void 
+WebViewBindings::CloseDevTools(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  if(args.Length() != 1 || !args[0]->IsNumber()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: CloseDevTools " << guest_instance_id;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestCloseDevTools(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id));
+}
+
+void 
+WebViewBindings::IsDevToolsOpened(
+    const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+  if(args.Length() != 1 || !args[0]->IsNumber()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: IsDevToolsOpened " << guest_instance_id;
+
+  bool open = false;
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestIsDevToolsOpened(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, &open));
+
+  args.GetReturnValue().Set(v8::Boolean::New(context()->isolate(), open));
+}
 
 }  // namespace extensions

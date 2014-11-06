@@ -130,8 +130,7 @@ class WebViewGuest::EmbedderWebContentsObserver : public WebContentsObserver {
 
 WebViewGuest::WebViewGuest(
     int guest_instance_id)
-: guest_web_contents_(NULL),
-  embedder_web_contents_(NULL),
+: embedder_web_contents_(NULL),
   embedder_render_process_id_(0),
   browser_context_(NULL),
   guest_instance_id_(guest_instance_id),
@@ -147,8 +146,9 @@ WebViewGuest::Init(
     WebContents* guest_web_contents)
 {
   WebContentsObserver::Observe(guest_web_contents);
-  guest_web_contents_ = guest_web_contents;
-  guest_web_contents_->SetDelegate(this);
+  guest_web_contents_.reset(
+      brightray::InspectableWebContents::Create(guest_web_contents));
+  guest_web_contents->SetDelegate(this);
   browser_context_ = guest_web_contents->GetBrowserContext();
 
   webcontents_webview_map.Get().insert(
@@ -248,7 +248,7 @@ WebViewGuest::Destroy()
   ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(browser_context_)->
     RemoveGuest(guest_instance_id_);
 
-  delete guest_web_contents();
+  guest_web_contents_.reset();
 }
 
 void 
@@ -369,7 +369,7 @@ WebViewGuest::LoadUrl(
       content::PAGE_TRANSITION_TYPED | 
       content::PAGE_TRANSITION_FROM_ADDRESS_BAR);
   params.override_user_agent = content::NavigationController::UA_OVERRIDE_TRUE; 
-  guest_web_contents_->GetController().LoadURLWithParams(params);
+  guest_web_contents()->GetController().LoadURLWithParams(params);
 }
 
 
@@ -817,8 +817,8 @@ WebViewGuest::OpenURLFromTab(
     load_url_params.transferred_global_request_id =
       params.transferred_global_request_id;
 
-    guest_web_contents_->GetController().LoadURLWithParams(load_url_params);
-    return guest_web_contents_;
+    guest_web_contents()->GetController().LoadURLWithParams(load_url_params);
+    return guest_web_contents();
   }
   else {
     base::DictionaryValue event;
@@ -846,7 +846,7 @@ WebViewGuest::HandleKeyboardEvent(
 
   // Send the unhandled keyboard events back to the embedder to reprocess them.
   embedder_web_contents_->GetDelegate()->HandleKeyboardEvent(
-      guest_web_contents_, event);
+      guest_web_contents(), event);
 }
 
 
