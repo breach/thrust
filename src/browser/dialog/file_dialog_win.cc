@@ -15,6 +15,8 @@
 #include "base/strings/string_split.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
+#include "ui/aura/window.h"
+#include "ui/aura/window_tree_host.h"
 #include "third_party/wtl/include/atlapp.h"
 #include "third_party/wtl/include/atldlgs.h"
 
