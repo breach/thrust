@@ -543,7 +543,8 @@ var webview = function(spec, my) {
       /* tree, then we attach the plugin now.                                 */
       if(my.guest_instance_id) {
         var params = build_attach_params();
-        my.browser_plugin_node[PLUGIN_METHOD_ATTACH](instance_id, params);
+        my.browser_plugin_node[PLUGIN_METHOD_ATTACH](my.guest_instance_id, 
+                                                     params);
       }
     }
   };

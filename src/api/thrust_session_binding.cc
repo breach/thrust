@@ -148,10 +148,7 @@ ThrustSessionBinding::CallLocalMethod(
   base::DictionaryValue* res = new base::DictionaryValue;
 
   LOG(INFO) << "CALL " << method;
-  if(method.compare("devtools_url") == 0) {
-    res->SetString("url", session_->GetDevToolsURL().spec());
-  }
-  else if(method.compare("off_the_record") == 0) {
+  if(method.compare("off_the_record") == 0) {
     res->SetBoolean("off_the_record", session_->IsOffTheRecord());
   }
   else if(method.compare("visitedlink_add") == 0) {

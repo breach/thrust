@@ -15,14 +15,12 @@
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/common/content_switches.h"
-#include "content/public/browser/devtools_http_handler.h"
 
 #include "src/common/switches.h"
 #include "src/net/url_request_context_getter.h"
 #include "src/browser/dialog/download_manager_delegate.h"
 #include "src/browser/browser_main_parts.h"
 #include "src/browser/browser_client.h"
-#include "src/devtools/devtools_delegate.h"
 #include "src/browser/web_view/web_view_guest.h"
 
 using namespace content;
@@ -96,8 +94,6 @@ ThrustSession::ThrustSession(
 
   visitedlink_store_->Init();
 
-  devtools_delegate_ = new ThrustShellDevToolsDelegate(this);
-  
   ThrustShellBrowserClient::Get()->RegisterThrustSession(this);
   LOG(INFO) << "ThrustSession Constructor " << this;
 }
@@ -120,16 +116,6 @@ ThrustSession::~ThrustSession()
   cookie_store_->parent_ = NULL;
   if(url_request_getter_.get())
     url_request_getter_.get()->parent_ = NULL;
-
-  /* We also stop the DevToolsDelegate. It will destroy the delegate object. */
-  if(devtools_delegate_)
-    devtools_delegate_->Stop();
-}
-
-GURL
-ThrustSession::GetDevToolsURL()
-{
-  return devtools_delegate_->devtools_http_handler()->GetFrontendURL();
 }
 
 base::FilePath 

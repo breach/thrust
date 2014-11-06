@@ -137,9 +137,6 @@
       'src/geolocation/access_token_store.cc',
       'src/geolocation/access_token_store.h',
 
-      'src/devtools/devtools_delegate.cc',
-      'src/devtools/devtools_delegate.h',
-
       'src/net/net_log.cc',
       'src/net/net_log.h',
       'src/net/network_delegate.cc',
