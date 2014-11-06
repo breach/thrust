@@ -868,5 +868,22 @@ WebViewGuest::HandleKeyboardEvent(
       guest_web_contents(), event);
 }
 
+void 
+WebViewGuest::RunFileChooser(
+    content::WebContents* web_contents,
+    const content::FileChooserParams& params)
+{
+  GetThrustWindow()->RunFileChooser(web_contents, params);
+}
+
+void 
+WebViewGuest::EnumerateDirectory(
+    content::WebContents* web_contents,
+    int request_id,
+    const base::FilePath& path)
+{
+  GetThrustWindow()->EnumerateDirectory(web_contents, request_id, path);
+}
+
 
 } // namespace thrust_shell
