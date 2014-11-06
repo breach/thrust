@@ -51,9 +51,9 @@ class MenuModel;
 namespace thrust_shell {
 
 class ThrustSession;
-class ThrustShellDevToolsFrontend;
-class ThrustShellJavaScriptDialogManager;
 class ThrustWindowBinding;
+class ThrustShellJavaScriptDialogManager;
+class ThrustShellWebDialogHelper;
 
 class GlobalMenuBarX11;
 
@@ -74,7 +74,6 @@ class ThrustWindow : public brightray::DefaultWebContentsDelegate,
 #endif
                      public content::NotificationObserver {
 public:
-
   /****************************************************************************/
   /* STATIC INTERFACE */
   /****************************************************************************/
@@ -295,6 +294,12 @@ public:
   virtual void RendererResponsive(content::WebContents* source) OVERRIDE;
   virtual void WorkerCrashed(content::WebContents* source) OVERRIDE;
 
+  /*
+  content::ColorChooser* OpenColorChooser(
+      content::WebContents* web_contents,
+      SkColor color,
+      const std::vector<content::ColorSuggestion>& suggestions) OVERRIDE;
+  */
   virtual void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) OVERRIDE;
@@ -576,6 +581,7 @@ private:
   /* MEMBERS */
   /****************************************************************************/
   ThrustWindowBinding*                             binding_;
+  scoped_ptr<ThrustShellWebDialogHelper>           web_dialog_helper_;
   scoped_ptr<ThrustShellJavaScriptDialogManager>   dialog_manager_;
   content::NotificationRegistrar                   registrar_;
 
