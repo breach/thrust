@@ -31,6 +31,7 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
 /******************************************************************************/
 @interface NSView (PrivateMethods)
 - (CGFloat)roundedCornerRadius;
+- (void)_addKnownSubview:(NSView *)subview;
 @end
 
 /******************************************************************************/
@@ -247,7 +248,12 @@ ThrustWindow::InstallView()
   else {
     NSView* frameView = [[window_ contentView] superview];
     [view setFrame:[frameView bounds]];
-    [frameView addSubview:view];
+    if([frameView respondsToSelector:@selector(_addKnownSubview:)]) {
+      [frameView _addKnownSubview:view];
+    }
+    else {
+      [frameView addSubview:view];
+    }
 
     ClipWebView();
 
