@@ -12,6 +12,7 @@
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_observer.h"
 
+#include "src/common/draggable_region.h"
 #include "src/common/switches.h"
 #include "src/common/messages.h"
 
@@ -44,7 +45,16 @@ void
 ThrustShellRenderViewObserver::DraggableRegionsChanged(
     blink::WebFrame* frame) 
 {
-  return;
+  blink::WebVector<blink::WebDraggableRegion> webregions =
+      frame->document().draggableRegions();
+  std::vector<DraggableRegion> regions;
+  for (size_t i = 0; i < webregions.size(); ++i) {
+    DraggableRegion region;
+    region.bounds = webregions[i].bounds;
+    region.draggable = webregions[i].draggable;
+    regions.push_back(region);
+  }
+  Send(new ThrustViewHostMsg_UpdateDraggableRegions(routing_id(), regions));
 }
 
 }  // namespace thrust_shell

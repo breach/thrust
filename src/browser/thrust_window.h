@@ -54,6 +54,7 @@ class ThrustSession;
 class ThrustWindowBinding;
 class ThrustShellJavaScriptDialogManager;
 class ThrustShellWebDialogHelper;
+struct DraggableRegion;
 
 class GlobalMenuBarX11;
 
@@ -359,17 +360,17 @@ public:
                                           bool success, 
                                           const std::string& response); 
 
-#if defined(OS_MACOSX)
-  /****************************************************************************/
-  /* OSX SPECIFIC INTERFACE */
-  /****************************************************************************/
-  void ClipWebView();
-#elif defined(USE_AURA)
+#if defined(USE_AURA)
   /****************************************************************************/
   /* AURA SPECIFIC INTERFACE */
   /****************************************************************************/
   void AttachMenu(ui::MenuModel* menu);
   void DetachMenu();
+#elif defined(OS_MACOSX)
+  /****************************************************************************/
+  /* OSX SPECIFIC INTERFACE */
+  /****************************************************************************/
+  void ClipWebView();
 #endif
 
 
@@ -429,6 +430,11 @@ private:
   virtual views::NonClientFrameView* CreateNonClientFrameView(
       views::Widget* widget) OVERRIDE;
 
+  /****************************************************************************/
+  /* AURA SPECIFIC HELPER METHODS */
+  /****************************************************************************/
+  gfx::Rect ContentBoundsToWindowBounds(const gfx::Rect& bounds);
+
 #elif defined(OS_MACOSX)
   /****************************************************************************/
   /* OSX SPECIFIC HELPER METHODS */
@@ -436,6 +442,7 @@ private:
   void InstallView();
   void UninstallView();
 #endif
+
 
   /****************************************************************************/
   /* STATIC PLATFORM INTERFACE */
@@ -574,9 +581,9 @@ private:
   // Returns the NativeWindow for this Shell
   gfx::NativeWindow PlatformGetNativeWindow();
 
-#if defined(USE_AURA)
-  gfx::Rect ContentBoundsToWindowBounds(const gfx::Rect& bounds);
-#endif
+  // Called when the window needs to update its draggable region.
+  void PlatformUpdateDraggableRegions(
+      const std::vector<DraggableRegion>& regions);
 
   /****************************************************************************/
   /* MEMBERS */

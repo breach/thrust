@@ -48,6 +48,9 @@ ThrustWindowBinding::ThrustWindowBinding(
   std::string icon_path = "";
   args->GetString("icon_path", &icon_path);
 
+  bool has_frame = true;
+  args->GetBoolean("has_frame", &has_frame);
+
   ThrustSession* session = NULL;
 
   int session_id = -1;
@@ -69,7 +72,7 @@ ThrustWindowBinding::ThrustWindowBinding(
         gfx::Size(width, height), 
         title, 
         icon_path, 
-        true));
+        has_frame));
 }
 
 ThrustWindowBinding::~ThrustWindowBinding()

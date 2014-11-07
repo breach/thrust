@@ -31,6 +31,7 @@
 #include "ui/views/widget/widget.h"
 #include "ui/aura/window.h"
 #include "ui/aura/window_tree_host.h"
+#include "ui/base/hit_test.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/webview/unhandled_keyboard_event_handler.h"
 #include "ui/views/controls/webview/webview.h"
@@ -41,6 +42,7 @@
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "vendor/brightray/browser/inspectable_web_contents_view.h"
 
+#include "src/common/draggable_region.h"
 #include "src/browser/ui/views/menu_bar.h"
 #include "src/browser/ui/views/menu_layout.h"
 #include "src/browser/browser_client.h"
@@ -67,6 +69,9 @@ namespace thrust_shell {
 
 namespace {
 
+/******************************************************************************/
+/* HELPERS */
+/******************************************************************************/
 
 #if defined(USE_X11)
 // Counts how many window has already been created, it will be used to set the
@@ -90,6 +95,9 @@ bool IsAltModifier(const content::NativeWebKeyboardEvent& event) {
          (event.modifiers == (Modifiers::AltKey | Modifiers::IsRight));
 }
 
+/******************************************************************************/
+/* THRUSTWINDOWCLIENTVIEW */
+/******************************************************************************/
 
 class ThrustWindowClientView : public views::ClientView {
  public:
@@ -113,6 +121,70 @@ class ThrustWindowClientView : public views::ClientView {
 
 }  // namespace
 
+
+/******************************************************************************/
+/* AURA SPECIFIC METHODS AND HELPERS */
+/******************************************************************************/
+void 
+ThrustWindow::AttachMenu(
+    ui::MenuModel* menu_model) 
+{
+#if defined(USE_X11)
+  /* TODO(spolu) Menu accelerators */
+  /*
+  // Clear previous accelerators.
+  views::FocusManager* focus_manager = GetFocusManager();
+  accelerator_table_.clear();
+  focus_manager->UnregisterAccelerators(this);
+
+  // Register accelerators with focus manager.
+  accelerator_util::GenerateAcceleratorTable(&accelerator_table_, menu_model);
+  accelerator_util::AcceleratorTable::const_iterator iter;
+  for (iter = accelerator_table_.begin();
+       iter != accelerator_table_.end();
+       ++iter) {
+    focus_manager->RegisterAccelerator(
+        iter->first, ui::AcceleratorManager::kNormalPriority, this);
+  }
+  */
+
+  if(!global_menu_bar_) {
+    global_menu_bar_.reset(new GlobalMenuBarX11(this));
+  }
+
+  // Use global application menu bar when possible.
+  if(global_menu_bar_ && global_menu_bar_->IsServerStarted()) {
+    global_menu_bar_->SetMenu(menu_model);
+    return;
+  }
+ #endif
+
+  /* We do not show menu relative to the window, they should be implemented */
+  /* in the window main document.                                           */
+  return;
+}
+
+void
+ThrustWindow::DetachMenu()
+{
+#if defined(USE_X11)
+  global_menu_bar_.reset();
+#endif
+}
+
+gfx::Rect
+ThrustWindow::ContentBoundsToWindowBounds(
+    const gfx::Rect& bounds)
+{
+  gfx::Rect window_bounds =
+      window_->non_client_view()->GetWindowBoundsForClientBounds(bounds);
+  return window_bounds;
+}
+
+
+/******************************************************************************/
+/* PLATFORM METHODS */
+/******************************************************************************/
 void 
 ThrustWindow::PlatformCleanUp() 
 {
@@ -184,14 +256,6 @@ ThrustWindow::PlatformCreateWindow(
   SetLayoutManager(new views::FillLayout());
   set_background(views::Background::CreateStandardPanelBackground());
   AddChildView(inspectable_web_contents()->GetView()->GetView());
-
-  /* TODO(spolu): Add option */
-  /*
-  if(has_frame_ &&
-     options.Get(switches::kUseContentSize, &use_content_size_) &&
-     use_content_size_)
-    bounds = ContentBoundsToWindowBounds(bounds);
-  */
 
   window_->UpdateWindowIcon();
   window_->CenterWindow(bounds.size());
@@ -324,21 +388,11 @@ ThrustWindow::PlatformIsMinimized()
   return window_->IsMinimized();
 }
 
-gfx::Rect
-ThrustWindow::ContentBoundsToWindowBounds(
-    const gfx::Rect& bounds)
-{
-  gfx::Rect window_bounds =
-      window_->non_client_view()->GetWindowBoundsForClientBounds(bounds);
-  return window_bounds;
-}
-
-
 void 
 ThrustWindow::PlatformSetContentSize(
     int width, int height)
 {
-  if (!has_frame_) {
+  if(!has_frame_) {
     PlatformResize(width, height);
     return;
   }
@@ -379,6 +433,36 @@ ThrustWindow::PlatformGetNativeWindow()
 }
 
 void 
+ThrustWindow::PlatformUpdateDraggableRegions(
+    const std::vector<DraggableRegion>& regions)
+{
+  if(has_frame_) {
+    return;
+  }
+
+  SkRegion* draggable_region = new SkRegion;
+
+  // By default, the whole window is non-draggable. We need to explicitly
+  // include those draggable regions.
+  for (std::vector<DraggableRegion>::const_iterator iter = regions.begin();
+       iter != regions.end(); ++iter) {
+    const DraggableRegion& region = *iter;
+    draggable_region->op(
+        region.bounds.x(),
+        region.bounds.y(),
+        region.bounds.right(),
+        region.bounds.bottom(),
+        region.draggable ? SkRegion::kUnion_Op : SkRegion::kDifference_Op);
+  }
+
+  draggable_region_.reset(draggable_region);
+}
+
+
+/******************************************************************************/
+/* VIEWS::WIDGETOBSERVER IMPLEMENTATION */
+/******************************************************************************/
+void 
 ThrustWindow::OnWidgetActivationChanged(
     views::Widget* widget, 
     bool active) 
@@ -399,6 +483,9 @@ ThrustWindow::OnWidgetActivationChanged(
 }
 
 
+/******************************************************************************/
+/* VIEWS::WIDGETDELEGATE IMPLEMENTATION */
+/******************************************************************************/
 void 
 ThrustWindow::DeleteDelegate() {
   binding_->EmitClosed();
@@ -470,19 +557,17 @@ ThrustWindow::ShouldDescendIntoChildForEventHandling(
     gfx::NativeView child,
     const gfx::Point& location) 
 {
-  /*
   // App window should claim mouse events that fall within the draggable region.
   if (draggable_region_ &&
       draggable_region_->contains(location.x(), location.y()))
     return false;
 
   // And the events on border for dragging resizable frameless window.
-  if (!has_frame_ && CanResize()) {
+  if(!has_frame_) {
     FramelessView* frame = static_cast<FramelessView*>(
         window_->non_client_view()->frame_view());
     return frame->ResizingBorderHitTest(location) == HTNOWHERE;
   }
-  */
   return true;
 }
 
@@ -498,9 +583,11 @@ ThrustWindow::CreateNonClientFrameView(
     views::Widget* widget) 
 {
 #if defined(OS_WIN)
-  WinFrameView* frame_view =  new WinFrameView;
-  frame_view->Init(this, widget);
-  return frame_view;
+  if(ui::win::IsAeroGlassEnabled()) {
+    WinFrameView* frame_view =  new WinFrameView;
+    frame_view->Init(this, widget);
+    return frame_view;
+  }
 #elif defined(OS_LINUX)
   if(has_frame_) {
     return new views::NativeFrameView(widget);
@@ -510,57 +597,8 @@ ThrustWindow::CreateNonClientFrameView(
     frame_view->Init(this, widget);
     return frame_view;
   }
-#else
+#endif
   return NULL;
-#endif
 }
-
-void 
-ThrustWindow::AttachMenu(
-    ui::MenuModel* menu_model) 
-{
-#if defined(USE_X11)
-  /* TODO(spolu) Menu accelerators */
-  /*
-  // Clear previous accelerators.
-  views::FocusManager* focus_manager = GetFocusManager();
-  accelerator_table_.clear();
-  focus_manager->UnregisterAccelerators(this);
-
-  // Register accelerators with focus manager.
-  accelerator_util::GenerateAcceleratorTable(&accelerator_table_, menu_model);
-  accelerator_util::AcceleratorTable::const_iterator iter;
-  for (iter = accelerator_table_.begin();
-       iter != accelerator_table_.end();
-       ++iter) {
-    focus_manager->RegisterAccelerator(
-        iter->first, ui::AcceleratorManager::kNormalPriority, this);
-  }
-  */
-
-  if(!global_menu_bar_) {
-    global_menu_bar_.reset(new GlobalMenuBarX11(this));
-  }
-
-  // Use global application menu bar when possible.
-  if(global_menu_bar_ && global_menu_bar_->IsServerStarted()) {
-    global_menu_bar_->SetMenu(menu_model);
-    return;
-  }
- #endif
-
-  /* We do not show menu relative to the window, they should be implemented */
-  /* in the window main document.                                           */
-  return;
-}
-
-void
-ThrustWindow::DetachMenu()
-{
-#if defined(USE_X11)
-  global_menu_bar_.reset();
-#endif
-}
-
 
 } // namespace thrust_shell
