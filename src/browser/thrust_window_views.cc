@@ -61,6 +61,8 @@
 #elif defined(OS_WIN)
 #include "src/browser/ui/views/win_frame_view.h"
 #include "base/win/scoped_comptr.h"
+#include "base/win/windows_version.h"
+#include "ui/base/win/shell.h"
 #endif
 
 using namespace content;
