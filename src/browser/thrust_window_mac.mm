@@ -602,7 +602,7 @@ ThrustWindow::PlatformUpdateDraggableRegions(
        iter != system_drag_exclude_areas.end();
        ++iter) {
     base::scoped_nsobject<NSView> controlRegion(
-        [[ControlRegionView alloc] initWithShellWindow:this]);
+        [[ControlRegionView alloc] initWithWindow:this]);
     [controlRegion setFrame:NSMakeRect(iter->x(),
                                        webviewHeight - iter->bottom(),
                                        iter->width(),
