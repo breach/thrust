@@ -204,8 +204,8 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
   SkRegion* draggable_region = window_->GetDraggableRegion();
   NSView* webView = window_->GetWebContents()->GetNativeView();
   NSInteger webViewHeight = NSHeight([webView bounds]);
-  if(draggable_region && 
-     draggable_region->contains(point.x, webViewHeight - point.y)) {
+  if(!draggable_region ||
+     !draggable_region->contains(point.x, webViewHeight - point.y)) {
     return nil;
   }
   return self;
@@ -213,16 +213,16 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
 
 - (void)handleMouseEvent:(NSEvent*)event {
   NSPoint eventLoc = [event locationInWindow];
-  NSRect mouseRect = [(window_->window_) convertRectToScreen:NSMakeRect(eventLoc.x, eventLoc.y, 0, 0)];
+  NSRect mouseRect = [window_->GetNativeWindow() convertRectToScreen:NSMakeRect(eventLoc.x, eventLoc.y, 0, 0)];
   NSPoint current_mouse_location = mouseRect.origin;
 
   if ([event type] == NSLeftMouseDown) {
-    NSPoint frame_origin = [(window_->window_) frame].origin;
+    NSPoint frame_origin = [window_->GetNativeWindow() frame].origin;
     last_mouse_offset_ = NSMakePoint(
         frame_origin.x - current_mouse_location.x,
         frame_origin.y - current_mouse_location.y);
   } else if ([event type] == NSLeftMouseDragged) {
-    [(window_->window_) setFrameOrigin:NSMakePoint(
+    [window_->GetNativeWindow() setFrameOrigin:NSMakePoint(
         current_mouse_location.x + last_mouse_offset_.x,
         current_mouse_location.y + last_mouse_offset_.y)];
   }
@@ -574,9 +574,9 @@ void
 ThrustWindow::PlatformUpdateDraggableRegions(
     const std::vector<DraggableRegion>& regions)
 {
-  // Draggable region is not supported for non-frameless window.
-  if (has_frame_)
+  if(has_frame_) {
     return;
+  }
 
   // We still need one ControlRegionView to cover the whole window such that
   // mouse events could be captured.

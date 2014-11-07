@@ -614,7 +614,6 @@ private:
   static std::vector<ThrustWindow*>                s_instances;
 
   friend class ThrustMenu;
-  friend class ControlRegionView;
 
   DISALLOW_COPY_AND_ASSIGN(ThrustWindow);
 };

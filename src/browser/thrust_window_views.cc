@@ -440,8 +440,6 @@ ThrustWindow::PlatformUpdateDraggableRegions(
     return;
   }
 
-  LOG(INFO) << "******************* UPDATE DRAGGABLE REGIONS " << regions.size();
-
   SkRegion* draggable_region = new SkRegion;
 
   // By default, the whole window is non-draggable. We need to explicitly
