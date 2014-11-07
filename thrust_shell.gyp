@@ -107,6 +107,8 @@
 
       'src/browser/web_view/web_view_guest.h',
       'src/browser/web_view/web_view_guest.cc',
+      'src/browser/web_view/web_view_javascript_dialog_manager.h',
+      'src/browser/web_view/web_view_javascript_dialog_manager.cc',
       'src/browser/web_view/web_view_constants.h',
       'src/browser/web_view/web_view_constants.cc',
 

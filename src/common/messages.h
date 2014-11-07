@@ -101,10 +101,16 @@ IPC_SYNC_MESSAGE_ROUTED1_1(ThrustFrameHostMsg_WebViewGuestIsDevToolsOpened,
                            int, /* guest_instance_id */
                            bool /* open */)
 
+// WebViewGuestJavaScriptDialogClosed
+IPC_MESSAGE_ROUTED3(ThrustFrameHostMsg_WebViewGuestJavaScriptDialogClosed,
+                    int, /* guest_instance_id */
+                    bool, /* succces */
+                    std::string /* response */)
+
 
 // WebViewEmit
 IPC_MESSAGE_ROUTED3(ThrustFrameMsg_WebViewEmit,
                     int, /* guest_instance_id */
                     std::string, /* type */
-                    base::DictionaryValue /* event */);
+                    base::DictionaryValue /* event */)
 

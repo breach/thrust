@@ -55,7 +55,7 @@ void APIServer::Client::Remote::EmitEvent(
     scoped_ptr<base::DictionaryValue> event)
 {
   /* Runs on UI Thread. */
-  LOG(INFO) << "Remote::Client::EmitEvent [" << target_ << "] " << this;
+  //LOG(INFO) << "Remote::Client::EmitEvent [" << target_ << "] " << this;
 
   content::BrowserThread::PostTask(
       content::BrowserThread::IO, FROM_HERE,

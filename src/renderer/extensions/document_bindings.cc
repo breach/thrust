@@ -34,7 +34,6 @@ DocumentBindings::RegisterElement(
   }
 
   std::string element_name(*v8::String::Utf8Value(args[0]));
-  LOG(INFO) << "CUSTOM BINDING: " << element_name;
   v8::Local<v8::Object> options = args[1]->ToObject();
 
   blink::WebExceptionCode ec = 0;

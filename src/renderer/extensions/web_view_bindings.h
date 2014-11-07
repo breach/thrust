@@ -54,6 +54,7 @@ class WebViewBindings : public ObjectBackedNativeHandler {
   void OpenDevTools(const v8::FunctionCallbackInfo<v8::Value>& args);
   void CloseDevTools(const v8::FunctionCallbackInfo<v8::Value>& args);
   void IsDevToolsOpened(const v8::FunctionCallbackInfo<v8::Value>& args);
+  void JavaScriptDialogClosed(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 
   std::map<int, v8::Persistent<v8::Function, 

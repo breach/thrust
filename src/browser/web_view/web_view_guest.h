@@ -21,6 +21,7 @@
 namespace thrust_shell {
 
 class ThrustWindow;
+class WebViewGuestJavaScriptDialogManager;
 
 // ## WebViewGuest
 //
@@ -186,6 +187,16 @@ public:
   // Returns whether the DevTools are opened
   bool IsDevToolsOpened();
 
+  // ### JavaScriptDialogClosed
+  //
+  // Propagates the information that the JavaScriptDialog was closed
+  // ```
+  // @success  {bool} wether it was a success
+  // @response {string} the eventual user input
+  // ```
+  void JavaScriptDialogClosed(bool success, 
+                              const std::string& response);
+
   /****************************************************************************/
   /* PUBLIC API */
   /****************************************************************************/
@@ -302,45 +313,50 @@ public:
   virtual void EnumerateDirectory(content::WebContents* web_contents,
                                   int request_id,
                                   const base::FilePath& path) OVERRIDE;
+  virtual content::JavaScriptDialogManager*
+    GetJavaScriptDialogManager() OVERRIDE;
 
   /****************************************************************************/
   /* DATA FIELDS */
   /****************************************************************************/
-  scoped_ptr<brightray::InspectableWebContents> guest_web_contents_;
-  content::WebContents*                         embedder_web_contents_;
-  int                                           embedder_render_process_id_;
-  content::BrowserContext*                      browser_context_;
+  scoped_ptr<brightray::InspectableWebContents>   guest_web_contents_;
+  content::WebContents*                           embedder_web_contents_;
+  int                                             embedder_render_process_id_;
+  content::BrowserContext*                        browser_context_;
   // |guest_instance_id_| is a profile-wide unique identifier for a guest
   // WebContents.
-  const int                                     guest_instance_id_;
+  const int                                       guest_instance_id_;
   // |view_instance_id_| is an identifier that's unique within a particular
   // embedder RenderViewHost for a particular <*view> instance.
-  int                                           view_instance_id_;
-  bool                                          initialized_;
-  content::NotificationRegistrar                notification_registrar_;
+  int                                             view_instance_id_;
+  bool                                            initialized_;
+  content::NotificationRegistrar                  notification_registrar_;
   // Stores the current zoom factor.
-  double                                        current_zoom_factor_;
-  DestructionCallback                           destruction_callback_;
+  double                                          current_zoom_factor_;
+  DestructionCallback                             destruction_callback_;
   // The extra parameters associated with this GuestView passed
   // in from JavaScript. This will typically be the view instance ID,
   // the API to use, and view-specific parameters. These parameters
   // are passed along to new guests that are created from this guest.
-  scoped_ptr<base::DictionaryValue>             extra_params_;
-  scoped_ptr<EmbedderWebContentsObserver>       embedder_web_contents_observer_;
+  scoped_ptr<base::DictionaryValue>               extra_params_;
+  scoped_ptr<EmbedderWebContentsObserver>         embedder_web_contents_observer_;
   // The size of the container element.
-  gfx::Size                                     element_size_;
+  gfx::Size                                       element_size_;
   // The size of the guest content. Note: In autosize mode, the container
   // element may not match the size of the guest.
-  gfx::Size                                     guest_size_;
+  gfx::Size                                       guest_size_;
   // Indicates whether autosize mode is enabled or not.
-  bool                                          auto_size_enabled_;
+  bool                                            auto_size_enabled_;
   // The maximum size constraints of the container element in autosize mode.
-  gfx::Size                                     max_auto_size_;
+  gfx::Size                                       max_auto_size_;
   // The minimum size constraints of the container element in autosize mode.
-  gfx::Size                                     min_auto_size_;
+  gfx::Size                                       min_auto_size_;
   // This is used to ensure pending tasks will not fire after this object is
   // destroyed.
-  base::WeakPtrFactory<WebViewGuest>            weak_ptr_factory_;
+  base::WeakPtrFactory<WebViewGuest>              weak_ptr_factory_;
+  scoped_ptr<WebViewGuestJavaScriptDialogManager> dialog_manager_;
+
+  friend class WebViewGuestJavaScriptDialogManager;
 
   DISALLOW_COPY_AND_ASSIGN(WebViewGuest);
 };

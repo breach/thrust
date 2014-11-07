@@ -305,9 +305,9 @@ ThrustWindow::CloseContents(
 JavaScriptDialogManager* 
 ThrustWindow::GetJavaScriptDialogManager() 
 {
-  /* TODO(spolu): Eventually Move to API */
-  if (!dialog_manager_)
+  if(!dialog_manager_) {
     dialog_manager_.reset(new ThrustShellJavaScriptDialogManager());
+  }
   return dialog_manager_.get();
 }
 
@@ -460,6 +460,8 @@ ThrustWindow::OnMessageReceived(
                         WebViewGuestCloseDevTools)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestIsDevToolsOpened,
                         WebViewGuestIsDevToolsOpened)
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestJavaScriptDialogClosed,
+                        WebViewGuestJavaScriptDialogClosed)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -754,6 +756,22 @@ ThrustWindow::WebViewGuestIsDevToolsOpened(
           GetWebContents()->GetRenderProcessHost()->GetID()));
 
   *open = guest->IsDevToolsOpened();
+}
+
+void 
+ThrustWindow::WebViewGuestJavaScriptDialogClosed(
+    int guest_instance_id,
+    bool success, 
+    const std::string& response)
+{
+  WebViewGuest* guest = 
+    WebViewGuest::FromWebContents(
+        ThrustShellBrowserClient::Get()->ThrustSessionForBrowserContext(
+          GetWebContents()->GetBrowserContext())->
+        GetGuestByInstanceID(guest_instance_id, 
+          GetWebContents()->GetRenderProcessHost()->GetID()));
+
+  guest->JavaScriptDialogClosed(success, response);
 }
 
 /******************************************************************************/

@@ -355,6 +355,9 @@ public:
   void WebViewGuestCloseDevTools(int guest_instance_id);
   void WebViewGuestIsDevToolsOpened(int guest_instance_id,
                                     bool* open); 
+  void WebViewGuestJavaScriptDialogClosed(int guest_instance_id,
+                                          bool success, 
+                                          const std::string& response); 
 
 #if defined(OS_MACOSX)
   /****************************************************************************/
