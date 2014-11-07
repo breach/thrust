@@ -366,6 +366,11 @@ public:
   /****************************************************************************/
   void AttachMenu(ui::MenuModel* menu);
   void DetachMenu();
+#elif defined(OS_MACOSX)
+  /****************************************************************************/
+  /* OSX SPECIFIC INTERFACE */
+  /****************************************************************************/
+  void ClipWebView();
 #endif
 
 
@@ -436,7 +441,6 @@ private:
   /****************************************************************************/
   void InstallView();
   void UninstallView();
-  void ClipWebView();
 #endif
 
 

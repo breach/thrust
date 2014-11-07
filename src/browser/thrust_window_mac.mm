@@ -230,7 +230,7 @@ NSString* kWindowTitle = @"ThrustShell";
 namespace thrust_shell {
 
 /******************************************************************************/
-/* MAC OS X SPECIFIC METHODS */
+/* MACOSX SPECIFIC METHODS & HELPERS */
 /******************************************************************************/
 void 
 ThrustWindow::InstallView() 
