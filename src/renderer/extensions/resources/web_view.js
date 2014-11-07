@@ -594,13 +594,15 @@ var webview = function(spec, my) {
     if(name == 'internalbindings' && !old_value && new_value) {
       my.browser_plugin_node.removeAttribute('internalbindings');
 
-      /* If we already created the guest but the plugin was not in the render */
-      /* tree, then we attach the plugin now.                                 */
-      if(my.guest_instance_id) {
-        var params = build_attach_params();
-        my.browser_plugin_node[PLUGIN_METHOD_ATTACH](my.guest_instance_id, 
-                                                     params);
-      }
+      window.setTimeout(function() {
+        /* If we already created the guest but the plugin was not in the render */
+        /* tree, then we attach the plugin now.                                 */
+        if(is_plugin_in_render_tree() && my.guest_instance_id) {
+          var params = build_attach_params();
+          my.browser_plugin_node[PLUGIN_METHOD_ATTACH](my.guest_instance_id, 
+                                                       params);
+        }
+      }, 0);
     }
   };
 

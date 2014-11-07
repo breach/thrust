@@ -272,6 +272,7 @@ ThrustSession::RemoveGuest(
 int 
 ThrustSession::GetNextInstanceID() 
 {
+  /* We avoid 0 as instance_id so that it's true in javascript */
   return ++current_instance_id_;
 }
 
