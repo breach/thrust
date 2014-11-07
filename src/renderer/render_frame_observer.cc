@@ -25,7 +25,7 @@ ThrustShellRenderFrameObserver::ThrustShellRenderFrameObserver(
     RenderFrame* render_frame)
     : RenderFrameObserver(render_frame) 
 {
-  LOG(INFO) << "************* RENDER FRAME CREATED " << render_frame;
+  LOG(INFO) << "RENDER FRAME CREATED " << render_frame;
   s_instances.push_back(this);
 }
 

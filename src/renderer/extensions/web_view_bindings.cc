@@ -74,6 +74,9 @@ WebViewBindings::WebViewBindings(
   RouteFunction("IsDevToolsOpened",
       base::Bind(&WebViewBindings::IsDevToolsOpened,
                  base::Unretained(this)));
+  RouteFunction("JavaScriptDialogClosed",
+      base::Bind(&WebViewBindings::JavaScriptDialogClosed,
+                 base::Unretained(this)));
 
   render_frame_observer_ = 
     thrust_shell::ThrustShellRenderFrameObserver::FromRenderFrame(
@@ -475,5 +478,29 @@ WebViewBindings::IsDevToolsOpened(
 
   args.GetReturnValue().Set(v8::Boolean::New(context()->isolate(), open));
 }
+
+void 
+WebViewBindings::JavaScriptDialogClosed(
+    const v8::FunctionCallbackInfo<v8::Value>& args) 
+{
+  if(args.Length() != 3 || !args[0]->IsNumber() || 
+     !args[1]->IsBoolean() || !args[2]->IsString()) {
+    NOTREACHED();
+    return;
+  }
+
+  int guest_instance_id = args[0]->NumberValue();
+  bool success = args[1]->BooleanValue();
+  std::string response(*v8::String::Utf8Value(args[2]));
+
+  LOG(INFO) << "WEB_VIEW_BINDINGS: JavaScriptDialogClosed " << guest_instance_id << " " 
+            << success << " " << response;
+  
+  render_frame_observer_->Send(
+      new ThrustFrameHostMsg_WebViewGuestJavaScriptDialogClosed(
+        render_frame_observer_->routing_id(), 
+        guest_instance_id, success, response));
+}
+
 
 }  // namespace extensions

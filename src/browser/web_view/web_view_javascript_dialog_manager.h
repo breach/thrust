@@ -2,8 +2,8 @@
 // Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
-#ifndef THRUST_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
-#define THRUST_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#ifndef THRUST_SHELL_BROWSER_WEB_VIEW_JAVASCRIPT_DIALOG_MANAGER_H_
+#define THRUST_SHELL_BROWSER_WEB_VIEW_JAVASCRIPT_DIALOG_MANAGER_H_
 
 #include "base/callback_forward.h"
 #include "base/compiler_specific.h"
@@ -12,13 +12,13 @@
 
 namespace thrust_shell {
 
-//class JavaScriptDialog;
+class WebViewGuest;
 
-class ThrustShellJavaScriptDialogManager : 
+class WebViewGuestJavaScriptDialogManager : 
     public content::JavaScriptDialogManager {
  public:
-  ThrustShellJavaScriptDialogManager();
-  virtual ~ThrustShellJavaScriptDialogManager();
+  WebViewGuestJavaScriptDialogManager(WebViewGuest* guest);
+  virtual ~WebViewGuestJavaScriptDialogManager();
 
   // JavaScriptDialogManager overrides
   virtual void RunJavaScriptDialog(
@@ -41,12 +41,20 @@ class ThrustShellJavaScriptDialogManager :
       content::WebContents* web_contents) OVERRIDE {}
 
   virtual void WebContentsDestroyed(
-      content::WebContents* web_contents) OVERRIDE {}
+      content::WebContents* web_contents) OVERRIDE;
+
+  void JavaScriptDialogClosed(bool success,
+                              const std::string& response);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ThrustShellJavaScriptDialogManager);
+  WebViewGuest*                       guest_;
+  //const content::DialogClosedCallback dialog_callback_;
+  base::Callback<void(bool,
+                      const base::string16&)>  dialog_callback_;
+
+  DISALLOW_COPY_AND_ASSIGN(WebViewGuestJavaScriptDialogManager);
 };
 
 } // namespace thrust_shell
 
-#endif // THRUST_SHELL_BROWSER_UI_DIALOG_JAVASCRIPT_DIALOG_MANAGER_H_
+#endif // THRUST_SHELL_BROWSER_WEB_VIEW_JAVASCRIPT_DIALOG_MANAGER_H_

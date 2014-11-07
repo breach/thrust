@@ -48,7 +48,8 @@ var WEB_VIEW_EVENTS = {
   'new-window': ['target_url', 'frame_name', 'window_container_type', 'disposition'],
   'close': [],
   'crashed': ['process_id', 'reason'],
-  'destroyed': []
+  'destroyed': [],
+  'dialog': ['origin_url', 'accept_lang', 'message_type', 'message_text', 'default_prompt_text']
 };
 
 /* TODO(spolu): FixMe Chrome 39 */
@@ -185,11 +186,34 @@ var webview = function(spec, my) {
     else if(WEB_VIEW_EVENTS[type]) {
       //console.log('WEB_VIEW_EVENT ' + type);
       //console.log(JSON.stringify(event));
-      var dom_event = new Event(type);
+      var dom_event = new CustomEvent(type, { cancelable: true });
       WEB_VIEW_EVENTS[type].forEach(function(f) {
         dom_event[f] = event[f];
       });
-      my.webview_node.dispatchEvent(dom_event);
+
+      if(type === 'dialog') {
+        dom_event['ok'] = function(response) {
+          dom_event.preventDefault();
+          WebViewNatives.JavaScriptDialogClosed(my.guest_instance_id,
+                                                true, response || '');
+        };
+        dom_event['cancel'] = function() {
+          dom_event.preventDefault();
+          WebViewNatives.JavaScriptDialogClosed(my.guest_instance_id,
+                                                false, '');
+        };
+      }
+
+      var cancel = !my.webview_node.dispatchEvent(dom_event);
+      console.log('WEB_VIEW_EVENT ' + type + ' ' + (cancel ? 'cancelled' : 'default'));
+
+      if(!cancel) {
+        /* If the event is not cancelled be execute the default behaviour for */
+        /* the dialog event handler.                                          */
+        if(type === 'dialog') {
+          dom_event.cancel();
+        }
+      }
     }
   };
 

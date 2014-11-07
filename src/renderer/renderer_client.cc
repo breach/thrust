@@ -155,7 +155,6 @@ ThrustShellRendererClient::DidCreateScriptContext(
           new WebViewBindings(context)));
 
   module_system->Require("webview");
-  LOG(INFO) << "Module requires called!";
 }
 
 unsigned long long 

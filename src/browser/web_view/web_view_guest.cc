@@ -30,6 +30,7 @@
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 
 #include "src/browser/web_view/web_view_constants.h"
+#include "src/browser/web_view/web_view_javascript_dialog_manager.h"
 #include "src/browser/browser_client.h"
 #include "src/browser/session/thrust_session.h"
 #include "src/browser/thrust_window.h"
@@ -486,6 +487,17 @@ WebViewGuest::IsDevToolsOpened()
   return guest_web_contents_.get()->IsDevToolsViewShowing();
 }
 
+void 
+WebViewGuest::JavaScriptDialogClosed(
+    bool success, 
+    const std::string& response)
+{
+  if(!dialog_manager_) {
+    return;
+  }
+  dialog_manager_.get()->JavaScriptDialogClosed(success, response);
+}
+
 /******************************************************************************/
 /* PUBLIC API */
 /******************************************************************************/
@@ -892,6 +904,15 @@ WebViewGuest::EnumerateDirectory(
     const base::FilePath& path)
 {
   GetThrustWindow()->EnumerateDirectory(web_contents, request_id, path);
+}
+
+content::JavaScriptDialogManager* 
+WebViewGuest::GetJavaScriptDialogManager() 
+{
+  if(!dialog_manager_) {
+    dialog_manager_.reset(new WebViewGuestJavaScriptDialogManager(this));
+  }
+  return dialog_manager_.get();
 }
 
 
