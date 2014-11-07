@@ -410,17 +410,14 @@ bool
 ThrustWindow::OnMessageReceived(
     const IPC::Message& message) 
 {
-  return false;
-  /*
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(ThrustWindow, message)
-    //IPC_MESSAGE_HANDLER(ShellViewHostMsg_UpdateDraggableRegions,
-    //                    UpdateDraggableRegions)
+    IPC_MESSAGE_HANDLER(ThrustViewHostMsg_UpdateDraggableRegions,
+                        PlatformUpdateDraggableRegions)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
   return handled;
-  */
 }
 
 bool 

@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Stanislas Polu. All rights reserved.
+// Copyright (c) 2014 Stanislas Polu.
 // Copyright (c) 2014 GitHub, Inc.
 // See the LICENSE file.
 
@@ -55,6 +55,6 @@ class FramelessView : public views::NonClientFrameView {
   DISALLOW_COPY_AND_ASSIGN(FramelessView);
 };
 
-}  // namespace thrust_shell
+} // namespace thrust_shell
 
-#endif  // THRUST_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_
+#endif // THRUST_SHELL_BROWSER_UI_VIEWS_FRAMELESS_VIEW_H_

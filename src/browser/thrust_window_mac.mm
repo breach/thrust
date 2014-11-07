@@ -18,6 +18,7 @@
 #include "vendor/brightray/browser/inspectable_web_contents.h"
 #include "vendor/brightray/browser/inspectable_web_contents_view.h"
 
+#include "src/common/draggable_region.h"
 #include "src/api/thrust_window_binding.h"
 #import  "src/browser/ui/cocoa/event_processing_window.h"
 
@@ -25,10 +26,16 @@ using namespace content;
 
 static const CGFloat kThrustWindowCornerRadius = 4.0;
 
+/******************************************************************************/
+/* NSVIEW INTERFACE */
+/******************************************************************************/
 @interface NSView (PrivateMethods)
 - (CGFloat)roundedCornerRadius;
 @end
 
+/******************************************************************************/
+/* THRUSTNSWINDOWDELEGATE */
+/******************************************************************************/
 // ## ThrustNSWindowDelegate
 //
 //  Listens for event that the window should close.
@@ -127,6 +134,9 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
 
 @end
 
+/******************************************************************************/
+/* THRUSTNSWINDOW */
+/******************************************************************************/
 @interface ThrustNSWindow : EventProcessingWindow {
  @private
   thrust_shell::ThrustWindow* window_;
@@ -168,6 +178,9 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
 
 @end
 
+/******************************************************************************/
+/* CONTROLREGIONVIEW */
+/******************************************************************************/
 @interface ControlRegionView : NSView {
  @private
   thrust_shell::ThrustWindow* window_; // Weak; owns self.
@@ -216,6 +229,54 @@ NSString* kWindowTitle = @"ThrustShell";
 
 namespace thrust_shell {
 
+/******************************************************************************/
+/* MAC OS X SPECIFIC METHODS */
+/******************************************************************************/
+void 
+ThrustWindow::InstallView() 
+{
+  NSView* view = inspectable_web_contents()->GetView()->GetNativeView();
+  if (has_frame_) {
+    // Add layer with white background for the contents view.
+    base::scoped_nsobject<CALayer> layer([[CALayer alloc] init]);
+    [layer setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
+    [view setLayer:layer];
+    [view setFrame:[[window_ contentView] bounds]];
+    [[window_ contentView] addSubview:view];
+  } 
+  else {
+    NSView* frameView = [[window_ contentView] superview];
+    [view setFrame:[frameView bounds]];
+    [frameView addSubview:view];
+
+    ClipWebView();
+
+    [[window_ standardWindowButton:NSWindowZoomButton] setHidden:YES];
+    [[window_ standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
+    [[window_ standardWindowButton:NSWindowCloseButton] setHidden:YES];
+    [[window_ standardWindowButton:NSWindowFullScreenButton] setHidden:YES];
+  }
+}
+
+void 
+ThrustWindow::UninstallView() 
+{
+  NSView* view = inspectable_web_contents()->GetView()->GetNativeView();
+  [view removeFromSuperview];
+}
+
+void 
+ThrustWindow::ClipWebView() 
+{
+  NSView* view = GetWebContents()->GetNativeView();
+  view.layer.masksToBounds = YES;
+  view.layer.cornerRadius = kThrustWindowCornerRadius;
+}
+
+
+/******************************************************************************/
+/* PLATFORM METHODS */
+/******************************************************************************/
 void 
 ThrustWindow::PlatformCleanUp() 
 {
@@ -262,10 +323,7 @@ ThrustWindow::PlatformCreateWindow(
   [window_ setTitle:kWindowTitle];
 
   // On OS X the initial window size doesn't include window frame.
-  bool use_content_size = false;
-  /* TODO(spolu): Option to add */
-  //options.Get(switches::kUseContentSize, &use_content_size);
-  if(has_frame_ && !use_content_size) {
+  if(has_frame_) {
     Resize(width, height);
   }
 
@@ -285,47 +343,6 @@ ThrustWindow::PlatformCreateWindow(
   [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
   InstallView();
-}
-
-void 
-ThrustWindow::InstallView() 
-{
-  NSView* view = inspectable_web_contents()->GetView()->GetNativeView();
-  if (has_frame_) {
-    // Add layer with white background for the contents view.
-    base::scoped_nsobject<CALayer> layer([[CALayer alloc] init]);
-    [layer setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
-    [view setLayer:layer];
-    [view setFrame:[[window_ contentView] bounds]];
-    [[window_ contentView] addSubview:view];
-  } 
-  else {
-    NSView* frameView = [[window_ contentView] superview];
-    [view setFrame:[frameView bounds]];
-    [frameView addSubview:view];
-
-    ClipWebView();
-
-    [[window_ standardWindowButton:NSWindowZoomButton] setHidden:YES];
-    [[window_ standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
-    [[window_ standardWindowButton:NSWindowCloseButton] setHidden:YES];
-    [[window_ standardWindowButton:NSWindowFullScreenButton] setHidden:YES];
-  }
-}
-
-void 
-ThrustWindow::UninstallView() 
-{
-  NSView* view = inspectable_web_contents()->GetView()->GetNativeView();
-  [view removeFromSuperview];
-}
-
-void 
-ThrustWindow::ClipWebView() 
-{
-  NSView* view = GetWebContents()->GetNativeView();
-  view.layer.masksToBounds = YES;
-  view.layer.cornerRadius = kThrustWindowCornerRadius;
 }
 
 void 
@@ -528,6 +545,70 @@ ThrustWindow::PlatformSetContentSize(
   frame_nsrect.size.width = width;
   frame_nsrect.size.height = height;
   [window_ setFrame:frame_nsrect display:YES];
+}
+
+void 
+ThrustWindow::PlatformUpdateDraggableRegions(
+    const std::vector<DraggableRegion>& regions)
+{
+  // Draggable region is not supported for non-frameless window.
+  if (has_frame_)
+    return;
+
+  // We still need one ControlRegionView to cover the whole window such that
+  // mouse events could be captured.
+  NSView* webview = GetWebContents()->GetNativeView();
+  gfx::Rect window_bounds(
+      0, 0, NSWidth([webview bounds]), NSHeight([webview bounds]));
+  system_drag_exclude_areas_.clear();
+  system_drag_exclude_areas_.push_back(window_bounds);
+
+  // Aggregate the draggable areas and non-draggable areas such that hit test
+  // could be performed easily.
+  SkRegion* draggable_region = new SkRegion;
+  for (std::vector<DraggableRegion>::const_iterator iter = regions.begin();
+       iter != regions.end();
+       ++iter) {
+    const DraggableRegion& region = *iter;
+    draggable_region->op(
+        region.bounds.x(),
+        region.bounds.y(),
+        region.bounds.right(),
+        region.bounds.bottom(),
+        region.draggable ? SkRegion::kUnion_Op : SkRegion::kDifference_Op);
+  }
+  draggable_region_.reset(draggable_region);
+
+  // All ControlRegionViews should be added as children of the WebContentsView,
+  // because WebContentsView will be removed and re-added when entering and
+  // leaving fullscreen mode.
+  NSInteger webviewHeight = NSHeight([webview bounds]);
+
+  // Remove all ControlRegionViews that are added last time.
+  // Note that [webview subviews] returns the view's mutable internal array and
+  // it should be copied to avoid mutating the original array while enumerating
+  // it.
+  base::scoped_nsobject<NSArray> subviews([[webview subviews] copy]);
+  for(NSView* subview in subviews.get()) {
+    if([subview isKindOfClass:[ControlRegionView class]]) {
+      [subview removeFromSuperview];
+    }
+  }
+
+  // Create and add ControlRegionView for each region that needs to be excluded
+  // from the dragging.
+  for (std::vector<gfx::Rect>::const_iterator iter =
+           system_drag_exclude_areas_.begin();
+       iter != system_drag_exclude_areas_.end();
+       ++iter) {
+    base::scoped_nsobject<NSView> controlRegion(
+        [[ControlRegionView alloc] initWithShellWindow:this]);
+    [controlRegion setFrame:NSMakeRect(iter->x(),
+                                       webviewHeight - iter->bottom(),
+                                       iter->width(),
+                                       iter->height())];
+    [webview addSubview:controlRegion];
+  }
 }
 
 } // namespace thrust_shell

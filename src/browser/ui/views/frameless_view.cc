@@ -1,5 +1,5 @@
 // Copyright (c) 2014 Stanislas Polu.
-// Copyright (c) 2014 GitHub, Inc. All rights reserved.
+// Copyright (c) 2014 GitHub, Inc.
 // See the LICENSE file.
 
 #include "src/browser/ui/views/frameless_view.h"
