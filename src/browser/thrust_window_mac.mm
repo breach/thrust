@@ -560,8 +560,8 @@ ThrustWindow::PlatformUpdateDraggableRegions(
   NSView* webview = GetWebContents()->GetNativeView();
   gfx::Rect window_bounds(
       0, 0, NSWidth([webview bounds]), NSHeight([webview bounds]));
-  system_drag_exclude_areas_.clear();
-  system_drag_exclude_areas_.push_back(window_bounds);
+  std::vector<gfx::Rect> system_drag_exclude_areas;
+  system_drag_exclude_areas.push_back(window_bounds);
 
   // Aggregate the draggable areas and non-draggable areas such that hit test
   // could be performed easily.
@@ -598,8 +598,8 @@ ThrustWindow::PlatformUpdateDraggableRegions(
   // Create and add ControlRegionView for each region that needs to be excluded
   // from the dragging.
   for (std::vector<gfx::Rect>::const_iterator iter =
-           system_drag_exclude_areas_.begin();
-       iter != system_drag_exclude_areas_.end();
+           system_drag_exclude_areas.begin();
+       iter != system_drag_exclude_areas.end();
        ++iter) {
     base::scoped_nsobject<NSView> controlRegion(
         [[ControlRegionView alloc] initWithShellWindow:this]);
