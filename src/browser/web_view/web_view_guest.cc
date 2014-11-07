@@ -736,23 +736,6 @@ WebViewGuest::DidStartProvisionalLoadForFrame(
 }
 
 void 
-WebViewGuest::UserAgentOverrideSet(
-    const std::string& user_agent) 
-{
-  if(!attached()) {
-    return;
-  }
-  content::NavigationController& controller =
-      guest_web_contents()->GetController();
-  content::NavigationEntry* entry = controller.GetVisibleEntry();
-  if(!entry) {
-    return;
-  }
-  entry->SetIsOverridingUserAgent(!user_agent.empty());
-  guest_web_contents()->GetController().Reload(false);
-}
-
-void 
 WebViewGuest::RenderProcessGone(
     base::TerminationStatus status) 
 {
@@ -770,7 +753,37 @@ WebViewGuest::RenderProcessGone(
       event);
 }
 
+void 
+WebViewGuest::UserAgentOverrideSet(
+    const std::string& user_agent) 
+{
+  if(!attached()) {
+    return;
+  }
+  content::NavigationController& controller =
+      guest_web_contents()->GetController();
+  content::NavigationEntry* entry = controller.GetVisibleEntry();
+  if(!entry) {
+    return;
+  }
+  entry->SetIsOverridingUserAgent(!user_agent.empty());
+  guest_web_contents()->GetController().Reload(false);
+}
 
+void 
+WebViewGuest::TitleWasSet(
+    content::NavigationEntry* entry, 
+    bool explicit_set)
+{
+  base::DictionaryValue event;
+  event.SetString("title", base::UTF16ToUTF8(entry->GetTitle()));
+  event.SetBoolean("explicit_set", explicit_set);
+
+  GetThrustWindow()->WebViewEmit(
+      guest_instance_id_,
+      "title-set",
+      event);
+}
 
 /******************************************************************************/
 /* WEBCONTENTSDELEGATE IMPLEMENTATION */

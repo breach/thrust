@@ -49,7 +49,8 @@ var WEB_VIEW_EVENTS = {
   'close': [],
   'crashed': ['process_id', 'reason'],
   'destroyed': [],
-  'dialog': ['origin_url', 'accept_lang', 'message_type', 'message_text', 'default_prompt_text']
+  'dialog': ['origin_url', 'accept_lang', 'message_type', 'message_text', 'default_prompt_text'],
+  'title-set': ['title', 'explicit_set']
 };
 
 /* TODO(spolu): FixMe Chrome 39 */
@@ -84,6 +85,7 @@ var webview = function(spec, my) {
   my.process_id = null;
   my.ignore_next_src = false;
   my.zoom_factor = 1.0;
+  my.title = '';
 
 
   //
@@ -115,6 +117,7 @@ var webview = function(spec, my) {
   var api_openDevTools;                /* api_openDevTools(); */
   var api_closeDevTools;               /* api_closeDevTools(); */
   var api_isDevToolsOpened;            /* api_isDevToolsOpened(); */
+  var api_getTitle;                    /* api_getTitle(); */
   
   //
   // _private_
@@ -203,9 +206,15 @@ var webview = function(spec, my) {
                                                 false, '');
         };
       }
+      else if(type === 'title-set') {
+        my.title = event.title;
+      }
 
       var cancel = !my.webview_node.dispatchEvent(dom_event);
+      console.log('-------------------------------------------------------')
       console.log('WEB_VIEW_EVENT ' + type + ' ' + (cancel ? 'cancelled' : 'default'));
+      console.log(JSON.stringify(event));
+      console.log('-------------------------------------------------------')
 
       if(!cancel) {
         /* If the event is not cancelled be execute the default behaviour for */
@@ -521,6 +530,13 @@ var webview = function(spec, my) {
     return WebViewNatives.IsDevToolsOpened(my.guest_instance_id);
   };
 
+  // ### api_getTitle
+  //
+  // Returns the current webview title
+  api_getTitle = function() {
+    return my.title;
+  };
+
   /****************************************************************************/
   /* PUBLIC METHODS */
   /****************************************************************************/
@@ -810,6 +826,7 @@ var webview = function(spec, my) {
   that.api_openDevTools = api_openDevTools;
   that.api_closeDevTools = api_closeDevTools;
   that.api_isDevToolsOpened = api_isDevToolsOpened;
+  that.api_getTitle = api_getTitle;
 
   init();
 
@@ -919,6 +936,7 @@ function registerWebViewElement() {
     'openDevTools',
     'closeDevTools',
     'isDevToolsOpened',
+    'getTitle',
     /*
     'clearData',
     'print',
