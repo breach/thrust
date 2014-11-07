@@ -171,11 +171,9 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
   web_contents->GetController().LoadURLWithParams(params);
 }
 
-/*
 - (IBAction)showDevTools:(id)sender {
-  shell_->OpenDevTools();
+  window_->OpenDevTools();
 }
-*/
 
 @end
 
@@ -186,6 +184,7 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
  @private
   thrust_shell::ThrustWindow* window_; // Weak; owns self.
 }
+- (void)handleMouseEvent:(NSEvent*)event;
 @end
 
 @implementation ControlRegionView
@@ -211,12 +210,29 @@ static const CGFloat kThrustWindowCornerRadius = 4.0;
   return self;
 }
 
+- (void)handleMouseEvent:(NSEvent*)event {
+  NSPoint eventLoc = [event locationInWindow];
+  NSRect mouseRect = [window_ convertRectToScreen:NSMakeRect(eventLoc.x, eventLoc.y, 0, 0)];
+  NSPoint current_mouse_location = mouseRect.origin;
+
+  if ([event type] == NSLeftMouseDown) {
+    NSPoint frame_origin = [window_ frame].origin;
+    last_mouse_offset_ = NSMakePoint(
+        frame_origin.x - current_mouse_location.x,
+        frame_origin.y - current_mouse_location.y);
+  } else if ([event type] == NSLeftMouseDragged) {
+    [window_ setFrameOrigin:NSMakePoint(
+        current_mouse_location.x + last_mouse_offset_.x,
+        current_mouse_location.y + last_mouse_offset_.y)];
+  }
+}
+
 - (void)mouseDown:(NSEvent*)event {
-  /* TODO(spolu) */
+  [self handleMouseEvent: event];
 }
 
 - (void)mouseDragged:(NSEvent*)event {
-  /* TODO(spolu) */
+  [self handleMouseEvent: event];
 }
 
 @end
