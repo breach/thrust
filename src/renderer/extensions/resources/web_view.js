@@ -187,8 +187,6 @@ var webview = function(spec, my) {
       //console.log(JSON.stringify(event));
     }
     else if(WEB_VIEW_EVENTS[type]) {
-      //console.log('WEB_VIEW_EVENT ' + type);
-      //console.log(JSON.stringify(event));
       var dom_event = new CustomEvent(type, { cancelable: true });
       WEB_VIEW_EVENTS[type].forEach(function(f) {
         dom_event[f] = event[f];
@@ -363,8 +361,8 @@ var webview = function(spec, my) {
   //
   // Whether the webview can go forward
   api_canGoForward = function() {
-    return this.entry_index >= 0 &&
-      this.entry_index < (this.entry_count - 1);
+    return my.entry_index >= 0 &&
+      my.entry_index < (my.entry_count - 1);
   };
 
   // ### api_loadUrl
