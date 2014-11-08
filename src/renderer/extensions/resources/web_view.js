@@ -49,7 +49,8 @@ var WEB_VIEW_EVENTS = {
   'close': [],
   'crashed': ['process_id', 'reason'],
   'destroyed': [],
-  'dialog': ['origin_url', 'accept_lang', 'message_type', 'message_text', 'default_prompt_text']
+  'dialog': ['origin_url', 'accept_lang', 'message_type', 'message_text', 'default_prompt_text'],
+  'title-set': ['title', 'explicit_set']
 };
 
 /* TODO(spolu): FixMe Chrome 39 */
@@ -84,6 +85,7 @@ var webview = function(spec, my) {
   my.process_id = null;
   my.ignore_next_src = false;
   my.zoom_factor = 1.0;
+  my.title = '';
 
 
   //
@@ -115,6 +117,7 @@ var webview = function(spec, my) {
   var api_openDevTools;                /* api_openDevTools(); */
   var api_closeDevTools;               /* api_closeDevTools(); */
   var api_isDevToolsOpened;            /* api_isDevToolsOpened(); */
+  var api_getTitle;                    /* api_getTitle(); */
   
   //
   // _private_
@@ -184,8 +187,6 @@ var webview = function(spec, my) {
       //console.log(JSON.stringify(event));
     }
     else if(WEB_VIEW_EVENTS[type]) {
-      //console.log('WEB_VIEW_EVENT ' + type);
-      //console.log(JSON.stringify(event));
       var dom_event = new CustomEvent(type, { cancelable: true });
       WEB_VIEW_EVENTS[type].forEach(function(f) {
         dom_event[f] = event[f];
@@ -203,9 +204,15 @@ var webview = function(spec, my) {
                                                 false, '');
         };
       }
+      else if(type === 'title-set') {
+        my.title = event.title;
+      }
 
       var cancel = !my.webview_node.dispatchEvent(dom_event);
+      console.log('-------------------------------------------------------')
       console.log('WEB_VIEW_EVENT ' + type + ' ' + (cancel ? 'cancelled' : 'default'));
+      console.log(JSON.stringify(event));
+      console.log('-------------------------------------------------------')
 
       if(!cancel) {
         /* If the event is not cancelled be execute the default behaviour for */
@@ -354,8 +361,8 @@ var webview = function(spec, my) {
   //
   // Whether the webview can go forward
   api_canGoForward = function() {
-    return this.entry_index >= 0 &&
-      this.entry_index < (this.entry_count - 1);
+    return my.entry_index >= 0 &&
+      my.entry_index < (my.entry_count - 1);
   };
 
   // ### api_loadUrl
@@ -521,6 +528,13 @@ var webview = function(spec, my) {
     return WebViewNatives.IsDevToolsOpened(my.guest_instance_id);
   };
 
+  // ### api_getTitle
+  //
+  // Returns the current webview title
+  api_getTitle = function() {
+    return my.title;
+  };
+
   /****************************************************************************/
   /* PUBLIC METHODS */
   /****************************************************************************/
@@ -594,13 +608,15 @@ var webview = function(spec, my) {
     if(name == 'internalbindings' && !old_value && new_value) {
       my.browser_plugin_node.removeAttribute('internalbindings');
 
-      /* If we already created the guest but the plugin was not in the render */
-      /* tree, then we attach the plugin now.                                 */
-      if(my.guest_instance_id) {
-        var params = build_attach_params();
-        my.browser_plugin_node[PLUGIN_METHOD_ATTACH](my.guest_instance_id, 
-                                                     params);
-      }
+      window.setTimeout(function() {
+        /* If we already created the guest but the plugin was not in the render */
+        /* tree, then we attach the plugin now.                                 */
+        if(is_plugin_in_render_tree() && my.guest_instance_id) {
+          var params = build_attach_params();
+          my.browser_plugin_node[PLUGIN_METHOD_ATTACH](my.guest_instance_id, 
+                                                       params);
+        }
+      }, 0);
     }
   };
 
@@ -808,6 +824,7 @@ var webview = function(spec, my) {
   that.api_openDevTools = api_openDevTools;
   that.api_closeDevTools = api_closeDevTools;
   that.api_isDevToolsOpened = api_isDevToolsOpened;
+  that.api_getTitle = api_getTitle;
 
   init();
 
@@ -917,6 +934,7 @@ function registerWebViewElement() {
     'openDevTools',
     'closeDevTools',
     'isDevToolsOpened',
+    'getTitle',
     /*
     'clearData',
     'print',

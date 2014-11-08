@@ -58,6 +58,12 @@ class ThrustShellRendererClient : public content::ContentRendererClient {
       v8::Handle<v8::Context> context, 
       int extension_group,
       int world_id) OVERRIDE;
+  bool ShouldFork(blink::WebFrame* frame,
+                  const GURL& url,
+                  const std::string& http_method,
+                  bool is_initial_navigation,
+                  bool is_server_redirect,
+                  bool* send_referrer) OVERRIDE;
 
   virtual unsigned long long VisitedLinkHash(const char* canonical_url,         
                                              size_t length) OVERRIDE;           

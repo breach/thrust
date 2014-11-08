@@ -279,6 +279,8 @@ public:
       bool is_iframe_srcdoc) OVERRIDE;
   virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void UserAgentOverrideSet(const std::string& user_agent) OVERRIDE;
+  virtual void TitleWasSet(content::NavigationEntry* entry, 
+                           bool explicit_set) OVERRIDE;
 
   /****************************************************************************/
   /* WEBCONTENTSDELEGATE IMPLEMENTATION */
