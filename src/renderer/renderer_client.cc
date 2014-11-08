@@ -135,6 +135,7 @@ ThrustShellRendererClient::DidCreateScriptContext(
     int extension_group,
     int world_id) 
 {
+  LOG(INFO) << "&&&&&&&&&&&&&&&&&&&&&&&&&&& DID CREATE SCRIPT CONTEXT `" << frame->uniqueName().utf8() << "`";
   ScriptContext* context = new ScriptContext(v8_context, frame);
   {
     scoped_ptr<ModuleSystem> module_system(new ModuleSystem(context,
@@ -156,6 +157,19 @@ ThrustShellRendererClient::DidCreateScriptContext(
 
   module_system->Require("webview");
 }
+
+bool 
+ThrustShellRendererClient::ShouldFork(
+    blink::WebFrame* frame,
+    const GURL& url,
+    const std::string& http_method,
+    bool is_initial_navigation,
+    bool is_server_redirect,
+    bool* send_referrer) 
+{
+  return false;
+}
+
 
 unsigned long long 
 ThrustShellRendererClient::VisitedLinkHash(

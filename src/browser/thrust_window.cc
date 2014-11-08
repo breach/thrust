@@ -14,6 +14,7 @@
 #include "base/file_util.h"
 #include "ui/gfx/codec/png_codec.h"
 #include "ui/gfx/codec/jpeg_codec.h"
+#include "content/public/common/url_constants.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -483,8 +484,15 @@ ThrustWindow::CreateWebViewGuest(
 
   WebViewGuest* guest = WebViewGuest::Create(*guest_instance_id);
 
+  GURL guest_site(base::StringPrintf("%s://webview",
+                                     content::kGuestScheme));
+  content::SiteInstance* guest_site_instance =
+    content::SiteInstance::CreateForURL(
+        GetWebContents()->GetBrowserContext(), guest_site);
+
   WebContents::CreateParams create_params(
-      GetWebContents()->GetBrowserContext());
+      GetWebContents()->GetBrowserContext(),
+      guest_site_instance);
   create_params.guest_delegate = guest;
   WebContents* guest_web_contents =
       WebContents::Create(create_params);

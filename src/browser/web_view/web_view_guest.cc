@@ -280,8 +280,9 @@ WebViewGuest::GuestSizeChanged(
     const gfx::Size& old_size,
     const gfx::Size& new_size) 
 {
-  if (!auto_size_enabled_)
+  if(!auto_size_enabled_) {
     return;
+  }
   guest_size_ = new_size;
   //GuestSizeChangedDueToAutoSize(old_size, new_size);
 }
@@ -334,22 +335,12 @@ WebViewGuest::Observe(
       DCHECK_EQ(content::Source<WebContents>(source).ptr(),
                 guest_web_contents());
       if(content::Source<WebContents>(source).ptr() == guest_web_contents()) {
-        //LoadHandlerCalled();
       }
       break;
     }
     case content::NOTIFICATION_RESOURCE_RECEIVED_REDIRECT: {
       DCHECK_EQ(content::Source<WebContents>(source).ptr(),
                 guest_web_contents());
-      /*
-      content::ResourceRedirectDetails* resource_redirect_details =
-          content::Details<content::ResourceRedirectDetails>(details).ptr();
-      bool is_top_level =
-          resource_redirect_details->resource_type == ResourceType::MAIN_FRAME;
-      LoadRedirect(resource_redirect_details->url,
-                   resource_redirect_details->new_url,
-                   is_top_level);
-      */
       break;
     }
     default:
@@ -366,9 +357,8 @@ WebViewGuest::LoadUrl(
     const GURL& url)
 {
   content::NavigationController::LoadURLParams params(url);
-  params.transition_type = content::PageTransitionFromInt(
-      content::PAGE_TRANSITION_TYPED | 
-      content::PAGE_TRANSITION_FROM_ADDRESS_BAR);
+  params.transition_type = content::PAGE_TRANSITION_TYPED;
+  params.referrer = content::Referrer();
   params.override_user_agent = content::NavigationController::UA_OVERRIDE_TRUE; 
   guest_web_contents()->GetController().LoadURLWithParams(params);
 }
@@ -524,7 +514,8 @@ WebViewGuest::SetAutoSize(
   content::RenderViewHost* rvh = guest_web_contents()->GetRenderViewHost();
   if (auto_size_enabled_) {
     rvh->EnableAutoResize(min_auto_size_, max_auto_size_);
-  } else {
+  } 
+  else {
     rvh->DisableAutoResize(element_size_);
     guest_size_ = element_size_;
     //GuestSizeChangedDueToAutoSize(guest_size_, element_size_);
@@ -552,7 +543,6 @@ WebViewGuest::GetThrustWindow()
 void 
 WebViewGuest::RenderViewReady() 
 {
-  //GuestReady();
   content::RenderViewHost* rvh = guest_web_contents()->GetRenderViewHost();
   if (auto_size_enabled_) {
     rvh->EnableAutoResize(min_auto_size_, max_auto_size_);
