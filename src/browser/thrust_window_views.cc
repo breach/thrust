@@ -259,6 +259,16 @@ ThrustWindow::PlatformCreateWindow(
   set_background(views::Background::CreateStandardPanelBackground());
   AddChildView(inspectable_web_contents()->GetView()->GetView());
 
+#if defined(OS_WIN)
+    if (!has_frame_) {
+      /* Set Window style so that we get a minimize and maximize animation */
+      /* when frameless. */
+      DWORD frame_style = WS_THICKFRAME | WS_MINIMIZEBOX | 
+                          WS_MAXIMIZEBOX | WS_CAPTION;
+      ::SetWindowLong(GetAcceleratedWidget(), GWL_STYLE, frame_style);
+    }
+#endif
+
   window_->UpdateWindowIcon();
   window_->CenterWindow(bounds.size());
   Layout();
