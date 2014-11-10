@@ -39,16 +39,96 @@ Emitted when the window renderer regains responsiveness
 
 Emitted when the window renderer crashed
 
-#### show
+#### Method: `show`
 
 Makes the window visible
 
-#### focus
+#### Method: `focus`
 
-- `focus` wether to focus or blur the window
+- `focus` whether to focus or blur the window
 
 Focuses or blur the window depending on the value of `focus`
 
-#### maximize
+#### Method: `maximize`
 
 Maximizes the window
+
+#### Method: `minimize`
+
+Minimizes the window
+
+#### Method: `restore`
+
+Restores a minimized window
+
+#### Method: `set_title`
+
+- `title` the title to set
+
+Sets the title of a window
+
+#### Method: `set_fullscreen`
+
+- `fullscreen` whether to set the window fullscreen or not
+
+Makes the window enter or leave fullscreen
+
+#### Method: `set_kiosk`
+
+- `kiosk` whether to set the window in kiosk mode
+
+Makes the window enter or leave kiosk mode
+
+#### Method: `open_devtools`
+
+Opens the DevTools for this window's main document
+
+#### Method: `close_devtools`
+
+Closes the DevTools for this window's main document
+
+#### Method: `move`
+
+- `x` the new x position 
+- `y` the new y position
+
+Moves the window to the specified position
+
+#### Method: `resize`
+
+- `width` the new window width
+- `height` the new window height
+
+Resizes the window to the specified size
+
+#### Accessor: `is_closed`
+
+Returns wether the window has been closed or not (can't be reopened)
+
+#### Accessor: `size`
+
+Returns the size of the window
+
+#### Accessor: `position`
+
+Returns the position of the window
+
+#### Accessor: `is_maximized`
+
+Returns whether the window is maximized or not
+
+#### Accessor: `is_minimized`
+
+Returns whether the window is minimized or not
+
+#### Accessor: `is_fullscreen`
+
+Returns whether the window is in fullscreen mode or not
+
+#### Accessor: `is_kiosed`
+
+Returns whether the window is in kiosk mode or not
+
+#### Accessor: `is_devtools_opened`
+
+Returns whether the window's main document has its DevTools opened or not
