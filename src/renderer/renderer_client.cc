@@ -21,6 +21,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
+#include "content/public/renderer/render_frame.h"
 #include "content/public/test/layouttest_support.h"
 
 #include "src/common/switches.h"
@@ -135,7 +136,17 @@ ThrustShellRendererClient::DidCreateScriptContext(
     int extension_group,
     int world_id) 
 {
-  LOG(INFO) << "&&&&&&&&&&&&&&&&&&&&&&&&&&& DID CREATE SCRIPT CONTEXT `" << frame->uniqueName().utf8() << "`";
+  /* We limit the injection of WebViewBindings to the top level RenderFrames */
+  content::RenderFrame* render_frame = 
+    content::RenderFrame::FromWebFrame(frame);
+  if(render_frame != render_frame->GetRenderView()->GetMainRenderFrame()) {
+    return;
+  }
+
+  LOG(INFO) << "ThrustShellRendererClient::DidCreateScriptContext `" 
+            << frame->uniqueName().utf8() << "` "
+            << extension_group << " " 
+            << world_id;
   ScriptContext* context = new ScriptContext(v8_context, frame);
   {
     scoped_ptr<ModuleSystem> module_system(new ModuleSystem(context,

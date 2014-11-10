@@ -1,4 +1,4 @@
-thrust
+Thrust
 ======
 
 The require-able cross-platform native application framework based on Chromium's 
