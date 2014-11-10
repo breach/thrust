@@ -1,7 +1,9 @@
 thrust
 ======
 
-The require-able cross-platform native application framework based on Chromium's content module
+The require-able cross-platform native application framework based on Chromium's 
+content module, Thrust lets you distribute nodeJS, Go or Python cross-plaform 
+GUI apps through their native package managers.
 
 ### General information
 
