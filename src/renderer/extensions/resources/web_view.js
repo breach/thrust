@@ -38,7 +38,6 @@ var WEB_VIEW_ATTRIBUTES = [
 ];
 
 var WEB_VIEW_EVENTS = {
-  'did-finish-load': ['url', 'is_top_level'],
   'did-fail-load': ['url', 'is_top_level', 'error_code', 'error-description'],
   'did-frame-finish-load': ['url', 'is_top_level'],
   'did-start-loading': [],
@@ -442,7 +441,7 @@ var webview = function(spec, my) {
       return;
     }
     var opt = {};
-    opt.forward = (options || {}).forward || false;
+    opt.forward = (options || {}).forward || true;
     opt.match_case = (options || {}).match_case || false;
     opt.find_next = (options || {}).find_next || false;
     opt.word_start = (options || {}).word_start || false;
