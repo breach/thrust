@@ -582,12 +582,6 @@ WebViewGuest::DidFinishLoad(
       guest_instance_id_,
       "did-frame-finish-load",
       event);
-  if(is_main_frame) {
-    GetThrustWindow()->WebViewEmit(
-        guest_instance_id_,
-        "did-finish-load",
-        event);
-  }
 }
 
 void 
