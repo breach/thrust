@@ -11,7 +11,9 @@ GUI apps through their native package managers.
 
 ### Documentation
 
-- Coming Soon
+- The API reference as well as links to specific language bindings documentations 
+are availble in the [docs/](https://github.com/breach/thrust/tree/master/docs) 
+directory. 
 
 ### Getting Involved
 
