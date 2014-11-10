@@ -265,7 +265,9 @@ ThrustWindow::PlatformCreateWindow(
       /* when frameless. */
       DWORD frame_style = WS_THICKFRAME | WS_MINIMIZEBOX | 
                           WS_MAXIMIZEBOX | WS_CAPTION;
-      ::SetWindowLong(GetAcceleratedWidget(), GWL_STYLE, frame_style);
+      ::SetWindowLong(
+          GetNativeWindow()->GetHost()->GetAcceleratedWidget(),
+          GWL_STYLE, frame_style);
     }
 #endif
 
