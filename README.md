@@ -1,4 +1,4 @@
-![Logo Thrust](http://i.imgur.com/Ec0GGjh.png)
+![Logo Thrust](http://i.imgur.com/DwFKI0J.png)
 
 **The `require`-able cross-platform native application framework based on 
 Chromium's content module**
