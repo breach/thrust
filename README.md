@@ -12,7 +12,7 @@ Windows, Linux) through their native package managers.*
 Thrust will be powering the next versions of [Breach](http://breach.cc)
 
 To better understand what Thrust can do, check out **JankyBrowser** by 
-@morganrallen. The browser that fits in a 
+@morganrallen. The cross-platform browser that fits in a 
 [Gist](https://gist.github.com/morganrallen/f07f59802884bcdcad4a)
 ```
 npm install -g \
