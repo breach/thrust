@@ -1,6 +1,3 @@
-Thrust Application Framework
-============================
-
 ![Logo Thrust](http://i.imgur.com/CfTBmNZ.png)
 
 **The `require`-able cross-platform native application framework based on 
@@ -36,7 +33,7 @@ npm install -g \
 - [Features & Roadmap](https://github.com/breach/thrust/wiki#features--roadmap)
 - [Building Thrust from Sources](https://github.com/breach/thrust/wiki#building-thrust-from-sources)
 
-**
+***
 ## Language bindings
 
 Thrust's binary distribution exposes its API on the standard IO and language
@@ -92,7 +89,9 @@ func main() {
 ***
 ## API Reference
 
-The API reference as well as links to specific language bindings documentations are availble in the [docs/](https://github.com/breach/thrust/tree/master/docs) directory.
+The API reference as well as links to specific language bindings documentations 
+are availble in the [docs/](https://github.com/breach/thrust/tree/master/docs)
+ directory.
 
 ***
 ## Architecture
@@ -122,15 +121,18 @@ The API reference as well as links to specific language bindings documentations 
 
 ##### Request for API
 
-- List of API needed by various projects on Thrust: [Request for API](https://github.com/breach/thrust/wiki/Request-for-API)
+- List of API needed by various projects on Thrust: 
+[Request for API](https://github.com/breach/thrust/wiki/Request-for-API)
 
 ##### List of Thrust Users 
 
-- List of people relying on Thrust: [List of Thrust Users](https://github.com/breach/thrust/wiki/List-of-Thrust-Users)
+- List of people relying on Thrust: 
+[List of Thrust Users](https://github.com/breach/thrust/wiki/List-of-Thrust-Users)
 
 ##### Thrust7.5k Contest
 
-- 7.5k max Browser implementation based on Thrust. *Coming soon*. Ping dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea) 
+- 7.5k max Browser implementation based on Thrust. *Coming soon*. Ping 
+dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea) 
 
 ##### Getting Involved
 
