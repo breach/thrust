@@ -143,6 +143,7 @@ dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea)
 ## Features & Roadmap
 
 - [x] **window creation** create, show, close resize, minimize, maximize, ...
+- [x] **node.js, go** node.js and go bindings libraries
 - [x] **window events** close, blur, focus, unresponsive, crashed
 - [x] **cross-platform** equivalent support on `MacOSX`, `Windows` and `Linux`
 - [x] **sessions** off the record, custom storage path, custom cookie store
