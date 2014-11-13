@@ -1,6 +1,6 @@
 ![Logo Thrust](http://i.imgur.com/DwFKI0J.png)
 
-**The `require`/`import`-able cross-platform / cross-language native application framework based on 
+**The `require/import`-able cross-platform / cross-language native application framework based on 
 Chromium's content module**
 
 *Thrust lets you distribute nodeJS, Go or Python GUI apps directly through their native package managers. It is supported on Linux, MacOSX, Windows*
