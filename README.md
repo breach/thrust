@@ -13,7 +13,7 @@ It is supported on Linux, MacOSX and Windows:
 Thrust will be powering the next versions of [Breach](http://breach.cc)
 
 To better understand what Thrust can do, check out **[JankyBrowser](https://gist.github.com/morganrallen/f07f59802884bcdcad4a)** by 
-@morganrallen. The cross-platform browser that fits in a gist:
+@morganrallen, the cross-platform browser that fits in a gist:
 ```
 npm install -g \
   https://gist.github.com/morganrallen/f07f59802884bcdcad4a/download
