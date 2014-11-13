@@ -42,6 +42,9 @@ Thrust's binary distribution exposes its API on the standard IO and language
 installation. Thrust is based on Chromium's content module and uses web-pages 
 as its GUI.
 
+All these Getting Started example work on each major platform as is (MacOSX,
+Windows, Linux)
+
 ### NodeJS
 
 ##### Getting Started
