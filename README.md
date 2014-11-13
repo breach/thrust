@@ -86,6 +86,28 @@ func main() {
 
 - **go-thrust**: [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust)
 
+### Python
+
+##### Getting Started
+
+First install with `pip3 install pythrust [--user]` (requires Python3)
+
+```
+import asyncio, pythrust
+
+loop = asyncio.get_event_loop()
+api = pythrust.API(loop)
+
+asyncio.async(api.spawn())
+asyncio.async(api.window({ 'root_url': 'http://breach.cc' }).show())
+
+loop.run_forever()
+```
+
+##### Library
+
+- **pythrust** [breach/pythrust](https://github.com/breach/pythrust/)
+
 ***
 ## API Reference
 
@@ -151,7 +173,7 @@ dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea)
 - [x] **application menu** global application menu (MacOSX, X11/Unity)
 - [x] **webview** webview tag (secure navigation, tabs management)
 - [x] **frameless** frameless window and draggable regions
-- [ ] **python** python bindings library
+- [x] **python** python bindings library
 - [ ] **tray icon** tray icon native integration
 - [ ] **remote** thrust specific IPC mechanism for client/server communication
 - [ ] **protocol** specific protocol reigstration (`fille://`, ...)
