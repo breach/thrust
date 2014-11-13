@@ -1,4 +1,4 @@
-![Logo Thrust](http://i.imgur.com/DwFKI0J.png)
+![Logo Thrust](http://i.imgur.com/IviZAGZ.png)
 
 **Chromium-based cross-platform / cross-language application framework**
 
