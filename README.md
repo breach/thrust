@@ -20,19 +20,19 @@ npm install -g \
 ```
 
 #### Table of Contents
-- [Language bindings](https://github.com/breach/thrust/wiki#language-bindings)
-  - [NodeJS](https://github.com/breach/thrust/wiki#nodejs)
-  - [Go](https://github.com/breach/thrust/wiki#go)
-  - [Python](https://github.com/breach/thrust/wiki#python)
-- [API Reference](https://github.com/breach/thrust/wiki#api-reference)
-- [Architecture](https://github.com/breach/thrust/wiki#architecture)
-- [Community](https://github.com/breach/thrust/wiki#community)
-  - [Request for API](https://github.com/breach/thrust/wiki#request-for-api)
-  - [List of Thrust Users](https://github.com/breach/thrust/wiki#list-of-thrust-users)
-  - [Thrust 7.5k Contest](https://github.com/breach/thrust/wiki#thrust75k-contest)
-  - [Getting Involved](https://github.com/breach/thrust/wiki#getting-involved)
-- [Features & Roadmap](https://github.com/breach/thrust/wiki#features--roadmap)
-- [Building Thrust from Sources](https://github.com/breach/thrust/wiki#building-thrust-from-sources)
+- [Language bindings](#language-bindings)
+  - [NodeJS](#nodejs)
+  - [Go](#go)
+  - [Python](#python)
+- [API Reference](#api-reference)
+- [Architecture](#architecture)
+- [Community](#community)
+  - [Request for API](#request-for-api)
+  - [List of Thrust Users](#list-of-thrust-users)
+  - [Thrust 7.5k Contest](#thrust75k-contest)
+  - [Getting Involved](#getting-involved)
+- [Features & Roadmap](#features--roadmap)
+- [Building Thrust from Sources](#building-thrust-from-sources)
 
 ***
 ## Language bindings
