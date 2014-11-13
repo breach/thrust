@@ -26,8 +26,8 @@ Client custom DOM elements:
 
 - [`<webview>` tag](api/webview.md)
 
-### Language Bindings Documenatation
+### Language Bindings Documentation and Guides
 
-- node-thrust
+- [node-thrust](https://github.com/breach/node-thrust)
 - [go-thrust](https://github.com/miketheprogrammer/go-thrust/tree/master/doc)
-- pythrust
+- [pythrust](https://github.com/breach/pythrust)
