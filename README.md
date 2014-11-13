@@ -23,6 +23,7 @@ npm install -g \
 - [Language bindings](https://github.com/breach/thrust/wiki#language-bindings)
   - [NodeJS](https://github.com/breach/thrust/wiki#nodejs)
   - [Go](https://github.com/breach/thrust/wiki#go)
+  - [Python](https://github.com/breach/thrust/wiki#python)
 - [API Reference](https://github.com/breach/thrust/wiki#api-reference)
 - [Architecture](https://github.com/breach/thrust/wiki#architecture)
 - [Community](https://github.com/breach/thrust/wiki#community)
