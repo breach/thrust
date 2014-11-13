@@ -5,7 +5,7 @@
 *Thrust is `require/import`-able, it lets you distribute NodeJS, Go or Python GUI apps directly 
 through their native package managers.*
 
-It is supported on Linux, MacOSX, Windows
+It is supported on Linux, MacOSX and Windows:
 
 ![Cross-Platform Screenshots](http://i.imgur.com/7K98jyW.png)
 *Screenshot of Thrust Getting Started example running on each major platform.*
