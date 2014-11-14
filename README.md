@@ -51,7 +51,7 @@ Windows, Linux)
 
 First install with `npm install node-thrust`
 
-```
+```Javascript
 require('node-thrust')(function(err, api) { 
   api.window({ root_url: 'https://breach.cc' }).show();
 });
@@ -96,7 +96,7 @@ func main() {
 
 First install with `pip3 install pythrust [--user]` (requires Python3)
 
-```
+```Python
 import asyncio, pythrust
 
 loop = asyncio.get_event_loop()
