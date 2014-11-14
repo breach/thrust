@@ -1,19 +1,19 @@
-![Logo Thrust](http://i.imgur.com/DwFKI0J.png)
+![Logo Thrust](http://i.imgur.com/IviZAGZ.png)
 
-**The `require`-able cross-platform native application framework based on 
-Chromium's content module**
+**Chromium-based cross-platform / cross-language application framework**
 
-*Thrust lets you distribute nodeJS, Go or Python cross-plaform GUI apps (MacOSX,
-Windows, Linux) through their native package managers.*
+*Thrust is `require/import`-able, it lets you distribute NodeJS, Go or Python GUI apps directly 
+through their native package managers.*
+
+Thrust is based on Chromium's Content Module and is supported on Linux, MacOSX and Windows:
 
 ![Cross-Platform Screenshots](http://i.imgur.com/7K98jyW.png)
 *Screenshot of Thrust Getting Started example running on each major platform.*
 
 Thrust will be powering the next versions of [Breach](http://breach.cc)
 
-To better understand what Thrust can do, check out **JankyBrowser** by 
-@morganrallen. The cross-platform browser that fits in a 
-[Gist](https://gist.github.com/morganrallen/f07f59802884bcdcad4a)
+To better understand what Thrust can do, check out **[JankyBrowser](https://gist.github.com/morganrallen/f07f59802884bcdcad4a)** by 
+@morganrallen, the cross-platform browser that fits in a gist:
 ```
 npm install -g \
   https://gist.github.com/morganrallen/f07f59802884bcdcad4a/download
@@ -51,7 +51,7 @@ Windows, Linux)
 
 First install with `npm install node-thrust`
 
-```
+```Javascript
 require('node-thrust')(function(err, api) { 
   api.window({ root_url: 'https://breach.cc' }).show();
 });
@@ -67,22 +67,22 @@ require('node-thrust')(function(err, api) {
 
 First download with `go get -u github.com/miketheprogrammer/go-thrust/`
 
-```
+```Go
 package main
 
 import (
-  "github.com/miketheprogrammer/go-thrust/dispatcher"
-  "github.com/miketheprogrammer/go-thrust/spawn"
-  "github.com/miketheprogrammer/go-thrust/window"
+	"github.com/miketheprogrammer/go-thrust/dispatcher"
+	"github.com/miketheprogrammer/go-thrust/spawn"
+	"github.com/miketheprogrammer/go-thrust/window"
 )
- 
+
 func main() {
-  spawn.Run()
-  thrustWindow := window.NewWindow("http://breach.cc/", nil)
-  thrustWindow.Show()
-  thrustWindow.Maximize()
-  thrustWindow.Focus()
-  dispatcher.RunLoop()
+	spawn.Run()
+	thrustWindow := window.NewWindow("http://breach.cc/", nil)
+	thrustWindow.Show()
+	thrustWindow.Maximize()
+	thrustWindow.Focus()
+	dispatcher.RunLoop()
 }
 ```
 
@@ -96,7 +96,7 @@ func main() {
 
 First install with `pip3 install pythrust [--user]` (requires Python3)
 
-```
+```Python
 import asyncio, pythrust
 
 loop = asyncio.get_event_loop()
@@ -123,7 +123,7 @@ are availble in the [docs/](https://github.com/breach/thrust/tree/master/docs)
 ## Architecture
 
 ```
-[Thurst Architecture]
+[Thrust Architecture]
 
           (Platform)           [stdio]      (Your Implementation)
                                                                           
@@ -180,7 +180,7 @@ dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea)
 - [x] **python** python bindings library
 - [ ] **tray icon** tray icon native integration
 - [ ] **remote** thrust specific IPC mechanism for client/server communication
-- [ ] **protocol** specific protocol reigstration (`fille://`, ...)
+- [ ] **protocol** specific protocol registration (`file://`, ...)
 - [ ] **proxy** enable traffic proxying (Tor, header injection, ...)
 
 ***
