@@ -572,8 +572,6 @@ WebViewGuest::DidFinishLoad(
     content::RenderFrameHost* render_frame_host,
     const GURL& validated_url) 
 {
-  bool is_main_frame = !render_frame_host->GetParent();
-
   base::DictionaryValue event;
   event.SetBoolean("is_top_level", !render_frame_host->GetParent());
   event.SetString("url", validated_url.spec());
