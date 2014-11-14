@@ -180,7 +180,7 @@ dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea)
 - [x] **python** python bindings library
 - [ ] **tray icon** tray icon native integration
 - [ ] **remote** thrust specific IPC mechanism for client/server communication
-- [ ] **protocol** specific protocol reigstration (`fille://`, ...)
+- [ ] **protocol** specific protocol reigstration (`file://`, ...)
 - [ ] **proxy** enable traffic proxying (Tor, header injection, ...)
 
 ***
