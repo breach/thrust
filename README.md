@@ -122,25 +122,7 @@ are availble in the [docs/](https://github.com/breach/thrust/tree/master/docs)
 ***
 ## Architecture
 
-```
-[Thrust Architecture]
-
-          (Platform)           [stdio]      (Your Implementation)
-                                                                          
-                                  #
-               +--------------+   #       +-----------------------+  | 
-               | Cocoa / Aura |   #   +---|    win3: (HTML/JS)    |  |
-               +-------+------+   #   |  +-----------------------++  |
-                       |          #   +--|    win2: (HTML/JS)    |   | cli
-+------------+ +-------+------+   #   | +-----------------------++   |
-|            +-+ thrust (C++) +-------+-+    win1: (HTML/JS)    |    |
-| ContentAPI | +-------+------+   #     +-----------------------+    |
-|            |         |          #                | (TCP/FS)      
-| (Blink/v8) | +-------+------+   #     +-----------------------+    |
-|            | + JSON RPC srv +---------+ Client App (any Lang) |    | srv
-+------------+ +--------------+   #     +-----------------------+    |
-                                  #
-```
+![Thrust Architecture](http://i.imgur.com/oN5pqAU.png)
 
 ***
 ## Community
