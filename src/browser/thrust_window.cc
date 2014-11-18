@@ -232,7 +232,7 @@ ThrustWindow::OpenDevTools()
 void 
 ThrustWindow::CloseDevTools()
 {
-  inspectable_web_contents()->ShowDevTools();
+  inspectable_web_contents()->CloseDevTools();
 }
 
 bool
