@@ -27,6 +27,7 @@
 #include "src/browser/resource_dispatcher_host_delegate.h"
 #include "src/common/switches.h"
 #include "src/browser/session/thrust_session.h"
+#include "src/browser/thrust_window.h"
 #include "src/geolocation/access_token_store.h"
 #include "src/common/chrome_version.h"
 
@@ -40,6 +41,9 @@ std::string               ThrustShellBrowserClient::app_name_override_ = "";
 std::string               ThrustShellBrowserClient::app_version_override_ = "";
 
 
+/******************************************************************************/
+/* STATIC API */
+/******************************************************************************/
 // static
 ThrustShellBrowserClient* 
 ThrustShellBrowserClient::Get() 
@@ -103,6 +107,9 @@ ThrustShellBrowserClient::GetAppVersion()
 }
     
 
+/******************************************************************************/
+/* CONSTRUCTOR / DESTRUCTOR */
+/******************************************************************************/
 ThrustShellBrowserClient::ThrustShellBrowserClient()
 {
   self_ = this;
@@ -113,23 +120,51 @@ ThrustShellBrowserClient::~ThrustShellBrowserClient()
 }
 
 
-std::string 
-ThrustShellBrowserClient::GetApplicationLocale() {
-  return l10n_util::GetApplicationLocale("");
-}
-
+/******************************************************************************/
+/* CONTENTBROWSERCLIENT IMPLEMENTATION */
+/******************************************************************************/
 void 
 ThrustShellBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line,
     int child_process_id) 
 {
-  /*
+  /* Default behaviour. */
   command_line->AppendSwitch(switches::kEnableThreadedCompositing);
+  command_line->AppendSwitch(switches::kSubpixelFontScaling);
+  command_line->AppendSwitch(switches::kOverlayFullscreenVideo);
 #if defined(OS_MACOSX)
   command_line->AppendSwitch(switches::kUseCoreAnimation);
 #endif
-  */
 }
+
+void 
+ThrustShellBrowserClient::OverrideWebkitPrefs(
+    RenderViewHost* render_view_host,
+    const GURL& url,
+    WebPreferences* prefs) 
+{
+  prefs->javascript_enabled = true;
+  prefs->web_security_enabled = true;
+  prefs->javascript_can_open_windows_automatically = true;
+  prefs->plugins_enabled = true;
+  prefs->dom_paste_enabled = true;
+  prefs->java_enabled = false;
+  prefs->allow_scripts_to_close_windows = true;
+  prefs->javascript_can_access_clipboard = true;
+  prefs->local_storage_enabled = true;
+  prefs->databases_enabled = true;
+  prefs->application_cache_enabled = true;
+  prefs->allow_file_access_from_file_urls = true;
+  prefs->allow_universal_access_from_file_urls = true;
+  prefs->experimental_webgl_enabled = true;
+
+  /* Turn off web security for devtools. */
+  if(url.SchemeIs("chrome-devtools")) {
+    prefs->web_security_enabled = false;
+    return;
+  }
+}
+
 
 void 
 ThrustShellBrowserClient::ResourceDispatcherHostCreated() 
@@ -152,6 +187,11 @@ ThrustShellBrowserClient::GetDefaultDownloadName()
   return "download";
 }
 
+std::string 
+ThrustShellBrowserClient::GetApplicationLocale() {
+  return l10n_util::GetApplicationLocale("");
+}
+
 
 WebContentsViewDelegate* 
 ThrustShellBrowserClient::GetWebContentsViewDelegate(
@@ -160,20 +200,6 @@ ThrustShellBrowserClient::GetWebContentsViewDelegate(
   return NULL;
   /* TODO(spolu): Reimplemenent with plugin */
   //return CreateThrustShellWebContentsViewDelegate(web_contents);
-}
-
-void 
-ThrustShellBrowserClient::OverrideWebkitPrefs(
-    RenderViewHost* render_view_host,
-    const GURL& url,
-    WebPreferences* prefs) 
-{
-  prefs->javascript_enabled = true;
-  prefs->web_security_enabled = true;
-  prefs->plugins_enabled = true;
-  prefs->allow_file_access_from_file_urls = true;
-  prefs->allow_universal_access_from_file_urls = true;
-  prefs->allow_file_access_from_file_urls = true;
 }
 
 net::URLRequestContextGetter* 
@@ -229,6 +255,9 @@ ThrustShellBrowserClient::IsHandledURL(
   return false;
 }
 
+/******************************************************************************/
+/* EXOSESSION I/F */
+/******************************************************************************/
 void 
 ThrustShellBrowserClient::RegisterThrustSession(
     ThrustSession* session)

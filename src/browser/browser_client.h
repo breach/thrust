@@ -133,7 +133,7 @@ class ThrustShellBrowserClient : public brightray::BrowserClient {
       const content::MainFunctionParams&) OVERRIDE;
 
   scoped_ptr<ThrustShellResourceDispatcherHostDelegate>
-                            resource_dispatcher_host_delegate_;
+                                        resource_dispatcher_host_delegate_;
 
   std::vector<ThrustSession*>           sessions_;
 
