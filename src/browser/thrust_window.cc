@@ -186,7 +186,6 @@ ThrustWindow::FromRenderView(
     int process_id, 
     int routing_id) 
 {
-  LOG(INFO) << "++++++++++++***********FROM RENDERVIEW: " << process_id << " " << routing_id;
   std::vector<ThrustWindow*> windows = ThrustWindow::instances();
   
   for(std::vector<ThrustWindow*>::iterator it = windows.begin(); 
@@ -195,7 +194,6 @@ ThrustWindow::FromRenderView(
     content::WebContents* web_contents = w->GetWebContents();
     int window_process_id = web_contents->GetRenderProcessHost()->GetID();
     int window_routing_id = web_contents->GetRoutingID();
-    LOG(INFO) << "++++++++++++***********FROM RENDERVIEW: " << window_process_id << " " << window_routing_id;
     if(window_routing_id == routing_id && window_process_id == process_id) {
       return w;
     }
