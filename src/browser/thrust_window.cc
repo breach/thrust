@@ -4,6 +4,7 @@
 #include "src/browser/thrust_window.h"
 
 #include "base/auto_reset.h"
+#include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
@@ -15,6 +16,8 @@
 #include "ui/gfx/codec/png_codec.h"
 #include "ui/gfx/codec/jpeg_codec.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/common/content_switches.h"
+#include "content/public/common/renderer_preferences.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -25,7 +28,6 @@
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/navigation_controller.h"
-#include "content/public/common/renderer_preferences.h"
 #include "content/public/browser/favicon_status.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 
@@ -143,7 +145,8 @@ ThrustWindow::CreateNew(
     const bool has_frame)
 {
   ThrustWindow *browser = new ThrustWindow(binding, web_contents, size, 
-                                           title, icon_path, has_frame);
+                                           title, icon_path, 
+                                           has_frame);
   return browser;
 }
 
@@ -158,6 +161,7 @@ ThrustWindow::CreateNew(
     const std::string& icon_path,
     const bool has_frame)
 {
+  LOG(INFO) << "ThrustWindow CreateNew";
   if(session == NULL) {
     session = ThrustShellBrowserClient::Get()->system_session();
   }
@@ -172,8 +176,31 @@ ThrustWindow::CreateNew(
   LOG(INFO) << "ThrustWindow Constructor (web_contents created) [" 
             << web_contents << "]";
 
-  return CreateNew(binding, web_contents, size, title, icon_path, has_frame);
+  return CreateNew(binding, web_contents, size, title, icon_path, 
+                   has_frame);
 }
+
+// static
+ThrustWindow* 
+ThrustWindow::FromRenderView(
+    int process_id, 
+    int routing_id) 
+{
+  std::vector<ThrustWindow*> windows = ThrustWindow::instances();
+  
+  for(std::vector<ThrustWindow*>::iterator it = windows.begin(); 
+      it != windows.end(); ++it) {
+    ThrustWindow* w = *it;
+    content::WebContents* web_contents = w->GetWebContents();
+    int window_process_id = web_contents->GetRenderProcessHost()->GetID();
+    int window_routing_id = web_contents->GetRoutingID();
+    if(window_routing_id == routing_id && window_process_id == process_id) {
+      return w;
+    }
+  }
+  return NULL;
+}
+
 
 // static
 void 

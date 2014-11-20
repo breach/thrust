@@ -42,6 +42,7 @@ namespace content {
 class WebContents;
 struct NativeWebKeyboardEvent;
 struct FileChooserParams;
+struct WebPreferences;
 }
 
 namespace ui {
@@ -82,13 +83,13 @@ public:
   //
   // Creates a new ThrustWindow with the specified `root_url`
   // ```
-  // @binding   {ThrustWindowBinding} the binding associated
-  // @session   {ThrustSession} the session to use
-  // @root_url  {GURL} the main document root url
-  // @size      {Size} the initial size of the window
-  // @title     {string} the title to use
-  // @icon_path {string} icon_path (no effect on OSX)
-  // @has_frame {boolean} has a frame
+  // @binding      {ThrustWindowBinding} the binding associated
+  // @session      {ThrustSession} the session to use
+  // @root_url     {GURL} the main document root url
+  // @size         {Size} the initial size of the window
+  // @title        {string} the title to use
+  // @icon_path    {string} icon_path (no effect on OSX)
+  // @has_frame    {boolean} has a frame
   // ```
   static ThrustWindow* CreateNew(
       ThrustWindowBinding* binding,
@@ -122,6 +123,11 @@ public:
   //
   // Getter for all the currently working ThrustWindow instances.
   static std::vector<ThrustWindow*>& instances() { return s_instances; }
+
+  // ### FromRenderView
+  //
+  // Find a window from its process id and routing id.
+  static ThrustWindow* FromRenderView(int process_id, int routing_id);
 
   // ### CloseAll
   //
