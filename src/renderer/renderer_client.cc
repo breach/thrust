@@ -32,6 +32,7 @@
 #include "src/renderer/extensions/module_system.h"
 #include "src/renderer/extensions/document_bindings.h"
 #include "src/renderer/extensions/web_view_bindings.h"
+#include "src/renderer/extensions/remote_bindings.h"
 
 using namespace content;
 using namespace extensions;
@@ -100,6 +101,12 @@ ThrustShellRendererClient::RenderThreadStarted()
       src_renderer_extensions_resources_web_view_js_len);
   source_map_.RegisterSource("webview", web_view_src);
 
+#include "./extensions/resources/remote.js.bin"
+  std::string remote_src(
+      (char*)src_renderer_extensions_resources_remote_js,
+      src_renderer_extensions_resources_remote_js_len);
+  source_map_.RegisterSource("remote", remote_src);
+
   thread->AddObserver(observer_.get());
   thread->AddObserver(visited_link_slave_.get());
 }
@@ -165,8 +172,12 @@ ThrustShellRendererClient::DidCreateScriptContext(
   module_system->RegisterNativeHandler("webview_natives",
       scoped_ptr<NativeHandler>(
           new WebViewBindings(context)));
+  module_system->RegisterNativeHandler("remote_natives",
+      scoped_ptr<NativeHandler>(
+          new RemoteBindings(context)));
 
   module_system->Require("webview");
+  module_system->Require("remote");
 }
 
 bool 

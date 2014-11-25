@@ -1,5 +1,4 @@
 // Copyright (c) 2014 Stanislas Polu.
-// Copyright (c) 2013 The Chromium Authors.
 // See the LICENSE file.
 
 #include "src/renderer/extensions/web_view_bindings.h"

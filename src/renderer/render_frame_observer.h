@@ -20,6 +20,7 @@ class RenderFrame;
 
 namespace extensions {
 class WebViewBindings;
+class RemoteBindings;
 }
 
 namespace thrust_shell {
@@ -47,11 +48,20 @@ class ThrustShellRenderFrameObserver : public content::RenderFrameObserver {
                    const std::string type,
                    const base::DictionaryValue& event);
 
+  /****************************************************************************/
+  /* REMOTE MESSAGE HANDLING */
+  /****************************************************************************/
+  void AddRemoteBindings(extensions::RemoteBindings* bindings);
+  void RemoveRemoteBindings(extensions::RemoteBindings* bindings);
+
+  void RemoteDispatch(const base::DictionaryValue& message);
+
  private:
   // A static container of all the instances.
   static std::vector<ThrustShellRenderFrameObserver*> s_instances;
 
-  std::vector<extensions::WebViewBindings*>           bindings_;
+  std::vector<extensions::WebViewBindings*>           web_view_bindings_;
+  std::vector<extensions::RemoteBindings*>            remote_bindings_;
 
   DISALLOW_COPY_AND_ASSIGN(ThrustShellRenderFrameObserver);
 };

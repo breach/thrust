@@ -41,6 +41,8 @@ public:
   void EmitResponsive();
   void EmitWorkerCrashed();
 
+  void RemoteSend(const base::DictionaryValue& message);
+
 private:
   scoped_ptr<ThrustWindow> window_;
 };

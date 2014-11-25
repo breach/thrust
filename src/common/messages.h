@@ -114,3 +114,11 @@ IPC_MESSAGE_ROUTED3(ThrustFrameMsg_WebViewEmit,
                     std::string, /* type */
                     base::DictionaryValue /* event */)
 
+
+// RemoteSendMessage
+IPC_MESSAGE_ROUTED1(ThrustFrameHostMsg_RemoteSend,
+                    base::DictionaryValue /* message */)
+// RemoteDispatchMessage
+IPC_MESSAGE_ROUTED1(ThrustFrameMsg_RemoteDispatch,
+                    base::DictionaryValue /* message */)
+

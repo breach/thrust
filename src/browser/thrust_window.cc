@@ -250,6 +250,24 @@ ThrustWindow::Close()
     web_contents->Close();
 }
 
+void
+ThrustWindow::RemoteDispatch(
+    const base::DictionaryValue& message)
+{
+  /* Dispatch the message using the RemoteDispatch message. */
+  GetWebContents()->GetMainFrame()->Send(
+      new ThrustFrameMsg_RemoteDispatch(
+        GetWebContents()->GetMainFrame()->GetRoutingID(),
+        message));
+}
+
+void 
+ThrustWindow::RemoteSend(
+    const base::DictionaryValue& message)
+{
+  binding_->RemoteSend(message);
+}
+
 void 
 ThrustWindow::OpenDevTools()
 {
@@ -487,6 +505,9 @@ ThrustWindow::OnMessageReceived(
                         WebViewGuestIsDevToolsOpened)
     IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_WebViewGuestJavaScriptDialogClosed,
                         WebViewGuestJavaScriptDialogClosed)
+
+    IPC_MESSAGE_HANDLER(ThrustFrameHostMsg_RemoteSend,
+                        RemoteSend)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
