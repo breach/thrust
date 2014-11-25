@@ -1,5 +1,4 @@
 // Copyright (c) 2014 Stanislas Polu.
-// Copyright (c) 2012 The Chromium Authors.
 // See the LICENSE file.
 
 #ifndef THRUST_SHELL_RENDERER_EXTENSIONS_WEB_VIEW_BINDINGS_H_
@@ -25,7 +24,7 @@ class WebViewBindings : public ObjectBackedNativeHandler {
 
   // ### AttemptEmitEvent
   //
-  // Attempts to emit an event for the give guest_instance_id. The event gets
+  // Attempts to emit an event for the given guest_instance_id. The event gets
   // emitted only if this WebViewBindings has an handler for it
   bool AttemptEmitEvent(int guest_instance_id,
                         const std::string type,

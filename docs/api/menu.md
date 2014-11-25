@@ -9,6 +9,13 @@ side code.
 
 #### Constructor
 
+#### Event: `execute`
+
+- `command_id` the command id of the item that was clicked
+- `event_flags` event flag integer
+
+Emitted when a menu item is clicked
+
 #### Method: `add_item`
 
 - `command_id` the label command id (see `execute`)
@@ -86,9 +93,3 @@ specified by its id.
 
 Sets this menu as the global application menu on MacOSX and X11/Unity
 
-#### Remote Method: `execute`
-
-- `command_id` the command id of the item that was clicked
-- `event_flags` event flag integer
-
-Called when a menu item is clicked

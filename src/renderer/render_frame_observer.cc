@@ -13,14 +13,34 @@
 #include "src/common/switches.h"
 #include "src/common/messages.h"
 #include "src/renderer/extensions/web_view_bindings.h"
+#include "src/renderer/extensions/remote_bindings.h"
 
 using namespace content;
 
 namespace thrust_shell {
 
+/******************************************************************************/
+/* STATIC API */
+/******************************************************************************/
 std::vector<ThrustShellRenderFrameObserver*> 
   ThrustShellRenderFrameObserver::s_instances;
 
+// static
+ThrustShellRenderFrameObserver* 
+ThrustShellRenderFrameObserver::FromRenderFrame(
+    RenderFrame* render_frame)
+{
+  for(size_t i = 0; i < s_instances.size(); ++i) {
+    if(s_instances[i]->render_frame() == render_frame) {
+      return s_instances[i];
+    }
+  }
+  return NULL;
+}
+
+/******************************************************************************/
+/* CONSTRUCTOR / DESTRUCTOR */
+/******************************************************************************/
 ThrustShellRenderFrameObserver::ThrustShellRenderFrameObserver(
     RenderFrame* render_frame)
     : RenderFrameObserver(render_frame) 
@@ -39,19 +59,10 @@ ThrustShellRenderFrameObserver::~ThrustShellRenderFrameObserver()
   }
 }
 
-// static
-ThrustShellRenderFrameObserver* 
-ThrustShellRenderFrameObserver::FromRenderFrame(
-    RenderFrame* render_frame)
-{
-  for(size_t i = 0; i < s_instances.size(); ++i) {
-    if(s_instances[i]->render_frame() == render_frame) {
-      return s_instances[i];
-    }
-  }
-  return NULL;
-}
 
+/******************************************************************************/
+/* RENDERFRAMEOBSERVER IMPLEMENTATION */
+/******************************************************************************/
 bool 
 ThrustShellRenderFrameObserver::OnMessageReceived(
     const IPC::Message& message) 
@@ -60,27 +71,32 @@ ThrustShellRenderFrameObserver::OnMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(ThrustShellRenderFrameObserver, message)
     IPC_MESSAGE_HANDLER(ThrustFrameMsg_WebViewEmit, 
                         WebViewEmit)
+    IPC_MESSAGE_HANDLER(ThrustFrameMsg_RemoteDispatch, 
+                        RemoteDispatch)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
   return handled;
 }
 
+/******************************************************************************/
+/* WEBVIEW MESSAGE HANDLING */
+/******************************************************************************/
 void 
 ThrustShellRenderFrameObserver::AddWebViewBindings(
     extensions::WebViewBindings* bindings)
 {
   /* Does not own bindings just stores a pointer to it. */
-  bindings_.push_back(bindings);
+  web_view_bindings_.push_back(bindings);
 }
 
 void 
 ThrustShellRenderFrameObserver::RemoveWebViewBindings(
     extensions::WebViewBindings* bindings)
 {
-  for(size_t i = 0; i < bindings_.size(); ++i) {
-    if(bindings_[i] == bindings) {
-      bindings_.erase(bindings_.begin() + i);
+  for(size_t i = 0; i < web_view_bindings_.size(); ++i) {
+    if(web_view_bindings_[i] == bindings) {
+      web_view_bindings_.erase(web_view_bindings_.begin() + i);
       break;
     }
   }
@@ -92,9 +108,44 @@ ThrustShellRenderFrameObserver::WebViewEmit(
     const std::string type,
     const base::DictionaryValue& event)
 {
-  for(size_t i = 0; i < bindings_.size(); ++i) {
-    bindings_[i]->AttemptEmitEvent(guest_instance_id, type, event);
+  for(size_t i = 0; i < web_view_bindings_.size(); ++i) {
+    web_view_bindings_[i]->AttemptEmitEvent(guest_instance_id, type, event);
   }
 }
+
+/******************************************************************************/
+/* REMOTE MESSAGE HANDLING */
+/******************************************************************************/
+void 
+ThrustShellRenderFrameObserver::AddRemoteBindings(
+    extensions::RemoteBindings* bindings)
+{
+  /* Does not own bindings just stores a pointer to it. */
+  remote_bindings_.push_back(bindings);
+}
+
+void 
+ThrustShellRenderFrameObserver::RemoveRemoteBindings(
+    extensions::RemoteBindings* bindings)
+{
+  for(size_t i = 0; i < remote_bindings_.size(); ++i) {
+    if(remote_bindings_[i] == bindings) {
+      remote_bindings_.erase(remote_bindings_.begin() + i);
+      break;
+    }
+  }
+}
+
+
+void
+ThrustShellRenderFrameObserver::RemoteDispatch(
+    const base::DictionaryValue& message)
+{
+  for(size_t i = 0; i < remote_bindings_.size(); ++i) {
+    /* TODO(spolu): THERE SHOULD BE ONLY ONE */
+    remote_bindings_[i]->DispatchMessage(message);
+  }
+}
+
 
 }  // namespace thrust_shell

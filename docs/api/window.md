@@ -39,6 +39,12 @@ Emitted when the window renderer regains responsiveness
 
 Emitted when the window renderer crashed
 
+#### Event: `remote`
+
+- `message` the message sent
+
+Emitted when a remote event is sent by the window
+
 #### Method: `show`
 
 Makes the window visible
@@ -99,7 +105,11 @@ Moves the window to the specified position
 - `width` the new window width
 - `height` the new window height
 
-Resizes the window to the specified size
+#### Method: `remote`
+
+- `message` the message to send
+
+Sends a remote message to the window main javascript context
 
 #### Accessor: `is_closed`
 

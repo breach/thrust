@@ -17,6 +17,7 @@
     ],
     'js_sources': [
       'src/renderer/extensions/resources/web_view.js',
+      'src/renderer/extensions/resources/remote.js',
     ],
     'lib_sources': [
       'src/app/main_delegate.cc',
@@ -144,6 +145,8 @@
       'src/renderer/extensions/document_bindings.cc',
       'src/renderer/extensions/web_view_bindings.h',
       'src/renderer/extensions/web_view_bindings.cc',
+      'src/renderer/extensions/remote_bindings.h',
+      'src/renderer/extensions/remote_bindings.cc',
 
       'src/geolocation/access_token_store.cc',
       'src/geolocation/access_token_store.h',
@@ -425,6 +428,18 @@
           'action': ['xxd', '-i', 
           'src/renderer/extensions/resources/web_view.js',
           'src/renderer/extensions/resources/web_view.js.bin'],
+        },
+        {
+          'inputs': [
+            'src/renderer/extensions/resources/remote.js',
+          ],
+          'outputs': [
+            'src/renderer/extensions/resources/remote.js.bin',
+          ],
+          'action_name': 'xxd remote.js',
+          'action': ['xxd', '-i', 
+          'src/renderer/extensions/resources/remote.js',
+          'src/renderer/extensions/resources/remote.js.bin'],
         },
       ],
     },  # target <(product_name)_js

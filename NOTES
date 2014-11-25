@@ -15,6 +15,10 @@
   - User authorization API
 
 DONE:
+>>v0.7.6<<
+- Remote (Internal IPC Mechanism)
+- Fix CloseDevTools #234
+
 >>v0.7.5<<
 - ThrustWindow and <webview> DevTools #205
 - Input support for file and color #208

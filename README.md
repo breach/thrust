@@ -178,8 +178,8 @@ dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea)
 - [x] **webview** webview tag (secure navigation, tabs management)
 - [x] **frameless** frameless window and draggable regions
 - [x] **python** python bindings library
+- [x] **remote** thrust specific IPC mechanism for client/server communication
 - [ ] **tray icon** tray icon native integration
-- [ ] **remote** thrust specific IPC mechanism for client/server communication
 - [ ] **protocol** specific protocol registration (`file://`, ...)
 - [ ] **proxy** enable traffic proxying (Tor, header injection, ...)
 

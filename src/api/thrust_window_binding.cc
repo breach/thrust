@@ -152,6 +152,11 @@ ThrustWindowBinding::CallLocalMethod(
   else if(method.compare("close") == 0) {
     window_->Close();
   }
+  else if(method.compare("remote") == 0) {
+    const base::DictionaryValue* message = NULL;
+    args->GetDictionary("message", &message);
+    window_->RemoteDispatch(*message);
+  }
   /* Accessors */
   else if(method.compare("is_closed") == 0) {
     res->SetBoolean("closed", window_->IsClosed());
@@ -232,6 +237,15 @@ ThrustWindowBinding::EmitWorkerCrashed()
 {
   base::DictionaryValue* evt = new base::DictionaryValue;
   this->EmitEvent("worker_crashed", scoped_ptr<base::DictionaryValue>(evt).Pass());
+}
+
+void 
+ThrustWindowBinding::RemoteSend(
+    const base::DictionaryValue& message)
+{
+  base::DictionaryValue* evt = new base::DictionaryValue;
+  evt->Set("message", message.DeepCopy());
+  this->EmitEvent("remote", scoped_ptr<base::DictionaryValue>(evt).Pass());
 }
 
 

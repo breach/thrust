@@ -200,6 +200,16 @@ public:
   // Closes the window and reclaim underlying WebContents
   void Close();
 
+  // ### RemoteDispatch
+  //
+  // Dispatches a remote message to the window
+  void RemoteDispatch(const base::DictionaryValue& message);
+
+  // ### RemoteSend
+  //
+  // Sends a remote message to the client
+  void RemoteSend(const base::DictionaryValue& message);
+
   // ### OpenDevTools
   //
   // Opens the DevTools view for the main document frame
