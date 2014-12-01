@@ -53,6 +53,8 @@
       'src/browser/session/thrust_session_cookie_store.cc',
       'src/browser/session/thrust_session_visitedlink_store.h',
       'src/browser/session/thrust_session_visitedlink_store.cc',
+      'src/browser/session/thrust_session_proxy_config_service.h',
+      'src/browser/session/thrust_session_proxy_config_service.cc',
       'src/browser/thrust_window.h',
       'src/browser/thrust_window.cc',
       'src/browser/thrust_window_views.cc',

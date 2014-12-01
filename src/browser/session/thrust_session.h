@@ -25,6 +25,7 @@ class ResourceContext;
 class ThrustShellURLRequestContextGetter;
 class ThrustShellDownloadManagerDelegate;
 class ThrustSessionBinding;
+class ThrustSessionProxyConfigService;
 
 // ### ThrustSession
 //
@@ -62,6 +63,7 @@ public:
 
   ThrustSessionCookieStore* GetCookieStore();
   ThrustSessionVisitedLinkStore* GetVisitedLinkStore();
+  ThrustSessionProxyConfigService* GetProxyConfigService();
 
   /****************************************************************************/
   /* REQUEST CONTEXT GETTER HELPERS */
@@ -114,8 +116,6 @@ public:
   int GetNextInstanceID();
 
 
-
-
 private:
   class ExoResourceContext;
 
@@ -133,6 +133,7 @@ private:
   scoped_refptr<ThrustShellURLRequestContextGetter>   url_request_getter_;
   scoped_refptr<ThrustSessionCookieStore>             cookie_store_;
   scoped_refptr<ThrustSessionVisitedLinkStore>        visitedlink_store_;
+  ThrustSessionProxyConfigService*                    proxy_config_service_;
 
   std::map<int, content::WebContents*>                guest_web_contents_;
   int                                                 current_instance_id_;
@@ -140,6 +141,8 @@ private:
   friend class ThrustSessionCookieStore;
   friend class WebViewGuest;
   friend class GuestWebContentsObserver;
+  friend class ThrustSessionProxyConfigService;
+  friend class ThrustShellURLRequestContextGetter;
 
   DISALLOW_COPY_AND_ASSIGN(ThrustSession);
 };

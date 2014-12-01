@@ -9,6 +9,7 @@
 #include "content/public/browser/browser_thread.h"
 
 #include "src/browser/session/thrust_session.h"
+#include "src/browser/session/thrust_session_proxy_config_service.h"
 
 namespace {
 
@@ -148,16 +149,32 @@ ThrustSessionBinding::CallLocalMethod(
   base::DictionaryValue* res = new base::DictionaryValue;
 
   LOG(INFO) << "CALL " << method;
-  if(method.compare("off_the_record") == 0) {
-    res->SetBoolean("off_the_record", session_->IsOffTheRecord());
-  }
-  else if(method.compare("visitedlink_add") == 0) {
+  if(method.compare("visitedlink_add") == 0) {
     std::string url = "";
     args->GetString("url", &url);
     session_->GetVisitedLinkStore()->Add(url);
   }
   else if(method.compare("visitedlink_clear") == 0) {
     session_->GetVisitedLinkStore()->Clear();
+  }
+  else if(method.compare("proxy_set") == 0) {
+    std::string rules = "";
+    args->GetString("rules", &rules);
+    ThrustSessionProxyConfigService* proxy_config_service = 
+      session_->GetProxyConfigService();
+    if(proxy_config_service != NULL) {
+      proxy_config_service->SetProxyRules(rules);
+    }
+  }
+  else if(method.compare("proxy_clear") == 0) {
+    ThrustSessionProxyConfigService* proxy_config_service = 
+      session_->GetProxyConfigService();
+    if(proxy_config_service != NULL) {
+      proxy_config_service->ClearProxyRules();
+    }
+  }
+  else if(method.compare("is_off_the_record") == 0) {
+    res->SetBoolean("off_the_record", session_->IsOffTheRecord());
   }
   else {
     err = "exo_session_binding:method_not_found";
