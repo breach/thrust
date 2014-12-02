@@ -22,6 +22,7 @@
 #include "src/browser/browser_main_parts.h"
 #include "src/browser/browser_client.h"
 #include "src/browser/web_view/web_view_guest.h"
+#include "src/browser/session/thrust_session_proxy_config_service.h"
 
 using namespace content;
 
@@ -94,6 +95,10 @@ ThrustSession::ThrustSession(
 
   visitedlink_store_->Init();
 
+  /* It will be owned by the URLRequestContextGetter (proxy service owns */
+  /* a scoped_ptr on it) as soon as it is initiated.                     */
+  proxy_config_service_ = new ThrustSessionProxyConfigService(this);
+
   ThrustShellBrowserClient::Get()->RegisterThrustSession(this);
   LOG(INFO) << "ThrustSession Constructor " << this;
 }
@@ -101,8 +106,10 @@ ThrustSession::ThrustSession(
 
 ThrustSession::~ThrustSession()
 {
-  /* If we're here that means that ou JS wrapper has been reclaimed */
   LOG(INFO) << "ThrustSession Destructor " << this;
+
+  /* NOTE: We don't delete the proxy_config_service_ as it is owned by the */
+  /* UrlRequestContextGetter as soon as it is initialized                  */
 
   /* The ResourceContext is created on the UI thread but live son the IO */
   /* thread, so it must be deleted there.                                */
@@ -165,8 +172,6 @@ ThrustSession::CreateRequestContext(
       this,
       ignore_certificate_errors_,
       GetPath(),
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
       request_interceptors.Pass(),
       ThrustShellMainParts::Get()->net_log());
@@ -198,6 +203,12 @@ ThrustSessionVisitedLinkStore*
 ThrustSession::GetVisitedLinkStore()
 {
   return visitedlink_store_.get();
+}
+
+ThrustSessionProxyConfigService* 
+ThrustSession::GetProxyConfigService()
+{
+  return proxy_config_service_;
 }
 
 /******************************************************************************/

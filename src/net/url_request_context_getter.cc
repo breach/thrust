@@ -67,29 +67,18 @@ ThrustShellURLRequestContextGetter::ThrustShellURLRequestContextGetter(
     ThrustSession* parent,
     bool ignore_certificate_errors,
     const base::FilePath& base_path,
-    base::MessageLoop* io_loop,
-    base::MessageLoop* file_loop,
     ProtocolHandlerMap* protocol_handlers,
     URLRequestInterceptorScopedVector request_interceptors,
     net::NetLog* net_log)
     : parent_(parent),
       ignore_certificate_errors_(ignore_certificate_errors),
       base_path_(base_path),
-      io_loop_(io_loop),
-      file_loop_(file_loop),
       net_log_(net_log),
       request_interceptors_(request_interceptors.Pass())
 {
   // Must first be created on the UI thread.
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   std::swap(protocol_handlers_, *protocol_handlers);
-  
-  // We must create the proxy config service on the UI loop on Linux because it
-  // must synchronously run on the glib message loop. This will be passed to
-  // the URLRequestContextStorage on the IO thread in GetURLRequestContext().
-  proxy_config_service_.reset(
-      net::ProxyService::CreateSystemProxyConfigService(
-        io_loop_->message_loop_proxy().get(), file_loop_));
 }
 
 ThrustShellURLRequestContextGetter::~ThrustShellURLRequestContextGetter() 
@@ -137,11 +126,10 @@ ThrustShellURLRequestContextGetter::GetURLRequestContext()
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(new net::TransportSecurityState);
 
-    /* TODO(spolu): use v8 if possible, look at chrome code. */
+
     storage_->set_proxy_service(
-        net::ProxyService::CreateUsingSystemProxyResolver(
-          proxy_config_service_.release(),
-          0,
+        net::ProxyService::CreateWithoutProxyResolver(
+          (net::ProxyConfigService*)parent_->proxy_config_service_,
           url_request_context_->net_log()));
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);

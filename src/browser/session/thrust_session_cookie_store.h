@@ -32,7 +32,7 @@ public:
   ThrustSessionCookieStore(ThrustSession* parent, bool dummy = false);
 
   /****************************************************************************/
-  /* COOKIE MONSTER PERSISTENT STORE IMPLEMENTATION                           */
+  /* COOKIE MONSTER PERSISTENT STORE IMPLEMENTATION */
   /****************************************************************************/
   virtual void Load(const LoadedCallback& loaded_callback) OVERRIDE;
 
