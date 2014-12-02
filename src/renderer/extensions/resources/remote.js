@@ -51,6 +51,9 @@ var remote = function(spec, my) {
   // @message {object} the message to send
   // ```
   send = function(message) {
+    if(typeof message !== 'object') {
+      message = { payload: message };
+    }
     RemoteNatives.SendMessage(message);
   };
 
