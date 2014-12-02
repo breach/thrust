@@ -132,9 +132,6 @@ ThrustShellBrowserClient::AppendExtraCommandLineSwitches(
   command_line->AppendSwitch(switches::kEnableThreadedCompositing);
   command_line->AppendSwitch(switches::kSubpixelFontScaling);
   command_line->AppendSwitch(switches::kOverlayFullscreenVideo);
-#if defined(OS_MACOSX)
-  command_line->AppendSwitch(switches::kUseCoreAnimation);
-#endif
 }
 
 void 
