@@ -16,6 +16,7 @@
 
 DONE:
 >>v0.7.6<<
+- Fix string message (remote) #242
 - Proxy (Set proxy / session API) #155 #169
 - Remote (Internal IPC Mechanism)
 - Fix CloseDevTools #234
