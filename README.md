@@ -179,9 +179,9 @@ dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea)
 - [x] **frameless** frameless window and draggable regions
 - [x] **python** python bindings library
 - [x] **remote** thrust specific IPC mechanism for client/server communication
+- [x] **proxy** enable traffic proxying (Tor, header injection, ...)
 - [ ] **tray icon** tray icon native integration
 - [ ] **protocol** specific protocol registration (`file://`, ...)
-- [ ] **proxy** enable traffic proxying (Tor, header injection, ...)
 
 ***
 ## Building Thrust from Sources
