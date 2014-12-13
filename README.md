@@ -24,6 +24,7 @@ npm install -g \
   - [NodeJS](#nodejs)
   - [Go](#go)
   - [Python](#python)
+  - [Scala](#scala)
 - [API Reference](#api-reference)
 - [Architecture](#architecture)
 - [Community](#community)
@@ -111,6 +112,37 @@ loop.run_forever()
 ##### Library
 
 - **pythrust** [breach/pythrust](https://github.com/breach/pythrust/)
+
+### Scala
+
+##### Getting Started
+
+Include scala-thrust jar on your classpath. (Add to lib in your project.)
+
+```Scala
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.github.eklavya.thrust._
+
+object Main extends App {
+  Window.create("http://google.com").foreach { w =>
+    w.show
+    w.maximize
+    w.openDevtools
+    w.focus(true)
+    w.onBlur(() => println("we were blurred"))
+    w.onFocus(() => println("we were focused"))
+    Menu.create("MyMenu").foreach { m =>
+      val i = MenuItem("Item1", _ => println("Item1 was clicked"))
+      m.addItem(i)
+      m.popup(w)
+    }
+  }
+}
+```
+
+##### Library
+
+- **scala-thrust** [eklavya/scala-thrust](https://github.com/eklavya/scala-thrust/)
 
 ***
 ## API Reference
