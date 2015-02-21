@@ -844,6 +844,7 @@ function registerBrowserPluginElement() {
     this.setAttribute('type', 'application/browser-plugin');
     this.setAttribute('id', 'browser-plugin-' + getNextId());
     // The <object> node fills in the <webview> container.
+    this.style.display = 'block';
     this.style.width = '100%';
     this.style.height = '100%';
   };
