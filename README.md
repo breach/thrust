@@ -25,6 +25,7 @@ npm install -g \
   - [Go](#go)
   - [Python](#python)
   - [Scala](#scala)
+  - [Clojure](#clojure)
 - [API Reference](#api-reference)
 - [Architecture](#architecture)
 - [Community](#community)
