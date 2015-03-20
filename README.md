@@ -144,6 +144,33 @@ object Main extends App {
 
 - **scala-thrust** [eklavya/scala-thrust](https://github.com/eklavya/scala-thrust/)
 
+### Clojure
+
+##### Getting Started
+
+- [Installation](https://github.com/solicode/clj-thrust#installation)
+- [Sample Project](https://github.com/solicode/clj-thrust#sample-project)
+
+```clojure
+(ns my-app.core
+  (:require [clj-thrust.core :refer [create-process destroy-process]]
+            [clj-thrust.window :as w]))
+
+(let [process (create-process) ; `create-process` also takes path to Thrust directory
+      window (w/create-window process
+               :root-url "http://localhost:8080" ; URL to your web app
+               :size {:width 400 :height 300})]
+  (w/listen-closed window
+    (fn [e]
+      (destroy-process process))) ; Optionally call `(System/exit 0)` here.
+  (w/show window)
+  (w/focus window true))
+```
+
+##### Library
+
+- **clj-thrust** [solicode/clj-thrust](https://github.com/solicode/clj-thrust)
+
 ***
 ## API Reference
 
