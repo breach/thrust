@@ -26,6 +26,7 @@ npm install -g \
   - [Python](#python)
   - [Scala](#scala)
   - [Clojure](#clojure)
+  - [Perl](#perl)
 - [API Reference](#api-reference)
 - [Architecture](#architecture)
 - [Community](#community)
@@ -171,6 +172,44 @@ object Main extends App {
 ##### Library
 
 - **clj-thrust** [solicode/clj-thrust](https://github.com/solicode/clj-thrust)
+
+### Perl
+
+##### Getting Started
+
+Install with `cpanm Thrust [--sudo]`
+
+Simple command line test:
+
+```
+perl -MThrust -e 'Thrust->window->show->maximize->open_devtools->run'
+```
+
+Basic program
+
+```Perl
+use Thrust;
+
+my $t = Thrust->new;
+
+my $w = $t->window(
+          root_url => 'data:text/html,Hello World!',
+          title => 'My App',
+          size => { width => 800, height => 600 },
+        );
+
+$w->on(closed => sub { exit });
+
+$w->show;
+
+$t->run; ## enter event loop
+```
+
+##### Library
+
+- [metacpan](https://metacpan.org/pod/Thrust)
+- [github](https://github.com/hoytech/Thrust)
+
 
 ***
 ## API Reference
