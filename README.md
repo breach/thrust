@@ -71,23 +71,31 @@ require('node-thrust')(function(err, api) {
 First download with `go get -u github.com/miketheprogrammer/go-thrust/`
 
 ```Go
+```
 package main
 
 import (
-	"github.com/miketheprogrammer/go-thrust/dispatcher"
-	"github.com/miketheprogrammer/go-thrust/spawn"
-	"github.com/miketheprogrammer/go-thrust/window"
+    "github.com/miketheprogrammer/go-thrust/lib/bindings/window"
+    "github.com/miketheprogrammer/go-thrust/lib/commands"
+    "github.com/miketheprogrammer/go-thrust/lib/dispatcher"
+    "github.com/miketheprogrammer/go-thrust/lib/spawn"
 )
 
 func main() {
-	spawn.Run()
-	thrustWindow := window.NewWindow("http://breach.cc/", nil)
-	thrustWindow.Show()
-	thrustWindow.Maximize()
-	thrustWindow.Focus()
-	dispatcher.RunLoop()
+    spawn.Run()
+    size := commands.SizeHW{}
+    opts := window.Options{
+        RootUrl:  "http://breach.cc",
+        Size:     size,
+        Title:    "Demo window",
+        HasFrame: true,
+    }   
+    thrustWindow := window.NewWindow(opts)
+    thrustWindow.Show()
+    thrustWindow.Maximize()
+    thrustWindow.Focus()
+    dispatcher.RunLoop()
 }
-```
 
 ##### Library
 
