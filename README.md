@@ -10,7 +10,7 @@ Thrust is based on Chromium's Content Module and is supported on Linux, MacOSX a
 ![Cross-Platform Screenshots](http://i.imgur.com/7K98jyW.png)
 *Screenshot of Thrust Getting Started example running on each major platform.*
 
-Thrust will be powering the next versions of [Breach](http://breach.cc)
+Thrust will be powering the next versions of [Breach](https://breach.github.io/breach_core/)
 
 To better understand what Thrust can do, check out **[JankyBrowser](https://gist.github.com/morganrallen/f07f59802884bcdcad4a)** by 
 @morganrallen, the cross-platform browser that fits in a gist:
@@ -56,7 +56,7 @@ First install with `npm install node-thrust`
 
 ```Javascript
 require('node-thrust')(function(err, api) { 
-  api.window({ root_url: 'https://breach.cc' }).show();
+  api.window({ root_url: 'https://breach.github.io/breach_core/' }).show();
 });
 ```
 
@@ -81,7 +81,7 @@ import (
 
 func main() {
 	spawn.Run()
-	thrustWindow := window.NewWindow("http://breach.cc/", nil)
+	thrustWindow := window.NewWindow("https://breach.github.io/breach_core/", nil)
 	thrustWindow.Show()
 	thrustWindow.Maximize()
 	thrustWindow.Focus()
@@ -106,7 +106,7 @@ loop = asyncio.get_event_loop()
 api = pythrust.API(loop)
 
 asyncio.async(api.spawn())
-asyncio.async(api.window({ 'root_url': 'http://breach.cc' }).show())
+asyncio.async(api.window({ 'root_url': 'https://breach.github.io/breach_core/' }).show())
 
 loop.run_forever()
 ```
@@ -257,7 +257,7 @@ are availble in the [docs/](https://github.com/breach/thrust/tree/master/docs)
 ##### Thrust7.5k Contest
 
 - 7.5k max Browser implementation based on Thrust. *Coming soon*. Ping 
-dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea) 
+dev@ if interested! (Credits to @morganrallen for the awesome idea) 
 
 ##### Getting Involved
 
