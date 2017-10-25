@@ -47,7 +47,6 @@ All these Getting Started example work as is on each major platform (MacOSX,
 Windows, Linux)
 
 ### NodeJS
-
 ##### Getting Started
 
 First install with `npm install node-thrust`
@@ -83,7 +82,7 @@ func main() {
 	spawn.Run()
 	size := commands.SizeHW{}
 	opts := window.Options{
-		RootUrl:  "http://breach.cc",
+		RootUrl:  "http://google.com",
 		Size:     size,
 		Title:    "Demo window",
 		HasFrame: true,
@@ -112,7 +111,7 @@ loop = asyncio.get_event_loop()
 api = pythrust.API(loop)
 
 asyncio.async(api.spawn())
-asyncio.async(api.window({ 'root_url': 'http://breach.cc' }).show())
+asyncio.async(api.window({ 'root_url': 'http://google.com' }).show())
 
 loop.run_forever()
 ```
@@ -260,15 +259,8 @@ are availble in the [docs/](https://github.com/breach/thrust/tree/master/docs)
 - List of people relying on Thrust: 
 [List of Thrust Users](https://github.com/breach/thrust/wiki/List-of-Thrust-Users)
 
-##### Thrust7.5k Contest
-
-- 7.5k max Browser implementation based on Thrust. *Coming soon*. Ping 
-dev@breach.cc if interested! (Credits to @morganrallen for the awesome idea) 
-
 ##### Getting Involved
-
-- Mailing list: [breach-dev@googlegroups.com](https://groups.google.com/d/forum/breach-dev)
-- IRC Channel: #breach on Freenode
+No longer maintained actively.
 
 ***
 ## Features & Roadmap
