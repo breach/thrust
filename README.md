@@ -10,8 +10,6 @@ Thrust is based on Chromium's Content Module and is supported on Linux, MacOSX a
 ![Cross-Platform Screenshots](http://i.imgur.com/7K98jyW.png)
 *Screenshot of Thrust Getting Started example running on each major platform.*
 
-Thrust will be powering the next versions of [Breach](http://breach.cc)
-
 To better understand what Thrust can do, check out **[JankyBrowser](https://gist.github.com/morganrallen/f07f59802884bcdcad4a)** by 
 @morganrallen, the cross-platform browser that fits in a gist:
 ```
@@ -56,7 +54,7 @@ First install with `npm install node-thrust`
 
 ```Javascript
 require('node-thrust')(function(err, api) { 
-  api.window({ root_url: 'https://breach.cc' }).show();
+  api.window({ root_url: 'https://google.com' }).show();
 });
 ```
 
