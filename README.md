@@ -68,7 +68,6 @@ require('node-thrust')(function(err, api) {
 First download with `go get -u github.com/miketheprogrammer/go-thrust/`
 
 ```Go
-```
 package main
 
 import (
@@ -94,6 +93,7 @@ func main() {
 	dispatcher.RunLoop()
 }
 
+```
 ##### Library
 
 - **go-thrust**: [miketheprogrammer/go-thrust](https://github.com/miketheprogrammer/go-thrust)
