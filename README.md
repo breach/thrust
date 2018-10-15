@@ -68,7 +68,6 @@ require('node-thrust')(function(err, api) {
 First download with `go get -u github.com/miketheprogrammer/go-thrust/`
 
 ```Go
-```
 package main
 
 import (
@@ -93,6 +92,7 @@ func main() {
 	thrustWindow.Focus()
 	dispatcher.RunLoop()
 }
+```
 
 ##### Library
 
