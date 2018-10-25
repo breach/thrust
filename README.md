@@ -1,3 +1,7 @@
+#### DEPRECATED - This package is no longer supporter or maintained.
+
+
+
 ![Logo Thrust](http://i.imgur.com/IviZAGZ.png)
 
 **Chromium-based cross-platform / cross-language application framework**
