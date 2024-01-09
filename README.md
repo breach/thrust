@@ -305,4 +305,3 @@ Build both the `Release` and `Debug` targets with the following commands:
 
 Note that `bootstrap.py` may take some time as it checks out `brightray` and
 downloads `libchromiumcontent` for your platform.
-
